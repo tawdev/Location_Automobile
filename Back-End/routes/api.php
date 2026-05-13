@@ -11,16 +11,25 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::apiResource('/Vehicles',VehicleController::class);
+// Auth 
+Route::post('auth/register' , [AuthController::class, 'register']);
+Route::post('auth/login' , [AuthController::class, 'login']);
+Route::post('auth/logout' , [AuthController::class , 'logout'])->middleware('auth:sanctum');
+Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth:sanctum');
+
+
+
+ 
+
+
+Route::post('/vehicle' , [VehicleController::class , 'store'])->middleware('auth:sanctum');
 Route::apiResource('/Vehicles', VehicleController::class);
-Route::put('/Vehicles/{id}', [VehicleController::class, 'update']);
-Route::delete('/Vehicles/{id}', [VehicleController::class, 'destroy']);
+Route::put('/Vehicle/{Vehicle}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/Vehicles/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
 
 Route::apiResource('/Reservations', ReservationController::class);
 Route::put('/Reservations/{id}', [ReservationController::class, 'annulleMyReservation']);
 
 
 
-Route::post('auth/register', [AuthController::class, 'register']);
-Route::post('auth/login', [AuthController::class, 'login']);
-Route::post('auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::get('auth/user', [AuthController::class, 'userinfo'])->middleware('auth:sanctum');
