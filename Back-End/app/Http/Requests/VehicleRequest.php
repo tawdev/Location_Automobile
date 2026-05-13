@@ -31,6 +31,10 @@ class VehicleRequest extends FormRequest
             'pricePerDay' => 'required|numeric|min:0',
             'fuelType' => 'required|string|max:100',
             'category_id' => 'required|exists:categories,id',
+
+            // Vehicle images (1 or many)
+            'images' => 'sometimes|array',
+            'images.*' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:5120',
         ];
     }
 
@@ -51,6 +55,12 @@ class VehicleRequest extends FormRequest
             'fuelType.required' => 'Le type de carburant est obligatoire.',
             'category_id.required' => 'La catégorie est obligatoire.',
             'category_id.exists' => 'La catégorie sélectionnée n’existe pas.',
+
+            // Images véhicule
+            'images.array' => 'Les images doivent être envoyées sous forme de tableau.',
+            'images.*.image' => 'Chaque fichier doit être une image valide.',
+            'images.*.mimes' => 'Les images doivent être au format : jpg, jpeg, png ou webp.',
+            'images.*.max' => 'La taille de chaque image ne doit pas dépasser 5 Mo.',
 ];
     }
 }
