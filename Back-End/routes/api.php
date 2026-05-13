@@ -12,7 +12,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::apiResource('/Vehicles',VehicleController::class);
-// Auth 
+// Auth
 Route::post('auth/register' , [AuthController::class, 'register']);
 Route::post('auth/login' , [AuthController::class, 'login']);
 Route::post('auth/logout' , [AuthController::class , 'logout'])->middleware('auth:sanctum');
@@ -20,16 +20,31 @@ Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth
 
 
 
- 
+
 
 
 Route::post('/vehicle' , [VehicleController::class , 'store'])->middleware('auth:sanctum');
 Route::apiResource('/Vehicles', VehicleController::class);
-Route::put('/Vehicle/{Vehicle}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
+Route::put('/Vehicle/{id}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/Vehicles/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
 
-Route::apiResource('/Reservations', ReservationController::class);
-Route::put('/Reservations/{id}', [ReservationController::class, 'annulleMyReservation']);
+// Route::apiResource('/Reservations', ReservationController::class);
+// Route::post('/Reservations/vehicle/{id}', [ReservationController::class,'store']);
+// Route::put('/Reservations/{id}', [ReservationController::class, 'annulleMyReservation']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/Reservations/vehicle/{id}',[ReservationController::class, 'store']);
+    
+    Route::get('/Reservations',[ReservationController::class, 'index']);
+    Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
+    Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
+});
 
+//i will put this two routes in Middlware of adminRole , i will make it later
+Route::middleware(['auth:sanctun','admin'])->group(function (){
+Route::patch('/Reservation/{id}/confirme',[VehicleController::class,'confirmeReservation']);
+Route::get('/Reservation',[VehicleController::class,'displayReservition']);
+Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
+
+});
 
