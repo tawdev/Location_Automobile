@@ -3,16 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
+use app\Services\CategoryService;
 
 class CategoryController extends Controller
 {
+    public function __construct(protected CategoryService $categoryService){}
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $data=$this->categoryService->getAll();
+        return response()->json([
+            'status'=>'Success',
+            'data'=>$data
+        ]);
     }
 
     /**
