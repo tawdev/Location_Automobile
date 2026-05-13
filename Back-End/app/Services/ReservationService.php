@@ -27,7 +27,7 @@ class ReservationService
         return $reservations;
     }
 
-    public function makeReservation(array $data,$id){
+    public function makeReservation($data,$id){
         $vehicle=Vehicle::findOrFail($id);
         if($vehicle->reservations()->end_date < $data['end_date']){
             $reservation=Reservation::create(array_merge($data,
