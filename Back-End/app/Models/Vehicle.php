@@ -32,4 +32,12 @@ class Vehicle extends Model
     {
         return $this->hasMany(Reservation::class);
     }
+
+    /**
+     * @return HasMany<Picture>
+     */
+    public function pictures(): HasMany
+    {
+        return $this->hasMany(Picture::class);
+    }
 }
