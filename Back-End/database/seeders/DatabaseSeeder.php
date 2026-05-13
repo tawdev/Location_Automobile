@@ -7,6 +7,7 @@ use Database\Factories\CategoryFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Category;
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -21,5 +22,6 @@ class DatabaseSeeder extends Seeder
         ]);
         Role::updateOrCreate(['name' => 'Admin']);
         Role::updateOrCreate(['name' => 'Client']);
+        Category::updateOrInsert(['name' => 'isovi']);
     }
 }
