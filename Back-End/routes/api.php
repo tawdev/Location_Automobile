@@ -16,6 +16,7 @@ Route::put('/Vehicles/{id}', [VehicleController::class, 'update']);
 Route::delete('/Vehicles/{id}', [VehicleController::class, 'destroy']);
 
 Route::apiResource('/Reservations', ReservationController::class);
+Route::post('/Reservations/{id}', [ReservationController::class,'store']);
 Route::put('/Reservations/{id}', [ReservationController::class, 'annulleMyReservation']);
 
 
