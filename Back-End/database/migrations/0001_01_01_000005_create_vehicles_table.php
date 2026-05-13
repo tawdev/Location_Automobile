@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('marque');
             $table->string('model');
-            $table->date('year');
+            $table->integer('year');
             $table->string('registration')->unique();
             $table->integer('km');
             $table->float('pricePerDay');
