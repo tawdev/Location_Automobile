@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace app\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VehicleRequest;
 use App\Models\Vehicle;
+use App\Services\ReservationService;
 use App\Services\VehicleService;
 use Illuminate\Http\Request;
 
 class VehicleController extends Controller
 {
     public function __construct(
-        protected VehicleService $vehicleService
+        protected VehicleService $vehicleService,
+        protected ReservationService $reservitionService
     ) {}
 
     public function index()
@@ -43,12 +45,12 @@ class VehicleController extends Controller
         ]);
     }
 
-    public function destroy(Request $request){
-    $isDeleted =  $this->vehicleService->DeleteVehicle($request->id);
+    public function destroy($id){
+    $isDeleted =  $this->vehicleService->DeleteVehicle($id);
     if(!$isDeleted) {
         return response()->json([
             'status'=>'error',
-            'message'=>'vehicle deleting proccess failed',
+            'message'=>'La suppression du véhicule a échoué.',
         ]);
     }
 
@@ -56,5 +58,29 @@ class VehicleController extends Controller
             'status'=>'success',
             'message'=>'Vehicle supprimée avec succès',
         ],200);
+    }
+
+    public function displayReservition(){
+        $data=$this->reservitionService->getAllReservition();
+        return response()->json([
+            'status'=>'success',
+            'data'=>$data
+        ]);
+    }
+
+    public function confirmeReservation($id){
+        $data=$this->reservitionService->acceptReservition($id);
+        return response()->json([
+            'status'=>'success',
+            'data'=>$data,
+        ]);
+    }
+
+    public function annulleReservation($id){
+        $data=$this->reservitionService->refuseReservition($id);
+        return response()->json([
+            'status'=>'success',
+            'data'=>$data,
+        ]);
     }
 }
