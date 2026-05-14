@@ -15,6 +15,10 @@ class ReservationService
     {
         //
     }
+    public function myReservetion(){
+        $data=Reservation::where('user_id',auth()->id())->get();
+        return $data;
+    }
     public function getAllReservition(){
         $reservations = Reservation::all();
         foreach($reservations as $reservation){
@@ -32,7 +36,7 @@ class ReservationService
     $vehicle = Vehicle::findOrFail($id);
 
     $conflict = $vehicle->reservations()
-        ->where('status', '!=', 'Annulée')
+        ->where('status', '=', 'Confirmée')
         ->where('start_date', '<', $data['end_date'])
         ->where('end_date', '>', $data['start_date'])
         ->exists();
@@ -49,21 +53,7 @@ class ReservationService
 );
 
 }
-// }public function makeReservation($id,$data){
-//         $vehicle=Vehicle::findOrFail($id);
-//         if($vehicle->reservations()->end_date < $data['end_date']){
-//             $reservation=Reservation::create(array_merge($data,
-//             [
-//                 'user_id'=>auth()->id,
-//                 'vehicle_id'=>$id
-//             ]
-//             ));
-//             return $reservation;
-//         }
 
-
-
-//     }
     public function acceptReservition($id){
         $reservition = Reservation::findOrFail($id);
         $reservition->update([

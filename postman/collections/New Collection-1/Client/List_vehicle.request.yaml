@@ -1,0 +1,32 @@
+$kind: http-request
+name: List_vehicle
+url: "{{url}}/Vehicles"
+method: GET
+headers:
+  Accept: application/json
+body:
+  type: json
+  content: "{\r
+
+    \  \"marque\": \"Peugeot\",\r
+
+    \  \"model\": \"208\",\r
+
+    \  \"year\": 2021,\r
+
+    \  \"registration\": \"DG-5566\",\r
+
+    \  \"km\": 67000,\r
+
+    \  \"pricePerDay\": 48.99,\r
+
+    \  \"fuelType\": \"Diesel\",\r
+
+    \  \"category_id\": 3\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 1778748113000

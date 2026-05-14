@@ -37,16 +37,16 @@ Route::get('Vehicles' , [VehicleController::class, 'index'])->middleware('auth:s
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Reservations/vehicle/{id}',[ReservationController::class, 'store']);
-    
-    Route::get('/Reservations',[ReservationController::class, 'index']);
+
+    Route::get('/MyReservations',[ReservationController::class, 'index']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
 });
 
 //i will put this two routes in Middlware of adminRole , i will make it later
-Route::middleware(['auth:sanctun','admin'])->group(function (){
+Route::middleware(['auth:sanctum','admin'])->group(function (){
 Route::patch('/Reservation/{id}/confirme',[VehicleController::class,'confirmeReservation']);
-Route::get('/Reservation',[VehicleController::class,'displayReservition']);
+Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
 
 });

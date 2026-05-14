@@ -1,0 +1,11 @@
+$kind: http-request
+name: Confirme_reservation
+url: "{{url}}/Reservations/1/confirme"
+method: PATCH
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin}}"
+order: 3055468086129223
