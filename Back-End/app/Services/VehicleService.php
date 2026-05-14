@@ -13,7 +13,7 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::all();
+        return Vehicle::with('pictures')->get();
     }
 
     public function CreateVehicle($request)
