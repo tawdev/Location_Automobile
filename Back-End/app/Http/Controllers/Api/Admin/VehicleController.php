@@ -12,18 +12,25 @@ use Illuminate\Http\Request;
 class VehicleController extends Controller
 {
     public function __construct(
-   
-    
+
+
         protected VehicleService $vehicleService,
         protected ReservationService $reservitionService
-    ) {}
+    ) {
+    }
 
     public function index()
     {
-        $data = $this->vehicleService->getAll();
+        $Vehicles = $this->vehicleService->getAll();
+        if (!$Vehicles) {
+            return response()->json([
+                'status' => 'success',
+                'data' =>  "Aucun véhicule n'a été trouvé."
+            ]);
+        }
         return response()->json([
             'status' => 'success',
-            'data' => $data,
+            'data' => $Vehicles
         ]);
     }
 
@@ -48,8 +55,8 @@ class VehicleController extends Controller
     {
         $Validate = $request->validated();
         $pictures = $request->file('images');
-        
-        $Vehicle = $this->vehicleService->UpdateVehicle($Vehicle, $Validate , $pictures);
+
+        $Vehicle = $this->vehicleService->UpdateVehicle($Vehicle, $Validate, $pictures);
         return response()->json([
             'status' => 'success',
             'message' => 'Vehicle mise à jour avec succès',
@@ -57,14 +64,15 @@ class VehicleController extends Controller
         ]);
     }
 
-    public function destroy($id){
-    $isDeleted =  $this->vehicleService->DeleteVehicle($id);
-    if(!$isDeleted) {
-        return response()->json([
-            'status'=>'error',
-            'message'=>'La suppression du véhicule a échoué.',
-        ]);
-    }
+    public function destroy($id)
+    {
+        $isDeleted = $this->vehicleService->DeleteVehicle($id);
+        if (!$isDeleted) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'La suppression du véhicule a échoué.',
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -72,27 +80,30 @@ class VehicleController extends Controller
         ], 200);
     }
 
-    public function displayReservition(){
-        $data=$this->reservitionService->getAllReservition();
+    public function displayReservition()
+    {
+        $data = $this->reservitionService->getAllReservition();
         return response()->json([
-            'status'=>'success',
-            'data'=>$data
+            'status' => 'success',
+            'data' => $data
         ]);
     }
 
-    public function confirmeReservation($id){
-        $data=$this->reservitionService->acceptReservition($id);
+    public function confirmeReservation($id)
+    {
+        $data = $this->reservitionService->acceptReservition($id);
         return response()->json([
-            'status'=>'success',
-            'data'=>$data,
+            'status' => 'success',
+            'data' => $data,
         ]);
     }
 
-    public function annulleReservation($id){
-        $data=$this->reservitionService->refuseReservition($id);
+    public function annulleReservation($id)
+    {
+        $data = $this->reservitionService->refuseReservition($id);
         return response()->json([
-            'status'=>'success',
-            'data'=>$data,
+            'status' => 'success',
+            'data' => $data,
         ]);
     }
 }
