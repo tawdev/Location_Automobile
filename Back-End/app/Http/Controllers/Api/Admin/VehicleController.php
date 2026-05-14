@@ -44,16 +44,16 @@ class VehicleController extends Controller
             'data' => $data,
         ]);
     }
-    public function update(VehicleRequest $request, Vehicle $vehicle)
+    public function update(VehicleRequest $request, Vehicle $Vehicle)
     {
-        dd($vehicle);
         $Validate = $request->validated();
-
-        $data = $this->vehicleService->UpdateVehicle($vehicle, $Validate);
+        $pictures = $request->file('images');
+        
+        $Vehicle = $this->vehicleService->UpdateVehicle($Vehicle, $Validate , $pictures);
         return response()->json([
             'status' => 'success',
             'message' => 'Vehicle mise à jour avec succès',
-            'data' => $data
+            'data' => $Vehicle
         ]);
     }
 

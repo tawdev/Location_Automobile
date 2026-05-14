@@ -7,7 +7,8 @@ use App\Models\Vehicle;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 class VehicleService
 {
     public function getAll()
@@ -17,7 +18,7 @@ class VehicleService
 
     public function CreateVehicle($request)
     {
-        
+
         $validated = $request->validated();
         $vehicle = Vehicle::create($validated);
         $files = $request->file('images');
@@ -40,29 +41,64 @@ class VehicleService
         return $vehicle;
     }
 
-    public function UpdateVehicle($vehicleId, array $data)
+    public function UpdateVehicle($Vehicle, array $data, $pictures)
     {
-        $vehicle = Vehicle::findOrFail($vehicleId);
-        $vehicle->update($data);
-        return $vehicle;
-    }
-
-   
-   public function DeleteVehicle($vehicleId){
-    $vehicle=Vehicle::findOrFail($vehicleId)->with('Pictures');
-   // $vehiclePicture=Picture::where('vehicle_id',$vehicleId);
-
-   foreach($vehicle->pictures as $picture){
-    $picture->delete();
-   }
-
-   foreach($vehicle->pictures as $picture){
-    if ($picture && file_exists(public_path('Vehicles/' . $picture))) {
-        unlink(public_path('Vehicles/' . $picture));
+        $imagesPaths = [];
+        $images = $Vehicle->pictures();
+        foreach ($images as $image) {
+            $imagesPaths[] = $image->path;
         }
+
+        DB::transaction(function() use ($Vehicle) {
+            $Vehicle->pictures()->delete();
+        });
+
+        foreach ($imagesPaths as $path) {
+           if($path && Storage::disk('public')->exists($path)) {
+                 Storage::disk('public')->delete($path);
+           };
+        }
+
+        $Vehicle->update($data);
+
+        foreach($pictures as $pic) {
+            $path = $pic->store('Vehicles' , 'public');
+            $Vehicle->pictures()->create([
+                "path" => $path
+            ]);
+        }
+
+        return $Vehicle;
     }
+
+
+    public function DeleteVehicle($vehicleId)
+    {
+        
+        $imagesPaths = [];
+        
+        $vehicle = Vehicle::with('pictures')->findOrFail($vehicleId);
+       
+        if(!$vehicle) {
+            return false;
+        }
+
+        foreach($vehicle->pictures as $pic) {
+            $imagesPaths[] = $pic->path;
+        }
+
+        $vehicle->pictures()->delete();
+
+
+        foreach($imagesPaths as $path) {
+          
+            if($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
         $vehicle->delete();
 
-     return true;
-   }
+        return true;
+    }
 }

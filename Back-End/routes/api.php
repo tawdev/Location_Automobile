@@ -23,13 +23,24 @@ Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth
  
 
 
-Route::post('/vehicle' , [VehicleController::class , 'store'])->middleware('auth:sanctum');
-Route::apiResource('/Vehicles', VehicleController::class);
-Route::put('/Vehicle/{Vehicle}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/Vehicles/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('vehicle' , [VehicleController::class , 'store'])->middleware('auth:sanctum');
+// Route::apiResource('/Vehicles', VehicleController::class);
+Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
 
 Route::apiResource('/Reservations', ReservationController::class);
 Route::put('/Reservations/{id}', [ReservationController::class, 'annulleMyReservation']);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
