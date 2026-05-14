@@ -16,9 +16,6 @@ class ReservationRequest extends FormRequest
         return [
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after:start_date',
-
-            // 'user_id' => 'required|exists:users,id',
-            // 'vehicle_id' => 'required|exists:vehicles,id',
         ];
     }
 

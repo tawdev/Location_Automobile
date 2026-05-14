@@ -15,13 +15,17 @@ class ReservationController extends Controller
 
     public function index()
     {
-        //
+        $data=$this->reservitionService->myReservetion();
+        return response()->json([
+            'status'=>'success',
+            'data'=>$data
+        ]);
     }
 
     public function store(ReservationRequest $request,$id)
     {
-        
-        $data = $this->reservitionService->makeReservation($id, $request->validated());
+
+        $data = $this->reservitionService->makeReservation($id, $request->all());
         return response()->json([
             'status' => 'success',
             'message' => 'Reservation créée avec succès',
@@ -31,7 +35,6 @@ class ReservationController extends Controller
 
     public function show($id)
     {
-        //
     }
 
     public function update(Request $request, $id)
