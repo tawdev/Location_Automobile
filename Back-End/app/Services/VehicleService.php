@@ -101,4 +101,39 @@ class VehicleService
 
         return true;
     }
+
+
+
+
+    public function filterVehicles($request) {
+        $query = Vehicle::query();
+
+        
+        $query->when($request->filled('marque'), function ($q) use ($request) {
+            $q->where('marque', 'LIKE',  "%{$request->marque}%");
+        });
+        $query->when($request->filled('Occupants'), function ($q) use ($request) {
+            $q->where('Occupants',  $request->Occupants);
+        });
+
+        $query->when($request->filled('model'), function ($q) use ($request) {
+            $q->where('model', 'LIKE' , "%{$request->model}%");
+        });
+
+        $query->when($request->filled('fuelType'), function ($q) use ($request) {
+            $q->where('fuelType', $request->fuelType);
+        });
+  
+        $query->when($request->filled('min_price'), function ($q) use ($request) {
+            $q->where('pricePerDay', '>=', $request->min_price);
+        });
+
+        $query->when($request->filled('max_price'), function ($q) use ($request) {
+            $q->where('pricePerDay', '<=', $request->max_price);
+        });
+        $Vehicles = $query->get();
+        
+        return $Vehicles;
+
+    }
 }

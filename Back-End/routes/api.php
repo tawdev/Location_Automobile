@@ -25,10 +25,13 @@ Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth
 
 
 // Route::apiResource('/Vehicles', VehicleController::class);
+
 Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
 Route::post('/vehicle' , [VehicleController::class , 'store'])->middleware('auth:sanctum');
 Route::get('Vehicles' , [VehicleController::class, 'index'])->middleware('auth:sanctum');
+Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles'])->middleware('auth:sanctum');
+
 // Route::apiResource('/Vehicles', VehicleController::class);
 
 // Route::apiResource('/Reservations', ReservationController::class);
@@ -48,7 +51,6 @@ Route::middleware(['auth:sanctum','admin'])->group(function (){
 Route::patch('/Reservation/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
-
 });
 
 
