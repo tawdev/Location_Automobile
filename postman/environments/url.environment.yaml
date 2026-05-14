@@ -2,4 +2,7 @@ name: url
 values:
   - key: url
     value: ''
-    enabled: true
+  - key: token
+    value: ''
+  - key: admin
+    value: ''

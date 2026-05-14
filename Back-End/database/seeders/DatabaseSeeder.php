@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Role;
+use App\Models\User;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,11 +18,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        User::factory()->create([
+            'name' => 'admin',
+            'role_id'=>1,
+            'email' => 'admin@example.com',
+        ]);
+        User::factory(20)->create([
+            'role_id'=>2
+        ]);
+
+
         $this->call([
             CategorySeeder::class,
+            RoleSeeder::class
         ]);
         Role::updateOrCreate(['name' => 'Admin']);
         Role::updateOrCreate(['name' => 'Client']);
         Category::updateOrInsert(['name' => 'isovi']);
+
     }
 }
