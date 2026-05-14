@@ -12,8 +12,8 @@ use Illuminate\Http\Request;
 class VehicleController extends Controller
 {
     public function __construct(
-   
-    
+
+
         protected VehicleService $vehicleService,
         protected ReservationService $reservitionService
     ) {}
@@ -26,6 +26,8 @@ class VehicleController extends Controller
             'data' => $data,
         ]);
     }
+
+  
 
     public function store(VehicleRequest $request)
     {
