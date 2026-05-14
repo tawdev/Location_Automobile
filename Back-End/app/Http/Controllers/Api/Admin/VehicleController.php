@@ -8,7 +8,7 @@ use App\Models\Vehicle;
 use App\Services\ReservationService;
 use App\Services\VehicleService;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\FilterVehiclesRequest;
 class VehicleController extends Controller
 {
     public function __construct(
@@ -25,16 +25,16 @@ class VehicleController extends Controller
         if (!$Vehicles) {
             return response()->json([
                 'status' => 'success',
-                'data' =>  "Aucun véhicule n'a été trouvé."
+                'data' => "Aucun véhicule n'a été trouvé."
             ]);
         }
         return response()->json([
             'status' => 'success',
             'data' => $Vehicles
-        ]);
+        ], 200);
     }
 
-  
+
 
     public function store(VehicleRequest $request)
     {
@@ -51,7 +51,7 @@ class VehicleController extends Controller
             'status' => 'error',
             'message' => 'Error dans La creation du Vehicle',
             'data' => $data,
-        ]);
+        ], 201);
     }
     public function update(VehicleRequest $request, Vehicle $Vehicle)
     {
@@ -63,7 +63,7 @@ class VehicleController extends Controller
             'status' => 'success',
             'message' => 'Vehicle mise à jour avec succès',
             'data' => $Vehicle
-        ]);
+        ], 202);
     }
 
     public function destroy($id)
@@ -107,5 +107,24 @@ class VehicleController extends Controller
             'status' => 'success',
             'data' => $data,
         ]);
+    }
+
+
+
+    public function filterVehicles(FilterVehiclesRequest $request)
+    {
+
+        $Vehicles = $this->vehicleService->filterVehicles($request);
+
+        if (!count($Vehicles)) {
+            return response()->json([
+                'status' => 'success',
+                'data' => 'Aucun véhicule trouvé'
+            ], 200);
+        }
+        return response()->json([
+            'status' => 'success',
+            'data' => $Vehicles
+        ], 200);
     }
 }
