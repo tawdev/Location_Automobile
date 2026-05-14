@@ -27,21 +27,43 @@ class ReservationService
         return $reservations;
     }
 
-    public function makeReservation(array $data,$id){
-        $vehicle=Vehicle::findOrFail($id);
-        if($vehicle->reservations()->end_date < $data['end_date']){
-            $reservation=Reservation::create(array_merge($data,
-            [
-                'user_id'=>auth()->id,
-                'vehicle_id'=>$id
-            ]
-            ));
-            return $reservation;
-        }
+    public function makeReservation($id,$data)
+{
+    $vehicle = Vehicle::findOrFail($id);
 
+    $conflict = $vehicle->reservations()
+        ->where('status', '!=', 'Annulée')
+        ->where('start_date', '<', $data['end_date'])
+        ->where('end_date', '>', $data['start_date'])
+        ->exists();
 
-
+    if ($conflict) {
+        throw new \Exception('Ce véhicule est déjà réservé pour ces dates.');
     }
+
+   return Reservation::create(
+    array_merge($data, [
+        'user_id'    => auth()->id(),
+        'vehicle_id' => $id,
+    ])
+);
+
+}
+// }public function makeReservation($id,$data){
+//         $vehicle=Vehicle::findOrFail($id);
+//         if($vehicle->reservations()->end_date < $data['end_date']){
+//             $reservation=Reservation::create(array_merge($data,
+//             [
+//                 'user_id'=>auth()->id,
+//                 'vehicle_id'=>$id
+//             ]
+//             ));
+//             return $reservation;
+//         }
+
+
+
+//     }
     public function acceptReservition($id){
         $reservition = Reservation::findOrFail($id);
         $reservition->update([

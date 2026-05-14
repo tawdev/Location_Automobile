@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
 
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('vehicle_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('vehicle_id')->nullable()->constrained()->cascadeOnDelete();
 
-            $table->enum('status', ['En_Attente', 'Confirmée', 'Terminée', 'Annulée']);
+            $table->enum('status', ['En_Attente', 'Confirmée', 'Terminée', 'Annulée'])->default('En_Attente');
 
             $table->timestamps();
         });
