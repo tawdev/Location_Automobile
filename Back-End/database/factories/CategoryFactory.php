@@ -15,25 +15,7 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique()->randomElement([
-
-                'Berline',
-                'SUV',
-                'Coupé',
-                'Hatchback',
-                'Cabriolet',
-                'Pick-up',
-                'Monospace',
-                'Voiture de sport',
-                'Électrique',
-                'Hybride',
-                'Luxe',
-                'Tout-terrain',
-                'Crossover',
-                'Break',
-                'Microvoiture',
-
-            ]),
+            'name' => $this->faker->unique()->randomElement(['Economy', 'Standard', 'SUV', 'Premium', 'Luxury']),
         ];
     }
 }
