@@ -32,12 +32,12 @@ class ReservationController extends Controller
         'message' => 'Ce véhicule est déjà réservé pour ces dates.'
     ], 400);
         }
-        if($data=1){
-                 return response()->json([
-                'status'=>'failed',
-                'message'=>'Reservation est deja existe'
-            ],400);
-        }
+        // if($data=1){
+        //          return response()->json([
+        //         'status'=>'failed',
+        //         'message'=>'Reservation est deja existe'
+        //     ],400);
+        // }
         return response()->json([
             'status' => 'success',
             'message' => 'Reservation créée avec succès',
@@ -47,6 +47,7 @@ class ReservationController extends Controller
 
     public function show($id)
     {
+
     }
 
     public function update(Request $request, $id)
@@ -62,6 +63,11 @@ class ReservationController extends Controller
     public function annulleMyReservation($id)
     {
         $data = $this->reservitionService->refuseReservition($id);
+        if(!$data){
+             return response()->json([
+        'message' => 'Vous ne pouvez pas annuler une réservation moins de 24h avant le début.'
+            ], 403);
+        }
         return response()->json([
             'status' => 'success',
             'data' => $data,

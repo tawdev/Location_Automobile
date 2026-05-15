@@ -18,6 +18,7 @@ return new class extends Migration
 
             $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('vehicle_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->float('TotalPrice')->default(0);
 
             $table->enum('status', ['En_Attente', 'Confirmée', 'Terminée', 'Annulée'])->default('En_Attente');
 
