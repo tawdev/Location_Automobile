@@ -20,9 +20,9 @@ class ReservationService
         return $data;
     }
     public function getAllReservition(){
-        $reservations = Reservation::all();
+        $reservations = Reservation::with('user','vehicle')->get();
         foreach($reservations as $reservation){
-            if(now() >= $reservation->end_date){
+            if(now() > $reservation->end_date){
                 $reservation->update([
                     'status'=>'Términée'
                 ]);
@@ -37,21 +37,35 @@ class ReservationService
 
     $conflict = $vehicle->reservations()
         ->where('status', '=', 'Confirmée')
-        ->where('start_date', '<', $data['end_date'])
         ->where('end_date', '>', $data['start_date'])
+        ->where('start_date','<',$data['end_date'])
         ->exists();
 
-    if ($conflict) {
-        throw new \Exception('Ce véhicule est déjà réservé pour ces dates.');
-    }
+        $alreadyExists = Reservation::where('user_id', auth()->id())
+            ->where('vehicle_id', $id)
+            ->where('start_date', $data['start_date'])
+            ->where('end_date', $data['end_date'])
+            ->exists();
 
-   return Reservation::create(
+        if ($alreadyExists) {
+            return 1;
+        }
+
+        if ($conflict) {
+            return false;
+        }
+
+
+
+
+   $Reservation=Reservation::create(
     array_merge($data, [
         'user_id'    => auth()->id(),
         'vehicle_id' => $id,
     ])
 );
 
+return $Reservation->with('user');
 }
 
     public function acceptReservition($id){
@@ -70,5 +84,3 @@ class ReservationService
         return $reservition;
     }
 }
-
-

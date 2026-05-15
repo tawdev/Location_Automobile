@@ -48,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 //i will put this two routes in Middlware of adminRole , i will make it later
 Route::middleware(['auth:sanctum','admin'])->group(function (){
-Route::patch('/Reservation/{id}/confirme',[VehicleController::class,'confirmeReservation']);
+Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
 });
