@@ -26,6 +26,18 @@ class ReservationController extends Controller
     {
 
         $data = $this->reservitionService->makeReservation($id, $request->all());
+        if(!$data){
+             return response()->json([
+        'status'=>'failed',
+        'message' => 'Ce véhicule est déjà réservé pour ces dates.'
+    ], 400);
+        }
+        if($data=1){
+                 return response()->json([
+                'status'=>'failed',
+                'message'=>'Reservation est deja existe'
+            ],400);
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'Reservation créée avec succès',
@@ -55,4 +67,5 @@ class ReservationController extends Controller
             'data' => $data,
         ]);
     }
+
 }

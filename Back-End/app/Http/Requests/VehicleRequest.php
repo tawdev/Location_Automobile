@@ -32,7 +32,7 @@ class VehicleRequest extends FormRequest
             'fuelType' => 'required|string|max:100',
             'category_id' => 'required|exists:categories,id',
 
-            // Vehicle images (1 or many)
+        
             'images' => 'sometimes|array',
             'images.*' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:5120',
         ];
