@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,28 @@ Route::middleware(['auth:sanctum','admin'])->group(function (){
 Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Route::get('Categories', [CategoryController::class , 'index']);
+Route::post('Category' , [CategoryController::class , 'store']);
+Route::put('Categories/{id}' , [CategoryController::class , 'update']);
+Route::delete('Categories/{id}', [CategoryController::class , 'destroy']);
+Route::get('Categories/{id}', [CategoryController::class , 'show']);
+Route::post('Categories/search' , [CategoryController::class , 'FilterByName']);
 });
 
 
