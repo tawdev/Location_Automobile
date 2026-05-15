@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
     {
         Role::updateOrCreate(['name' => 'Admin']);
         Role::updateOrCreate(['name' => 'Client']);
-        Category::updateOrInsert(['name' => 'isovi']);
+     
         User::factory()->create([
             'name' => 'admin',
             'role_id' => 1,
