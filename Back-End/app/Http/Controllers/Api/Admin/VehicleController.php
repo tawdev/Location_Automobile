@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VehicleRequest;
@@ -8,7 +8,7 @@ use App\Models\Vehicle;
 use App\Services\ReservationService;
 use App\Services\VehicleService;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\FilterVehiclesRequest;
 class VehicleController extends Controller
 {
     public function __construct(
@@ -16,18 +16,25 @@ class VehicleController extends Controller
 
         protected VehicleService $vehicleService,
         protected ReservationService $reservitionService
-    ) {}
+    ) {
+    }
 
     public function index()
     {
-        $data = $this->vehicleService->getAll();
+        $Vehicles = $this->vehicleService->getAll();
+        if (!$Vehicles) {
+            return response()->json([
+                'status' => 'success',
+                'data' => "Aucun véhicule n'a été trouvé."
+            ]);
+        }
         return response()->json([
             'status' => 'success',
-            'data' => $data,
-        ]);
+            'data' => $Vehicles
+        ], 200);
     }
 
-  
+
 
     public function store(VehicleRequest $request)
     {
@@ -44,29 +51,30 @@ class VehicleController extends Controller
             'status' => 'error',
             'message' => 'Error dans La creation du Vehicle',
             'data' => $data,
-        ]);
+        ], 201);
     }
-    public function update(VehicleRequest $request, Vehicle $vehicle)
+    public function update(VehicleRequest $request, Vehicle $Vehicle)
     {
-        dd($vehicle);
         $Validate = $request->validated();
+        $pictures = $request->file('images');
 
-        $data = $this->vehicleService->UpdateVehicle($vehicle, $Validate);
+        $Vehicle = $this->vehicleService->UpdateVehicle($Vehicle, $Validate, $pictures);
         return response()->json([
             'status' => 'success',
             'message' => 'Vehicle mise à jour avec succès',
-            'data' => $data
-        ]);
+            'data' => $Vehicle
+        ], 202);
     }
 
-    public function destroy($id){
-    $isDeleted =  $this->vehicleService->DeleteVehicle($id);
-    if(!$isDeleted) {
-        return response()->json([
-            'status'=>'error',
-            'message'=>'La suppression du véhicule a échoué.',
-        ]);
-    }
+    public function destroy($id)
+    {
+        $isDeleted = $this->vehicleService->DeleteVehicle($id);
+        if (!$isDeleted) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'La suppression du véhicule a échoué.',
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -74,27 +82,49 @@ class VehicleController extends Controller
         ], 200);
     }
 
-    public function displayReservition(){
-        $data=$this->reservitionService->getAllReservition();
+    public function displayReservition()
+    {
+        $data = $this->reservitionService->getAllReservition();
         return response()->json([
-            'status'=>'success',
-            'data'=>$data
+            'status' => 'success',
+            'data' => $data
         ]);
     }
 
-    public function confirmeReservation($id){
-        $data=$this->reservitionService->acceptReservition($id);
+    public function confirmeReservation($id)
+    {
+        $data = $this->reservitionService->acceptReservition($id);
         return response()->json([
-            'status'=>'success',
-            'data'=>$data,
+            'status' => 'success',
+            'data' => $data,
         ]);
     }
 
-    public function annulleReservation($id){
-        $data=$this->reservitionService->refuseReservition($id);
+    public function annulleReservation($id)
+    {
+        $data = $this->reservitionService->refuseReservition($id);
         return response()->json([
-            'status'=>'success',
-            'data'=>$data,
+            'status' => 'success',
+            'data' => $data,
         ]);
+    }
+
+
+
+    public function filterVehicles(FilterVehiclesRequest $request)
+    {
+
+        $Vehicles = $this->vehicleService->filterVehicles($request);
+
+        if (!count($Vehicles)) {
+            return response()->json([
+                'status' => 'success',
+                'data' => 'Aucun véhicule trouvé'
+            ], 200);
+        }
+        return response()->json([
+            'status' => 'success',
+            'data' => $Vehicles
+        ], 200);
     }
 }

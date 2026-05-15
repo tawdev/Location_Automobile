@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,10 +24,16 @@ Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth
 
 
 
+
+// Route::apiResource('/Vehicles', VehicleController::class);
+
+Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
 Route::post('/vehicle' , [VehicleController::class , 'store'])->middleware('auth:sanctum');
-Route::apiResource('/Vehicles', VehicleController::class);
-Route::put('/Vehicle/{id}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/Vehicles/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
+Route::get('Vehicles' , [VehicleController::class, 'index'])->middleware('auth:sanctum');
+Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles'])->middleware('auth:sanctum');
+
+// Route::apiResource('/Vehicles', VehicleController::class);
 
 
 
@@ -45,5 +52,37 @@ Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeRe
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Route::get('Categories', [CategoryController::class , 'index']);
+Route::post('Category' , [CategoryController::class , 'store']);
+Route::put('Categories/{id}' , [CategoryController::class , 'update']);
+Route::delete('Categories/{id}', [CategoryController::class , 'destroy']);
+Route::get('Categories/{id}', [CategoryController::class , 'show']);
+Route::post('Categories/search' , [CategoryController::class , 'FilterByName']);
 });
+
+
+
+
+
+
+
+
+
+
+
 
