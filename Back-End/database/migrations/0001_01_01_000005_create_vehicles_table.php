@@ -19,15 +19,14 @@ return new class extends Migration
             $table->string('registration')->unique();
             $table->integer('km');
             $table->float('pricePerDay');
-            $table->enum('fuelType', ['Diesel', 'Gasoline', 'Electricity']);
+            $table->enum('fuelType', ['Electricity','Diesel','Gasoline','hybrid','LPG','CNG','biofuels']);
+            $table->string('Occupants');
             $table->foreignId('category_id')->constrained();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('vehicles');
