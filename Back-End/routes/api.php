@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\VehicleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use Illuminate\Container\Attributes\Auth;
-
+use App\Http\Controllers\Api\ProfileController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -28,9 +28,7 @@ Route::apiResource('/Vehicles', VehicleController::class);
 Route::put('/Vehicle/{id}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/Vehicles/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
 
-// Route::apiResource('/Reservations', ReservationController::class);
-// Route::post('/Reservations/vehicle/{id}', [ReservationController::class,'store']);
-// Route::put('/Reservations/{id}', [ReservationController::class, 'annulleMyReservation']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Reservations/vehicle/{id}',[ReservationController::class, 'store']);
@@ -38,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/MyReservations',[ReservationController::class, 'index']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
+    Route::put('/profile',[ProfileController::class,'update']);
 });
 
 //i will put this two routes in Middlware of adminRole , i will make it later
