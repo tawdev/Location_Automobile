@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Reservation;
 use App\Models\Vehicle;
+use DateTime;
 use app\Http\Requests\ReservationRequest;
 
 class ReservationService
@@ -55,6 +56,9 @@ class ReservationService
             return false;
         }
 
+       $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
+       $total = $days * $vehicle->pricePerDay;
+
 
 
 
@@ -62,10 +66,11 @@ class ReservationService
     array_merge($data, [
         'user_id'    => auth()->id(),
         'vehicle_id' => $id,
+        'TotalPrice'=>$total
     ])
 );
 
-return $Reservation->with('user');
+return $Reservation;
 }
 
     public function acceptReservition($id){
@@ -77,10 +82,14 @@ return $Reservation->with('user');
     }
 
     public function refuseReservition($id){
-        $reservition = Reservation::findOrFail($id);
-        $reservition->update([
+        $reservaition = Reservation::findOrFail($id);
+       if ($reservaition->start_date < now()->addHours(48)) {
+            return false;
+            }
+
+        $reservaition->update([
             'status'=>'Annulée'
         ]);
-        return $reservition;
+        return $reservaition;
     }
 }
