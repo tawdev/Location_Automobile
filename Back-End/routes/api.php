@@ -44,6 +44,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
     Route::put('/profile',[ProfileController::class,'update']);
+
+
+
+
+
+
+
+
+
+
+
+
 });
 
 //i will put this two routes in Middlware of adminRole , i will make it later
@@ -73,7 +85,19 @@ Route::put('Categories/{id}' , [CategoryController::class , 'update']);
 Route::delete('Categories/{id}', [CategoryController::class , 'destroy']);
 Route::get('Categories/{id}', [CategoryController::class , 'show']);
 Route::post('Categories/search' , [CategoryController::class , 'FilterByName']);
+
+
+
+
+
+
 });
+
+
+
+Route::post('/Profile/CIN' , [ProfileController::class , 'addCIN'])->middleware('auth:sanctum');
+Route::post('/Profile/Permi' , [ProfileController::class , 'AddPermi'])->middleware('auth:sanctum');
+
 
 
 
