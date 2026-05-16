@@ -84,7 +84,7 @@ class ProfileController extends Controller
 
     public function addCIN(StoreCinRequest $request)
     {
-        $isStored = $this->profileService->updateUserCIN($request->validated());
+        $isStored = $this->profileService->updateUserCIN($request->validated(), $request->user());
 
         if ($isStored) {
             return response()->json([
@@ -98,6 +98,7 @@ class ProfileController extends Controller
             'data' => 'Une erreur s\'est produite.'
         ], 200);
 
-
     }
+
+    
 }

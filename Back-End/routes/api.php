@@ -89,11 +89,15 @@ Route::post('Categories/search' , [CategoryController::class , 'FilterByName']);
 
 
 
-Route::post('/Profile/CIN' , [ProfileController::class , 'addCIN']);
-Route::post('/Profile/Permi' , [ProfileController::class , 'AddPermi']);
 
 
 });
+
+
+
+Route::post('/Profile/CIN' , [ProfileController::class , 'addCIN'])->middleware('auth:sanctum');
+Route::post('/Profile/Permi' , [ProfileController::class , 'AddPermi'])->middleware('auth:sanctum');
+
 
 
 
