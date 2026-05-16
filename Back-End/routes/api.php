@@ -39,11 +39,15 @@ Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles'])->mi
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Reservations/vehicle/{id}',[ReservationController::class, 'store']);
+    Route::get('/Reservation/filter',[ReservationController::class,'filterReservation']);
 
     Route::get('/MyReservations',[ReservationController::class, 'index']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
-    Route::put('/profile',[ProfileController::class,'update']);
+    Route::put('/profile/password',[ProfileController::class,'updateUserPassword']);
+    Route::put('/profile/name',[ProfileController::class,'updateUserName']);
+    Route::put('/profile/picture',[ProfileController::class,'updateUserProfilePicture']);
+    Route::put('/profile/email',[ProfileController::class,'updateUserEmail']);
 
 
 

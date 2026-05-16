@@ -74,4 +74,17 @@ class ReservationController extends Controller
         ]);
     }
 
+    public function filterUserReservation(Request $request){
+        $data=$this->reservitionService->filterReservation($request);
+
+        if(empty($data)){
+            return response()->json([
+                'message'=>'Aucan reservation',
+            ]);
+        }
+        return response()->json([
+            'data'=>$data
+        ]);
+    }
+
 }

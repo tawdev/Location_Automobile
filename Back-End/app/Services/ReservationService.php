@@ -21,7 +21,7 @@ class ReservationService
         return $data;
     }
     public function getAllReservition(){
-        $reservations = Reservation::with('user','vehicle')->get();
+        $reservations = Reservation::with('user','vehicle');
         foreach($reservations as $reservation){
             if(now() > $reservation->end_date){
                 $reservation->update([
@@ -92,4 +92,42 @@ return $Reservation;
         ]);
         return $reservaition;
     }
+
+     public function filterReservation($request) {
+        $query = Reservation::query();
+
+
+        $query->when($request->filled('start_date'), function ($q) use ($request) {
+            $q->where('start_date', '>=', $request->start_date);
+        });
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+        // $query->when($request->filled('vehicle_id')->vehicle(), function ($q) use ($request) {
+        //     $q->where('vehicle_id',"%{$request->model}%");
+        // });
+         $query->when($request->filled('my_reservations'), function ($q) {
+        $q->where('user_id', auth()->id());
+       });
+
+        $query->when($request->filled('vehicle_name'), function ($q) use ($request) {
+        $q->whereHas('vehicle', function ($q) use ($request) {
+            $q->where('name', 'LIKE', "%{$request->vehicle_name}%");
+         });
+
+        });
+
+
+
+        $reservation = $query->get();
+
+        return $reservation;
+
+    }
+
 }
