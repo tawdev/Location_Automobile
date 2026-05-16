@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\ProfileRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\ProfileService;
@@ -40,17 +41,9 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(ProfileRequest $request)
     {
-        $request->validate([
-        'name'        => 'sometimes|string|max:255',
-        'email'       => 'sometimes|email|unique:users,email,',
-        'profile_pic' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-        'new_password'=> 'sometimes|string|min:8',
-        'confirme_password'=>'sometimes|string|min:8'
-    ]);
-
-        $data=$this->profileService->updateInformations(auth()->id(),$request->all());
+        $data=$this->profileService->updateInformations($request);
 
         if(!$data){
             return response()->json([
