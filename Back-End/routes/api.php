@@ -39,7 +39,7 @@ Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles'])->mi
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Reservations/vehicle/{id}',[ReservationController::class, 'store']);
-    Route::get('/Reservation/filter',[ReservationController::class,'filterReservation']);
+    Route::get('/MyReservation/filter',[ReservationController::class,'filterUserReservation']);
 
     Route::get('/MyReservations',[ReservationController::class, 'index']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+Route::patch('/MyReservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
 
 
 
@@ -66,7 +67,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum','admin'])->group(function (){
 Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
-Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
+Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);
+Route::get('Reservation/filter',[ReservationController::class,'filterAdminReservation']);
 
 
 

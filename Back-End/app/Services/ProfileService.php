@@ -94,18 +94,17 @@ class ProfileService
         // i need to return true or false ;
 
 
-
         if ($user->cin_verso || $user->cin_verso) {
 
             $doesRectoExists = Storage::disk('public')->exists($user->cin_recto);
             $doesVersoExists = Storage::disk('public')->exists($user->cin_verso);
-
             if ($doesRectoExists) {
                 Storage::disk('public')->delete($user->cin_recto);
             } else if ($doesVersoExists) {
                 Storage::disk('public')->delete($user->cin_verso);
             }
         }
+
         $cin_recto_path = $data['cin_recto']->store('Vehicles', 'public');
         $cin_verson_path = $data['cin_verso']->store('Vehicles', 'public');
         $isUpdated = $user->update([
@@ -117,6 +116,47 @@ class ProfileService
         }
         return false;
     }
+
+
+
+    public function updateUserPermi($data, $user)
+    {
+        // i need to return true or false to the controller ;
+
+        if ($user->permi_recto || $user->permi_verso) {
+
+            $doesRectoExists = Storage::disk('public')->exists($user->permi_recto);
+
+            $doesVersoExists = Storage::disk('public')->exists($user->permi_verso);
+
+            if ($doesRectoExists) {
+
+                Storage::disk('public')->delete($user->permi_recto);
+
+            } else if ($doesVersoExists) {
+
+                Storage::disk('public')->delete($user->permi_verso);
+
+            }
+
+        }
+
+        $permi_verso_path = $data['permi_verso']->store('Vehicles', 'public');
+
+        $permi_recto_path = $data['permi_recto']->store('Vehicles', 'public');
+
+        $isUpdated = $user->update([
+            'permi_verso' => $permi_verso_path,
+            'permi_recto' => $permi_recto_path
+        ]);
+
+        if ($isUpdated) {
+            return true;
+        }
+
+        return false;
+    }
+
 
 
 }

@@ -32,12 +32,12 @@ class ReservationController extends Controller
         'message' => 'Ce véhicule est déjà réservé pour ces dates.'
     ], 400);
         }
-        // if($data=1){
-        //          return response()->json([
-        //         'status'=>'failed',
-        //         'message'=>'Reservation est deja existe'
-        //     ],400);
-        // }
+        if($data===1){
+                 return response()->json([
+                'status'=>'failed',
+                'message'=>'Reservation est deja existe'
+            ],400);
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'Reservation créée avec succès',
@@ -65,7 +65,7 @@ class ReservationController extends Controller
         $data = $this->reservitionService->refuseReservition($id);
         if(!$data){
              return response()->json([
-        'message' => 'Vous ne pouvez pas annuler une réservation moins de 24h avant le début.'
+        'message' => 'Vous ne pouvez pas annuler une réservation moins de 48h avant le début.'
             ], 403);
         }
         return response()->json([
@@ -74,8 +74,31 @@ class ReservationController extends Controller
         ]);
     }
 
+    public function annulleReservation($id)
+    {
+        $data = $this->reservitionService->AdminRefuseReservition($id);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }
+
     public function filterUserReservation(Request $request){
-        $data=$this->reservitionService->filterReservation($request);
+        $data=$this->reservitionService->filterMyReservation($request);
+
+        if(empty($data)){
+            return response()->json([
+                'message'=>'Aucan reservation',
+            ]);
+        }
+        return response()->json([
+            'data'=>$data
+        ]);
+    }
+
+    public function filterAdminReservation(Request $request){
+           $data=$this->reservitionService->filterAllReservation($request);
 
         if(empty($data)){
             return response()->json([
