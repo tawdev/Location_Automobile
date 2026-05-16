@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCinRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\ProfileService;
+use App\Http\Requests\StorePermiRequest;
 
 class ProfileController extends Controller
 {
@@ -98,6 +99,27 @@ class ProfileController extends Controller
             'data' => 'Une erreur s\'est produite.'
         ], 200);
 
+    }
+
+
+
+    public function  addPermi(StorePermiRequest $request) {
+        
+        $isUpdated = $this->profileService->updateUserPermi($request->validated(), $request->user());
+
+        if (!$isUpdated) {
+            return response()->json([
+                'message' => 'error',
+                'data' => 'Une erreur s\'est produite.'
+            ]);
+
+        }
+
+        return response()->json([
+            'message' => 'succès',
+            'data' => 'Profil permi mis à jour avec succès'
+        ]);
+        
     }
 
     
