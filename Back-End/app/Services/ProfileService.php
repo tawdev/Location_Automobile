@@ -46,4 +46,26 @@ class ProfileService
         }
 
 
+
+
+
+
+
+        public function updateUserCIN($data) {
+            // i need to return true or false ;
+
+            $user = Auth()->user();
+            $cin_recto_path = $data['cin_recto']->store('Vehicles', 'public');
+            $cin_verson_path = $data['cin_verso']->store('Vehicles', 'public');
+            $isUpdated  = $user->update([
+                'cin_recto' => $cin_recto_path ,
+                'cin_verso' => $cin_verson_path
+            ]);
+            if($isUpdated) {
+                return true;
+            }
+            return false ;
+        }
+
+
 }
