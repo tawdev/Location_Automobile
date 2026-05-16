@@ -1,0 +1,11 @@
+$kind: http-request
+name: list_reservation
+url: "{{url}}/Reservations"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin}}"
+order: 1778748090939

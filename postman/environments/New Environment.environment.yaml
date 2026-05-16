@@ -1,0 +1,8 @@
+name: New Environment
+values:
+  - key: url
+    value: ''
+  - key: token
+    value: ''
+  - key: Admin
+    value: ''

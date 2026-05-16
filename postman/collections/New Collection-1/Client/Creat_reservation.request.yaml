@@ -1,0 +1,20 @@
+$kind: http-request
+name: Creat_reservation
+url: "{{url}}/Reservations/vehicle/1"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: json
+  content: "{\r
+
+    \    \"start_date\":\"2026-06-07\",\r
+
+    \    \"end_date\":\"2026-06-10\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 2370235431855356

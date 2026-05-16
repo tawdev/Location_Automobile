@@ -1,0 +1,12 @@
+name: url
+values:
+  - key: url
+    value: ''
+  - key: token
+    value: ''
+  - key: admin
+    value: ''
+  - key: TestUser
+    value: ''
+  - key: User2
+    value: ''

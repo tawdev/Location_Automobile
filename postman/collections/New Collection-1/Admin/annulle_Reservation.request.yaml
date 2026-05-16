@@ -1,0 +1,9 @@
+$kind: http-request
+name: annulle_Reservation
+url: "{{url}}/Reservations/1/annuler"
+method: PATCH
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin}}"
+order: 2356328265252178
