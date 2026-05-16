@@ -2,10 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Factories\CategoryFactory;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Category;
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -15,11 +18,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        Role::updateOrCreate(['name' => 'Admin']);
+        Role::updateOrCreate(['name' => 'Client']);
+     
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'admin',
+            'role_id' => 1,
+            'email' => 'admin@example.com',
         ]);
+        User::factory(20)->create([
+            'role_id' => 2
+        ]);
+
+
+        $this->call([
+            CategorySeeder::class,
+            RoleSeeder::class
+        ]);
+
+
     }
 }

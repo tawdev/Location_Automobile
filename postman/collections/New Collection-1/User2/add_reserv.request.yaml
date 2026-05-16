@@ -1,0 +1,11 @@
+$kind: http-request
+name: add_reserv
+url: "{{url}}/Reservations/vehicle/1"
+method: POST
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{User2}}"
+order: 1778759833747

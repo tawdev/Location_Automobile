@@ -1,0 +1,14 @@
+$kind: http-request
+name: LogIn
+url: "{{url}}/auth/login"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: json
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 1803446592374181

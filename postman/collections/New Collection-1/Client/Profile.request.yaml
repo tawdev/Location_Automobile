@@ -1,0 +1,11 @@
+$kind: http-request
+name: Profile
+url: "{{url}}/profile"
+method: PUT
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 2608836112680532
