@@ -17,7 +17,9 @@ class ReservationService
         //
     }
     public function myReservetion(){
-        $data=Reservation::where('user_id',auth()->id())->get();
+        $data=Reservation::where('user_id',auth()->id())
+                           ->where('status','!=','Términée')
+                           ->get();
          foreach($data as $reservation){
             if(now() > $reservation->end_date){
                 $reservation->update([
@@ -135,9 +137,11 @@ return $Reservation;
             $q->where('end_date','<=',$request->end_date);
         });
 
-        // $query->when($request->filled('vehicle_id')->vehicle(), function ($q) use ($request) {
-        //     $q->where('vehicle_id',"%{$request->model}%");
-        // });
+        $query->when($request->filled('status'), function ($q) use ($request) {
+            $q->where('status',$request->status);
+        });
+
+
          $query->when($request->filled('my_reservations'), function ($q) {
         $q->where('user_id', auth()->id());
        });
@@ -167,6 +171,10 @@ return $Reservation;
         });
         $query->when($request->filled('end_date'), function ($q) use ($request) {
             $q->where('end_date','<=',$request->end_date);
+        });
+
+         $query->when($request->filled('status'), function ($q) use ($request) {
+            $q->where('status',$request->status);
         });
 
         $query->when($request->filled('end_date'), function ($q) use ($request) {

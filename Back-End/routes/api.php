@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/MyReservations',[ReservationController::class, 'index']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
+    Route::get('/profile',[ProfileController::class,'index']);
     Route::put('/profile/password',[ProfileController::class,'updateUserPassword']);
     Route::put('/profile/name',[ProfileController::class,'updateUserName']);
     Route::put('/profile/picture',[ProfileController::class,'updateUserProfilePicture']);
