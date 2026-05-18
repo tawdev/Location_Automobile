@@ -1,0 +1,34 @@
+"use client";
+
+import React from "react";
+import { motion } from "framer-motion";
+import { Logo } from "./Logo";
+
+export function HeroSection() {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="relative flex flex-col px-[44px] pt-[38px] pb-[30px] overflow-hidden min-h-[340px] lg:min-h-[100vh]"
+    >
+      <div className="relative flex flex-col h-full w-full">
+        <div className="flex items-start justify-start">
+          <Logo />
+        </div>
+
+        <div className="mt-[126px] lg:mt-[160px]">
+          <h1
+            style={{ fontFamily: "var(--font-geist-sans)" }}
+            className="font-sans text-[42px] lg:text-[50px] leading-[1.02] font-black tracking-[-0.4px] ml-[22px] lg:ml-[80px] text-[#F0F3FA] drop-shadow-[0_2px_10px_rgba(0,0,0,0.20)]"
+          >
+            Your Journey,
+            <br />
+            <span className="text-[#F0F3FA]">Our </span>
+            <span className="text-[#F39C12]">Priority.</span>
+          </h1>
+        </div>
+      </div>
+    </motion.section>
+  );
+}
