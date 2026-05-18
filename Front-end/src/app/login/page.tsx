@@ -1,0 +1,43 @@
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/authContext";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { signIn, signUp, error, status } = useAuth();
+
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSignIn(payload: { email: string; password: string }) {
+    setSubmitting(true);
+    try {
+      await signIn(payload);
+      router.replace("/vehicles");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleSignUp(payload: { name: string; email: string; password: string }) {
+    setSubmitting(true);
+    try {
+      await signUp(payload);
+      router.replace("/vehicles");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <AuthLayout
+      onSignIn={handleSignIn}
+      onSignUp={handleSignUp}
+      status={status}
+      error={error}
+      submitting={submitting}
+    />
+  );
+}
