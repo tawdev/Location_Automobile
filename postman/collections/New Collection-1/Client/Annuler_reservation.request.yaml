@@ -1,7 +1,7 @@
 $kind: http-request
-name: add_reserv
-url: "{{url}}/Reservations/vehicle/19"
-method: POST
+name: Annuler_reservation
+url: "{{url}}/MyReservations/19/annuler"
+method: PATCH
 headers:
   Accept: application/json
 body:
@@ -10,11 +10,11 @@ body:
 
     \    \"start_date\":\"2026-05-16\",\r
 
-    \    \"end_date\":\"2026-05-23\"\r
+    \    \"end_date\":\"2026-05-17\"\r
 
     }"
 auth:
   type: bearer
   credentials:
-    token: "{{User2}}"
-order: 1778759833747
+    token: "{{Me}}"
+order: 4216502361094636
