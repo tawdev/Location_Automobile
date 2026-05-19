@@ -3,8 +3,12 @@ import type { Vehicle } from "./types";
 
 type VehiclesResponse = {
   status: string;
-  data: Vehicle[];
+  data: Vehicle[] | string;
 };
+
+function asVehicles(data: VehiclesResponse["data"]): Vehicle[] {
+  return Array.isArray(data) ? data : [];
+}
 
 export async function listVehicles(): Promise<Vehicle[]> {
   const res = await apiRequest<VehiclesResponse>({
@@ -12,7 +16,11 @@ export async function listVehicles(): Promise<Vehicle[]> {
     path: "/Vehicles",
     query: undefined,
   });
-  return res.data;
+
+  if (Array.isArray(res.data)) return res.data;
+
+  // backend sometimes returns a string message when no vehicles exist
+  throw new Error(res.data);
 }
 
 // Optional: backend has /filterVehicles but Postman didn't include a full contract.
@@ -32,5 +40,8 @@ export async function filterVehicles(params: FilterParams): Promise<Vehicle[]> {
     path: "/filterVehicles",
     query: params,
   });
-  return res.data;
+
+  if (Array.isArray(res.data)) return res.data;
+
+  throw new Error(res.data);
 }

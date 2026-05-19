@@ -46,17 +46,30 @@ export async function apiRequest<T = unknown>({
   const hasJsonBody =
     body !== null && body !== undefined && !(body instanceof FormData) && typeof body !== "string";
 
-  const res = await fetch(`${API_BASE_URL}${path}${buildQuery(query)}`, {
-    method,
-    signal,
-    headers: {
-      ...(hasJsonBody
-        ? { Accept: "application/json", "Content-Type": "application/json" }
-        : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body instanceof FormData || typeof body === "string" ? body : body ? JSON.stringify(body) : undefined,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}${buildQuery(query)}`, {
+      method,
+      signal,
+      headers: {
+        ...(hasJsonBody
+          ? { Accept: "application/json", "Content-Type": "application/json" }
+          : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body:
+        body instanceof FormData || typeof body === "string"
+          ? body
+          : body
+            ? JSON.stringify(body)
+            : undefined,
+    });
+  } catch (e) {
+    throw {
+      message: `Failed to fetch. Backend might be down or API_BASE_URL is wrong. Tried: ${API_BASE_URL}${path}`,
+      data: e,
+    } satisfies ApiError;
+  }
 
   if (res.status === 401 || res.status === 419) {
     // Token expired/invalid; clear local token to avoid infinite 401 loops
