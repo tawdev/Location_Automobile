@@ -6,6 +6,7 @@ use App\Models\Reservation;
 use App\Models\Vehicle;
 use DateTime;
 use app\Http\Requests\ReservationRequest;
+use function Illuminate\Support\days;
 
 class ReservationService
 {
@@ -17,6 +18,13 @@ class ReservationService
         //
     }
     public function myReservetion(){
+        $data=Reservation::with(['vehicle', 'vehicle.pictures'])
+                           ->where('user_id',auth()->id())
+                           ->get();
+         foreach($data as $reservation){
+            if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
+                $reservation->update([
+                    'status'=>'Terminée'
         $data=Reservation::where('user_id',auth()->id())->get();
          foreach($data as $reservation){
             if(now() > $reservation->end_date){
@@ -32,13 +40,52 @@ class ReservationService
         foreach($reservations as $reservation){
             if(now() > $reservation->end_date){
                 $reservation->update([
-                    'status'=>'Términée'
+                    'status'=>'Terminée'
                 ]);
             }
         }
         return $reservations;
     }
 
+   public function makeReservation($id, $data)
+{
+    $vehicle = Vehicle::findOrFail($id);
+
+    $startDate = (new DateTime($data['start_date']))->modify('+1 day');
+    $data['start_date'] = $startDate->format('Y-m-d');
+
+    $conflict = $vehicle->reservations()
+        ->where('status', '=', 'Confirmée')
+        ->where('end_date', '>', $data['start_date'])
+        ->where('start_date', '<', $data['end_date'])
+        ->exists();
+
+    $alreadyExists = Reservation::where('user_id', auth()->id())
+        ->where('vehicle_id', $id)
+        ->where('start_date', $data['start_date'])
+        ->where('end_date', $data['end_date'])
+        ->exists();
+
+    if ($alreadyExists) {
+        return 1;
+    }
+
+    if ($conflict) {
+        return false;
+    }
+
+    $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
+    $total = $days * $vehicle->pricePerDay;
+
+    $Reservation = Reservation::create(
+        array_merge($data, [
+            'user_id'    => auth()->id(),
+            'vehicle_id' => $id,
+            'TotalPrice' => $total
+        ])
+    );
+
+    return $Reservation;
     public function makeReservation($id,$data)
 {
     $vehicle = Vehicle::findOrFail($id);
@@ -100,6 +147,7 @@ return $Reservation;
 
     public function refuseReservition($id){
         $reservaition = Reservation::findOrFail($id);
+       if (\Carbon\Carbon::parse($reservaition->start_date) < now()->addHours(48)) {
        if ($reservaition->start_date < now()->addHours(48) || now()>$reservaition->start_date || now()<$reservaition->end_date) {
             return false;
             }
@@ -121,6 +169,14 @@ return $Reservation;
 
 
      public function filterMyReservation($request) {
+        Reservation::where('user_id', auth()->id())
+            ->where('end_date', '<', now())
+            ->where('status', '!=', 'Terminée')
+            ->where('status', '!=', 'Annulée')
+            ->update(['status' => 'Terminée']);
+
+        $query = Reservation::query()->with(['vehicle', 'vehicle.pictures'])
+                                     ->where('user_id', auth()->id());
         $query = Reservation::query()->with('vehicle');
 
 
@@ -129,6 +185,10 @@ return $Reservation;
         });
         $query->when($request->filled('end_date'), function ($q) use ($request) {
             $q->where('end_date','<=',$request->end_date);
+        });
+
+        $query->when($request->filled('status'), function ($q) use ($request) {
+            $q->where('status',$request->status);
         });
 
         $query->when($request->filled('end_date'), function ($q) use ($request) {
@@ -167,6 +227,10 @@ return $Reservation;
         });
         $query->when($request->filled('end_date'), function ($q) use ($request) {
             $q->where('end_date','<=',$request->end_date);
+        });
+
+         $query->when($request->filled('status'), function ($q) use ($request) {
+            $q->where('status',$request->status);
         });
 
         $query->when($request->filled('end_date'), function ($q) use ($request) {

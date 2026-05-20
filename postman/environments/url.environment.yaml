@@ -2,6 +2,13 @@ name: url
 values:
   - key: url
     value: ''
+  - key: user_1
+    value: ''
+  - key: user_2
+    value: ''
+  - key: Me
+    value: ''
+  - key: admin
   - key: token
     value: ''
   - key: admin

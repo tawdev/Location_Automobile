@@ -1,5 +1,6 @@
 $kind: http-request
 name: MyReservation
+url: "{{url}}/MyReservations"
 url: ""
 method: GET
 order: 1408985098435
