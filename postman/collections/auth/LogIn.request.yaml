@@ -13,6 +13,7 @@ body:
     \    \"password\":\"BAYERN 2020\"\r
 
     }"
+  content: ""
 auth:
   type: bearer
   credentials:

@@ -19,6 +19,7 @@ class VehicleService
     public function getById($id)
     {
         return Vehicle::with('pictures')->find($id);
+        return Vehicle::with('pictures')->get();
     }
 
     public function CreateVehicle($request)
