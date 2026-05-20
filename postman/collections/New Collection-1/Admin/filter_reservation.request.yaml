@@ -1,7 +1,0 @@
-$kind: http-request
-name: filter_reservation
-url: "{{url}}/Reservation/filter"
-method: GET
-headers:
-  Accept: application/json
-order: 4202896757886097

@@ -1,50 +1,11 @@
 $kind: http-request
 name: Profile
 url: "{{url}}/profile"
-method: GET
+method: PUT
 headers:
   Accept: application/json
-body:
-  type: formdata
-  content:
-    - type: file
-      key: profie_pic
-      src:
-        - postman-cloud:///1f150715-839b-4720-8280-6964ff72b1f0
-      description: ""
-      disabled: true
-    - type: text
-      key: new_password
-      value: JackOOP2003
-      description: ""
-      disabled: true
-    - type: text
-      key: new_name
-      value: Jackjoki
-      description: ""
-      disabled: false
-    - type: text
-      key: email
-      value: jackoop22@gmail.com
-      description: ""
-      disabled: true
-    - type: text
-      key: confirme_password
-      value: JackOOP2003
-      description: ""
-      disabled: true
-    - type: text
-      key: old_password
-      value: hello12345
-      description: ""
-      disabled: true
 auth:
   type: bearer
   credentials:
-    token: "{{user_1}}"
-settings:
-  disabledSystemHeaders:
-    - content-length
-    - host
-    - user-agent
+    token: "{{token}}"
 order: 2608836112680532

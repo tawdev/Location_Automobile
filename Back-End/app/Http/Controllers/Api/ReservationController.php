@@ -110,17 +110,4 @@ class ReservationController extends Controller
         ]);
     }
 
-    public function getReservedDates($id)
-    {
-        $dates = \App\Models\Reservation::where('vehicle_id', $id)
-            ->where('status', 'Confirmée')
-            ->get(['start_date', 'end_date']);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $dates
-        ]);
-    }
-
 }
-
