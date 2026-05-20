@@ -18,6 +18,13 @@ class ReservationService
     }
     public function myReservetion(){
         $data=Reservation::where('user_id',auth()->id())->get();
+         foreach($data as $reservation){
+            if(now() > $reservation->end_date){
+                $reservation->update([
+                    'status'=>'Términée'
+                ]);
+            }
+        }
         return $data;
     }
     public function getAllReservition(){
@@ -73,17 +80,27 @@ class ReservationService
 return $Reservation;
 }
 
-    public function acceptReservition($id){
-        $reservition = Reservation::findOrFail($id);
-        $reservition->update([
-            'status'=>'Confirmée'
-        ]);
-        return $reservition;
-    }
+   public function acceptReservition($id)
+{
+    $reservition = Reservation::findOrFail($id);
+
+    $athoreReservations = Reservation::where('start_date', $reservition->start_date)
+        ->where('end_date', $reservition->end_date)
+        ->where('vehicle_id', $reservition->vehicle_id)
+        ->where('id', '!=', $id)
+        ->pluck('id');
+
+    $reservition->update(['status' => 'Confirmée']);
+
+    Reservation::whereIn('id', $athoreReservations)
+        ->update(['status' => 'Annulée']);
+
+    return $reservition;
+}
 
     public function refuseReservition($id){
         $reservaition = Reservation::findOrFail($id);
-       if ($reservaition->start_date < now()->addHours(48)) {
+       if ($reservaition->start_date < now()->addHours(48) || now()>$reservaition->start_date || now()<$reservaition->end_date) {
             return false;
             }
 
@@ -92,4 +109,84 @@ return $Reservation;
         ]);
         return $reservaition;
     }
+
+    public function AdminRefuseReservition($id){
+            $reservaition = Reservation::findOrFail($id);
+
+        $reservaition->update([
+            'status'=>'Annulée'
+        ]);
+        return $reservaition;
+    }
+
+
+     public function filterMyReservation($request) {
+        $query = Reservation::query()->with('vehicle');
+
+
+        $query->when($request->filled('start_date'), function ($q) use ($request) {
+            $q->where('start_date', '>=', $request->start_date);
+        });
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+        // $query->when($request->filled('vehicle_id')->vehicle(), function ($q) use ($request) {
+        //     $q->where('vehicle_id',"%{$request->model}%");
+        // });
+         $query->when($request->filled('my_reservations'), function ($q) {
+        $q->where('user_id', auth()->id());
+       });
+
+        $query->when($request->filled('vehicle_name'), function ($q) use ($request) {
+        $q->whereHas('vehicle', function ($q) use ($request) {
+            $q->where('name', 'LIKE', "%{$request->vehicle_name}%");
+         });
+
+        });
+
+
+
+        $reservation = $query->get();
+
+        return $reservation;
+
+    }
+
+
+
+    public function filterAllReservation($request) {
+        $query = Reservation::query()->with('vehicle');
+
+        $query->when($request->filled('start_date'), function ($q) use ($request) {
+            $q->where('start_date', '>=', $request->start_date);
+        });
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+
+        $query->when($request->filled('vehicle_marque'), function ($q) use ($request) {
+        $q->whereHas('vehicle', function ($q) use ($request) {
+            $q->where('marque', 'LIKE', "%{$request->vehicle_marque}%");
+         });
+
+        });
+
+
+
+        $reservation = $query->get();
+
+        return $reservation;
+
+    }
+
 }

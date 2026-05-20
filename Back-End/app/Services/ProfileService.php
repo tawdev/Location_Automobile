@@ -7,25 +7,17 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 class ProfileService
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
-    {
-        //
-    }
     public function displayMyProfile($id)
     {
         return User::findOrFail($id);
-
     }
 
-    public function updateInformations($id, $data)
+       public function updateProfilePicture(array $data)
     {
-        $user = User::findOrFail($id);
+        $user = auth()->user();
 
-        if (isset($data['profile_pic']) && $data['profile_pic'] instanceof \Illuminate\Http\UploadedFile) {
-
+        if (isset($data['profile_pic'])) {
+            // Supprimer l'ancienne image si elle existe
             if ($user->profile_pic) {
                 $oldPath = public_path('image/' . $user->profile_pic);
                 if (file_exists($oldPath)) {
@@ -33,16 +25,61 @@ class ProfileService
                 }
             }
 
-
             $filename = time() . '.' . $data['profile_pic']->getClientOriginalExtension();
             $data['profile_pic']->move(public_path('image'), $filename);
-            $data['profile_pic'] = $filename;
+
+            $user->update(['profile_pic' => $filename]);
         }
-        if (!Hash::check($data['new_password'], $user->password) || $data['new_password'] !== $data['confirme_password']) {
+
+        return $user;
+    }
+
+    public function updatePassword(array $data)
+    {
+        $user = auth()->user();
+
+        if (empty($data['new_password']) || empty($data['old_password']) || empty($data['confirme_password'])) {
             return false;
         }
 
-        $user->update($data);
+        if (!Hash::check($data['old_password'], $user->password)) {
+            return false;
+        }
+
+        if ($data['new_password'] !== $data['confirme_password']) {
+            return false;
+        }
+
+        $user->update([
+            'password' => Hash::make($data['new_password'])
+        ]);
+
+        return $user;
+    }
+
+    public function updateName(array $data)
+    {
+        $user = auth()->user();
+
+        if (!$data['new_name']) {
+            return false;
+        }
+
+        $user->update(['name' => $data['new_name']]);
+
+        return $user;
+    }
+
+    public function updateEmail(array $data)
+    {
+        $user = auth()->user();
+
+        if (empty($data['email'])) {
+            return false;
+        }
+
+        $user->update(['email' => $data['email']]);
+
         return $user;
     }
 
