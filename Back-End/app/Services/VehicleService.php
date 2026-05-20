@@ -13,7 +13,12 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures')->get();
+        return Vehicle::with('pictures')->latest()->get();
+    }
+
+    public function getById($id)
+    {
+        return Vehicle::with('pictures')->find($id);
     }
 
     public function CreateVehicle($request)

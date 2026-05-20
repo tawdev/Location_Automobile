@@ -1,0 +1,58 @@
+"use client";
+
+import React from "react";
+
+type InputFieldProps = {
+  label: string;
+  type: "email" | "password" | "text";
+  value: string;
+  onChange: (next: string) => void;
+  placeholder?: string;
+  autoComplete?: string;
+  leftIcon?: React.ReactNode;
+  rightAction?: React.ReactNode;
+};
+
+export function InputField({
+  label,
+  type,
+  value,
+  onChange,
+  placeholder,
+  autoComplete,
+  leftIcon,
+  rightAction,
+}: InputFieldProps) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="text-[12px] font-semibold text-[#395886]">{label}</div>
+
+      <div className="relative">
+        {leftIcon ? (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#638ECB]">{leftIcon}</div>
+        ) : null}
+
+        <input
+          value={value}
+          type={type}
+          autoComplete={autoComplete}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={[
+            "w-full rounded-[8px] border border-[#D5DEEF] bg-white/70",
+            "h-[40px] px-3",
+            leftIcon ? "pl-10" : "",
+            rightAction ? "pr-10" : "",
+            "text-[13px] text-[#395886] placeholder:text-[#638ECB]/70",
+            "focus:outline-none focus:ring-2 focus:ring-[#638ECB]/40 focus:border-[#638ECB]",
+            "transition-colors",
+          ].join(" ")}
+        />
+
+        {rightAction ? (
+          <div className="absolute right-2 top-1/2 -translate-y-1/2">{rightAction}</div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
