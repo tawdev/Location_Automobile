@@ -47,7 +47,7 @@ function toVehicleFormData(payload: AdminVehiclePayload): FormData {
 
   if (payload.images && payload.images.length > 0) {
     for (const file of payload.images) {
-      fd.append("images", file);
+      fd.append("images[]", file);
     }
   }
 
@@ -68,9 +68,12 @@ export async function createAdminVehicle(payload: AdminVehiclePayload): Promise<
 
 export async function updateAdminVehicle(vehicleId: number, payload: AdminVehiclePayload): Promise<Vehicle> {
   const fd = toVehicleFormData(payload);
+  
+  // Use Laravel method spoofing: send a POST request with '_method' set to 'PUT'
+  fd.set("_method", "PUT");
 
   const res = await apiRequest<{ status: string; data: Vehicle }>({
-    method: "PUT",
+    method: "POST",
     path: `/Vehicle/${vehicleId}`,
     body: fd,
   });
