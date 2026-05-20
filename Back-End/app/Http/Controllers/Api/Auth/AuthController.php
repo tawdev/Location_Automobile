@@ -7,8 +7,6 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -81,53 +79,5 @@ class AuthController extends Controller
             'message' => 'information du utilisateur',
             'data' => $request->user(),
         ], 200);
-    }
-
-    public function googleRedirect()
-    {
-        return Socialite::driver('google')
-            ->stateless()
-            ->redirect();
-    }
-
-    public function googleCallback()
-    {
-        try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
-        } catch (\Exception $e) {
-            return redirect()->away(env('FRONTEND_URL') . '/login?error=google_auth_failed');
-        }
-
-        $user = User::where('google_id', $googleUser->getId())->first();
-
-        if (!$user) {
-            $user = User::where('email', $googleUser->getEmail())->first();
-
-            if ($user) {
-                $user->update([
-                    'google_id' => $googleUser->getId(),
-                    'google_avatar' => $googleUser->getAvatar(),
-                ]);
-            } else {
-                $clientRole = Role::query()->where('name', 'Client')->first();
-
-                if (!$clientRole) {
-                    return redirect()->away(env('FRONTEND_URL') . '/login?error=missing_role');
-                }
-
-                $user = User::create([
-                    'name' => $googleUser->getName(),
-                    'email' => $googleUser->getEmail(),
-                    'password' => Hash::make(Str::random(32)),
-                    'role_id' => $clientRole->id,
-                    'google_id' => $googleUser->getId(),
-                    'google_avatar' => $googleUser->getAvatar(),
-                ]);
-            }
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return redirect()->away(env('FRONTEND_URL') . '/auth/callback?token=' . $token);
     }
 }
