@@ -725,6 +725,7 @@ export default function BookingHistoryPage() {
                       <p className="text-sm font-bold text-gray-800 text-center">Automatic</p>
                     </div>
 
+{/*  */}
                     {/* Seats */}
                     <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-5 flex flex-col items-center gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#1e3a5f]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
