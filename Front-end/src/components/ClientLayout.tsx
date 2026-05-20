@@ -1,0 +1,124 @@
+"use client";
+
+import { useRouter, usePathname } from "next/navigation";
+import { LogOut, Settings } from "lucide-react";
+import { authLogout } from "@/lib/authApi";
+import { clearAuthToken } from "@/lib/tokenStorage";
+
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  return (
+    <div className="min-h-screen bg-[#F4F7FB] flex flex-col font-sans">
+      <header className="bg-[#D5DEEF] px-10 h-20 flex items-center justify-between border-b border-[#D5DEEF]/50">
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => router.push("/vehicles")}
+        >
+          <div className="flex flex-col items-center">
+             <div className="relative w-16 h-8 flex items-center justify-center">
+               <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
+                 <path d="M10 16L30 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
+                 <circle cx="12" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
+                 <circle cx="28" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
+                 <path d="M18 10L25 10L27 16" stroke="#2B4C7E" strokeWidth="2" fill="none" />
+               </svg>
+             </div>
+             <span className="text-[#2B4C7E] font-black italic tracking-widest text-sm leading-none mt-[-4px]">
+               CARFORFAR
+             </span>
+          </div>
+        </div>
+
+        <nav className="flex items-center gap-8">
+          <button
+            onClick={() => router.push("/vehicles")}
+            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname === "/vehicles" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+          >
+            V&eacute;hicules
+          </button>
+
+          <button
+            onClick={() => router.push("/MyReservations")}
+            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname === "/MyReservations" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+          >
+            Historique
+          </button>
+
+          <button
+            onClick={() => router.push("/profile")}
+            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname.includes("/profile") ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+          >
+            Profil
+          </button>
+
+          <button
+            onClick={() => router.push("/settings")}
+            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname === "/settings" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+          >
+            <Settings className="w-4 h-4" />
+            Param&egrave;tres
+          </button>
+
+          <button
+            onClick={async () => {
+              try {
+                await authLogout();
+              } finally {
+                clearAuthToken();
+                router.push("/login");
+              }
+            }}
+            className="flex items-center gap-1.5 text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ml-4"
+          >
+            D&eacute;connexion
+            <LogOut className="w-4 h-4" />
+          </button>
+        </nav>
+      </header>
+
+      <main className="flex-1">
+        {children}
+      </main>
+
+      <footer className="bg-[#E5E7EB] py-12 px-10 mt-auto">
+        <div className="max-w-[1200px] mx-auto flex flex-col gap-8">
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col items-start cursor-pointer w-fit" onClick={() => router.push("/vehicles")}>
+               <div className="relative w-16 h-8 flex items-center justify-center">
+                 <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
+                   <path d="M10 16L30 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
+                   <circle cx="12" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
+                   <circle cx="28" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
+                   <path d="M18 10L25 10L27 16" stroke="#2B4C7E" strokeWidth="2" fill="none" />
+                 </svg>
+               </div>
+               <span className="text-[#2B4C7E] font-black italic tracking-widest text-sm leading-none mt-[-4px]">
+                 CARFORFAR
+               </span>
+            </div>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Conditions d&rsquo;utilisation</a>
+              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Politique de confidentialit&eacute;</a>
+              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Guide de Marrakech</a>
+              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Conciergerie de Luxe</a>
+              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Contactez-nous</a>
+            </div>
+          </div>
+
+          <div className="pt-8 text-xs text-gray-500 font-medium">
+            &copy; 2024 CARFORFAR Location de Voitures. Agence de Tourisme Marocaine.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

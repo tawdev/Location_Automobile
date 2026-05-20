@@ -2,11 +2,11 @@ name: url
 values:
   - key: url
     value: ''
-  - key: token
+  - key: user_1
+    value: ''
+  - key: user_2
+    value: ''
+  - key: Me
     value: ''
   - key: admin
-    value: ''
-  - key: TestUser
-    value: ''
-  - key: User2
     value: ''
