@@ -1,0 +1,20 @@
+$kind: http-request
+name: Annuler_reservation
+url: "{{url}}/MyReservations/19/annuler"
+method: PATCH
+headers:
+  Accept: application/json
+body:
+  type: json
+  content: "{\r
+
+    \    \"start_date\":\"2026-05-16\",\r
+
+    \    \"end_date\":\"2026-05-17\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{Me}}"
+order: 4216502361094636

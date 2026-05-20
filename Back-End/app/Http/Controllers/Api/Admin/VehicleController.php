@@ -34,6 +34,21 @@ class VehicleController extends Controller
         ], 200);
     }
 
+    public function show($id)
+    {
+        $vehicle = $this->vehicleService->getById($id);
+        if (!$vehicle) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Véhicule non trouvé'
+            ], 404);
+        }
+        return response()->json([
+            'status' => 'success',
+            'data' => $vehicle
+        ], 200);
+    }
+
 
 
     public function store(VehicleRequest $request)
