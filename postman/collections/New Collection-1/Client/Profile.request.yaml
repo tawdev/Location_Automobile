@@ -47,4 +47,11 @@ settings:
     - content-length
     - host
     - user-agent
+method: PUT
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
 order: 2608836112680532

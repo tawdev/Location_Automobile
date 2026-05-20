@@ -25,6 +25,11 @@ class ReservationService
             if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
                 $reservation->update([
                     'status'=>'Terminée'
+        $data=Reservation::where('user_id',auth()->id())->get();
+         foreach($data as $reservation){
+            if(now() > $reservation->end_date){
+                $reservation->update([
+                    'status'=>'Términée'
                 ]);
             }
         }
@@ -81,6 +86,45 @@ class ReservationService
     );
 
     return $Reservation;
+    public function makeReservation($id,$data)
+{
+    $vehicle = Vehicle::findOrFail($id);
+
+    $conflict = $vehicle->reservations()
+        ->where('status', '=', 'Confirmée')
+        ->where('end_date', '>', $data['start_date'])
+        ->where('start_date','<',$data['end_date'])
+        ->exists();
+
+        $alreadyExists = Reservation::where('user_id', auth()->id())
+            ->where('vehicle_id', $id)
+            ->where('start_date', $data['start_date'])
+            ->where('end_date', $data['end_date'])
+            ->exists();
+
+        if ($alreadyExists) {
+            return 1;
+        }
+
+        if ($conflict) {
+            return false;
+        }
+
+       $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
+       $total = $days * $vehicle->pricePerDay;
+
+
+
+
+   $Reservation=Reservation::create(
+    array_merge($data, [
+        'user_id'    => auth()->id(),
+        'vehicle_id' => $id,
+        'TotalPrice'=>$total
+    ])
+);
+
+return $Reservation;
 }
 
    public function acceptReservition($id)
@@ -104,6 +148,7 @@ class ReservationService
     public function refuseReservition($id){
         $reservaition = Reservation::findOrFail($id);
        if (\Carbon\Carbon::parse($reservaition->start_date) < now()->addHours(48)) {
+       if ($reservaition->start_date < now()->addHours(48) || now()>$reservaition->start_date || now()<$reservaition->end_date) {
             return false;
             }
 
@@ -132,6 +177,8 @@ class ReservationService
 
         $query = Reservation::query()->with(['vehicle', 'vehicle.pictures'])
                                      ->where('user_id', auth()->id());
+        $query = Reservation::query()->with('vehicle');
+
 
         $query->when($request->filled('start_date'), function ($q) use ($request) {
             $q->where('start_date', '>=', $request->start_date);
@@ -144,12 +191,25 @@ class ReservationService
             $q->where('status',$request->status);
         });
 
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+        // $query->when($request->filled('vehicle_id')->vehicle(), function ($q) use ($request) {
+        //     $q->where('vehicle_id',"%{$request->model}%");
+        // });
+         $query->when($request->filled('my_reservations'), function ($q) {
+        $q->where('user_id', auth()->id());
+       });
+
         $query->when($request->filled('vehicle_name'), function ($q) use ($request) {
         $q->whereHas('vehicle', function ($q) use ($request) {
             $q->where('name', 'LIKE', "%{$request->vehicle_name}%");
          });
 
         });
+
+
 
         $reservation = $query->get();
 
@@ -173,12 +233,19 @@ class ReservationService
             $q->where('status',$request->status);
         });
 
+        $query->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date','<=',$request->end_date);
+        });
+
+
         $query->when($request->filled('vehicle_marque'), function ($q) use ($request) {
         $q->whereHas('vehicle', function ($q) use ($request) {
             $q->where('marque', 'LIKE', "%{$request->vehicle_marque}%");
          });
 
         });
+
+
 
         $reservation = $query->get();
 
