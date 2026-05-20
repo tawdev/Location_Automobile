@@ -251,8 +251,9 @@ export default function AdminVehicleNewPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const created = await createAdminVehicle({ ...payload, images: images.length ? images : undefined });
-      router.push(`/admin/vehicles/${created.id}/edit`);
+      await createAdminVehicle({ ...payload, images: images.length ? images : undefined });
+      // Force a full reload so the list definitely re-fetches the new vehicle.
+      window.location.assign("/admin/vehicles");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to create vehicle";
       setError(msg);
