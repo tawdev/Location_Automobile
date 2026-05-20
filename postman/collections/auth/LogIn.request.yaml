@@ -6,7 +6,13 @@ headers:
   Accept: application/json
 body:
   type: json
-  content: ""
+  content: "{\r
+
+    \     \"email\":\"mohamdeOuzzat2003@gmail.com\",\r
+
+    \    \"password\":\"BAYERN 2020\"\r
+
+    }"
 auth:
   type: bearer
   credentials:

@@ -18,6 +18,8 @@ Route::post('auth/register' , [AuthController::class, 'register']);
 Route::post('auth/login' , [AuthController::class, 'login']);
 Route::post('auth/logout' , [AuthController::class , 'logout'])->middleware('auth:sanctum');
 Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth:sanctum');
+Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
+Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 
 
 
@@ -44,10 +46,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/MyReservations',[ReservationController::class, 'index']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
+    Route::get('/profile',[ProfileController::class,'index']);
     Route::put('/profile/password',[ProfileController::class,'updateUserPassword']);
     Route::put('/profile/name',[ProfileController::class,'updateUserName']);
     Route::put('/profile/picture',[ProfileController::class,'updateUserProfilePicture']);
     Route::put('/profile/email',[ProfileController::class,'updateUserEmail']);
+    Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
+
+    
 
 
 
