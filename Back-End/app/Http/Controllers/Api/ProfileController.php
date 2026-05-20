@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\ProfileRequest;
 use App\Http\Requests\StoreCinRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -44,17 +45,17 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function updateUserPassword(Request $request)
     {
         $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,',
-            'profile_pic' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-            'new_password' => 'sometimes|string|min:8',
-            'confirme_password' => 'sometimes|string|min:8'
+        'old_password'     => 'required|string|min:8',
+        'new_password'     => 'required|string|min:8',
+        'confirme_password'=> 'required|string|min:8',
         ]);
 
-        $data = $this->profileService->updateInformations(auth()->id(), $request->all());
+        $data=$this->profileService->updatePassword(
+            $request->only('old_password','new_password','confirme_password')
+            );
 
         if (!$data) {
             return response()->json([
@@ -64,10 +65,58 @@ class ProfileController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Profile mise à jour avec succès',
+            'message' => 'mot de passe mise à jour avec succès',
             'data' => $data,
         ]);
     }
+
+    public function updateUserName(Request $request){
+        $request->validate([
+            'new_name'=>'required|string|max:255',
+        ]);
+        $data=$this->profileService->updateName($request->only('new_name'));
+        if(!$data){
+            return response()->json([
+                'status'=>'success',
+                'messahe'=>'error',
+                'data'=>$data
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'le nom mise à jour avec succès',
+            'data'=>$data
+        ]);
+    }
+
+    public function updateUserEmail(Request $request){
+        $request->validate([
+            'email'=>'required|email'
+        ]);
+        $data=$this->profileService->updateEmail($request->only('email'));
+        return response()->json([
+            'data'=>$data
+        ]);
+
+    }
+
+   public function updateUserProfilePicture(Request $request)
+{
+    $request->validate([
+        'profile_pic' => 'sometimes|nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    $data = $this->profileService->updateProfilePicture([
+        'profile_pic' => $request->file('profile_pic')
+    ]);
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Photo de profil mise à jour avec succès',
+        'data'    => $data
+    ]);
+}
 
     /**
      * Remove the specified resource from storage.
@@ -78,6 +127,7 @@ class ProfileController extends Controller
     }
 
 
+    
 
 
 
@@ -104,12 +154,12 @@ class ProfileController extends Controller
 
 
     public function  addPermi(StorePermiRequest $request) {
-        
+
         $isUpdated = $this->profileService->updateUserPermi($request->validated(), $request->user());
 
         if (!$isUpdated) {
             return response()->json([
-                'message' => 'error',
+                'status' => 'error',
                 'data' => 'Une erreur s\'est produite.'
             ]);
 
@@ -119,8 +169,8 @@ class ProfileController extends Controller
             'message' => 'succès',
             'data' => 'Profil permi mis à jour avec succès'
         ]);
-        
+
     }
 
-    
+
 }

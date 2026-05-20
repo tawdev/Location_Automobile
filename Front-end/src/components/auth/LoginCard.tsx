@@ -4,6 +4,7 @@ import React, { useEffect, useId, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { InputField } from "./InputField";
 import { SocialButton, GoogleIcon } from "./SocialButton";
+import { API_BASE_URL } from "@/lib/config";
 
 type AuthCardStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -281,7 +282,7 @@ export function LoginCard({
               icon={<GoogleIcon />}
               disabled={isSubmitting}
               onClick={() => {
-                // placeholder: wire Google auth later
+                window.location.href = `${API_BASE_URL}/auth/google/redirect`;
               }}
             />
           </>

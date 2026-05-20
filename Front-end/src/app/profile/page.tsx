@@ -1,87 +1,92 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/authContext";
-import type { User } from "@/lib/types";
 import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
-import { addCin, addPermi, updateProfile } from "@/lib/profileApi";
-import { useRouter } from "next/navigation";
-import { authLogout } from "@/lib/authApi";
-import { clearAuthToken } from "@/lib/tokenStorage";
+import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword } from "@/lib/profileApi";
+import { Shield, FileText, Upload, CheckCircle, User as UserIcon } from "lucide-react";
 
-function TopBar({ user }: { user: User | null }) {
-  const router = useRouter();
-
+function UploadZone({
+  label, file, existingUrl, onChange, hasImage,
+}: {
+  label: string; file: File | null; existingUrl?: string | null;
+  onChange: (f: File | null) => void; hasImage?: boolean;
+}) {
+  const [dragging, setDragging] = useState(false);
   return (
-    <div className="border-b-4 border-black bg-white p-4 flex items-center justify-between gap-4">
-      <div className="flex flex-col">
-        <div className="font-black text-xl leading-tight">Location Automobile</div>
-        <div className="font-bold text-sm">{user?.name ?? ""}</div>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.push("/vehicles")}
-          className="font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100"
-        >
-          Vehicles
-        </button>
-
-        <button
-          type="button"
-          onClick={() => router.push("/reservations")}
-          className="font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100"
-        >
-          My reservations
-        </button>
-
-        <button
-          type="button"
-          onClick={async () => {
-            try {
-              await authLogout();
-            } finally {
-              clearAuthToken();
-              router.push("/login");
-            }
-          }}
-          className="font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100"
-        >
-          Logout
-        </button>
-      </div>
-    </div>
+    <label
+      className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer transition-colors h-36
+        ${dragging ? "border-[#395886] bg-[#eef2fb]" : "border-gray-300 bg-gray-50 hover:border-[#638ECB] hover:bg-[#f5f7fd]"}`}
+      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) onChange(f); }}
+    >
+      <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
+      {existingUrl && hasImage ? (
+        <>
+          <img src={existingUrl} alt={label} className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-40" />
+          <div className="relative z-10 flex flex-col items-center gap-1">
+            <div className="w-10 h-10 bg-[#395886] rounded-full flex items-center justify-center"><Upload className="w-5 h-5 text-white" /></div>
+            <span className="text-sm font-semibold text-[#395886]">{label}</span>
+            <span className="text-xs text-gray-500">JPG, PNG or PDF (Max 5MB)</span>
+          </div>
+        </>
+      ) : file ? (
+        <div className="flex flex-col items-center gap-1">
+          <CheckCircle className="w-8 h-8 text-green-500" />
+          <span className="text-xs font-semibold text-gray-700 text-center px-2 truncate max-w-full">{file.name}</span>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-1">
+          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center"><Upload className="w-5 h-5 text-gray-400" /></div>
+          <span className="text-sm font-semibold text-gray-700">{label}</span>
+          <span className="text-xs text-gray-400">JPG, PNG or PDF (Max 5MB)</span>
+        </div>
+      )}
+    </label>
   );
 }
 
 export default function ProfilePage() {
-  const router = useRouter();
   const { user, refreshUser } = useAuth();
 
-  const initial = useMemo(() => {
-    return {
-      name: user?.name ?? "",
-      email: user?.email ?? "",
-      profile_pic: user?.profile_pic ?? null,
-      cin_recto: user?.cin_recto ?? null,
-      cin_verso: user?.cin_verso ?? null,
-      permi_recto: user?.permi_recto ?? null,
-      permi_verso: user?.permi_verso ?? null,
-    };
-  }, [user]);
+  const initial = useMemo(() => ({
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    profile_pic: user?.profile_pic ?? null,
+    cin_recto: user?.cin_recto ?? null,
+    cin_verso: user?.cin_verso ?? null,
+    permi_recto: user?.permi_recto ?? null,
+    permi_verso: user?.permi_verso ?? null,
+  }), [user]);
 
+  // ── state ──
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!initialized.current && initial.name) {
+      setName(initial.name);
+      setEmail(initial.email);
+      initialized.current = true;
+    }
+  }, [initial.name, initial.email]);
+
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
 
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmePassword, setConfirmePassword] = useState("");
 
   const [basicSubmitting, setBasicSubmitting] = useState(false);
   const [basicError, setBasicError] = useState<string | null>(null);
   const [basicSuccess, setBasicSuccess] = useState<string | null>(null);
+
+  const [pwSubmitting, setPwSubmitting] = useState(false);
+  const [pwError, setPwError] = useState<string | null>(null);
+  const [pwSuccess, setPwSuccess] = useState<string | null>(null);
 
   const [cinRectoFile, setCinRectoFile] = useState<File | null>(null);
   const [cinVersoFile, setCinVersoFile] = useState<File | null>(null);
@@ -92,388 +97,267 @@ export default function ProfilePage() {
   const [docsError, setDocsError] = useState<string | null>(null);
   const [docsSuccess, setDocsSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    setName(initial.name);
-    setEmail(initial.email);
-  }, [initial.email, initial.name]);
-
+  // ── handlers ──
   async function onUpdateBasic(e: React.FormEvent) {
     e.preventDefault();
-
     setBasicSubmitting(true);
     setBasicError(null);
     setBasicSuccess(null);
-
     try {
-      await updateProfile({
-        name: name.trim() ? name.trim() : undefined,
-        email: email.trim() ? email.trim() : undefined,
-        profile_pic: profilePicFile,
-        new_password: newPassword ? newPassword : undefined,
-        confirme_password: confirmePassword ? confirmePassword : undefined,
-      });
-
+      await updateProfileName(name.trim());
+      if (profilePicFile) {
+        await updateProfilePicture(profilePicFile);
+      }
       setBasicSuccess("Profile updated successfully.");
       setProfilePicFile(null);
-      setNewPassword("");
-      setConfirmePassword("");
       await refreshUser();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to update profile";
-      setBasicError(msg);
+      setBasicError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
       setBasicSubmitting(false);
     }
   }
 
-  async function onUploadCin(e: React.FormEvent) {
+  async function onUpdatePassword(e: React.FormEvent) {
     e.preventDefault();
-    if (!cinRectoFile || !cinVersoFile) {
-      setDocsError("Please select both CIN recto and CIN verso.");
-      return;
-    }
-
-    setDocsSubmitting(true);
-    setDocsError(null);
-    setDocsSuccess(null);
-
+    setPwSubmitting(true);
+    setPwError(null);
+    setPwSuccess(null);
     try {
-      await addCin(cinRectoFile, cinVersoFile);
-      setDocsSuccess("CIN updated successfully.");
-      setCinRectoFile(null);
-      setCinVersoFile(null);
-      await refreshUser();
+      await updateProfilePassword({
+        old_password: currentPassword,
+        new_password: newPassword,
+        confirme_password: confirmePassword,
+      });
+      setPwSuccess("Password updated successfully.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmePassword("");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to upload CIN";
-      setDocsError(msg);
+      setPwError(err instanceof Error ? err.message : "Failed to update password");
     } finally {
-      setDocsSubmitting(false);
+      setPwSubmitting(false);
     }
   }
 
   async function onUploadPermi(e: React.FormEvent) {
     e.preventDefault();
-    if (!permiRectoFile || !permiVersoFile) {
-      setDocsError("Please select both Permi recto and Permi verso.");
-      return;
-    }
-
-    setDocsSubmitting(true);
-    setDocsError(null);
-    setDocsSuccess(null);
-
+    if (!permiRectoFile || !permiVersoFile) { setDocsError("Please select both Permi recto and Permi verso."); return; }
+    setDocsSubmitting(true); setDocsError(null); setDocsSuccess(null);
     try {
       await addPermi(permiRectoFile, permiVersoFile);
-      setDocsSuccess("Permi updated successfully.");
-      setPermiRectoFile(null);
-      setPermiVersoFile(null);
+      setDocsSuccess("Driver's License uploaded successfully.");
+      setPermiRectoFile(null); setPermiVersoFile(null);
       await refreshUser();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to upload Permi";
-      setDocsError(msg);
-    } finally {
-      setDocsSubmitting(false);
-    }
+      setDocsError(err instanceof Error ? err.message : "Failed to upload");
+    } finally { setDocsSubmitting(false); }
   }
+
+  async function onUploadCin(e: React.FormEvent) {
+    e.preventDefault();
+    if (!cinRectoFile || !cinVersoFile) { setDocsError("Please select both CIN recto and CIN verso."); return; }
+    setDocsSubmitting(true); setDocsError(null); setDocsSuccess(null);
+    try {
+      await addCin(cinRectoFile, cinVersoFile);
+      setDocsSuccess("CIN / Passport uploaded successfully.");
+      setCinRectoFile(null); setCinVersoFile(null);
+      await refreshUser();
+    } catch (err) {
+      setDocsError(err instanceof Error ? err.message : "Failed to upload");
+    } finally { setDocsSubmitting(false); }
+  }
+
+  const profilePicSrc = initial.profile_pic ? profileImageUrl(initial.profile_pic) : null;
 
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-zinc-50 text-black">
-        <TopBar user={user} />
+      <main className="max-w-2xl mx-auto px-4 py-10 flex flex-col gap-6">
 
-        <div className="max-w-5xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Basic profile */}
-          <div className="border-4 border-black bg-white p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <h1 className="font-black text-3xl mb-2">Profile</h1>
-            <p className="font-bold mb-6">Update your information</p>
+        <div>
+          <h1 className="text-3xl font-black text-[#1a2a4a]">Profile Settings</h1>
+          <p className="text-gray-500 mt-1 text-sm">Update your personal information and required documents for seamless rentals.</p>
+        </div>
 
-            {basicError ? (
-              <div className="mb-4 p-3 border-2 border-black bg-white font-bold">
-                {basicError}
-              </div>
-            ) : null}
+        {/* ── Personal Details ── */}
+        <div className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#D5DEEF] flex items-center gap-2">
+            <UserIcon className="w-5 h-5 text-[#395886]" />
+            <h2 className="font-bold text-[#1a2a4a] text-base">Personal Details</h2>
+          </div>
 
-            {basicSuccess ? (
-              <div className="mb-4 p-3 border-2 border-black bg-white font-bold">
-                {basicSuccess}
-              </div>
-            ) : null}
-
-            <form onSubmit={onUpdateBasic} className="flex flex-col gap-4">
-              <label className="flex flex-col gap-2">
-                <span className="font-bold">Name</span>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border-2 border-black p-2"
-                  type="text"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2">
-                <span className="font-bold">Email</span>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="border-2 border-black p-2"
-                  type="email"
-                />
-              </label>
-
-              <div className="flex items-start gap-4">
-                <div className="w-24">
-                  {initial.profile_pic ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={profileImageUrl(initial.profile_pic)}
-                      alt="Profile"
-                      className="w-24 h-24 object-cover border-2 border-black"
-                    />
+          <form onSubmit={onUpdateBasic} className="px-6 py-5 flex flex-col gap-5">
+            <div className="flex items-start gap-5">
+              {/* Avatar */}
+              <div className="flex flex-col items-center gap-2 shrink-0">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#D5DEEF] bg-[#eef2fb]">
+                  {profilePicSrc ? (
+                    <img src={profilePicSrc} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-24 h-24 border-2 border-black flex items-center justify-center font-black">
-                      No pic
+                    <div className="w-full h-full flex items-center justify-center">
+                      <UserIcon className="w-8 h-8 text-[#638ECB]" />
                     </div>
                   )}
                 </div>
-
-                <label className="flex flex-col gap-2 flex-1">
-                  <span className="font-bold">Profile picture</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setProfilePicFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)
-                    }
-                  />
-                  <span className="text-sm font-bold">Optional</span>
+                <label className="text-xs font-semibold text-[#395886] cursor-pointer hover:underline">
+                  Change Photo
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => setProfilePicFile(e.target.files?.[0] ?? null)} />
                 </label>
+                {profilePicFile && <span className="text-xs text-green-600 font-medium">Selected</span>}
               </div>
 
-              <div className="border-t-4 border-black pt-4 mt-2">
-                <div className="font-black text-xl mb-2">Change password</div>
-
-                <label className="flex flex-col gap-2">
-                  <span className="font-bold">New password</span>
+              {/* Name + Email */}
+              <div className="flex-1 flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Full Name</label>
                   <input
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="border-2 border-black p-2"
-                    type="password"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="border border-[#D5DEEF] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#638ECB] bg-white"
+                    type="text"
                   />
-                </label>
+                </div>
 
-                <label className="flex flex-col gap-2">
-                  <span className="font-bold">Confirm password</span>
-                  <input
-                    value={confirmePassword}
-                    onChange={(e) => setConfirmePassword(e.target.value)}
-                    className="border-2 border-black p-2"
-                    type="password"
-                  />
-                </label>
-
-                <div className="text-sm font-bold mt-2">
-                  Leave empty if you don't want to change password.
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Email Address</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </span>
+                    <input
+                      value={email}
+                      disabled
+                      className="w-full border border-[#D5DEEF] rounded-lg pl-9 pr-3 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
+                      type="email"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400">Contact support to change your email address.</p>
                 </div>
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={basicSubmitting}
-                className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
-              >
-                {basicSubmitting ? "Saving..." : "Save profile"}
+            {basicError && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{basicError}</div>}
+            {basicSuccess && <div className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{basicSuccess}</div>}
+
+            <div className="flex justify-end">
+              <button type="submit" disabled={basicSubmitting}
+                className="bg-[#395886] hover:bg-[#2d4770] text-white text-sm font-semibold px-5 py-2 rounded-lg disabled:opacity-50 transition-colors">
+                {basicSubmitting ? "Saving..." : "Save Details"}
               </button>
-            </form>
-          </div>
+            </div>
+          </form>
 
-          {/* Documents */}
-          <div className="border-4 border-black bg-white p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <h2 className="font-black text-3xl mb-2">Documents</h2>
-            <p className="font-bold mb-6">Upload CIN + Permi images</p>
-
-            {docsError ? (
-              <div className="mb-4 p-3 border-2 border-black bg-white font-bold">
-                {docsError}
-              </div>
-            ) : null}
-            {docsSuccess ? (
-              <div className="mb-4 p-3 border-2 border-black bg-white font-bold">
-                {docsSuccess}
-              </div>
-            ) : null}
-
-            {/* CIN */}
-            <form onSubmit={onUploadCin} className="flex flex-col gap-4 mb-8">
-              <div className="border-t-4 border-black pt-4 mt-2">
-                <div className="font-black text-xl mb-2">CIN</div>
-
-                <div className="flex items-start gap-4">
-                  <div className="flex gap-3">
-                    <div className="w-24">
-                      {initial.cin_recto ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={vehicleImageUrl(initial.cin_recto)}
-                          alt="CIN recto"
-                          className="w-24 h-24 object-cover border-2 border-black"
-                        />
-                      ) : (
-                        <div className="w-24 h-24 border-2 border-black flex items-center justify-center font-black">
-                          Recto
-                        </div>
-                      )}
-                    </div>
-                    <div className="w-24">
-                      {initial.cin_verso ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={vehicleImageUrl(initial.cin_verso)}
-                          alt="CIN verso"
-                          className="w-24 h-24 object-cover border-2 border-black"
-                        />
-                      ) : (
-                        <div className="w-24 h-24 border-2 border-black flex items-center justify-center font-black">
-                          Verso
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 flex-1">
-                    <label className="flex flex-col gap-2">
-                      <span className="font-bold">CIN recto</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setCinRectoFile(
-                            e.target.files && e.target.files[0] ? e.target.files[0] : null
-                          )
-                        }
-                      />
-                    </label>
-
-                    <label className="flex flex-col gap-2">
-                      <span className="font-bold">CIN verso</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setCinVersoFile(
-                            e.target.files && e.target.files[0] ? e.target.files[0] : null
-                          )
-                        }
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={docsSubmitting}
-                className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
-              >
-                {docsSubmitting ? "Uploading..." : "Upload CIN"}
-              </button>
-            </form>
-
-            {/* Permi */}
-            <form onSubmit={onUploadPermi} className="flex flex-col gap-4">
-              <div className="border-t-4 border-black pt-4 mt-2">
-                <div className="font-black text-xl mb-2">Permi</div>
-
-                <div className="flex items-start gap-4">
-                  <div className="flex gap-3">
-                    <div className="w-24">
-                      {initial.permi_recto ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={vehicleImageUrl(initial.permi_recto)}
-                          alt="Permi recto"
-                          className="w-24 h-24 object-cover border-2 border-black"
-                        />
-                      ) : (
-                        <div className="w-24 h-24 border-2 border-black flex items-center justify-center font-black">
-                          Recto
-                        </div>
-                      )}
-                    </div>
-                    <div className="w-24">
-                      {initial.permi_verso ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={vehicleImageUrl(initial.permi_verso)}
-                          alt="Permi verso"
-                          className="w-24 h-24 object-cover border-2 border-black"
-                        />
-                      ) : (
-                        <div className="w-24 h-24 border-2 border-black flex items-center justify-center font-black">
-                          Verso
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 flex-1">
-                    <label className="flex flex-col gap-2">
-                      <span className="font-bold">Permi recto</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setPermiRectoFile(
-                            e.target.files && e.target.files[0] ? e.target.files[0] : null
-                          )
-                        }
-                      />
-                    </label>
-
-                    <label className="flex flex-col gap-2">
-                      <span className="font-bold">Permi verso</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setPermiVersoFile(
-                            e.target.files && e.target.files[0] ? e.target.files[0] : null
-                          )
-                        }
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={docsSubmitting}
-                className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
-              >
-                {docsSubmitting ? "Uploading..." : "Upload Permi"}
-              </button>
-
-              <div className="flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => router.push("/vehicles")}
-                  className="underline font-bold"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={() => refreshUser()}
-                  className="underline font-bold"
-                >
-                  Refresh
-                </button>
-              </div>
-            </form>
-          </div>
+          {/* Blue Thread at Bottom */}
+          <div className="h-1 bg-gradient-to-r from-[#638ECB] via-[#395886] to-[#638ECB]"></div>
         </div>
-      </div>
+
+        {/* ── Security ── */}
+        <div className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#D5DEEF] flex items-center gap-2">
+            <Shield className="w-5 h-5 text-[#395886]" />
+            <h2 className="font-bold text-[#1a2a4a] text-base">Security</h2>
+          </div>
+
+          <form onSubmit={onUpdatePassword} className="px-6 py-5 flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Current Password</label>
+              <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Enter password"
+                className="border border-[#D5DEEF] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#638ECB] bg-white" type="password" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">New Password</label>
+              <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password"
+                className="border border-[#D5DEEF] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#638ECB] bg-white" type="password" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Confirm New Password</label>
+              <input value={confirmePassword} onChange={(e) => setConfirmePassword(e.target.value)} placeholder="Confirm new password"
+                className="border border-[#D5DEEF] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#638ECB] bg-white" type="password" />
+            </div>
+
+            {pwError && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{pwError}</div>}
+            {pwSuccess && <div className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{pwSuccess}</div>}
+
+            <button type="submit" disabled={pwSubmitting}
+              className="w-fit bg-[#1a2a4a] hover:bg-[#0f1c33] text-white text-sm font-semibold px-5 py-2 rounded-lg disabled:opacity-50 transition-colors">
+              {pwSubmitting ? "Updating..." : "Update Password"}
+            </button>
+          </form>
+
+          {/* Blue Thread at Bottom */}
+          <div className="h-1 bg-gradient-to-r from-[#638ECB] via-[#395886] to-[#638ECB]"></div>
+        </div>
+
+        {/* ── Required Documents ── */}
+        <div className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#D5DEEF] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-[#395886]" />
+              <h2 className="font-bold text-[#1a2a4a] text-base">Required Documents</h2>
+            </div>
+            {(initial.cin_recto && initial.permi_recto) && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-[#395886] bg-[#eef2fb] border border-[#638ECB] rounded-full px-3 py-1">
+                <CheckCircle className="w-3.5 h-3.5" /> Verified
+              </span>
+            )}
+          </div>
+
+          <div className="px-6 py-5 flex flex-col gap-6">
+            <p className="text-sm text-gray-500">Upload high-quality images of your documents to expedite your next booking.</p>
+
+            {docsError && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{docsError}</div>}
+            {docsSuccess && <div className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{docsSuccess}</div>}
+
+            {/* Driver's License */}
+            <form onSubmit={onUploadPermi} className="flex flex-col gap-3">
+              <h3 className="text-sm font-semibold text-[#1a2a4a]">
+                Driver&apos;s License
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <UploadZone label="Upload Front" file={permiRectoFile}
+                  existingUrl={initial.permi_recto ? vehicleImageUrl(initial.permi_recto) : null}
+                  onChange={setPermiRectoFile} hasImage={!!initial.permi_recto} />
+                <UploadZone label="Upload Back" file={permiVersoFile}
+                  existingUrl={initial.permi_verso ? vehicleImageUrl(initial.permi_verso) : null}
+                  onChange={setPermiVersoFile} hasImage={!!initial.permi_verso} />
+              </div>
+              <div className="flex justify-end">
+                <button type="submit" disabled={docsSubmitting}
+                  className="bg-[#395886] hover:bg-[#2d4770] text-white text-sm font-semibold px-5 py-2 rounded-lg disabled:opacity-50 transition-colors">
+                  {docsSubmitting ? "Uploading..." : "Upload License"}
+                </button>
+              </div>
+            </form>
+
+            <div className="border-t border-[#D5DEEF]" />
+
+            {/* CIN / Passport */}
+            <form onSubmit={onUploadCin} className="flex flex-col gap-3">
+              <h3 className="text-sm font-semibold text-[#1a2a4a]">CIN / Passport</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <UploadZone label="Upload Front" file={cinRectoFile}
+                  existingUrl={initial.cin_recto ? vehicleImageUrl(initial.cin_recto) : null}
+                  onChange={setCinRectoFile} hasImage={!!initial.cin_recto} />
+                <UploadZone label="Upload Back" file={cinVersoFile}
+                  existingUrl={initial.cin_verso ? vehicleImageUrl(initial.cin_verso) : null}
+                  onChange={setCinVersoFile} hasImage={!!initial.cin_verso} />
+              </div>
+              <div className="flex justify-end">
+                <button type="submit" disabled={docsSubmitting}
+                  className="bg-[#395886] hover:bg-[#2d4770] text-white text-sm font-semibold px-5 py-2 rounded-lg disabled:opacity-50 transition-colors">
+                  {docsSubmitting ? "Uploading..." : "Upload CIN / Passport"}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Blue Thread at Bottom */}
+          <div className="h-1 bg-gradient-to-r from-[#638ECB] via-[#395886] to-[#638ECB]"></div>
+        </div>
+
+      </main>
     </RequireAuth>
   );
 }

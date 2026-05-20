@@ -38,6 +38,7 @@ export type Vehicle = {
   Occupants: string;
   pictures?: Picture[];
   category?: Category;
+  created_at?: string;
 };
 
 export type ReservationStatus = string;

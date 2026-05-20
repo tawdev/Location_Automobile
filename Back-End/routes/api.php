@@ -18,6 +18,8 @@ Route::post('auth/register' , [AuthController::class, 'register']);
 Route::post('auth/login' , [AuthController::class, 'login']);
 Route::post('auth/logout' , [AuthController::class , 'logout'])->middleware('auth:sanctum');
 Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth:sanctum');
+Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
+Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 
 
 
@@ -39,15 +41,24 @@ Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles'])->mi
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Reservations/vehicle/{id}',[ReservationController::class, 'store']);
+    Route::get('/MyReservation/filter',[ReservationController::class,'filterUserReservation']);
 
     Route::get('/MyReservations',[ReservationController::class, 'index']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
-    Route::put('/profile',[ProfileController::class,'update']);
+    Route::get('/profile',[ProfileController::class,'index']);
+    Route::put('/profile/password',[ProfileController::class,'updateUserPassword']);
+    Route::put('/profile/name',[ProfileController::class,'updateUserName']);
+    Route::put('/profile/picture',[ProfileController::class,'updateUserProfilePicture']);
+    Route::put('/profile/email',[ProfileController::class,'updateUserEmail']);
+    Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
+
+    
 
 
 
 
+Route::patch('/MyReservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
 
 
 
@@ -62,7 +73,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum','admin'])->group(function (){
 Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
-Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
+Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);
+Route::get('Reservation/filter',[ReservationController::class,'filterAdminReservation']);
 
 
 

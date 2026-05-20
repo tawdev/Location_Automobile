@@ -10,8 +10,9 @@ export async function getMyReservations(): Promise<Reservation[]> {
   const res = await apiRequest<MyReservationsResponse>({
     method: "GET",
     path: "/MyReservations",
+    auth: true,
   });
-  return res.data;
+  return res.data ?? [];
 }
 
 type MakeReservationPayload = {
@@ -37,7 +38,8 @@ export async function makeReservation(vehicleId: number, payload: MakeReservatio
 export async function cancelReservation(reservationId: number): Promise<void> {
   await apiRequest<{ status: string; message?: string; data?: unknown }>({
     method: "PATCH",
-    path: `/Reservations/${reservationId}/annuler`,
+    path: `/MyReservations/${reservationId}/annuler`,
     body: null,
+    auth: true,
   });
 }
