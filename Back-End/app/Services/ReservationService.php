@@ -84,6 +84,10 @@ class ReservationService
 }
 
 
+
+
+
+
    public function acceptReservition($id)
 {
     $reservition = Reservation::with(['user', 'vehicle'])->findOrFail($id);
@@ -115,7 +119,6 @@ class ReservationService
         return $reservaition;
     }
     }
-
     public function AdminRefuseReservition($id){
             $reservaition = Reservation::findOrFail($id);
 

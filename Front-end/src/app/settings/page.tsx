@@ -9,7 +9,21 @@ import { vehicleImageUrl } from "@/lib/media";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
-function formatDate(d: string) {
+interface SettingsReservation {
+  id: number;
+  status: string;
+  start_date?: string;
+  end_date?: string;
+  TotalPrice?: number;
+  vehicle?: {
+    id: number;
+    marque?: string;
+    model?: string;
+    pictures?: { path?: string }[];
+  };
+}
+
+function formatDate(d: string | undefined) {
   if (!d) return "—";
   const date = new Date(d + "T00:00:00");
   return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
@@ -27,7 +41,7 @@ function statusLabel(s: string) {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [reservations, setReservations] = useState<any[]>([]);
+  const [reservations, setReservations] = useState<SettingsReservation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,7 +56,7 @@ export default function SettingsPage() {
         if (!res.ok) throw new Error("Failed to fetch");
         const json = await res.json();
         const items = Array.isArray(json) ? json : json.data ?? [];
-        if (!cancelled) setReservations(items.filter((r: any) => r.status !== "Annulée"));
+        if (!cancelled) setReservations(items.filter((r: SettingsReservation) => r.status !== "Annulée"));
       } catch {
         if (!cancelled) setReservations([]);
       } finally {

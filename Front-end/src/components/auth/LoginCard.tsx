@@ -61,6 +61,10 @@ export function LoginCard({
   const emailId = useId();
   const passwordId = useId();
 
+  const EMAIL_RE = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/, []);
+  const NAME_RE = useMemo(() => /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}$/, []);
+  const PASSWORD_RE = useMemo(() => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/, []);
+
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
 
   const [name, setName] = useState("");
@@ -69,10 +73,16 @@ export function LoginCard({
   const [remember, setRemember] = useState(true);
 
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    name: string | null;
+    email: string | null;
+    password: string | null;
+  }>({ name: null, email: null, password: null });
 
   useEffect(() => {
     setMode(initialMode);
     setFormError(null);
+    setFieldErrors({ name: null, email: null, password: null });
     setPassword("");
     setName("");
     setRemember(true);
@@ -86,14 +96,32 @@ export function LoginCard({
     e.preventDefault();
     setFormError(null);
 
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const nextErrors = {
+      name: mode === "signup" ? (NAME_RE.test(trimmedName) ? null : "Name must be at least 2 letters.") : null,
+      email: EMAIL_RE.test(trimmedEmail) ? null : "Enter a valid email address.",
+      password: PASSWORD_RE.test(password) ? null : "Password must be 8+ chars and include letters + numbers.",
+    };
+
+    setFieldErrors(nextErrors);
+
+    const hasAnyError = Boolean(nextErrors.name || nextErrors.email || nextErrors.password);
+    if (hasAnyError) return;
+
     try {
       if (mode === "login") {
-        await onSignIn({ email, password });
+        await onSignIn({ email: trimmedEmail, password });
       } else {
-        await onSignUp({ name, email, password });
+        await onSignUp({ name: trimmedName, email: trimmedEmail, password });
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : mode === "login" ? "Sign in failed" : "Sign up failed";
+      const msg =
+        err instanceof Error
+          ? err.message
+          : mode === "login"
+            ? "Sign in failed"
+            : "Sign up failed";
       setFormError(msg);
     }
   }
@@ -138,11 +166,19 @@ export function LoginCard({
                 label="Name"
                 type="text"
                 value={name}
-                onChange={setName}
+                onChange={(next) => {
+                  setName(next);
+                  setFieldErrors((prev) => ({ ...prev, name: null }));
+                }}
                 autoComplete="name"
                 placeholder=""
                 leftIcon={<div className="text-[#638ECB] font-extrabold">@</div>}
               />
+              {fieldErrors.name ? (
+                <span className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">
+                  {fieldErrors.name}
+                </span>
+              ) : null}
             </div>
           ) : null}
 
@@ -154,11 +190,19 @@ export function LoginCard({
               label="Email Address"
               type="email"
               value={email}
-              onChange={setEmail}
+              onChange={(next) => {
+                setEmail(next);
+                setFieldErrors((prev) => ({ ...prev, email: null }));
+              }}
               autoComplete="email"
               placeholder=""
               leftIcon={<MailIcon />}
             />
+            {fieldErrors.email ? (
+              <span className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">
+                {fieldErrors.email}
+              </span>
+            ) : null}
           </div>
 
           <div>
@@ -183,7 +227,10 @@ export function LoginCard({
                 <input
                   id={passwordId}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, password: null }));
+                  }}
                   type="password"
                   autoComplete={mode === "login" ? "current-password" : "new-password"}
                   className="w-full rounded-[8px] border border-[#D5DEEF] bg-white/70 h-[40px] px-3 pl-10 pr-10 text-[13px] text-[#395886] placeholder:text-[#638ECB]/70 focus:outline-none focus:ring-2 focus:ring-[#638ECB]/40 focus:border-[#638ECB] transition-colors"
@@ -195,6 +242,11 @@ export function LoginCard({
                   <EyeOffIcon />
                 </div>
               </div>
+              {fieldErrors.password ? (
+                <span className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">
+                  {fieldErrors.password}
+                </span>
+              ) : null}
             </div>
           </div>
 
