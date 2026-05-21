@@ -129,7 +129,7 @@ export default function SignupPage() {
                 {fieldErrors.name}
               </span>
             ) : null}
-          </label>
+          </motion.label>
 
           <motion.label
             initial={{ opacity: 0, x: -15 }}
@@ -154,7 +154,7 @@ export default function SignupPage() {
                 {fieldErrors.email}
               </span>
             ) : null}
-          </label>
+          </motion.label>
 
           <motion.label
             initial={{ opacity: 0, x: -15 }}
@@ -180,7 +180,7 @@ export default function SignupPage() {
                 {fieldErrors.password}
               </span>
             ) : null}
-          </label>
+          </motion.label>
 
           <motion.button
             initial={{ opacity: 0, y: 10 }}
