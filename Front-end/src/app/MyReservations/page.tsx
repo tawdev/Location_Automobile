@@ -30,6 +30,29 @@ interface Reservation {
   };
 }
 
+interface RawItem {
+  id: number;
+  status?: string;
+  TotalPrice?: number;
+  total_price?: number;
+  start_date?: string;
+  pickup_date?: string;
+  end_date?: string;
+  dropoff_date?: string;
+  vehicle?: {
+    id: number;
+    marque?: string;
+    brand?: string;
+    model?: string;
+    fuelType?: string;
+    fuel_type?: string;
+    Occupants?: string;
+    occupants?: string;
+    year?: number;
+    pictures?: { path?: string }[];
+  };
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
@@ -259,8 +282,6 @@ export default function BookingHistoryPage() {
   const [detailReservation, setDetailReservation] = useState<Reservation | null>(null);
 
   async function fetchReservations(pageNum = 1) {
-    setLoading(true);
-    setError(null);
     const token = getToken();
     if (!token) {
       setError("Not authenticated. Please log in.");
@@ -290,17 +311,17 @@ export default function BookingHistoryPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
-      const items: any[] = Array.isArray(json)
+      const items: RawItem[] = Array.isArray(json)
         ? json
         : json.data ?? json.reservations ?? [];
 
-      const mappedItems: Reservation[] = items.map((item: any) => ({
+      const mappedItems: Reservation[] = items.map((item: RawItem) => ({
         id: item.id,
         reference: `#CFF-${String(item.id).padStart(4, "0")}`,
         status: item.status ?? "upcoming",
         total_price: item.TotalPrice ?? item.total_price ?? 0,
-        pickup_date: item.start_date ?? item.pickup_date,
-        dropoff_date: item.end_date ?? item.dropoff_date,
+        pickup_date: item.start_date ?? item.pickup_date ?? "",
+        dropoff_date: item.end_date ?? item.dropoff_date ?? "",
         pickup_location: "Office / Pick-up",
         dropoff_location: "Office / Drop-off",
         vehicle: item.vehicle ? {
@@ -331,14 +352,19 @@ export default function BookingHistoryPage() {
   }
 
   useEffect(() => {
-    setPage(1);
-    fetchReservations(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const id = setTimeout(() => {
+      setLoading(true);
+      setError(null);
+      fetchReservations(1);
+    }, 0);
+    return () => clearTimeout(id);
   }, [filter]);
 
   function loadMore() {
     const next = page + 1;
     setPage(next);
+    setLoading(true);
+    setError(null);
     fetchReservations(next);
   }
 
@@ -599,14 +625,14 @@ export default function BookingHistoryPage() {
             />
 
             <motion.div
-              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden"
+              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh]"
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: "spring", duration: 0.4 }}
             >
-              {/* Top bar */}
-              <div className="bg-[#dde4ef] px-6 py-4 flex items-center">
+              {/* Top bar (sticky) */}
+              <div className="bg-[#dde4ef] px-6 py-4 flex items-center shrink-0">
                 <button
                   onClick={() => setDetailReservation(null)}
                   className="w-7 h-7 flex items-center justify-center rounded-md text-[#1e3a5f] hover:bg-white/40 transition-colors"
@@ -617,8 +643,8 @@ export default function BookingHistoryPage() {
                 </button>
               </div>
 
-              {/* Body */}
-              <div className="px-8 py-8">
+              {/* Body (scrollable) */}
+              <div className="px-8 py-8 overflow-y-auto">
                 {/* Car image + info row */}
                 <div className="flex flex-col md:flex-row gap-8 mb-10">
                   {/* Image */}

@@ -11,7 +11,7 @@ import { makeReservation } from "@/lib/reservationsApi";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, X } from "lucide-react";
 
 const NEW_COUNT = 10;
@@ -166,11 +166,13 @@ export default function VehiclesPage() {
   }
 
   useEffect(() => {
-    void loadInitial();
+    const id = setTimeout(() => { void loadInitial(); }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   const filteredVehicles = useMemo(() => {
-    return vehicles.filter(vehicle => {
+    const list = Array.isArray(vehicles) ? vehicles : [];
+    return list.filter(vehicle => {
       const categoryMap: Record<string, string[]> = {
         'SUV': ['Bentayga', 'Range Rover'],
         'Sports': ['911', '488', 'RS7'],
@@ -231,7 +233,7 @@ export default function VehiclesPage() {
               {/* Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
+                  <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
                     Date d&eacute;part
                   </label>
                   <div className="h-[50px] bg-white/60 border border-white/40 rounded-xl flex items-center px-5">
@@ -248,7 +250,7 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
+                  <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
                     Date retour
                   </label>
                   <div className="h-[50px] bg-white/60 border border-white/40 rounded-xl flex items-center px-5">
@@ -265,7 +267,7 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
+                  <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
                     Marque
                   </label>
                   <input
@@ -278,7 +280,7 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
+                  <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
                     Cat&eacute;gorie
                   </label>
                   <select
@@ -293,7 +295,7 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
+                  <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
                     Prix min
                   </label>
                   <input
@@ -306,7 +308,7 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
+                  <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
                     Prix max
                   </label>
                   <input
@@ -380,31 +382,52 @@ export default function VehiclesPage() {
                 return (
                   <motion.div
                     key={v.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: idx * 0.05 }}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.5, delay: idx * 0.06, ease: "easeOut" }}
+                    whileHover={{ y: -6, boxShadow: "0 20px 50px rgba(31,66,118,0.12)" }}
                     onClick={() => router.push(`/vehicles/${v.id}`)}
-                    className="bg-[#edf0f5] rounded-[18px] overflow-hidden shadow-sm cursor-pointer hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out"
+                    className="bg-[#edf0f5] rounded-[18px] overflow-hidden shadow-sm cursor-pointer origin-top"
                   >
-                    <div
-                      className="h-[220px] bg-cover bg-center relative transition-transform duration-300 ease-out hover:scale-105"
+                    <motion.div
+                      className="h-[220px] bg-cover bg-center relative"
                       style={{
                         backgroundImage: picturePath
                           ? `url(${vehicleImageUrl(picturePath)})`
                           : "linear-gradient(135deg, #2a2e3a, #1c2033)",
                       }}
+                      whileHover={{ scale: 1.08 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
                     >
                       <div className="flex gap-2 absolute top-4 right-4">
                         {isNew && (
-                          <span className="px-3 py-1 rounded-full bg-green-500 text-white text-[11px] font-bold">Nouveau</span>
+                          <motion.span
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: idx * 0.06 + 0.2 }}
+                            className="px-3 py-1 rounded-full bg-green-500 text-white text-[11px] font-bold"
+                          >
+                            Nouveau
+                          </motion.span>
                         )}
-                        <span className="px-3 py-1 rounded-full bg-white text-[#6d7da2] text-[11px] font-bold">
+                        <motion.span
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.06 + 0.3 }}
+                          className="px-3 py-1 rounded-full bg-white text-[#6d7da2] text-[11px] font-bold"
+                        >
                           Disponible
-                        </span>
+                        </motion.span>
                       </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="p-6">
+                    <motion.div
+                      className="p-6"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: idx * 0.06 + 0.15 }}
+                    >
                       <h3 className="text-[28px] font-extrabold text-[#1f4276] leading-tight">
                         {v.marque} {v.model}
                       </h3>
@@ -421,7 +444,9 @@ export default function VehiclesPage() {
                           <span className="text-[34px] font-extrabold text-[#1f4276]">&euro;{v.pricePerDay}</span>
                           <span className="text-gray-500 text-[14px]">/ jour</span>
                         </div>
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.06 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedVehicleToReserve(v);
@@ -432,9 +457,9 @@ export default function VehiclesPage() {
                           className="h-11 px-6 rounded-xl border border-[#6d89b8] text-[#35568b] text-[13px] font-semibold hover:bg-[#35568b] hover:text-white hover:scale-105 transition-all duration-200"
                         >
                           R&eacute;server
-                        </button>
+                        </motion.button>
                       </div>
-                    </div>
+                    </motion.div>
                   </motion.div>
                 );
               })}

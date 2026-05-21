@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { LogOut, Settings } from "lucide-react";
+import { Car, Clock, User, LogOut, Settings } from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 
@@ -39,22 +39,25 @@ export default function ClientLayout({
         <nav className="flex items-center gap-8">
           <button
             onClick={() => router.push("/vehicles")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname === "/vehicles" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname === "/vehicles" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
           >
+            <Car className="w-4 h-4" />
             V&eacute;hicules
           </button>
 
           <button
             onClick={() => router.push("/MyReservations")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname === "/MyReservations" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname === "/MyReservations" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
           >
+            <Clock className="w-4 h-4" />
             Historique
           </button>
 
           <button
             onClick={() => router.push("/profile")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname.includes("/profile") ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname.includes("/profile") ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
           >
+            <User className="w-4 h-4" />
             Profil
           </button>
 
