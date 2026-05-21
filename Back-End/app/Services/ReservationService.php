@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\ReservationConfirmed;
 use App\Models\Reservation;
 use App\Models\Vehicle;
 use DateTime;
+use Illuminate\Support\Facades\Mail;
 use app\Http\Requests\ReservationRequest;
 use function Illuminate\Support\days;
 
@@ -18,18 +20,13 @@ class ReservationService
         //
     }
     public function myReservetion(){
-        $data=Reservation::with(['vehicle', 'vehicle.pictures'])
-                           ->where('user_id',auth()->id())
+        $data = Reservation::with(['vehicle', 'vehicle.pictures'])
+                           ->where('user_id', auth()->id())
                            ->get();
-         foreach($data as $reservation){
-            if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
+        foreach ($data as $reservation) {
+            if (now() > $reservation->end_date && $reservation->status !== 'Terminée') {
                 $reservation->update([
-                    'status'=>'Terminée'
-        $data=Reservation::where('user_id',auth()->id())->get();
-         foreach($data as $reservation){
-            if(now() > $reservation->end_date){
-                $reservation->update([
-                    'status'=>'Términée'
+                    'status' => 'Terminée'
                 ]);
             }
         }
@@ -86,50 +83,12 @@ class ReservationService
     );
 
     return $Reservation;
-    public function makeReservation($id,$data)
-{
-    $vehicle = Vehicle::findOrFail($id);
-
-    $conflict = $vehicle->reservations()
-        ->where('status', '=', 'Confirmée')
-        ->where('end_date', '>', $data['start_date'])
-        ->where('start_date','<',$data['end_date'])
-        ->exists();
-
-        $alreadyExists = Reservation::where('user_id', auth()->id())
-            ->where('vehicle_id', $id)
-            ->where('start_date', $data['start_date'])
-            ->where('end_date', $data['end_date'])
-            ->exists();
-
-        if ($alreadyExists) {
-            return 1;
-        }
-
-        if ($conflict) {
-            return false;
-        }
-
-       $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
-       $total = $days * $vehicle->pricePerDay;
-
-
-
-
-   $Reservation=Reservation::create(
-    array_merge($data, [
-        'user_id'    => auth()->id(),
-        'vehicle_id' => $id,
-        'TotalPrice'=>$total
-    ])
-);
-
-return $Reservation;
 }
+
 
    public function acceptReservition($id)
 {
-    $reservition = Reservation::findOrFail($id);
+    $reservition = Reservation::with(['user', 'vehicle'])->findOrFail($id);
 
     $athoreReservations = Reservation::where('start_date', $reservition->start_date)
         ->where('end_date', $reservition->end_date)
@@ -141,6 +100,8 @@ return $Reservation;
 
     Reservation::whereIn('id', $athoreReservations)
         ->update(['status' => 'Annulée']);
+
+    Mail::to($reservition->user->email)->send(new ReservationConfirmed($reservition));
 
     return $reservition;
 }
@@ -156,6 +117,7 @@ return $Reservation;
             'status'=>'Annulée'
         ]);
         return $reservaition;
+    }
     }
 
     public function AdminRefuseReservition($id){

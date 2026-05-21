@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/authContext";
 import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
 import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword } from "@/lib/profileApi";
 import { Shield, FileText, Upload, CheckCircle, User as UserIcon } from "lucide-react";
+import { motion } from "framer-motion";
 
 function UploadZone({
   label, file, existingUrl, onChange, hasImage,
@@ -174,13 +175,21 @@ export default function ProfilePage() {
     <RequireAuth>
       <main className="max-w-2xl mx-auto px-4 py-10 flex flex-col gap-6">
 
-        <div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="text-3xl font-black text-[#1a2a4a]">Profile Settings</h1>
           <p className="text-gray-500 mt-1 text-sm">Update your personal information and required documents for seamless rentals.</p>
-        </div>
+        </motion.div>
 
         {/* ── Personal Details ── */}
-        <div className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-[#D5DEEF] flex items-center gap-2">
             <UserIcon className="w-5 h-5 text-[#395886]" />
             <h2 className="font-bold text-[#1a2a4a] text-base">Personal Details</h2>
@@ -251,10 +260,14 @@ export default function ProfilePage() {
 
           {/* Blue Thread at Bottom */}
           <div className="h-1 bg-gradient-to-r from-[#638ECB] via-[#395886] to-[#638ECB]"></div>
-        </div>
+        </motion.div>
 
         {/* ── Security ── */}
-        <div className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-[#D5DEEF] flex items-center gap-2">
             <Shield className="w-5 h-5 text-[#395886]" />
             <h2 className="font-bold text-[#1a2a4a] text-base">Security</h2>
@@ -288,10 +301,14 @@ export default function ProfilePage() {
 
           {/* Blue Thread at Bottom */}
           <div className="h-1 bg-gradient-to-r from-[#638ECB] via-[#395886] to-[#638ECB]"></div>
-        </div>
+        </motion.div>
 
         {/* ── Required Documents ── */}
-        <div className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-white rounded-xl border border-[#D5DEEF] shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-[#D5DEEF] flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#395886]" />
@@ -355,7 +372,7 @@ export default function ProfilePage() {
 
           {/* Blue Thread at Bottom */}
           <div className="h-1 bg-gradient-to-r from-[#638ECB] via-[#395886] to-[#638ECB]"></div>
-        </div>
+        </motion.div>
 
       </main>
     </RequireAuth>
