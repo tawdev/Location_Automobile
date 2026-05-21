@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\ReservationConfirmed;
 use App\Models\Reservation;
 use App\Models\Vehicle;
 use DateTime;
+use Illuminate\Support\Facades\Mail;
 use app\Http\Requests\ReservationRequest;
 use function Illuminate\Support\days;
 
@@ -18,12 +20,13 @@ class ReservationService
         //
     }
     public function myReservetion(){
-        
-        $data=Reservation::where('user_id',auth()->id())->get();
-         foreach($data as $reservation){
-            if(now() > $reservation->end_date){
+        $data = Reservation::with(['vehicle', 'vehicle.pictures'])
+                           ->where('user_id', auth()->id())
+                           ->get();
+        foreach ($data as $reservation) {
+            if (now() > $reservation->end_date && $reservation->status !== 'Terminée') {
                 $reservation->update([
-                    'status'=>'Términée'
+                    'status' => 'Terminée'
                 ]);
             }
         }
@@ -86,9 +89,10 @@ class ReservationService
 
 
 
+
    public function acceptReservition($id)
 {
-    $reservition = Reservation::findOrFail($id);
+    $reservition = Reservation::with(['user', 'vehicle'])->findOrFail($id);
 
     $athoreReservations = Reservation::where('start_date', $reservition->start_date)
         ->where('end_date', $reservition->end_date)
@@ -100,6 +104,8 @@ class ReservationService
 
     Reservation::whereIn('id', $athoreReservations)
         ->update(['status' => 'Annulée']);
+
+    Mail::to($reservition->user->email)->send(new ReservationConfirmed($reservition));
 
     return $reservition;
 }
