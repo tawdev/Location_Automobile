@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile/email',[ProfileController::class,'updateUserEmail']);
     Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
 
-    
+
 
 
 
@@ -75,15 +75,6 @@ Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeRe
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);
 Route::get('Reservation/filter',[ReservationController::class,'filterAdminReservation']);
-
-
-
-
-
-
-
-
-
 
 
 

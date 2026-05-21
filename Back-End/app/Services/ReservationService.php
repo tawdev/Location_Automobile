@@ -2,11 +2,9 @@
 
 namespace App\Services;
 
-use App\Mail\ReservationConfirmed;
 use App\Models\Reservation;
 use App\Models\Vehicle;
 use DateTime;
-use Illuminate\Support\Facades\Mail;
 use app\Http\Requests\ReservationRequest;
 use function Illuminate\Support\days;
 
@@ -100,8 +98,6 @@ class ReservationService
 
     Reservation::whereIn('id', $athoreReservations)
         ->update(['status' => 'Annulée']);
-
-    Mail::to($reservition->user->email)->send(new ReservationConfirmed($reservition));
 
     return $reservition;
 }
