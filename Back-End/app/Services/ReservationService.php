@@ -18,13 +18,7 @@ class ReservationService
         //
     }
     public function myReservetion(){
-        $data=Reservation::with(['vehicle', 'vehicle.pictures'])
-                           ->where('user_id',auth()->id())
-                           ->get();
-         foreach($data as $reservation){
-            if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
-                $reservation->update([
-                    'status'=>'Terminée'
+        
         $data=Reservation::where('user_id',auth()->id())->get();
          foreach($data as $reservation){
             if(now() > $reservation->end_date){
@@ -86,46 +80,11 @@ class ReservationService
     );
 
     return $Reservation;
-    public function makeReservation($id,$data)
-{
-    $vehicle = Vehicle::findOrFail($id);
-
-    $conflict = $vehicle->reservations()
-        ->where('status', '=', 'Confirmée')
-        ->where('end_date', '>', $data['start_date'])
-        ->where('start_date','<',$data['end_date'])
-        ->exists();
-
-        $alreadyExists = Reservation::where('user_id', auth()->id())
-            ->where('vehicle_id', $id)
-            ->where('start_date', $data['start_date'])
-            ->where('end_date', $data['end_date'])
-            ->exists();
-
-        if ($alreadyExists) {
-            return 1;
-        }
-
-        if ($conflict) {
-            return false;
-        }
-
-       $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
-       $total = $days * $vehicle->pricePerDay;
-
-
-
-
-   $Reservation=Reservation::create(
-    array_merge($data, [
-        'user_id'    => auth()->id(),
-        'vehicle_id' => $id,
-        'TotalPrice'=>$total
-    ])
-);
-
-return $Reservation;
 }
+
+
+
+
 
    public function acceptReservition($id)
 {
@@ -157,7 +116,7 @@ return $Reservation;
         ]);
         return $reservaition;
     }
-
+    }
     public function AdminRefuseReservition($id){
             $reservaition = Reservation::findOrFail($id);
 

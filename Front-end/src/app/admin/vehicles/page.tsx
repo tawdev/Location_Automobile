@@ -1,17 +1,15 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import type { Category, Vehicle } from "@/lib/types";
 import {
   deleteAdminVehicle,
   createAdminVehicle,
   updateAdminVehicle,
   type AdminVehiclePayload,
+  getAdminVehicles as getAdminVehiclesAll,
 } from "@/lib/adminVehiclesApi";
-import { getAdminVehicles as getAdminVehiclesAll } from "@/lib/adminVehiclesApi";
 import { getAdminCategories } from "@/lib/adminCategoriesApi";
-import { filterVehicles } from "@/lib/vehiclesApi";
 import { vehicleImageUrl } from "@/lib/media";
 import { Modal } from "@/components/admin/Modal";
 import { CategoriesManagerModal } from "@/components/admin/CategoriesManagerModal";
@@ -773,15 +771,12 @@ function VehicleViewModal({
 
 // MAIN PAGE COMPONENT
 export default function AdminVehiclesPage() {
-  const router = useRouter();
-
   const [categories, setCategories] = useState<Category[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [applyingFilters, setApplyingFilters] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
 
   // Category Manager Modal state
@@ -789,7 +784,6 @@ export default function AdminVehiclesPage() {
 
   // Seeding States
   const [seeding, setSeeding] = useState(false);
-  const [seedError, setSeedError] = useState<string | null>(null);
   const [seedProgress, setSeedProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
 
   // Filter state
@@ -818,17 +812,46 @@ export default function AdminVehiclesPage() {
   const [viewRemoving, setViewRemoving] = useState(false);
 
   const categoryById = useMemo(() => new Map(categories.map((c) => [c.id, c.name])), [categories]);
+  const allVehiclesRef = useRef<Vehicle[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
-  const hasAnyFilter = useMemo(() => {
-    return Boolean(
-      filters.marque.trim() ||
-        filters.model.trim() ||
-        filters.fuelType.trim() ||
-        filters.min_price.trim() ||
-        filters.max_price.trim() ||
-        filters.Occupants.trim()
-    );
-  }, [filters]);
+  function applyFilters() {
+    let result = allVehiclesRef.current;
+
+    if (selectedCategoryId > 0) {
+      result = result.filter((v) => v.category_id === selectedCategoryId);
+    }
+
+    const mq = filters.marque.trim().toLowerCase();
+    if (mq) {
+      result = result.filter((v) => v.marque.toLowerCase().includes(mq));
+    }
+
+    const md = filters.model.trim().toLowerCase();
+    if (md) {
+      result = result.filter((v) => v.model.toLowerCase().includes(md));
+    }
+
+    if (filters.fuelType.trim()) {
+      result = result.filter((v) => v.fuelType === filters.fuelType);
+    }
+
+    const minP = filters.min_price.trim() ? Number(filters.min_price) : NaN;
+    if (!isNaN(minP)) {
+      result = result.filter((v) => v.pricePerDay >= minP);
+    }
+
+    const maxP = filters.max_price.trim() ? Number(filters.max_price) : NaN;
+    if (!isNaN(maxP)) {
+      result = result.filter((v) => v.pricePerDay <= maxP);
+    }
+
+    if (filters.Occupants.trim()) {
+      result = result.filter((v) => v.Occupants === filters.Occupants);
+    }
+
+    setVehicles(result);
+  }
 
   async function loadCategories() {
     try {
@@ -839,35 +862,13 @@ export default function AdminVehiclesPage() {
     }
   }
 
-  // Load vehicles and categories list
-  async function loadList() {
+  async function loadVehicles() {
     setLoading(true);
     setError(null);
-
     try {
       const full = await getAdminVehiclesAll();
-
-      if (!hasAnyFilter) {
-        const base =
-          selectedCategoryId > 0 ? full.filter((v) => v.category_id === selectedCategoryId) : full;
-        setVehicles(base);
-        return;
-      }
-
-      const payload = {
-        marque: filters.marque.trim() || undefined,
-        model: filters.model.trim() || undefined,
-        fuelType: filters.fuelType.trim() || undefined,
-        min_price: filters.min_price.trim() ? Number(filters.min_price) : undefined,
-        max_price: filters.max_price.trim() ? Number(filters.max_price) : undefined,
-        Occupants: filters.Occupants.trim() || undefined,
-      };
-
-      const filtered = await filterVehicles(payload);
-      const withCategory =
-        selectedCategoryId > 0 ? filtered.filter((v) => v.category_id === selectedCategoryId) : filtered;
-
-      setVehicles(withCategory);
+      allVehiclesRef.current = full;
+      setAllVehicles(full);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load vehicles";
       setError(msg);
@@ -876,28 +877,16 @@ export default function AdminVehiclesPage() {
     }
   }
 
+  // Load on mount
   useEffect(() => {
     void (async () => {
       setLoading(true);
       await loadCategories();
-      await loadList();
+      await loadVehicles();
+      applyFilters();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    void loadList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasAnyFilter, selectedCategoryId]);
-
-  async function applyFilters() {
-    setApplyingFilters(true);
-    try {
-      await loadList();
-    } finally {
-      setApplyingFilters(false);
-    }
-  }
 
   function resetFilters() {
     setFilters({
@@ -916,7 +905,8 @@ export default function AdminVehiclesPage() {
     setError(null);
     try {
       await deleteAdminVehicle(vehicleId);
-      await loadList();
+      await loadVehicles();
+      applyFilters();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to delete vehicle";
       setError(msg);
@@ -931,7 +921,8 @@ export default function AdminVehiclesPage() {
     try {
       await createAdminVehicle({ ...payload, images: images.length ? images : undefined });
       setCreateOpen(false);
-      await loadList();
+      await loadVehicles();
+      applyFilters();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to create vehicle";
       setCreateError(msg);
@@ -940,20 +931,12 @@ export default function AdminVehiclesPage() {
     }
   }
 
-  async function onOpenEdit(vehicleId: number) {
+  function onOpenEdit(vehicleId: number) {
     setEditOpen(true);
-    setEditLoading(true);
-    setEditVehicle(null);
+    setEditLoading(false);
     setEditError(null);
-    try {
-      const all = await getAdminVehiclesAll();
-      const found = all.find((v) => v.id === vehicleId) ?? null;
-      setEditVehicle(found);
-    } catch (e) {
-      setEditError("Failed to fetch vehicle details.");
-    } finally {
-      setEditLoading(false);
-    }
+    const found = allVehiclesRef.current.find((v) => v.id === vehicleId) ?? null;
+    setEditVehicle(found);
   }
 
   async function onEditSubmit(payload: AdminVehiclePayload, images: File[]) {
@@ -964,7 +947,8 @@ export default function AdminVehiclesPage() {
     try {
       await updateAdminVehicle(editVehicle.id, { ...payload, images: images.length ? images : undefined });
       setEditOpen(false);
-      await loadList();
+      await loadVehicles();
+      applyFilters();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to save updates.";
       setEditError(msg);
@@ -973,16 +957,11 @@ export default function AdminVehiclesPage() {
     }
   }
 
-  async function onOpenView(vehicleId: number) {
+  function onOpenView(vehicleId: number) {
     setViewOpen(true);
     setViewVehicle(null);
-    try {
-      const all = await getAdminVehiclesAll();
-      const found = all.find((v) => v.id === vehicleId) ?? null;
-      setViewVehicle(found);
-    } catch (e) {
-      setError("Failed to show details.");
-    }
+    const found = allVehiclesRef.current.find((v) => v.id === vehicleId) ?? null;
+    setViewVehicle(found);
   }
 
   async function onRemoveFromView(vehicleId: number) {
@@ -1005,7 +984,7 @@ export default function AdminVehiclesPage() {
 
   async function seedDemoVehicles(total = 6) {
     setSeeding(true);
-    setSeedError(null);
+    setError(null);
     setSeedProgress({ done: 0, total });
 
     try {
@@ -1064,9 +1043,10 @@ export default function AdminVehiclesPage() {
         });
       }
 
-      await loadList();
+      await loadVehicles();
+      applyFilters();
     } catch (e) {
-      setSeedError("Failed to auto-generate fleet.");
+      setError("Failed to auto-generate fleet.");
     } finally {
       setSeeding(false);
       setSeedProgress({ done: 0, total: 0 });
