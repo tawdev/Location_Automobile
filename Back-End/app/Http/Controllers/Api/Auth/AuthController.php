@@ -77,9 +77,18 @@ class AuthController extends Controller
 
     public function userinfo(Request $request)
     {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated',
+                'data' => null,
+            ], 401);
+        }
+
         return response()->json([
-            'message' => 'information du utilisateur',
-            'data' => $request->user(),
+            'message' => 'information du l’utilisateur',
+            'data' => $user,
         ], 200);
     }
 
