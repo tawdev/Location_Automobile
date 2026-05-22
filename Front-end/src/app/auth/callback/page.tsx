@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { setAuthToken } from "@/lib/tokenStorage";
+import { authUser } from "@/lib/authApi";
 import { Loader2 } from "lucide-react";
 
 function CallbackInner() {
@@ -24,7 +25,15 @@ function CallbackInner() {
     }
 
     setAuthToken(token);
-    window.location.href = "/vehicles";
+
+    authUser()
+      .then((res) => {
+        const user = res.data;
+        window.location.href = user.role_id === 1 ? "/admin" : "/vehicles";
+      })
+      .catch(() => {
+        window.location.href = "/vehicles";
+      });
   }, [searchParams]);
 
   return (

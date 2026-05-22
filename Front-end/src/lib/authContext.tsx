@@ -13,8 +13,8 @@ type AuthContextValue = {
   user: User | null;
   error: string | null;
 
-  signUp: (payload: { name: string; email: string; password: string }) => Promise<void>;
-  signIn: (payload: { email: string; password: string }) => Promise<void>;
+  signUp: (payload: { name: string; email: string; password: string }) => Promise<User>;
+  signIn: (payload: { email: string; password: string }) => Promise<User>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 };
@@ -75,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthToken(res.token);
     setUser(res.user);
     setStatus("authenticated");
+    return res.user;
   }
 
   async function signUp(payload: { name: string; email: string; password: string }) {
@@ -83,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthToken(res.token);
     setUser(res.user);
     setStatus("authenticated");
+    return res.user;
   }
 
   async function signOut() {

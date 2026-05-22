@@ -7,12 +7,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { filterVehicles, listVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle } from "@/lib/types";
 import { vehicleImageUrl } from "@/lib/media";
-import { makeReservation } from "@/lib/reservationsApi";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 
 const NEW_COUNT = 10;
 
@@ -45,58 +40,6 @@ export default function VehiclesPage() {
   const [returnDate, setReturnDate] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const [selectedVehicleToReserve, setSelectedVehicleToReserve] = useState<Vehicle | null>(null);
-  const [reserveStartDate, setReserveStartDate] = useState<Date>();
-  const [reserveEndDate, setReserveEndDate] = useState<Date>();
-  const [reserving, setReserving] = useState(false);
-  const [reserveError, setReserveError] = useState<string | null>(null);
-  const [reservedDates, setReservedDates] = useState<Date[]>([]);
-
-  useEffect(() => {
-    if (!selectedVehicleToReserve) return;
-
-    let cancelled = false;
-
-    async function fetchReservedDates() {
-      try {
-        const token = localStorage.getItem("auth_token");
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/Vehicles/${selectedVehicleToReserve!.id}/reserved-dates`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch reserved dates");
-        const json = await res.json();
-
-        const dates: Date[] = [];
-        const ranges = json.data ?? [];
-
-        for (const range of ranges) {
-          if (!range.start_date || !range.end_date) continue;
-          const start = new Date(range.start_date + "T00:00:00");
-          const end = new Date(range.end_date + "T00:00:00");
-          const current = new Date(start);
-          while (current <= end) {
-            dates.push(new Date(current));
-            current.setDate(current.getDate() + 1);
-          }
-        }
-
-        if (!cancelled) setReservedDates(dates);
-      } catch (err) {
-        console.error("Error fetching reserved dates:", err);
-        if (!cancelled) setReservedDates([]);
-      }
-    }
-
-    fetchReservedDates();
-    return () => { cancelled = true; };
-  }, [selectedVehicleToReserve]);
 
   const categories = ["All", "SUV", "Sports"];
 
@@ -144,27 +87,6 @@ export default function VehiclesPage() {
     }
   }
 
-  async function handleReserve() {
-    if (!selectedVehicleToReserve || !reserveStartDate || !reserveEndDate) {
-      setReserveError("Please select both start and end dates.");
-      return;
-    }
-    setReserving(true);
-    setReserveError(null);
-    try {
-      await makeReservation(selectedVehicleToReserve.id, {
-        start_date: reserveStartDate.toISOString().split("T")[0],
-        end_date: reserveEndDate.toISOString().split("T")[0],
-      });
-      router.push("/MyReservations");
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Reservation failed";
-      setReserveError(msg);
-    } finally {
-      setReserving(false);
-    }
-  }
-
   useEffect(() => {
     const id = setTimeout(() => { void loadInitial(); }, 0);
     return () => clearTimeout(id);
@@ -191,7 +113,6 @@ export default function VehiclesPage() {
   return (
     <RequireAuth>
       <div className="bg-[#f6f6f8] overflow-hidden">
-        <div style={{ zoom: 0.75 }}>
 
         {/* HERO */}
         <section
@@ -206,7 +127,7 @@ export default function VehiclesPage() {
             style={{ background: "linear-gradient(to bottom, rgba(246,246,248,0), rgba(246,246,248,1))" }}
           />
 
-          <div className="relative z-10 w-full max-w-[1280px] mx-auto px-8 pt-12 pb-16">
+          <div className="relative z-10 w-full max-w-[1280px] mx-auto px-8 pt-12 pb-16" style={{ zoom: 0.85 }}>
             <h1 className="text-center text-white text-[48px] font-extrabold tracking-[-0.04em] drop-shadow-lg">
               R&eacute;servez votre v&eacute;hicule au Maroc
             </h1>
@@ -374,7 +295,7 @@ export default function VehiclesPage() {
               <div className="w-10 h-10 border-4 border-[#1f4276] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {filteredVehicles.map((v, idx) => {
                 const picturePath = v.pictures?.[0]?.path;
                 const isNew = idx < NEW_COUNT;
@@ -388,10 +309,10 @@ export default function VehiclesPage() {
                     transition={{ duration: 0.5, delay: idx * 0.06, ease: "easeOut" }}
                     whileHover={{ y: -6, boxShadow: "0 20px 50px rgba(31,66,118,0.12)" }}
                     onClick={() => router.push(`/vehicles/${v.id}`)}
-                    className="bg-[#edf0f5] rounded-[18px] overflow-hidden shadow-sm cursor-pointer origin-top"
+                    className="group bg-[#edf0f5] rounded-[18px] overflow-hidden shadow-sm cursor-pointer origin-top"
                   >
                     <motion.div
-                      className="h-[220px] bg-cover bg-center relative"
+                      className="h-[280px] bg-cover bg-center relative"
                       style={{
                         backgroundImage: picturePath
                           ? `url(${vehicleImageUrl(picturePath)})`
@@ -400,6 +321,7 @@ export default function VehiclesPage() {
                       whileHover={{ scale: 1.08 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
                     >
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#edf0f5]/80 via-transparent to-transparent pointer-events-none" />
                       <div className="flex gap-2 absolute top-4 right-4">
                         {isNew && (
                           <motion.span
@@ -415,7 +337,7 @@ export default function VehiclesPage() {
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: idx * 0.06 + 0.3 }}
-                          className="px-3 py-1 rounded-full bg-white text-[#6d7da2] text-[11px] font-bold"
+                          className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[#6d7da2] text-[11px] font-bold"
                         >
                           Disponible
                         </motion.span>
@@ -435,26 +357,23 @@ export default function VehiclesPage() {
                         {v.year} &bull; Automatique
                       </p>
                       <div className="flex items-center gap-8 mt-6 text-[13px] text-gray-600">
-                        <span>&#128100; {v.Occupants}</span>
-                        <span>&#9971; {v.fuelType}</span>
+                        <span className="flex items-center gap-1.5">&#128100; {v.Occupants} places</span>
+                        <span className="flex items-center gap-1.5">&#9971; {v.fuelType}</span>
                       </div>
 
-                      <div className="flex items-center justify-between mt-8">
-                        <div>
+                      <div className="mt-6 border-t border-[#d5deeF]/60 pt-5 flex items-center justify-between">
+                        <div className="leading-none">
                           <span className="text-[34px] font-extrabold text-[#1f4276]">&euro;{v.pricePerDay}</span>
-                          <span className="text-gray-500 text-[14px]">/ jour</span>
+                          <span className="text-gray-500 text-[14px] ml-1">/ jour</span>
                         </div>
                         <motion.button
                           whileHover={{ scale: 1.06 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedVehicleToReserve(v);
-                            setReserveStartDate(undefined);
-                            setReserveEndDate(undefined);
-                            setReserveError(null);
+                            router.push(`/vehicles/${v.id}`);
                           }}
-                          className="h-11 px-6 rounded-xl border border-[#6d89b8] text-[#35568b] text-[13px] font-semibold hover:bg-[#35568b] hover:text-white hover:scale-105 transition-all duration-200"
+                          className="h-11 px-6 rounded-xl border border-[#f39c12] text-[#f39c12] text-[13px] font-semibold hover:bg-[#f39c12] hover:text-white hover:scale-105 transition-all duration-200"
                         >
                           R&eacute;server
                         </motion.button>
@@ -547,96 +466,6 @@ export default function VehiclesPage() {
           </div>
         </section>
 
-        {/* Reservation Modal */}
-        {selectedVehicleToReserve && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
-              <div className="flex items-center justify-between p-5 border-b border-[#D5DEEF]">
-                <h3 className="text-xl font-bold text-[#1f4276]">
-                  R&eacute;server {selectedVehicleToReserve.marque} {selectedVehicleToReserve.model}
-                </h3>
-                <button
-                  onClick={() => setSelectedVehicleToReserve(null)}
-                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-              <div className="p-6 flex flex-col gap-5">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-gray-700">Date d&eacute;but</label>
-                  <Popover>
-                    <PopoverTrigger className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground px-2.5 py-1.5 text-sm font-medium whitespace-nowrap w-full text-left h-8 gap-1.5 border-[#D5DEEF]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="mr-2 h-4 w-4 text-gray-400">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {reserveStartDate ? reserveStartDate.toLocaleDateString() : 'S&eacute;lectionner une date'}
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
-                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
-                        <Calendar
-                          mode="single"
-                          selected={reserveStartDate}
-                          onSelect={setReserveStartDate}
-                          modifiers={{ reserved: reservedDates }}
-                          disabled={reservedDates}
-                        />
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-gray-700">Date fin</label>
-                  <Popover>
-                    <PopoverTrigger className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground px-2.5 py-1.5 text-sm font-medium whitespace-nowrap w-full text-left h-8 gap-1.5 border-[#D5DEEF]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="mr-2 h-4 w-4 text-gray-400">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {reserveEndDate ? reserveEndDate.toLocaleDateString() : 'S&eacute;lectionner une date'}
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
-                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
-                        <Calendar
-                          mode="single"
-                          selected={reserveEndDate}
-                          onSelect={setReserveEndDate}
-                          modifiers={{ reserved: reservedDates }}
-                          disabled={reservedDates}
-                        />
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                {reserveError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    {reserveError}
-                  </div>
-                )}
-              </div>
-
-              <div className="p-5 border-t border-[#D5DEEF] bg-gray-50 flex justify-end gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedVehicleToReserve(null)}
-                  className="border-[#D5DEEF] text-gray-600 hover:bg-[#D5DEEF]"
-                  disabled={reserving}
-                >
-                  Annuler
-                </Button>
-                <Button
-                  onClick={handleReserve}
-                  className="bg-[#4c6797] hover:bg-[#395784] text-white"
-                  disabled={reserving}
-                >
-                  {reserving ? "R&eacute;servation..." : "Confirmer la r&eacute;servation"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
       </div>
     </RequireAuth>
   );

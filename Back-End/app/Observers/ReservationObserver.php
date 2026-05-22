@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Mail\RemindeEndReservation;
 use App\Mail\ReservationConfirmed;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Log;
@@ -21,4 +22,6 @@ class ReservationObserver
             }
         }
     }
+
+
 }

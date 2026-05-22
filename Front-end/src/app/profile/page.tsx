@@ -9,21 +9,43 @@ import { Shield, FileText, Upload, CheckCircle, User as UserIcon } from "lucide-
 import { motion } from "framer-motion";
 
 function UploadZone({
-  label, file, existingUrl, onChange, hasImage,
+  label, file, existingUrl, onChange, hasImage, bgType,
 }: {
   label: string; file: File | null; existingUrl?: string | null;
-  onChange: (f: File | null) => void; hasImage?: boolean;
+  onChange: (f: File | null) => void; hasImage?: boolean; bgType?: "license" | "cin";
 }) {
   const [dragging, setDragging] = useState(false);
+
+  const bgSvg = bgType === "license" ? (
+    <svg className="absolute inset-0 w-full h-full p-6 opacity-15" viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="5" width="180" height="130" rx="8" stroke="#395886" strokeWidth="1.5" fill="none" />
+      <rect x="25" y="20" width="70" height="50" rx="4" stroke="#395886" strokeWidth="1" fill="none" />
+      <line x1="25" y1="82" x2="175" y2="82" stroke="#395886" strokeWidth="1" />
+      <line x1="25" y1="96" x2="140" y2="96" stroke="#395886" strokeWidth="1" />
+      <line x1="25" y1="110" x2="120" y2="110" stroke="#395886" strokeWidth="1" />
+      <circle cx="155" cy="35" r="14" stroke="#395886" strokeWidth="1" fill="none" />
+    </svg>
+  ) : bgType === "cin" ? (
+    <svg className="absolute inset-0 w-full h-full p-6 opacity-15" viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="5" width="180" height="130" rx="8" stroke="#395886" strokeWidth="1.5" fill="none" />
+      <rect x="25" y="18" width="60" height="40" rx="4" stroke="#395886" strokeWidth="1" fill="none" />
+      <line x1="25" y1="70" x2="175" y2="70" stroke="#395886" strokeWidth="1" />
+      <line x1="25" y1="84" x2="160" y2="84" stroke="#395886" strokeWidth="1" />
+      <line x1="25" y1="98" x2="130" y2="98" stroke="#395886" strokeWidth="1" />
+      <circle cx="160" cy="38" r="12" stroke="#395886" strokeWidth="1" fill="none" />
+    </svg>
+  ) : null;
+
   return (
     <label
-      className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer transition-colors h-36
+      className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer transition-colors h-36 overflow-hidden
         ${dragging ? "border-[#395886] bg-[#eef2fb]" : "border-gray-300 bg-gray-50 hover:border-[#638ECB] hover:bg-[#f5f7fd]"}`}
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}
       onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) onChange(f); }}
     >
       <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
+      {!file && !hasImage && bgSvg}
       {existingUrl && hasImage ? (
         <>
           <img src={existingUrl} alt={label} className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-40" />
@@ -39,7 +61,7 @@ function UploadZone({
           <span className="text-xs font-semibold text-gray-700 text-center px-2 truncate max-w-full">{file.name}</span>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-1">
+        <div className="relative z-10 flex flex-col items-center gap-1">
           <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center"><Upload className="w-5 h-5 text-gray-400" /></div>
           <span className="text-sm font-semibold text-gray-700">{label}</span>
           <span className="text-xs text-gray-400">JPG, PNG or PDF (Max 5MB)</span>
@@ -335,10 +357,10 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-3">
                 <UploadZone label="Upload Front" file={permiRectoFile}
                   existingUrl={initial.permi_recto ? vehicleImageUrl(initial.permi_recto) : null}
-                  onChange={setPermiRectoFile} hasImage={!!initial.permi_recto} />
+                  onChange={setPermiRectoFile} hasImage={!!initial.permi_recto} bgType="license" />
                 <UploadZone label="Upload Back" file={permiVersoFile}
                   existingUrl={initial.permi_verso ? vehicleImageUrl(initial.permi_verso) : null}
-                  onChange={setPermiVersoFile} hasImage={!!initial.permi_verso} />
+                  onChange={setPermiVersoFile} hasImage={!!initial.permi_verso} bgType="license" />
               </div>
               <div className="flex justify-end">
                 <button type="submit" disabled={docsSubmitting}
@@ -356,10 +378,10 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-3">
                 <UploadZone label="Upload Front" file={cinRectoFile}
                   existingUrl={initial.cin_recto ? vehicleImageUrl(initial.cin_recto) : null}
-                  onChange={setCinRectoFile} hasImage={!!initial.cin_recto} />
+                  onChange={setCinRectoFile} hasImage={!!initial.cin_recto} bgType="cin" />
                 <UploadZone label="Upload Back" file={cinVersoFile}
                   existingUrl={initial.cin_verso ? vehicleImageUrl(initial.cin_verso) : null}
-                  onChange={setCinVersoFile} hasImage={!!initial.cin_verso} />
+                  onChange={setCinVersoFile} hasImage={!!initial.cin_verso} bgType="cin" />
               </div>
               <div className="flex justify-end">
                 <button type="submit" disabled={docsSubmitting}

@@ -7,8 +7,9 @@ import { vehicleImageUrl } from "@/lib/media";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { makeReservation } from "@/lib/reservationsApi";
 import { motion } from "framer-motion";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { API_BASE_URL } from "@/lib/config";
 
 type Vehicle = {
   id: number;
@@ -24,11 +25,6 @@ type Vehicle = {
   pictures?: { id: number; path: string }[];
   created_at?: string;
 };
-
-function toDateTimeLocal(date: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
 
 export default function VehicleDetailPage() {
   const params = useParams();
@@ -46,6 +42,7 @@ export default function VehicleDetailPage() {
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState<string | null>(null);
   const [reservedDates, setReservedDates] = useState<Date[]>([]);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -58,7 +55,7 @@ export default function VehicleDetailPage() {
       if (!token) { setLoading(false); return; }
 
       try {
-        const res = await fetch(`${API_BASE}/Vehicles/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/Vehicles/${id}`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         });
         if (!res.ok) throw new Error("Vehicle not found");
@@ -83,7 +80,7 @@ export default function VehicleDetailPage() {
     async function fetchReservedDates() {
       const token = getAuthToken();
       try {
-        const res = await fetch(`${API_BASE}/Vehicles/${vehicleId}/reserved-dates`, {
+        const res = await fetch(`${API_BASE_URL}/Vehicles/${vehicleId}/reserved-dates`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         });
         if (!res.ok) throw new Error("Failed to fetch reserved dates");
@@ -129,7 +126,7 @@ export default function VehicleDetailPage() {
         start_date: reserveStartDate.toISOString().split("T")[0],
         end_date: reserveEndDate.toISOString().split("T")[0],
       });
-      router.push("/MyReservations");
+      setShowSuccess(true);
     } catch (e) {
       setReserveError(e instanceof Error ? e.message : "Reservation failed");
     } finally {
@@ -271,36 +268,50 @@ export default function VehicleDetailPage() {
 
                 {/* Pickup */}
                 <div className="mb-6">
-                  <label className="block mb-3 text-[14px] font-bold text-gray-700">Pick-up Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={reserveStartDate ? toDateTimeLocal(reserveStartDate).slice(0, 16) : ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val) {
-                        const d = new Date(val);
-                        if (!isNaN(d.getTime())) setReserveStartDate(d);
-                      }
-                    }}
-                    className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition"
-                  />
+                  <label className="block mb-3 text-[14px] font-bold text-gray-700">Pick-up Date</label>
+                  <Popover>
+                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {reserveStartDate ? reserveStartDate.toLocaleDateString() : <span className="text-gray-400">Select date</span>}
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
+                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
+                        <Calendar
+                          mode="single"
+                          selected={reserveStartDate}
+                          onSelect={(d) => d && setReserveStartDate(d)}
+                          disabled={reservedDates}
+                          modifiers={{ reserved: reservedDates }}
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 {/* Dropoff */}
                 <div className="mb-6">
-                  <label className="block mb-3 text-[14px] font-bold text-gray-700">Drop-off Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={reserveEndDate ? toDateTimeLocal(reserveEndDate).slice(0, 16) : ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val) {
-                        const d = new Date(val);
-                        if (!isNaN(d.getTime())) setReserveEndDate(d);
-                      }
-                    }}
-                    className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition"
-                  />
+                  <label className="block mb-3 text-[14px] font-bold text-gray-700">Drop-off Date</label>
+                  <Popover>
+                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {reserveEndDate ? reserveEndDate.toLocaleDateString() : <span className="text-gray-400">Select date</span>}
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
+                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
+                        <Calendar
+                          mode="single"
+                          selected={reserveEndDate}
+                          onSelect={(d) => d && setReserveEndDate(d)}
+                          disabled={reservedDates}
+                          modifiers={{ reserved: reservedDates }}
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="h-px bg-[#eceff3] mb-6" />
@@ -415,6 +426,36 @@ export default function VehicleDetailPage() {
           </div>
         </main>
       </div>
+
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-[30px] max-w-md w-full p-10 shadow-2xl flex flex-col items-center gap-5">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-extrabold text-[#16386b]">Reservation Confirmed!</h2>
+            <p className="text-gray-500 text-center text-sm">
+              Your {vehicle.marque} {vehicle.model} has been reserved successfully.
+            </p>
+            <div className="w-full flex flex-col gap-3 mt-2">
+              <button
+                onClick={() => router.push("/MyReservations")}
+                className="w-full h-14 rounded-[16px] bg-[#16386b] hover:bg-[#102b54] text-white font-bold text-[16px] transition"
+              >
+                View My Reservations
+              </button>
+              <button
+                onClick={() => router.push("/vehicles")}
+                className="w-full h-14 rounded-[16px] border border-[#d9dee6] text-gray-700 font-bold text-[16px] hover:bg-gray-50 transition"
+              >
+                Continue Browsing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </RequireAuth>
   );
 }
