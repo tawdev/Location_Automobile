@@ -1,124 +1,248 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Car, Clock, User, LogOut, Settings } from "lucide-react";
+import { Car, Clock, User, LogOut, Settings, Menu, X } from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const NAV_ITEMS = [
+  { label: "Véhicules", href: "/vehicles", icon: Car },
+  { label: "Historique", href: "/MyReservations", icon: Clock },
+  { label: "Profil", href: "/profile", icon: User },
+  { label: "Paramètres", href: "/settings", icon: Settings },
+];
+
+function Logo({ onClick }: { onClick: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="flex items-center gap-2.5 cursor-pointer group"
+      onClick={onClick}
+    >
+      <div className="relative">
+        <motion.div
+          className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#395886] to-[#1d3560] flex items-center justify-center shadow-lg shadow-[#395886]/20 group-hover:shadow-[#395886]/30 transition-shadow"
+          whileHover={{ scale: 1.05, rotate: -3 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <svg width="22" height="16" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M10 16L30 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx="12" cy="18" r="3" fill="white" stroke="white" strokeWidth="1.5" />
+            <circle cx="28" cy="18" r="3" fill="white" stroke="white" strokeWidth="1.5" />
+            <path d="M18 10L25 10L27 16" stroke="white" strokeWidth="2" fill="none" />
+          </svg>
+        </motion.div>
+        <motion.div
+          className="absolute -inset-1 rounded-xl bg-gradient-to-br from-[#638ECB]/20 to-[#395886]/20 blur-md -z-10"
+          animate={{ opacity: [0.4, 0.8, 0.4] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[#395886] font-black italic tracking-[0.15em] text-sm leading-none">CARFORFAR</span>
+        <span className="text-[10px] font-bold text-[#638ECB]/60 tracking-[0.2em] uppercase leading-none mt-0.5">Location</span>
+      </div>
+    </motion.div>
+  );
+}
+
+function NavLink({ href, icon: Icon, label, active, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; active: boolean; onClick: () => void }) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.96 }}
+      onClick={onClick}
+      className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all ${
+        active
+          ? "text-white"
+          : "text-[#395886]/70 hover:text-[#395886] hover:bg-[#F0F3FA]/80"
+      }`}
+    >
+      {active && (
+        <motion.div
+          layoutId="nav-pill"
+          className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] shadow-lg shadow-[#395886]/20"
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        />
+      )}
+      <span className="relative z-10 flex items-center gap-2">
+        <Icon className={`w-4 h-4 ${active ? "text-white" : ""}`} />
+        {label}
+      </span>
+    </motion.button>
+  );
+}
+
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-[#F4F7FB] flex flex-col font-sans">
-      <header className="sticky top-0 z-50 bg-[#D5DEEF] px-10 h-20 flex items-center justify-between border-b border-[#D5DEEF]/50">
-        <div
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={() => router.push("/vehicles")}
-        >
-          <div className="flex flex-col items-center">
-             <div className="relative w-16 h-8 flex items-center justify-center">
-               <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                 <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                 <path d="M10 16L30 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                 <circle cx="12" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                 <circle cx="28" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                 <path d="M18 10L25 10L27 16" stroke="#2B4C7E" strokeWidth="2" fill="none" />
-               </svg>
-             </div>
-             <span className="text-[#2B4C7E] font-black italic tracking-widest text-sm leading-none mt-[-4px]">
-               CARFORFAR
-             </span>
-          </div>
+    <div className="min-h-screen bg-[#F0F3FA] flex flex-col font-sans">
+      {/* ── Header ── */}
+      <motion.header
+        initial={{ y: -80 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-white/80 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-[#D5DEEF]/40"
+            : "bg-white/60 backdrop-blur-sm border-b border-[#D5DEEF]/20"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
+          <Logo onClick={() => router.push("/vehicles")} />
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.href}
+                {...item}
+                active={item.href === "/profile" ? pathname.includes("/profile") : pathname === item.href}
+                onClick={() => router.push(item.href)}
+              />
+            ))}
+            <div className="w-px h-8 bg-[#D5DEEF]/60 mx-3" />
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={async () => {
+                try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              Déconnexion
+            </motion.button>
+          </nav>
+
+          {/* Mobile Hamburger */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden w-10 h-10 rounded-xl bg-[#F0F3FA] flex items-center justify-center text-[#395886]"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </motion.button>
         </div>
+      </motion.header>
 
-        <nav className="flex items-center gap-8">
-          <button
-            onClick={() => router.push("/vehicles")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname === "/vehicles" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="fixed inset-0 top-16 z-40 md:hidden"
           >
-            <Car className="w-4 h-4" />
-            V&eacute;hicules
-          </button>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="relative bg-white/90 backdrop-blur-xl border-b border-[#D5DEEF]/40 shadow-xl mx-4 mt-2 rounded-2xl p-3"
+            >
+              <div className="flex flex-col gap-1">
+                {NAV_ITEMS.map((item) => (
+                  <button
+                    key={item.href}
+                    onClick={() => router.push(item.href)}
+                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                      (item.href === "/profile" ? pathname.includes("/profile") : pathname === item.href)
+                        ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                        : "text-[#395886] hover:bg-[#F0F3FA]"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                  </button>
+                ))}
+                <div className="border-t border-[#D5DEEF]/40 my-2" />
+                <button
+                  onClick={async () => {
+                    try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
+                  }}
+                  className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Déconnexion
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <button
-            onClick={() => router.push("/MyReservations")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname === "/MyReservations" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
-          >
-            <Clock className="w-4 h-4" />
-            Historique
-          </button>
+      <main className="flex-1">{children}</main>
 
-          <button
-            onClick={() => router.push("/profile")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname.includes("/profile") ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
-          >
-            <User className="w-4 h-4" />
-            Profil
-          </button>
-
-          <button
-            onClick={() => router.push("/settings")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5 ${pathname === "/settings" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
-          >
-            <Settings className="w-4 h-4" />
-            Param&egrave;tres
-          </button>
-
-          <button
-            onClick={async () => {
-              try {
-                await authLogout();
-              } finally {
-                clearAuthToken();
-                router.push("/login");
-              }
-            }}
-            className="flex items-center gap-1.5 text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ml-4"
-          >
-            D&eacute;connexion
-            <LogOut className="w-4 h-4" />
-          </button>
-        </nav>
-      </header>
-
-      <main className="flex-1">
-        {children}
-      </main>
-
-      <footer className="bg-[#E5E7EB] py-12 px-10 mt-auto">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-8">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col items-start cursor-pointer w-fit" onClick={() => router.push("/vehicles")}>
-               <div className="relative w-16 h-8 flex items-center justify-center">
-                 <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                   <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                   <path d="M10 16L30 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                   <circle cx="12" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                   <circle cx="28" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                   <path d="M18 10L25 10L27 16" stroke="#2B4C7E" strokeWidth="2" fill="none" />
-                 </svg>
-               </div>
-               <span className="text-[#2B4C7E] font-black italic tracking-widest text-sm leading-none mt-[-4px]">
-                 CARFORFAR
-               </span>
+      {/* ── Footer ── */}
+      <footer className="bg-white border-t border-[#D5DEEF]/40 mt-auto">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="flex flex-col lg:flex-row gap-10">
+            <div className="flex-1">
+              <Logo onClick={() => router.push("/vehicles")} />
+              <p className="text-sm font-semibold text-[#638ECB]/70 mt-4 max-w-xs leading-relaxed">
+                Premium vehicle rental service in Marrakech. Drive luxury, drive with confidence.
+              </p>
             </div>
-
-            <div className="flex flex-wrap gap-x-6 gap-y-2">
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Conditions d&rsquo;utilisation</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Politique de confidentialit&eacute;</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Guide de Marrakech</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Conciergerie de Luxe</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors underline underline-offset-4">Contactez-nous</a>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 flex-[2]">
+              <div>
+                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Company</h4>
+                <div className="flex flex-col gap-2.5">
+                  {["About Us", "Careers", "Press", "Blog"].map((l) => (
+                    <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 hover:text-[#395886] transition-colors">{l}</a>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Support</h4>
+                <div className="flex flex-col gap-2.5">
+                  {["Help Center", "Contact Us", "FAQ", "Cancellation"].map((l) => (
+                    <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 hover:text-[#395886] transition-colors">{l}</a>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Legal</h4>
+                <div className="flex flex-col gap-2.5">
+                  {["Privacy Policy", "Terms of Service", "Insurance"].map((l) => (
+                    <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 hover:text-[#395886] transition-colors">{l}</a>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="pt-8 text-xs text-gray-500 font-medium">
-            &copy; 2024 CARFORFAR Location de Voitures. Agence de Tourisme Marocaine.
+          <div className="mt-10 pt-8 border-t border-[#D5DEEF]/40 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-xs font-semibold text-[#638ECB]/50">
+              &copy; {new Date().getFullYear()} CARFORFAR. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

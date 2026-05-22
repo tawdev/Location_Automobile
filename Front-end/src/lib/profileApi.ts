@@ -2,13 +2,10 @@ import { apiRequest } from "./apiClient";
 import type { User } from "./types";
 
 export async function updateProfileName(name: string): Promise<User> {
-  const body = new FormData();
-  body.set("new_name", name);
-
   const res = await apiRequest<{ status?: string; message?: string; data: User }>({
     method: "PUT",
     path: "/profile/name",
-    body,
+    body: { new_name: name },
   });
 
   return res.data;
@@ -32,15 +29,10 @@ export async function updateProfilePassword(data: {
   new_password: string;
   confirme_password: string;
 }): Promise<User> {
-  const body = new FormData();
-  body.set("old_password", data.old_password);
-  body.set("new_password", data.new_password);
-  body.set("confirme_password", data.confirme_password);
-
   const res = await apiRequest<{ status?: string; message?: string; data: User }>({
     method: "PUT",
     path: "/profile/password",
-    body,
+    body: data,
   });
 
   return res.data;
