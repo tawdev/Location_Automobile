@@ -53,13 +53,19 @@ class ProfileController extends Controller
         'confirme_password'=> 'required|string|min:8',
         ]);
 
-        $data=$this->profileService->updatePassword(
+        $data = $this->profileService->updatePassword(
             $request->only('old_password','new_password','confirme_password')
-            );
+        );
 
-        if (!$data) {
+        if ($data === 'wrong_old_password') {
             return response()->json([
-                'message' => 'Ancien mot de passe incorrect ou Les mots de passe ne correspondent pas'
+                'message' => 'Ancien mot de passe incorrect'
+            ], 422);
+        }
+
+        if ($data === 'passwords_mismatch') {
+            return response()->json([
+                'message' => 'Les mots de passe ne correspondent pas'
             ], 422);
         }
 

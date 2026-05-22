@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { vehicleImageUrl } from "@/lib/media";
 import { API_BASE_URL } from "@/lib/config";
+import { useAuth } from "@/lib/authContext";
+import { Car, Calendar, ChevronRight, FileText, IdCard, User, Sparkles, ArrowRight, CheckCircle, AlertCircle, Clock, MapPin, ShieldCheck } from "lucide-react";
 
 interface SettingsReservation {
   id: number;
@@ -38,8 +40,52 @@ function statusLabel(s: string) {
   return map[s?.toLowerCase()] ?? s;
 }
 
+const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
+  confirmée: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  annulée: { bg: "bg-rose-50", text: "text-rose-700", dot: "bg-rose-500" },
+  terminée: { bg: "bg-slate-50", text: "text-slate-600", dot: "bg-slate-400" },
+  en_attente: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-400" },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const s = STATUS_STYLES[status?.toLowerCase()] ?? { bg: "bg-gray-50", text: "text-gray-700", dot: "bg-gray-400" };
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider ${s.bg} ${s.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      {statusLabel(status)}
+    </span>
+  );
+}
+
+function DocRow({ icon: Icon, label, sublabel, verified, onClick }: { icon: React.ComponentType<{ className?: string }>; label: string; sublabel: string; verified: boolean; onClick: () => void }) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.01, x: 3 }}
+      whileTap={{ scale: 0.99 }}
+      onClick={onClick}
+      className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border border-[#D5DEEF]/50 bg-white/60 hover:bg-white hover:border-[#638ECB]/30 transition-all text-left"
+    >
+      <div className="flex items-center gap-3">
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${verified ? "bg-emerald-100" : "bg-[#F0F3FA]"}`}>
+          <Icon className={`w-4 h-4 ${verified ? "text-emerald-600" : "text-[#638ECB]"}`} />
+        </div>
+        <div>
+          <p className="text-sm font-extrabold text-[#395886]">{label}</p>
+          <p className="text-xs font-semibold text-[#638ECB]/60">{sublabel}</p>
+        </div>
+      </div>
+      {verified ? (
+        <CheckCircle className="w-4 h-4 text-emerald-500" />
+      ) : (
+        <ChevronRight className="w-4 h-4 text-[#638ECB]/40" />
+      )}
+    </motion.button>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [reservations, setReservations] = useState<SettingsReservation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -65,179 +111,211 @@ export default function SettingsPage() {
     fetchReservations();
     return () => { cancelled = true; };
   }, []);
+
+  const userInitial = user?.name?.charAt(0).toUpperCase() ?? "?";
+  const hasPermi = !!(user?.permi_recto && user?.permi_verso);
+  const hasCin = !!(user?.cin_recto && user?.cin_verso);
+
   return (
     <RequireAuth>
-      <main className="flex-1">
-        <div className="bg-[#F0F3FA] px-6 py-10 min-h-screen">
-          <div className="max-w-6xl mx-auto">
-            {/* Page title */}
+      <div className="min-h-screen bg-[#F0F3FA]">
+        {/* Hero */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
+          <div className="relative max-w-6xl mx-auto px-6 py-14">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-8"
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <h1 className="playfair text-4xl font-bold text-[#1e3a5f]">Param&egrave;tres</h1>
-              <p className="text-gray-400 text-sm mt-1">G&eacute;rez votre compte et vos documents.</p>
-            </motion.div>
-
-            {/* Two-column layout */}
-            <div className="flex flex-col lg:flex-row gap-6 items-start">
-              {/* Left column */}
-              <div className="flex flex-col gap-5 w-full lg:w-72 flex-shrink-0">
-                {/* Profile card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  className="bg-white rounded-2xl p-6 flex flex-col items-center text-center">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
-                  </div>
-                  <h2 className="text-lg font-bold text-[#1e3a5f]">Alexandre Dubois</h2>
-                  <p className="text-xs font-semibold text-gray-400 tracking-widest uppercase mt-1 mb-5">Membre Premium</p>
-                  <button className="w-full border border-gray-300 rounded-lg py-2.5 text-xs font-semibold text-gray-600 tracking-widest uppercase hover:bg-gray-50 transition-colors">
-                    <a href="/profile">
-                    Modifier le profil
-                    </a>
-                  </button>
-                </motion.div>
-
-                {/* Required Documents card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="bg-white rounded-2xl p-6"
-                >
-                  <h3 className="text-base font-semibold text-[#1e3a5f] mb-4">Documents requis</h3>
-                  <div className="flex flex-col gap-3">
-                    {/* Driver's License */}
-                    <div className="border border-gray-100 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors">
-                      <div className="flex items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/>
-                        </svg>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-800">Permis de conduire</p>
-                          <p className="text-xs text-gray-400">Recto &amp; Verso</p>
-                        </div>
-                      </div>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </div>
-
-                    {/* CIN / ID */}
-                    <div className="border border-gray-100 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors">
-                      <div className="flex items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-800">CIN / ID</p>
-                          <p className="text-xs text-gray-400">Recto &amp; Verso</p>
-                        </div>
-                      </div>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </div>
-                  </div>
-                </motion.div>
+              <div className="flex items-center gap-2.5 mb-2">
+                <Sparkles className="w-4 h-4 text-[#f39c12]" />
+                <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">Dashboard</span>
               </div>
-
-              {/* Right column: Active Reservations */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex-1 min-w-0"
-              >
-                <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-lg font-semibold text-[#c8861a]">R&eacute;servations actives</h3>
-                  <a href="/MyReservations" className="text-xs font-semibold text-[#c8861a] tracking-widest uppercase hover:underline">Historique &rarr;</a>
-                </div>
-
-                {loading ? (
-                  <div className="flex items-center justify-center py-16">
-                    <div className="w-8 h-8 border-4 border-[#395886] border-t-transparent rounded-full animate-spin" />
-                  </div>
-                ) : reservations.length === 0 ? (
-                  <div className="bg-white rounded-2xl p-10 text-center">
-                    <p className="text-gray-400 text-sm">Aucune r&eacute;servation active.</p>
-                    <button onClick={() => router.push("/vehicles")} className="mt-3 text-sm font-semibold text-[#395886] hover:underline">
-                      Parcourir les v&eacute;hicules
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    {reservations.map((r, i) => {
-                      const img = r.vehicle?.pictures?.[0]?.path
-                        ? vehicleImageUrl(r.vehicle.pictures[0].path)
-                        : null;
-                      return (
-                        <motion.div
-                          key={r.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, delay: 0.35 + i * 0.1 }}
-                          className="bg-white rounded-2xl p-5 flex flex-col sm:flex-row gap-4"
-                        >
-                          <div className="w-full sm:w-40 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100" style={{ minHeight: 100 }}>
-                            {img ? (
-                              <img src={img} alt={r.vehicle?.marque} className="w-full h-full object-cover" style={{ minHeight: 100 }} />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-1">
-                              <h4 className="text-base font-bold text-[#1e3a5f] leading-tight">
-                                {r.vehicle?.marque} {r.vehicle?.model}
-                              </h4>
-                              <span className={`text-xs font-semibold rounded-full px-3 py-1 tracking-wide ${
-                                r.status === "Confirmée"
-                                  ? "bg-green-50 text-green-700"
-                                  : "bg-gray-100 text-gray-600"
-                              }`}>
-                                {statusLabel(r.status)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 text-gray-400 text-xs mb-4">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                              </svg>
-                              Marrakech
-                            </div>
-                            <div className="flex gap-8">
-                              <div>
-                                <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">D&eacute;part</p>
-                                <p className="text-sm font-semibold text-gray-800">{formatDate(r.start_date)}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Retour</p>
-                                <p className="text-sm font-semibold text-gray-800">{formatDate(r.end_date)}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                )}
-              </motion.div>
-            </div>
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Paramètres</h1>
+              <p className="text-white/70 text-base font-semibold mt-2 max-w-xl">Gérez votre compte, vos documents et suivez vos réservations actives.</p>
+            </motion.div>
           </div>
         </div>
-      </main>
+
+        <div className="max-w-6xl mx-auto px-6 -mt-6 relative z-10 pb-12">
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            {/* Left Column */}
+            <div className="flex flex-col gap-5 w-full lg:w-80 flex-shrink-0">
+              {/* Profile Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="rounded-3xl border border-[#D5DEEF]/50 bg-white/70 backdrop-blur-xl shadow-lg shadow-black/5 p-7 flex flex-col items-center text-center"
+              >
+                <div className="relative mb-4">
+                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#638ECB] to-[#395886] flex items-center justify-center shadow-xl ring-4 ring-white/50">
+                    <span className="text-4xl font-black text-white">{userInitial}</span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-400 border-2 border-white flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+                <h2 className="text-lg font-black text-[#395886]">{user?.name ?? "User"}</h2>
+                <p className="text-xs font-extrabold text-[#638ECB]/60 uppercase tracking-[0.12em] mt-0.5 mb-5">Membre</p>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push("/profile")}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold tracking-wider shadow-lg shadow-[#395886]/20 hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  Modifier le profil
+                </motion.button>
+              </motion.div>
+
+              {/* Documents Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="rounded-3xl border border-[#D5DEEF]/50 bg-white/70 backdrop-blur-xl shadow-lg shadow-black/5 p-7"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-extrabold text-[#395886]">Documents requis</h3>
+                  {(hasPermi && hasCin) ? (
+                    <span className="flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 rounded-full px-3 py-1">
+                      <CheckCircle className="w-3 h-3" /> Complet
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-[10px] font-extrabold text-amber-700 bg-amber-50/80 border border-amber-200/60 rounded-full px-3 py-1">
+                      <AlertCircle className="w-3 h-3" /> En attente
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <DocRow icon={FileText} label="Permis de conduire" sublabel="Recto & Verso" verified={hasPermi} onClick={() => router.push("/profile")} />
+                  <DocRow icon={IdCard} label="CIN / Passport" sublabel="Recto & Verso" verified={hasCin} onClick={() => router.push("/profile")} />
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Right Column */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="flex-1 min-w-0"
+            >
+              <div className="rounded-3xl border border-[#D5DEEF]/50 bg-white/70 backdrop-blur-xl shadow-lg shadow-black/5 overflow-hidden">
+                <div className="px-7 py-5 border-b border-[#D5DEEF]/40 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#f39c12] to-[#e08e0b] flex items-center justify-center shadow-md">
+                      <Car className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold text-[#395886]">Réservations actives</h3>
+                      <p className="text-[11px] font-semibold text-[#638ECB]/70">Vos trajets en cours et à venir</p>
+                    </div>
+                  </div>
+                  <motion.a
+                    whileHover={{ x: 3 }}
+                    href="/MyReservations"
+                    className="text-xs font-extrabold text-[#f39c12] hover:text-[#e08e0b] transition-colors flex items-center gap-1"
+                  >
+                    Historique <ArrowRight className="w-3 h-3" />
+                  </motion.a>
+                </div>
+
+                <div className="px-7 py-6">
+                  {loading ? (
+                    <div className="flex items-center justify-center py-16">
+                      <div className="relative">
+                        <div className="w-10 h-10 border-3 border-[#D5DEEF] rounded-full" />
+                        <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] rounded-full animate-spin" />
+                      </div>
+                      <span className="ml-3 text-sm font-extrabold text-[#638ECB]">Chargement...</span>
+                    </div>
+                  ) : reservations.length === 0 ? (
+                    <div className="text-center py-16">
+                      <div className="w-14 h-14 rounded-2xl bg-[#F0F3FA] flex items-center justify-center mx-auto mb-4">
+                        <Calendar className="w-7 h-7 text-[#638ECB]" />
+                      </div>
+                      <p className="text-base font-black text-[#395886]">Aucune réservation active</p>
+                      <p className="text-sm font-semibold text-[#638ECB]/70 mt-1 mb-5">Réservez un véhicule pour commencer.</p>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => router.push("/vehicles")}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl transition-all"
+                      >
+                        <Car className="w-3.5 h-3.5" />
+                        Parcourir les véhicules
+                      </motion.button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      {reservations.map((r, i) => {
+                        const img = r.vehicle?.pictures?.[0]?.path
+                          ? vehicleImageUrl(r.vehicle.pictures[0].path)
+                          : null;
+                        return (
+                          <motion.div
+                            key={r.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                            className="group rounded-2xl border border-[#D5DEEF]/50 bg-white/80 hover:bg-white hover:shadow-lg hover:border-[#638ECB]/20 transition-all overflow-hidden"
+                          >
+                            <div className="flex flex-col sm:flex-row gap-0 sm:gap-5">
+                              <div className="w-full sm:w-44 h-32 shrink-0 bg-[#F0F3FA] overflow-hidden">
+                                {img ? (
+                                  <img src={img} alt={r.vehicle?.marque} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <Car className="w-8 h-8 text-[#D5DEEF]" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 p-5 pt-3 sm:pt-5">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div>
+                                    <h4 className="text-base font-extrabold text-[#395886] leading-tight">
+                                      {r.vehicle?.marque} {r.vehicle?.model}
+                                    </h4>
+                                    <div className="flex items-center gap-1 text-xs font-semibold text-[#638ECB]/60 mt-0.5">
+                                      <MapPin className="w-3 h-3" /> Marrakech
+                                    </div>
+                                  </div>
+                                  <StatusBadge status={r.status} />
+                                </div>
+                                <div className="flex gap-6 mt-3">
+                                  <div>
+                                    <p className="text-[10px] font-extrabold text-[#638ECB] uppercase tracking-[0.1em]">Départ</p>
+                                    <p className="text-sm font-bold text-[#395886] mt-0.5 flex items-center gap-1.5">
+                                      <Calendar className="w-3.5 h-3.5 text-[#f39c12]" />
+                                      {formatDate(r.start_date)}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="text-[10px] font-extrabold text-[#638ECB] uppercase tracking-[0.1em]">Retour</p>
+                                    <p className="text-sm font-bold text-[#395886] mt-0.5 flex items-center gap-1.5">
+                                      <Calendar className="w-3.5 h-3.5 text-[#f39c12]" />
+                                      {formatDate(r.end_date)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
     </RequireAuth>
   );
 }
