@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, X, CheckCircle, Loader2 } from "lucide-react";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { RequireAuth } from "@/components/RequireAuth";
+import { API_BASE_URL } from "@/lib/config";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface Reservation {
@@ -54,7 +55,6 @@ interface RawItem {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 function getToken(): string | null {
   return getAuthToken();
@@ -170,20 +170,26 @@ function ReservationCard({
   const cancellable = upcoming && canCancel(res.pickup_date);
 
   return (
-    <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+    <motion.div
+      className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col"
+      whileHover={{ y: -6, boxShadow: "0 20px 50px rgba(31,66,118,0.12)" }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+    >
       {/* Image */}
-      <div className="relative h-48 w-full">
-        <img
+      <motion.div className="relative h-48 w-full overflow-hidden">
+        <motion.img
           src={vehicleImage(res)}
           alt={vehicleName(res)}
           className={`w-full h-full object-cover ${cancelled ? "grayscale opacity-60" : ""}`}
+          whileHover={{ scale: 1.08 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
           onError={(e) => {
             (e.target as HTMLImageElement).src =
               "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80";
           }}
         />
         <StatusBadge status={res.status} />
-      </div>
+      </motion.div>
 
       {/* Body */}
       <div className="p-6 flex flex-col flex-1">
@@ -224,42 +230,54 @@ function ReservationCard({
         ) : upcoming ? (
           cancellable ? (
             <div className="flex gap-4">
-              <button 
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => onShowDetails(res)}
                 className="flex-1 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
               >
                 DETAILS
-              </button>
-              <button 
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => onCancel(res.id)}
                 className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
               >
                 ANNULER
-              </button>
+              </motion.button>
             </div>
           ) : (
-            <button 
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => onShowDetails(res)}
               className="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
             >
               DETAILS
-            </button>
+            </motion.button>
           )
         ) : (
           <div className="flex gap-4">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => onBookAgain(res.vehicle?.id ?? res.id)}
               className="flex-1 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
             >
               BOOK AGAIN
-            </button>
-            <button className="flex-1 bg-[#E2E8F0] hover:bg-[#CBD5E1] text-[#475569] font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors">
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="flex-1 bg-[#E2E8F0] hover:bg-[#CBD5E1] text-[#475569] font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
+            >
               RECEIPT
-            </button>
+            </motion.button>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -298,8 +316,8 @@ export default function BookingHistoryPage() {
       };
       const statusParam = statusMap[filter];
       const url = statusParam
-        ? `${API_BASE}/MyReservation/filter?status=${encodeURIComponent(statusParam)}&page=${pageNum}`
-        : `${API_BASE}/MyReservations?page=${pageNum}`;
+        ? `${API_BASE_URL}/MyReservation/filter?status=${encodeURIComponent(statusParam)}&page=${pageNum}`
+        : `${API_BASE_URL}/MyReservations?page=${pageNum}`;
 
       const res = await fetch(url, {
         headers: {
@@ -390,7 +408,7 @@ export default function BookingHistoryPage() {
     if (!token) { setCancelling(false); return; }
 
     try {
-      const res = await fetch(`${API_BASE}/MyReservations/${resId}/annuler`, {
+      const res = await fetch(`${API_BASE_URL}/MyReservations/${resId}/annuler`, {
         method: "PATCH",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -417,7 +435,7 @@ export default function BookingHistoryPage() {
     <RequireAuth>
       <div className="min-h-screen bg-[#F4F7FB]">
         {/* ── Content ── */}
-        <main className="max-w-5xl mx-auto w-full px-6 py-12">
+        <main className="max-w-7xl mx-auto w-full px-6 py-12">
           {/* Title Row */}
         <div className="flex justify-between items-start mb-10">
           <div>
@@ -472,15 +490,22 @@ export default function BookingHistoryPage() {
 
         {/* Grid or Empty State */}
         {reservations.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {reservations.map((res, i) => (
-              <ReservationCard
+              <motion.div
                 key={res.id || i}
-                res={res}
-                onBookAgain={handleBookAgain}
-                onCancel={handleCancelReservation}
-                onShowDetails={handleShowDetails}
-              />
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.06, ease: "easeOut" }}
+              >
+                <ReservationCard
+                  res={res}
+                  onBookAgain={handleBookAgain}
+                  onCancel={handleCancelReservation}
+                  onShowDetails={handleShowDetails}
+                />
+              </motion.div>
             ))}
           </div>
         ) : !loading && !error ? (

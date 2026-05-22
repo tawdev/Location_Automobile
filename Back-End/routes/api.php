@@ -82,6 +82,15 @@ Route::get('Reservation/filter',[ReservationController::class,'filterAdminReserv
 
 
 
+
+
+
+
+
+
+
+
+
 Route::get('Categories', [CategoryController::class , 'index']);
 Route::post('Category' , [CategoryController::class , 'store']);
 Route::put('Categories/{id}' , [CategoryController::class , 'update']);

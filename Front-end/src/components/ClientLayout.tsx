@@ -15,7 +15,7 @@ export default function ClientLayout({
 
   return (
     <div className="min-h-screen bg-[#F4F7FB] flex flex-col font-sans">
-      <header className="bg-[#D5DEEF] px-10 h-20 flex items-center justify-between border-b border-[#D5DEEF]/50">
+      <header className="sticky top-0 z-50 bg-[#D5DEEF] px-10 h-20 flex items-center justify-between border-b border-[#D5DEEF]/50">
         <div
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => router.push("/vehicles")}

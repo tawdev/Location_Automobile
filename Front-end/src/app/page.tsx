@@ -57,7 +57,7 @@ const services = [
 
 const steps = [
   { num: "01", title: "Choisissez", desc: "Parcourez notre flotte et s&eacute;lectionnez le v&eacute;hicule qui vous correspond." },
-  { num: "02", title: "R&eacute;servez", desc: "Choisissez vos dates et finalisez votre r&eacute;servation en quelques clics." },
+  { num: "02", title: "Réservez", desc: "Choisissez vos dates et finalisez votre réservation en quelques clics." },
   { num: "03", title: "Conduisez", desc: "R&eacute;cup&eacute;rez votre v&eacute;hicule et profitez de votre exp&eacute;rience." },
 ];
 
@@ -408,7 +408,7 @@ function CTASection() {
           <motion.button
             whileHover={{ scale: 1.04, boxShadow: "0 8px 30px rgba(57,88,134,0.3)" }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => router.push("/signup")}
+            onClick={() => router.push("/register")}
             className="bg-[#395886] hover:bg-[#2d4670] text-white font-black text-sm tracking-[0.15em] uppercase px-12 py-4 rounded-2xl transition-colors shadow-[0_4px_20px_rgba(57,88,134,0.25)]"
           >
             Cr&eacute;er un compte

@@ -14,8 +14,8 @@ export default function RegisterPage() {
   async function handleSignIn(payload: { email: string; password: string }) {
     setSubmitting(true);
     try {
-      await signIn(payload);
-      router.replace("/vehicles");
+      const user = await signIn(payload);
+      router.replace(user.role_id === 1 ? "/admin" : "/vehicles");
     } finally {
       setSubmitting(false);
     }
@@ -24,8 +24,8 @@ export default function RegisterPage() {
   async function handleSignUp(payload: { name: string; email: string; password: string }) {
     setSubmitting(true);
     try {
-      await signUp(payload);
-      router.replace("/vehicles");
+      const user = await signUp(payload);
+      router.replace(user.role_id === 1 ? "/admin" : "/vehicles");
     } finally {
       setSubmitting(false);
     }
