@@ -33,6 +33,14 @@ function buildQuery(query: RequestOptions["query"]): string {
   return qs ? `?${qs}` : "";
 }
 
+export function isAuthError(error: unknown): boolean {
+  if (error && typeof error === "object" && "status" in error) {
+    const status = (error as { status: number }).status;
+    return status === 401 || status === 419 || status === 403;
+  }
+  return false;
+}
+
 export async function apiRequest<T = unknown>({
   method,
   path,
@@ -74,6 +82,9 @@ export async function apiRequest<T = unknown>({
   if (res.status === 401 || res.status === 419) {
     // Token expired/invalid; clear local token to avoid infinite 401 loops
     clearAuthToken();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("auth:token-expired"));
+    }
     throw { message: "Unauthorized", status: res.status } satisfies ApiError;
   }
 

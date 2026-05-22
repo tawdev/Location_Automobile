@@ -26,7 +26,7 @@ function LoginInner() {
     setSubmitting(true);
     try {
       const user = await signIn(payload);
-      router.replace(user.role_id === 1 ? "/admin" : "/vehicles");
+      router.replace(user.role_id === 1 ? "/admin/vehicles" : "/vehicles");
     } finally {
       setSubmitting(false);
     }
@@ -36,7 +36,7 @@ function LoginInner() {
     setSubmitting(true);
     try {
       const user = await signUp(payload);
-      router.replace(user.role_id === 1 ? "/admin" : "/vehicles");
+      router.replace(user.role_id === 1 ? "/admin/vehicles" : "/vehicles");
     } finally {
       setSubmitting(false);
     }

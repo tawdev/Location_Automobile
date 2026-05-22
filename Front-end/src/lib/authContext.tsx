@@ -69,6 +69,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [pathname, status]);
 
+  useEffect(() => {
+    function onTokenExpired() {
+      setUser(null);
+      setStatus("unauthenticated");
+    }
+    window.addEventListener("auth:token-expired", onTokenExpired);
+    return () => window.removeEventListener("auth:token-expired", onTokenExpired);
+  }, []);
+
   async function signIn(payload: { email: string; password: string }) {
     setError(null);
     const res = await authLogin(payload);

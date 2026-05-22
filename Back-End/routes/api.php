@@ -12,7 +12,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('/Vehicles',VehicleController::class);
 // Auth
 Route::post('auth/register' , [AuthController::class, 'register']);
 Route::post('auth/login' , [AuthController::class, 'login']);
@@ -21,21 +20,13 @@ Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth
 Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
 Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 
-
-
-
-
-
-
-// Route::apiResource('/Vehicles', VehicleController::class);
-
-Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy'])->middleware('auth:sanctum');
-Route::post('/vehicle' , [VehicleController::class , 'store'])->middleware('auth:sanctum');
-Route::get('Vehicles' , [VehicleController::class, 'index'])->middleware('auth:sanctum');
-Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles'])->middleware('auth:sanctum');
-
-// Route::apiResource('/Vehicles', VehicleController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('Vehicles' , [VehicleController::class, 'index']);
+    Route::post('/vehicle' , [VehicleController::class , 'store']);
+    Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
+    Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
+    Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
+});
 
 
 
