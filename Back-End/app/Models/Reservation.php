@@ -15,6 +15,14 @@ class Reservation extends Model
     /** @use HasFactory<ReservationFactory> */
     use HasFactory;
 
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+        ];
+    }
+
     /**
      * @return BelongsTo<User, Reservation>
      */

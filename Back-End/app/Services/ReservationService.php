@@ -109,7 +109,6 @@ class ReservationService
     public function refuseReservition($id){
         $reservaition = Reservation::findOrFail($id);
        if (\Carbon\Carbon::parse($reservaition->start_date) < now()->addHours(48)) {
-       if ($reservaition->start_date < now()->addHours(48) || now()>$reservaition->start_date || now()<$reservaition->end_date) {
             return false;
             }
 
@@ -118,7 +117,7 @@ class ReservationService
         ]);
         return $reservaition;
     }
-    }
+    
     public function AdminRefuseReservition($id){
             $reservaition = Reservation::findOrFail($id);
 

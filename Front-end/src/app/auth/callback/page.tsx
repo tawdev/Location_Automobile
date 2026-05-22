@@ -25,15 +25,15 @@ function CallbackInner() {
     }
 
     setAuthToken(token);
-    void (async () => {
-      try {
-        const res = await authUser();
-        const roleId = res.data?.role_id;
-        window.location.href = roleId === 1 ? "/admin/vehicles" : "/vehicles";
-      } catch {
+
+    authUser()
+      .then((res) => {
+        const user = res.data;
+        window.location.href = user.role_id === 1 ? "/admin" : "/vehicles";
+      })
+      .catch(() => {
         window.location.href = "/vehicles";
-      }
-    })();
+      });
   }, [searchParams]);
 
   return (

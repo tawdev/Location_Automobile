@@ -6,8 +6,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { motion } from "framer-motion";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { vehicleImageUrl } from "@/lib/media";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+import { API_BASE_URL } from "@/lib/config";
 
 interface SettingsReservation {
   id: number;
@@ -50,7 +49,7 @@ export default function SettingsPage() {
       const token = getAuthToken();
       if (!token) { setLoading(false); return; }
       try {
-        const res = await fetch(`${API_BASE}/MyReservations`, {
+        const res = await fetch(`${API_BASE_URL}/MyReservations`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         });
         if (!res.ok) throw new Error("Failed to fetch");

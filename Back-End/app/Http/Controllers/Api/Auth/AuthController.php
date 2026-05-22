@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -96,16 +97,25 @@ class AuthController extends Controller
     {
         /** @var \Laravel\Socialite\Two\GoogleProvider $provider */
         $provider = Socialite::driver('google');
-        return $provider->stateless()->redirect();
+        $provider->stateless();
+        $provider->redirectUrl(config('services.google.redirect'));
+        return $provider->redirect();
     }
 
-    public function googleCallback()
+    public function googleCallback(Request $request)
     {
         try {
             /** @var \Laravel\Socialite\Two\GoogleProvider $provider */
             $provider = Socialite::driver('google');
-            $googleUser = $provider->stateless()->user();
+            $provider->stateless();
+            $provider->redirectUrl(config('services.google.redirect'));
+            $googleUser = $provider->user();
         } catch (\Exception $e) {
+            Log::error('Google callback failed: ' . $e->getMessage(), [
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return redirect()->away(env('FRONTEND_URL') . '/login?error=google_auth_failed');
         }
 
