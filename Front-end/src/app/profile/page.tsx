@@ -400,7 +400,7 @@ export default function ProfilePage() {
           </motion.div>
 
           {/* ── Documents ── */}
-          <motion.div
+          {user?.role_id !== 1 && <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -512,7 +512,7 @@ export default function ProfilePage() {
                 </form>
               </div>
             </div>
-          </motion.div>
+          </motion.div>}
         </div>
       </div>
     </RequireAuth>

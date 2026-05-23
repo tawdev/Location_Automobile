@@ -60,9 +60,8 @@ export async function apiRequest<T = unknown>({
       method,
       signal,
       headers: {
-        ...(hasJsonBody
-          ? { Accept: "application/json", "Content-Type": "application/json" }
-          : {}),
+        Accept: "application/json",
+        ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body:

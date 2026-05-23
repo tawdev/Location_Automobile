@@ -98,15 +98,11 @@ class ReservationController extends Controller
     }
 
     public function filterAdminReservation(Request $request){
-           $data=$this->reservitionService->filterAllReservation($request);
+        $data=$this->reservitionService->filterAllReservation($request);
 
-        if(empty($data)){
-            return response()->json([
-                'message'=>'Aucan reservation',
-            ]);
-        }
         return response()->json([
-            'data'=>$data
+            'status' => 'success',
+            'data' => $data,
         ]);
     }
 

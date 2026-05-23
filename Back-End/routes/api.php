@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,7 @@ Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('Vehicles' , [VehicleController::class, 'index']);
+    Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
     Route::post('/vehicle' , [VehicleController::class , 'store']);
     Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
     Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
@@ -62,6 +64,7 @@ Route::patch('/MyReservations/{id}/annuler',[ReservationController::class, 'annu
 
 //i will put this two routes in Middlware of adminRole , i will make it later
 Route::middleware(['auth:sanctum','admin'])->group(function (){
+Route::get('/admin/dashboard/stats', [DashboardController::class, 'stats']);
 Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);
