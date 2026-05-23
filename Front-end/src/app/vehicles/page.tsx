@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireClient } from "@/components/RequireClient";
 import { filterVehicles, listVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle } from "@/lib/types";
 import { vehicleImageUrl } from "@/lib/media";
@@ -111,7 +111,7 @@ export default function VehiclesPage() {
   }, [vehicles, selectedCategory, searchQuery]);
 
   return (
-    <RequireAuth>
+    <RequireClient>
       <div className="bg-[#f6f6f8] overflow-hidden">
 
         {/* HERO */}
@@ -467,6 +467,6 @@ export default function VehiclesPage() {
         </section>
 
       </div>
-    </RequireAuth>
+    </RequireClient>
   );
 }

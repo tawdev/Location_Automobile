@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, X, CheckCircle, Loader2, Search, Car, Calendar, DollarSign, Clock, ArrowRight } from "lucide-react";
 import { getAuthToken } from "@/lib/tokenStorage";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireClient } from "@/components/RequireClient";
 import { API_BASE_URL } from "@/lib/config";
 
 interface Reservation {
@@ -489,7 +489,7 @@ export default function BookingHistoryPage() {
   }, [reservations, search]);
 
   return (
-    <RequireAuth>
+    <RequireClient>
       <div className="min-h-screen bg-[#F0F3FA]">
         {/* Premium Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
@@ -865,6 +865,6 @@ export default function BookingHistoryPage() {
           </motion.div>
         )}
       </AnimatePresence>
-    </RequireAuth>
+    </RequireClient>
   );
 }

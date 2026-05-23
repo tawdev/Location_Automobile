@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
+import { profileImageUrl } from "@/lib/media";
 
 type NavItem = {
   label: string;
@@ -13,6 +14,14 @@ type NavItem = {
 };
 
 // Sleek Custom SVG Icons
+function CalendarIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  );
+}
+
 function FleetIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -22,10 +31,10 @@ function FleetIcon() {
   );
 }
 
-function CategoryIcon() {
+function UserIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
   );
 }
@@ -53,13 +62,13 @@ function SidebarLink({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
         active
-          ? "bg-[#395886] text-white shadow-md hover:bg-[#395886]/95"
+          ? "bg-[#395886] text-white shadow-sm"
           : "text-[#638ECB] hover:text-[#395886] hover:bg-[#F0F3FA]"
       }`}
     >
-      <span className={active ? "text-white" : "text-[#638ECB] group-hover:text-[#395886]"}>
+      <span className={active ? "text-white" : "text-[#638ECB]"}>
         {icon}
       </span>
       <span>{label}</span>
@@ -76,8 +85,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const navItems: NavItem[] = useMemo(
     () => [
-      { label: "Vehicles", href: "/admin/vehicles", icon: <FleetIcon /> },
-      { label: "Categories", href: "/admin/categories", icon: <CategoryIcon /> },
+      { label: "Véhicules", href: "/admin/vehicles", icon: <FleetIcon /> },
+      { label: "Réservations", href: "/admin/reservations", icon: <CalendarIcon /> },
+      { label: "Profil", href: "/admin/profile", icon: <UserIcon /> },
     ],
     []
   );
@@ -93,24 +103,25 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     return user?.name ? user.name.charAt(0).toUpperCase() : "A";
   }, [user]);
 
+  const userProfilePicUrl = useMemo(() => {
+    return user?.profile_pic ? profileImageUrl(user.profile_pic) : null;
+  }, [user]);
+
   return (
     <div className="min-h-screen bg-[#F0F3FA] text-[#395886] flex">
-      {/* Permanent Elegant Sticky Sidebar */}
-      <aside className="w-[260px] h-screen sticky top-0 bg-white border-r border-[#D5DEEF]/65 flex flex-col justify-between p-6 shrink-0 hidden md:flex shadow-sm z-30">
-        <div className="flex flex-col gap-8">
-          {/* Logo Branding */}
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#638ECB] to-[#395886] flex items-center justify-center text-white text-lg font-black shadow-md shadow-[#395886]/10">
+      {/* Sidebar */}
+      <aside className="w-[240px] h-screen sticky top-0 bg-white border-r border-[#D5DEEF] flex flex-col justify-between p-5 shrink-0 hidden md:flex z-30">
+        {/* Logo */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-lg bg-[#395886] flex items-center justify-center text-white text-sm font-black">
               LA
             </div>
-            <div>
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-[#638ECB] block leading-none">Management</span>
-              <span className="text-base font-extrabold text-[#395886] leading-none mt-1.5 block">Fleet Portal</span>
-            </div>
+            <div className="text-sm font-extrabold text-[#395886]">Administration</div>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex flex-col gap-2">
+          {/* Nav */}
+          <div className="flex flex-col gap-1">
             {navItems.map((item) => (
               <SidebarLink
                 key={item.href}
@@ -123,53 +134,54 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* User profile & Actions */}
-        <div className="flex flex-col gap-4 border-t border-[#D5DEEF]/50 pt-5">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-[#638ECB]/20 to-[#395886]/20 border border-[#D5DEEF] flex items-center justify-center text-[#395886] font-black shadow-sm text-sm">
-              {userInitial}
+        {/* Bottom */}
+        <div className="flex flex-col gap-3 border-t border-[#D5DEEF] pt-4">
+          <button
+            type="button"
+            onClick={() => router.push("/admin/profile")}
+            className="flex items-center gap-2.5 w-full text-left cursor-pointer hover:bg-[#F0F3FA] rounded-lg p-1.5 -mx-1.5 transition-colors"
+          >
+            <div className="h-8 w-8 rounded-full bg-[#F0F3FA] border border-[#D5DEEF] flex items-center justify-center text-[#395886] font-bold text-xs shrink-0 overflow-hidden">
+              {userProfilePicUrl ? (
+                <img src={userProfilePicUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                userInitial
+              )}
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-xs font-bold text-[#638ECB]/90 block truncate leading-none">Authenticated As</span>
-              <span className="text-sm font-extrabold text-[#395886] truncate block mt-1.5 leading-none">
-                {user?.name ?? "Administrator"}
-              </span>
+              <div className="text-xs font-bold text-[#395886] truncate leading-tight">
+                {user?.name ?? "Admin"}
+              </div>
+              <div className="text-[10px] font-semibold text-[#638ECB] truncate leading-tight">
+                {user?.email ?? ""}
+              </div>
             </div>
-          </div>
+          </button>
 
-          <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              disabled={loggingOut}
-              onClick={async () => {
-                setLoggingOut(true);
-                try {
-                  await authLogout();
-                } finally {
-                  await Promise.resolve();
-                  await clearAuthToken();
-                  router.push("/login");
-                  setLoggingOut(false);
-                }
-              }}
-              className="w-full h-11 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-            >
-              <LogoutIcon />
-              <span>{loggingOut ? "Logging out..." : "Sign Out"}</span>
-            </button>
+          <button
+            type="button"
+            disabled={loggingOut}
+            onClick={async () => {
+              setLoggingOut(true);
+              try {
+                await authLogout();
+              } finally {
+                await Promise.resolve();
+                await clearAuthToken();
+                router.push("/login");
+                setLoggingOut(false);
+              }
+            }}
+            className="w-full h-9 rounded-lg border border-[#D5DEEF] hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <LogoutIcon />
+            <span>{loggingOut ? "Déconnexion..." : "Se déconnecter"}</span>
+          </button>
 
-            <button
-              type="button"
-              onClick={() => router.push("/vehicles")}
-              className="w-full text-center text-xs font-bold text-[#638ECB] hover:text-[#395886] py-1 underline cursor-pointer"
-            >
-              Client Showcase
-            </button>
-          </div>
         </div>
       </aside>
 
-      {/* Main View Area */}
+      {/* Main */}
       <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">
         {children}
       </main>

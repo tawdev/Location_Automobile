@@ -1,22 +1,20 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 
-export function RequireAdmin({ children }: { children: React.ReactNode }) {
+export function RequireClient({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { status, user } = useAuth();
 
-  const isAdmin = useMemo(() => {
-    return status === "authenticated" && user?.role_id === 1;
-  }, [status, user?.role_id]);
+  const isAdmin = status === "authenticated" && user?.role_id === 1;
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/login");
-    } else if (status === "authenticated" && !isAdmin) {
-      router.replace("/vehicles");
+    } else if (isAdmin) {
+      router.replace("/admin/vehicles");
     }
   }, [isAdmin, router, status]);
 
@@ -36,20 +34,20 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (status === "authenticated" && !isAdmin) {
+  if (isAdmin) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center p-6">
         <div className="border-4 border-black bg-white p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <div className="font-black text-xl">Access denied</div>
+          <div className="font-black text-xl">Accès refusé</div>
           <div className="font-bold mt-2 text-sm">
-            Admins only.
+            Cette page est réservée aux clients.
           </div>
           <button
             type="button"
-            onClick={() => router.push("/vehicles")}
-            className="mt-4 font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100"
+            onClick={() => router.push("/admin/vehicles")}
+            className="mt-4 font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100 cursor-pointer"
           >
-            Back to vehicles
+            Retour à l'administration
           </button>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireClient } from "@/components/RequireClient";
 import { makeReservation } from "@/lib/reservationsApi";
 import { useAuth } from "@/lib/authContext";
 
@@ -47,7 +47,7 @@ export default function ReservationNewPage() {
   }
 
   return (
-    <RequireAuth>
+    <RequireClient>
       <div className="min-h-screen bg-zinc-50 text-black p-4">
         <div className="max-w-xl mx-auto border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
           <h1 className="font-black text-3xl mb-2">New reservation</h1>
@@ -108,6 +108,6 @@ export default function ReservationNewPage() {
           </form>
         </div>
       </div>
-    </RequireAuth>
+    </RequireClient>
   );
 }

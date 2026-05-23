@@ -22,6 +22,7 @@ Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('Vehicles' , [VehicleController::class, 'index']);
+    Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
     Route::post('/vehicle' , [VehicleController::class , 'store']);
     Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
     Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);

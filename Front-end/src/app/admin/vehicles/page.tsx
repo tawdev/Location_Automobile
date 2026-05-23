@@ -46,30 +46,6 @@ function SettingsIcon() {
   );
 }
 
-function CalendarIcon() {
-  return (
-    <svg className="w-3.5 h-3.5 text-[#638ECB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  );
-}
-
-function GaugeIcon() {
-  return (
-    <svg className="w-3.5 h-3.5 text-[#638ECB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-    </svg>
-  );
-}
-
-function SeatsIcon() {
-  return (
-    <svg className="w-3.5 h-3.5 text-[#638ECB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-    </svg>
-  );
-}
-
 function TrashIcon() {
   return (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -95,19 +71,19 @@ function EyeIcon() {
   );
 }
 
-// Loading Skeleton
-function SkeletonCard() {
+// Loading Skeleton Row
+function SkeletonRow() {
   return (
-    <div className="bg-white rounded-3xl border border-[#D5DEEF]/60 overflow-hidden shadow-sm animate-pulse p-4">
-      <div className="bg-[#F0F3FA] aspect-[16/10] rounded-2xl w-full" />
-      <div className="mt-4 space-y-3">
-        <div className="h-5 bg-[#F0F3FA] rounded-md w-3/5" />
-        <div className="h-4 bg-[#F0F3FA] rounded-md w-2/5" />
-        <div className="pt-3 border-t border-[#D5DEEF]/40 grid grid-cols-3 gap-2">
-          <div className="h-4 bg-[#F0F3FA] rounded" />
-          <div className="h-4 bg-[#F0F3FA] rounded" />
-          <div className="h-4 bg-[#F0F3FA] rounded" />
-        </div>
+    <div className="bg-white rounded-3xl border border-[#D5DEEF]/60 overflow-hidden shadow-sm animate-pulse flex items-center gap-4 p-4">
+      <div className="w-20 h-20 rounded-2xl bg-[#F0F3FA] shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-5 bg-[#F0F3FA] rounded-md w-1/4" />
+        <div className="h-4 bg-[#F0F3FA] rounded-md w-1/3" />
+      </div>
+      <div className="flex gap-2 shrink-0">
+        <div className="h-9 w-20 rounded-xl bg-[#F0F3FA]" />
+        <div className="h-9 w-20 rounded-xl bg-[#F0F3FA]" />
+        <div className="h-9 w-20 rounded-xl bg-[#F0F3FA]" />
       </div>
     </div>
   );
@@ -122,9 +98,9 @@ function EmptyState({ onCreate, onSeed, seeding, seedProgress }: { onCreate: () 
         <div className="h-20 w-20 rounded-2xl bg-[#F0F3FA] border border-[#D5DEEF] flex items-center justify-center text-3xl mb-6 shadow-sm">
           🚗
         </div>
-        <h3 className="font-extrabold text-[#395886] text-2xl tracking-tight">No vehicles found</h3>
+        <h3 className="font-extrabold text-[#395886] text-2xl tracking-tight">Aucun véhicule trouvé</h3>
         <p className="mt-3 text-[#638ECB] text-sm font-semibold leading-relaxed">
-          Start building your virtual automobile rental fleet by adding your first vehicle, or populate with high-quality demo data instantly.
+          Commencez à constituer votre flotte de location en ajoutant votre premier véhicule, ou remplissez avec des données de démonstration instantanément.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full justify-center">
@@ -133,7 +109,7 @@ function EmptyState({ onCreate, onSeed, seeding, seedProgress }: { onCreate: () 
             onClick={onCreate}
             className="px-6 py-3 rounded-xl bg-[#395886] hover:bg-[#395886]/90 text-white font-bold text-sm transition-all hover:shadow-md active:scale-95 cursor-pointer"
           >
-            ✨ Add First Vehicle
+            ✨ Ajouter un véhicule
           </button>
           <button
             type="button"
@@ -141,7 +117,7 @@ function EmptyState({ onCreate, onSeed, seeding, seedProgress }: { onCreate: () 
             disabled={seeding}
             className="px-6 py-3 rounded-xl border border-[#D5DEEF] bg-white hover:bg-[#F0F3FA] text-[#395886] font-bold text-sm transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
           >
-            {seeding ? `Seeding ${seedProgress.done}/${seedProgress.total}...` : "⚡ Seed Demo Fleet"}
+            {seeding ? `Génération ${seedProgress.done}/${seedProgress.total}...` : "⚡ Générer une flotte de démo"}
           </button>
         </div>
       </div>
@@ -149,8 +125,8 @@ function EmptyState({ onCreate, onSeed, seeding, seedProgress }: { onCreate: () 
   );
 }
 
-// Vehicle Card View
-interface VehicleCardProps {
+// Vehicle Row View
+interface VehicleRowProps {
   vehicle: Vehicle;
   categoryName?: string;
   onView: (id: number) => void;
@@ -159,116 +135,94 @@ interface VehicleCardProps {
   deleting: boolean;
 }
 
-function VehicleCard({
+function VehicleRow({
   vehicle,
   categoryName,
   onView,
   onEdit,
   onDelete,
   deleting,
-}: VehicleCardProps) {
+}: VehicleRowProps) {
   const picturePath = vehicle.pictures?.[0]?.path;
 
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-[#D5DEEF]/70 bg-white hover:border-[#638ECB]/50 hover:shadow-[0_12px_40px_rgba(99,142,203,0.12)] transition-all duration-300 flex flex-col h-full">
-      {/* Visual Header */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-[#F0F3FA] border-b border-[#D5DEEF]/40">
+    <div className="group flex items-center gap-4 rounded-3xl border border-[#D5DEEF]/70 bg-white hover:border-[#638ECB]/50 hover:shadow-[0_4px_20px_rgba(99,142,203,0.10)] transition-all duration-300 p-4">
+      {/* Small Image */}
+      <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
         {picturePath ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={vehicleImageUrl(picturePath)}
             alt={`${vehicle.marque} ${vehicle.model}`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/70 text-sm">
-            No Image Provided
+          <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px]">
+            Aucune
           </div>
         )}
+      </div>
 
-        {/* Rating/Price badge */}
-        <div className="absolute bottom-3 left-3 bg-[#395886]/90 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 shadow-md">
-          <span className="text-[#f39c12]">★</span> 4.8
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <h4 className="font-extrabold text-[#395886] text-base leading-tight truncate">
+            {vehicle.marque}
+          </h4>
+          <span className="text-[10px] font-bold text-[#395886] bg-[#F0F3FA] px-2 py-0.5 rounded-md border border-[#D5DEEF]/50 shrink-0">
+            #{vehicle.id}
+          </span>
         </div>
-
-        {/* Id tag */}
-        <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-md border border-[#D5DEEF]/80 px-2.5 py-1 rounded-lg text-[10px] font-bold text-[#395886] shadow-sm">
-          ID: {vehicle.id}
+        <div className="flex items-center gap-3 mt-1 text-xs font-semibold text-[#638ECB]">
+          <span>{vehicle.year}</span>
+          <span className="text-[#D5DEEF]">|</span>
+          <span>{vehicle.km.toLocaleString()} km</span>
+          <span className="text-[#D5DEEF]">|</span>
+          <span>{vehicle.Occupants} places</span>
+          <span className="text-[#D5DEEF]">|</span>
+          <span>⛽ {vehicle.fuelType}</span>
+          {categoryName && (
+            <>
+              <span className="text-[#D5DEEF]">|</span>
+              <span className="px-2 py-0.5 rounded-md bg-[#F0F3FA] text-[#395886] text-[10px] font-bold border border-[#D5DEEF]/50">
+                {categoryName}
+              </span>
+            </>
+          )}
+        </div>
+        <div className="mt-1">
+          <span className="text-lg font-black text-[#395886]">${vehicle.pricePerDay}</span>
+          <span className="text-[10px] font-bold text-[#638ECB] ml-1">/ jour</span>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-5 flex-1 flex flex-col justify-between">
-        <div>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h4 className="font-extrabold text-[#395886] text-lg leading-tight truncate">
-                {vehicle.marque}
-              </h4>
-              <p className="text-[#638ECB] text-xs font-semibold mt-0.5 truncate">
-                {vehicle.model}
-              </p>
-            </div>
-            <div className="text-right shrink-0">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Price / Day</span>
-              <span className="text-lg font-black text-[#395886]">${vehicle.pricePerDay}</span>
-            </div>
-          </div>
-
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            <span className="px-2.5 py-1 rounded-lg bg-[#F0F3FA] text-[#395886] text-xs font-bold border border-[#D5DEEF]/50">
-              {categoryName ?? "Standard"}
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-[#F0F3FA] text-[#395886] text-xs font-bold border border-[#D5DEEF]/50">
-              ⛽ {vehicle.fuelType}
-            </span>
-          </div>
-
-          {/* Specs grid */}
-          <div className="grid grid-cols-3 gap-2 py-3 mt-4 border-t border-[#D5DEEF]/40 text-[11px] font-bold text-[#638ECB]">
-            <div className="flex items-center gap-1 bg-[#F0F3FA]/30 p-1.5 rounded-lg">
-              <CalendarIcon />
-              <span>{vehicle.year}</span>
-            </div>
-            <div className="flex items-center gap-1 bg-[#F0F3FA]/30 p-1.5 rounded-lg truncate">
-              <GaugeIcon />
-              <span>{vehicle.km.toLocaleString()} km</span>
-            </div>
-            <div className="flex items-center gap-1 bg-[#F0F3FA]/30 p-1.5 rounded-lg">
-              <SeatsIcon />
-              <span>{vehicle.Occupants} seats</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-[#D5DEEF]/30">
-          <button
-            type="button"
-            onClick={() => onView(vehicle.id)}
-            className="py-2.5 px-2 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
-          >
-            <EyeIcon />
-            <span>View</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onEdit(vehicle.id)}
-            className="py-2.5 px-2 rounded-xl bg-[#638ECB]/10 hover:bg-[#638ECB]/20 text-[#638ECB] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
-          >
-            <EditIcon />
-            <span>Edit</span>
-          </button>
-          <button
-            type="button"
-            disabled={deleting}
-            onClick={() => onDelete(vehicle.id)}
-            className="py-2.5 px-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1 cursor-pointer"
-          >
-            <TrashIcon />
-            <span>{deleting ? "..." : "Delete"}</span>
-          </button>
-        </div>
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={() => onView(vehicle.id)}
+          className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <EyeIcon />
+          <span>Voir</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => onEdit(vehicle.id)}
+          className="h-9 px-4 rounded-xl bg-[#638ECB]/10 hover:bg-[#638ECB]/20 text-[#638ECB] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <EditIcon />
+          <span>Modifier</span>
+        </button>
+        <button
+          type="button"
+          disabled={deleting}
+          onClick={() => onDelete(vehicle.id)}
+          className="h-9 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <TrashIcon />
+          <span>{deleting ? "..." : "Supprimer"}</span>
+        </button>
       </div>
     </div>
   );
@@ -371,11 +325,11 @@ function VehicleCreateEditModal({
 
     files.forEach((file) => {
       if (!file.type.startsWith("image/")) {
-        errors.push(`${file.name} is not an image.`);
+        errors.push(`${file.name} n'est pas une image.`);
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        errors.push(`${file.name} exceeds 5MB size limit.`);
+        errors.push(`${file.name} dépasse la limite de 5 Mo.`);
         return;
       }
       validFiles.push(file);
@@ -435,13 +389,13 @@ function VehicleCreateEditModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={mode === "create" ? "Add Vehicle to Fleet" : `Edit Vehicle Specifications`}
+      title={mode === "create" ? "Ajouter un véhicule à la flotte" : "Modifier les spécifications du véhicule"}
       maxWidthClassName="max-w-3xl"
     >
       {loading ? (
         <div className="py-20 flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#395886]" />
-          <span className="text-[#395886] font-bold text-sm mt-3">Loading details...</span>
+          <span className="text-[#395886] font-bold text-sm mt-3">Chargement des détails...</span>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -459,26 +413,26 @@ function VehicleCreateEditModal({
                 type="text"
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                placeholder="e.g. Mercedes"
+                placeholder="ex. Mercedes"
                 value={marque}
                 onChange={(e) => setMarque(e.target.value)}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Model</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Modèle</label>
               <input
                 type="text"
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                placeholder="e.g. C-Class"
+                placeholder="ex. C-Class"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Year of Manufacture</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Année de fabrication</label>
               <input
                 type="number"
                 required
@@ -491,19 +445,19 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Registration Number</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Numéro d'immatriculation</label>
               <input
                 type="text"
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                placeholder="e.g. AX-789-BB"
+                placeholder="ex. AX-789-BB"
                 value={registration}
                 onChange={(e) => setRegistration(e.target.value)}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Milage (KM)</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Kilométrage (KM)</label>
               <input
                 type="number"
                 required
@@ -515,7 +469,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Rental Price ($/day)</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Prix de location ($/jour)</label>
               <input
                 type="number"
                 required
@@ -527,31 +481,31 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Fuel Type</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Type de carburant</label>
               <select
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={fuelType}
                 onChange={(e) => setFuelType(e.target.value)}
               >
-                <option value="">Select Fuel Type</option>
-                <option value="Electricity">Electricity</option>
+                <option value="">Sélectionner le carburant</option>
+                <option value="Electricity">Électrique</option>
                 <option value="Diesel">Diesel</option>
-                <option value="Gasoline">Gasoline</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="LPG">LPG</option>
+                <option value="Gasoline">Essence</option>
+                <option value="hybrid">Hybride</option>
+                <option value="LPG">GPL</option>
               </select>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Category</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Catégorie</label>
               <select
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={categoryId || ""}
                 onChange={(e) => setCategoryId(Number(e.target.value))}
               >
-                <option value="">Select Category</option>
+                <option value="">Sélectionner une catégorie</option>
                 {sortedCategories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -561,11 +515,11 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1 md:col-span-2">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Occupants (Seats Count)</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Occupants (nombre de places)</label>
               <input
                 type="text"
                 required
-                placeholder="e.g. 5"
+                placeholder="ex. 5"
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={occupants}
                 onChange={(e) => setOccupants(e.target.value)}
@@ -576,7 +530,7 @@ function VehicleCreateEditModal({
             {mode === "edit" && initial?.pictures && initial.pictures.length > 0 && (
               <div className="flex flex-col gap-2 md:col-span-2">
                 <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
-                  Current Pictures
+                  Images actuelles
                 </label>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {initial.pictures
@@ -594,20 +548,20 @@ function VehicleCreateEditModal({
                           onClick={() => setDeletedImageIds((prev) => [...prev, pic.id])}
                           className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity duration-200"
                         >
-                          Delete
+                          Supprimer
                         </button>
                       </div>
                     ))}
                 </div>
                 {deletedImageIds.length > 0 && (
                   <div className="flex items-center gap-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
-                    <span>{deletedImageIds.length} picture(s) will be removed on save.</span>
+                    <span>{deletedImageIds.length} image(s) seront supprimées lors de l'enregistrement.</span>
                     <button
                       type="button"
                       onClick={() => setDeletedImageIds([])}
                       className="ml-auto underline hover:text-rose-800 cursor-pointer"
                     >
-                      Undo all
+                      Tout annuler
                     </button>
                   </div>
                 )}
@@ -617,7 +571,7 @@ function VehicleCreateEditModal({
             {/* Drag & Drop File Zone */}
             <div className="flex flex-col gap-1 md:col-span-2">
               <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
-                {mode === "edit" ? "Replace Images (Optional)" : "Automobile Images"}
+                {mode === "edit" ? "Remplacer les images (optionnel)" : "Images du véhicule"}
               </label>
               <div
                 onDragEnter={handleDrag}
@@ -640,8 +594,8 @@ function VehicleCreateEditModal({
                   className="hidden"
                 />
                 <span className="text-2xl mb-2">📸</span>
-                <span className="text-sm font-bold text-[#395886]">Drag and drop files here</span>
-                <span className="text-xs text-[#638ECB] mt-1">Supports PNG, JPG, WEBP (Max 5MB each, Limit 6)</span>
+                <span className="text-sm font-bold text-[#395886]">Glissez-déposez les fichiers ici</span>
+                <span className="text-xs text-[#638ECB] mt-1">Prend en charge PNG, JPG, WEBP (Max 5Mo chacun, limite 6)</span>
               </div>
 
               {uploadError && (
@@ -665,7 +619,7 @@ function VehicleCreateEditModal({
                         }}
                         className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold text-xs transition-opacity duration-200"
                       >
-                        Remove
+                        Retirer
                       </button>
                     </div>
                   ))}
@@ -682,14 +636,14 @@ function VehicleCreateEditModal({
               disabled={submitting}
               className="px-5 py-3 rounded-xl border border-[#D5DEEF] bg-white text-[#395886] font-bold text-sm transition-all hover:bg-[#F0F3FA] active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               disabled={submitting}
               className="px-6 py-3 rounded-xl bg-[#395886] text-white font-bold text-sm transition-all hover:bg-[#395886]/90 hover:shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {submitting ? "Uploading Specifications..." : mode === "create" ? "Add to Fleet" : "Save Changes"}
+              {submitting ? "Enregistrement..." : mode === "create" ? "Ajouter à la flotte" : "Enregistrer"}
             </button>
           </div>
         </form>
@@ -727,12 +681,12 @@ function VehicleViewModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={vehicle ? `Overview: ${vehicle.marque} ${vehicle.model}` : "Vehicle Details"}
+      title={vehicle ? `Aperçu : ${vehicle.marque} ${vehicle.model}` : "Détails du véhicule"}
       maxWidthClassName="max-w-4xl"
     >
       {!vehicle ? (
         <div className="py-12 text-center text-sm font-bold text-[#638ECB]">
-          No vehicle specifications available.
+          Aucune spécification disponible.
         </div>
       ) : (
         <div className="flex flex-col gap-6">
@@ -748,7 +702,7 @@ function VehicleViewModal({
                     className="w-full h-full object-cover transition-all duration-300"
                   />
                 ) : (
-                  <div className="text-sm font-bold text-[#638ECB]/70">No image available</div>
+                  <div className="text-sm font-bold text-[#638ECB]/70">Aucune image disponible</div>
                 )}
               </div>
 
@@ -778,7 +732,7 @@ function VehicleViewModal({
               <div className="flex flex-col gap-4">
                 <div>
                   <span className="px-3 py-1.5 rounded-xl bg-[#F0F3FA] border border-[#D5DEEF]/50 text-xs font-black text-[#395886] inline-block">
-                    {categoryName ?? "Standard Class"}
+                    {categoryName ?? "Classe standard"}
                   </span>
                   <h3 className="text-2xl font-black text-[#395886] mt-2 leading-tight">
                     {vehicle.marque}
@@ -790,28 +744,28 @@ function VehicleViewModal({
 
                 <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3.5">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Fuel Engine</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Carburant</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.fuelType}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Registration</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Immatriculation</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.registration}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Milage (KM)</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Kilométrage (KM)</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.km.toLocaleString()} km</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Seats Limit</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Nombre de places</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.Occupants} occupants</span>
                   </div>
                 </div>
 
                 <div className="border-t border-[#D5DEEF]/40 pt-4 flex items-baseline justify-between">
-                  <span className="text-sm font-black text-[#395886]">Rental Daily Rate</span>
+                  <span className="text-sm font-black text-[#395886]">Tarif journalier</span>
                   <div className="text-right">
                     <span className="text-3xl font-black text-[#395886]">${vehicle.pricePerDay}</span>
-                    <span className="text-[#638ECB] text-xs font-bold ml-1">USD/day</span>
+                    <span className="text-[#638ECB] text-xs font-bold ml-1">USD/jour</span>
                   </div>
                 </div>
               </div>
@@ -824,7 +778,7 @@ function VehicleViewModal({
                   className="w-full py-3.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-bold transition-all disabled:opacity-50 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <TrashIcon />
-                  <span>{removing ? "Removing..." : "Retire Automobile"}</span>
+                  <span>{removing ? "Suppression..." : "Retirer le véhicule"}</span>
                 </button>
               </div>
             </div>
@@ -849,6 +803,7 @@ export default function AdminVehiclesPage() {
 
   // Category Manager Modal state
   const [categoriesManagerOpen, setCategoriesManagerOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // Seeding States
   const [seeding, setSeeding] = useState(false);
@@ -859,8 +814,6 @@ export default function AdminVehiclesPage() {
     marque: "",
     model: "",
     fuelType: "",
-    min_price: "",
-    max_price: "",
     Occupants: "",
   });
 
@@ -904,16 +857,6 @@ export default function AdminVehiclesPage() {
       result = result.filter((v) => v.fuelType === filters.fuelType);
     }
 
-    const minP = filters.min_price.trim() ? Number(filters.min_price) : NaN;
-    if (!isNaN(minP)) {
-      result = result.filter((v) => v.pricePerDay >= minP);
-    }
-
-    const maxP = filters.max_price.trim() ? Number(filters.max_price) : NaN;
-    if (!isNaN(maxP)) {
-      result = result.filter((v) => v.pricePerDay <= maxP);
-    }
-
     if (filters.Occupants.trim()) {
       result = result.filter((v) => v.Occupants === filters.Occupants);
     }
@@ -927,7 +870,7 @@ export default function AdminVehiclesPage() {
       const data = await getAdminCategories();
       setCategories(data);
     } catch (e: unknown) {
-      let msg = "Failed to load categories";
+      let msg = "Échec du chargement des catégories";
       if (e && typeof e === "object") {
         const err = e as Record<string, unknown>;
         if (typeof err.message === "string") msg = err.message;
@@ -951,7 +894,7 @@ export default function AdminVehiclesPage() {
         router.replace("/login");
         return;
       }
-      const msg = e instanceof Error ? e.message : "Failed to load vehicles";
+      const msg = e instanceof Error ? e.message : "Échec du chargement des véhicules";
       setError(msg);
     } finally {
       setLoading(false);
@@ -974,8 +917,6 @@ export default function AdminVehiclesPage() {
       marque: "",
       model: "",
       fuelType: "",
-      min_price: "",
-      max_price: "",
       Occupants: "",
     });
   }
@@ -989,7 +930,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to delete vehicle";
+      const msg = e instanceof Error ? e.message : "Échec de la suppression du véhicule";
       setError(msg);
     } finally {
       setDeletingId(null);
@@ -1005,7 +946,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to create vehicle";
+      const msg = e instanceof Error ? e.message : "Échec de la création du véhicule";
       setCreateError(msg);
     } finally {
       setCreateSubmitting(false);
@@ -1035,7 +976,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to save updates.";
+      const msg = e instanceof Error ? e.message : "Échec de l'enregistrement des modifications.";
       setEditError(msg);
     } finally {
       setEditSubmitting(false);
@@ -1075,7 +1016,7 @@ export default function AdminVehiclesPage() {
     try {
       let cats = await getAdminCategories();
       if (cats.length === 0) {
-        setError("Please define at least one category before seeding demo vehicles.");
+        setError("Veuillez définir au moins une catégorie avant de générer des véhicules de démonstration.");
         setSeeding(false);
         return;
       }
@@ -1131,7 +1072,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     } catch (e) {
-      setError("Failed to auto-generate fleet.");
+      setError("Échec de la génération automatique de la flotte.");
     } finally {
       setSeeding(false);
       setSeedProgress({ done: 0, total: 0 });
@@ -1140,192 +1081,166 @@ export default function AdminVehiclesPage() {
 
   return (
     <div className="w-full max-w-[1500px] mx-auto flex flex-col gap-6">
-      {/* Header Container */}
-      <div className="relative rounded-3xl overflow-hidden border border-[#D5DEEF] bg-white p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#F0F3FA] to-transparent opacity-60 pointer-events-none" />
-
-        <div className="relative flex-1">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#D5DEEF] bg-white px-3 py-1 text-xs font-bold text-[#395886] shadow-sm">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Control Hub
-          </div>
-          <h1 className="mt-3 text-3xl sm:text-4xl font-black text-[#395886] tracking-tight leading-none">
-            Automobile Fleet
-          </h1>
-          <p className="mt-2 text-sm font-semibold text-[#638ECB] leading-relaxed max-w-xl">
-            Configure vehicle specs, modify pricing structures, manage classifications, and monitor your entire active rental fleet in real-time.
-          </p>
-        </div>
-
-        <div className="relative flex flex-wrap gap-2.5 shrink-0 self-start md:self-center">
-          <button
-            type="button"
-            onClick={() => setCreateOpen(true)}
-            className="h-11 px-5 rounded-xl bg-[#395886] hover:bg-[#395886]/90 text-white font-bold text-xs transition-all hover:shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
-          >
-            <span className="text-sm">+</span> Add Vehicle
-          </button>
-          <button
-            type="button"
-            onClick={() => setCategoriesManagerOpen(true)}
-            className="h-11 px-4.5 rounded-xl border border-[#D5DEEF] bg-white hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
-          >
-            <SettingsIcon /> Manage Categories
-          </button>
-          <button
-            type="button"
-            onClick={() => void seedDemoVehicles(6)}
-            disabled={seeding || categories.length === 0}
-            className="h-11 px-4 rounded-xl border border-[#D5DEEF] bg-white hover:bg-[#F0F3FA] text-[#638ECB] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-          >
-            {seeding ? `Seeding ${seedProgress.done}/${seedProgress.total}...` : "Seed Demo Fleet"}
-          </button>
-        </div>
-      </div>
-
-      {/* ── Horizontal Filter Bar ── */}
-      <div className="bg-white rounded-3xl border border-[#D5DEEF]/75 p-5 shadow-sm">
-        {/* Categories chips */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#395886] uppercase tracking-wider">
-            <span>Categories</span>
-            <span className="h-5 px-2 bg-[#F0F3FA] text-[#395886] rounded-md text-[10px] font-black flex items-center justify-center">
-              {categories.length}
-            </span>
-          </div>
-        </div>
-
-        {categoriesError && (
-          <div className="mb-4 p-2.5 rounded-xl border border-rose-200 bg-rose-50 text-xs font-bold text-rose-700">
-            ⚠️ {categoriesError}
-          </div>
-        )}
-
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryId(0)}
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-              selectedCategoryId === 0
-                ? "bg-[#395886] text-white shadow-md"
-                : "bg-[#F0F3FA] text-[#638ECB] hover:bg-[#D5DEEF] hover:text-[#395886]"
-            }`}
-          >
-            📁 All Categories
-          </button>
-
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategoryId(cat.id)}
-              className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-                selectedCategoryId === cat.id
-                  ? "bg-[#395886] text-white shadow-md"
-                  : "bg-[#F0F3FA] text-[#638ECB] hover:bg-[#D5DEEF] hover:text-[#395886]"
-              }`}
-            >
-              📄 {cat.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Filters row */}
-        <div className="mt-5 pt-4 border-t border-[#D5DEEF]/40">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Refine</h3>
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="text-[10px] font-bold text-[#638ECB] hover:text-[#395886] cursor-pointer px-2 py-1 rounded-lg hover:bg-[#F0F3FA] transition-colors"
-            >
-              Clear All
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Marque</label>
-              <input
-                type="text"
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                placeholder="e.g. BMW"
-                value={filters.marque}
-                onChange={(e) => setFilters({ ...filters, marque: e.target.value })}
-              />
+      {/* ── Header + Filtres fusionné ── */}
+      <div className="bg-white rounded-3xl border border-[#D5DEEF] overflow-hidden">
+        <div className="p-5 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-[#395886] tracking-tight">
+                Parc Automobile
+              </h1>
+              <p className="text-xs font-semibold text-[#638ECB] mt-0.5">
+                {vehicles.length} véhicule{vehicles.length !== 1 ? "s" : ""} enregistré{vehicles.length !== 1 ? "s" : ""}
+              </p>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Model</label>
-              <input
-                type="text"
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                placeholder="e.g. Clio"
-                value={filters.model}
-                onChange={(e) => setFilters({ ...filters, model: e.target.value })}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Fuel</label>
-              <select
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/20 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886] outline-none transition-colors"
-                value={filters.fuelType}
-                onChange={(e) => setFilters({ ...filters, fuelType: e.target.value })}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCreateOpen(true)}
+                className="h-10 px-4 rounded-xl bg-[#395886] hover:bg-[#395886]/90 text-white font-bold text-xs transition-all hover:shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
               >
-                <option value="">Any</option>
-                <option value="Electricity">Electricity</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Gasoline">Gasoline</option>
-                <option value="hybrid">hybrid</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Min Price</label>
-              <input
-                type="number"
-                min={0}
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
-                placeholder="$0"
-                value={filters.min_price}
-                onChange={(e) => setFilters({ ...filters, min_price: e.target.value })}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Max Price</label>
-              <input
-                type="number"
-                min={0}
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
-                placeholder="$500"
-                value={filters.max_price}
-                onChange={(e) => setFilters({ ...filters, max_price: e.target.value })}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Seats</label>
-              <input
-                type="text"
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
-                placeholder="e.g. 5"
-                value={filters.Occupants}
-                onChange={(e) => setFilters({ ...filters, Occupants: e.target.value })}
-              />
+                <span className="text-sm leading-none">+</span> Ajouter
+              </button>
+              <button
+                type="button"
+                onClick={() => setCategoriesManagerOpen(true)}
+                className="h-10 px-4 rounded-xl border border-[#D5DEEF] bg-white hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <SettingsIcon /> Catégories
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterOpen(!filterOpen)}
+                className={`h-10 px-4 rounded-xl font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 ${
+                  filterOpen
+                    ? "bg-[#395886] text-white shadow-sm"
+                    : "border border-[#D5DEEF] bg-white hover:bg-[#F0F3FA] text-[#395886]"
+                }`}
+              >
+                <SearchIcon />
+                Filtres
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 mt-4">
-            <button
-              type="button"
-              onClick={applyFilters}
-              className="h-9 px-5 rounded-xl bg-[#395886] hover:bg-[#395886]/90 text-white font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:shadow-md active:scale-95"
-            >
-              <SearchIcon /> Apply Filters
-            </button>
-          </div>
+          {filterOpen && (
+            <div className="mt-5 pt-5 border-t border-[#D5DEEF]">
+              {/* Catégories */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#395886] uppercase tracking-wider">
+                  <span>Catégories</span>
+                  <span className="h-5 px-2 bg-[#F0F3FA] text-[#395886] rounded-md text-[10px] font-black flex items-center justify-center">
+                    {categories.length}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="text-[10px] font-bold text-[#638ECB] hover:text-[#395886] cursor-pointer px-2 py-1 rounded-lg hover:bg-[#F0F3FA] transition-colors"
+                >
+                  Tout effacer
+                </button>
+              </div>
+
+              {categoriesError && (
+                <div className="mb-4 p-2.5 rounded-xl border border-rose-200 bg-rose-50 text-xs font-bold text-rose-700">
+                  ⚠️ {categoriesError}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryId(0)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    selectedCategoryId === 0
+                      ? "bg-[#395886] text-white shadow-md"
+                      : "bg-white text-[#638ECB] border border-[#D5DEEF] hover:bg-[#F0F3FA] hover:text-[#395886]"
+                  }`}
+                >
+                  📁 Toutes
+                </button>
+
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedCategoryId(cat.id)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      selectedCategoryId === cat.id
+                        ? "bg-[#395886] text-white shadow-md"
+                        : "bg-[#F0F3FA] text-[#638ECB] hover:bg-[#D5DEEF] hover:text-[#395886]"
+                    }`}
+                  >
+                    📄 {cat.name}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-5 pt-4 border-t border-[#D5DEEF]">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Marque</label>
+                    <input
+                      type="text"
+                      className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                      placeholder="ex. BMW"
+                      value={filters.marque}
+                      onChange={(e) => setFilters({ ...filters, marque: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Modèle</label>
+                    <input
+                      type="text"
+                      className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                      placeholder="ex. Clio"
+                      value={filters.model}
+                      onChange={(e) => setFilters({ ...filters, model: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Carburant</label>
+                    <select
+                      className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886] outline-none transition-colors"
+                      value={filters.fuelType}
+                      onChange={(e) => setFilters({ ...filters, fuelType: e.target.value })}
+                    >
+                      <option value="">Tous</option>
+                      <option value="Electricity">Électrique</option>
+                      <option value="Diesel">Diesel</option>
+                      <option value="Gasoline">Essence</option>
+                      <option value="hybrid">Hybride</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Sièges</label>
+                    <input
+                      type="text"
+                      className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
+                      placeholder="ex. 5"
+                      value={filters.Occupants}
+                      onChange={(e) => setFilters({ ...filters, Occupants: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 mt-4">
+                  <button
+                    type="button"
+                    onClick={applyFilters}
+                    className="h-9 px-5 rounded-xl bg-[#395886] hover:bg-[#395886]/90 text-white font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:shadow-md active:scale-95"
+                  >
+                    <SearchIcon /> Appliquer
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1336,11 +1251,11 @@ export default function AdminVehiclesPage() {
         </div>
       )}
 
-      {/* ── Vehicles Grid ── */}
+      {/* ── Vehicles List ── */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 6 }).map((_, idx) => (
-            <SkeletonCard key={idx} />
+            <SkeletonRow key={idx} />
           ))}
         </div>
       ) : vehicles.length === 0 ? (
@@ -1351,9 +1266,9 @@ export default function AdminVehiclesPage() {
           seedProgress={seedProgress}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="flex flex-col gap-3">
           {vehicles.map((v) => (
-            <VehicleCard
+            <VehicleRow
               key={v.id}
               vehicle={v}
               categoryName={categoryById.get(v.category_id)}

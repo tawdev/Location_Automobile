@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireClient } from "@/components/RequireClient";
 import { motion } from "framer-motion";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { vehicleImageUrl } from "@/lib/media";
@@ -117,7 +117,7 @@ export default function SettingsPage() {
   const hasCin = !!(user?.cin_recto && user?.cin_verso);
 
   return (
-    <RequireAuth>
+    <RequireClient>
       <div className="min-h-screen bg-[#F0F3FA]">
         {/* Hero */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
@@ -316,6 +316,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-    </RequireAuth>
+    </RequireClient>
   );
 }
