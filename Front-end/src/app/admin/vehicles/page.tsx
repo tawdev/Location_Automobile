@@ -191,7 +191,7 @@ function VehicleRow({
           )}
         </div>
         <div className="mt-1">
-          <span className="text-lg font-black text-[#395886]">${vehicle.pricePerDay}</span>
+          <span className="text-lg font-black text-[#395886]">{vehicle.pricePerDay} MAD</span>
           <span className="text-[10px] font-bold text-[#638ECB] ml-1">/ jour</span>
         </div>
       </div>
@@ -764,8 +764,8 @@ function VehicleViewModal({
                 <div className="border-t border-[#D5DEEF]/40 pt-4 flex items-baseline justify-between">
                   <span className="text-sm font-black text-[#395886]">Tarif journalier</span>
                   <div className="text-right">
-                    <span className="text-3xl font-black text-[#395886]">${vehicle.pricePerDay}</span>
-                    <span className="text-[#638ECB] text-xs font-bold ml-1">USD/jour</span>
+                    <span className="text-3xl font-black text-[#395886]">{vehicle.pricePerDay} MAD</span>
+                    <span className="text-[#638ECB] text-xs font-bold ml-1">/jour</span>
                   </div>
                 </div>
               </div>

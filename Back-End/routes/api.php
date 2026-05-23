@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +64,7 @@ Route::patch('/MyReservations/{id}/annuler',[ReservationController::class, 'annu
 
 //i will put this two routes in Middlware of adminRole , i will make it later
 Route::middleware(['auth:sanctum','admin'])->group(function (){
+Route::get('/admin/dashboard/stats', [DashboardController::class, 'stats']);
 Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);

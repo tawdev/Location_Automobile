@@ -6,6 +6,7 @@ import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/authContext";
 
 const NAV_ITEMS = [
   { label: "Véhicules", href: "/vehicles", icon: Car },
@@ -81,8 +82,19 @@ function NavLink({ href, icon: Icon, label, active, onClick }: { href: string; i
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { status, user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isAdmin = status === "authenticated" && user?.role_id === 1;
+
+  useEffect(() => {
+    if (isAdmin) router.replace("/admin/vehicles");
+  }, [isAdmin, router]);
+
+  if (status === "loading" || isAdmin) {
+    return <div className="min-h-screen bg-[#F0F3FA]" />;
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
