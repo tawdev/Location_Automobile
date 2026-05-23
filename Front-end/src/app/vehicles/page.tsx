@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import BackButton from "@/components/BackButton";
 import { RequireAuth } from "@/components/RequireAuth";
 import { filterVehicles, listVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle } from "@/lib/types";
@@ -122,6 +123,9 @@ export default function VehiclesPage() {
               "linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.20), rgba(255,255,255,0.60)), url('/CarBackGround.png')",
           }}
         >
+          <div className="absolute top-6 left-8 z-20">
+            <BackButton />
+          </div>
           <div
             className="absolute bottom-0 left-0 w-full h-[120px]"
             style={{ background: "linear-gradient(to bottom, rgba(246,246,248,0), rgba(246,246,248,1))" }}
@@ -221,7 +225,7 @@ export default function VehiclesPage() {
                   </label>
                   <input
                     type="number"
-                    placeholder="&euro;0"
+                    placeholder="0 DH"
                     value={query.min_price ?? ""}
                     onChange={(e) => setQuery((q) => ({ ...q, min_price: e.target.value ? Number(e.target.value) : undefined }))}
                     className="w-full h-[50px] bg-white/60 border border-white/40 rounded-xl px-5 outline-none text-[15px] text-gray-700 placeholder:text-gray-400"
@@ -234,7 +238,7 @@ export default function VehiclesPage() {
                   </label>
                   <input
                     type="number"
-                    placeholder="&euro;1000"
+                    placeholder="1000 DH"
                     value={query.max_price ?? ""}
                     onChange={(e) => setQuery((q) => ({ ...q, max_price: e.target.value ? Number(e.target.value) : undefined }))}
                     className="w-full h-[50px] bg-white/60 border border-white/40 rounded-xl px-5 outline-none text-[15px] text-gray-700 placeholder:text-gray-400"
@@ -363,7 +367,7 @@ export default function VehiclesPage() {
 
                       <div className="mt-6 border-t border-[#d5deeF]/60 pt-5 flex items-center justify-between">
                         <div className="leading-none">
-                          <span className="text-[34px] font-extrabold text-[#1f4276]">&euro;{v.pricePerDay}</span>
+                          <span className="text-[34px] font-extrabold text-[#1f4276]">{v.pricePerDay} DH</span>
                           <span className="text-gray-500 text-[14px] ml-1">/ jour</span>
                         </div>
                         <motion.button

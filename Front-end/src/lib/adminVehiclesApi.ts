@@ -30,6 +30,7 @@ export type AdminVehiclePayload = {
   category_id: number;
   Occupants: string;
   images?: File[];
+  deletedImages?: number[];
 };
 
 function toVehicleFormData(payload: AdminVehiclePayload): FormData {
@@ -49,6 +50,10 @@ function toVehicleFormData(payload: AdminVehiclePayload): FormData {
     for (const file of payload.images) {
       fd.append("images[]", file);
     }
+  }
+
+  if (payload.deletedImages && payload.deletedImages.length > 0) {
+    fd.set("deleted_images", JSON.stringify(payload.deletedImages));
   }
 
   return fd;

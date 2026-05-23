@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import type { Category, Vehicle } from "@/lib/types";
 import {
   deleteAdminVehicle,
@@ -13,6 +14,7 @@ import { getAdminCategories } from "@/lib/adminCategoriesApi";
 import { vehicleImageUrl } from "@/lib/media";
 import { Modal } from "@/components/admin/Modal";
 import { CategoriesManagerModal } from "@/components/admin/CategoriesManagerModal";
+import { isAuthError } from "@/lib/apiClient";
 
 // Dynamic reliable car images for Seeding
 const DEMO_CAR_IMAGES = [
@@ -209,7 +211,7 @@ function VehicleCard({
             </div>
             <div className="text-right shrink-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Price / Day</span>
-              <span className="text-lg font-black text-[#395886]">${vehicle.pricePerDay}</span>
+              <span className="text-lg font-black text-[#395886]">{vehicle.pricePerDay} DH</span>
             </div>
           </div>
 
@@ -280,7 +282,7 @@ interface VehicleCreateEditModalProps {
   initial?: Vehicle | null;
   categories: Category[];
   onClose: () => void;
-  onSubmit: (payload: AdminVehiclePayload, images: File[]) => Promise<void>;
+  onSubmit: (payload: AdminVehiclePayload, images: File[], deletedImageIds?: number[]) => Promise<void>;
   submitting: boolean;
   error: string | null;
 }
@@ -309,6 +311,7 @@ function VehicleCreateEditModal({
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const sortedCategories = useMemo(() => categories.slice().sort((a, b) => a.id - b.id), [categories]);
@@ -327,6 +330,7 @@ function VehicleCreateEditModal({
     setImagesFiles([]);
     setUploadError(null);
     setPreviewUrls([]);
+    setDeletedImageIds([]);
   }, [open, initial]);
 
   useEffect(() => {
@@ -391,6 +395,25 @@ function VehicleCreateEditModal({
     e.preventDefault();
     if (submitting) return;
 
+    const allFiles = [...imagesFiles];
+
+    if (mode === "edit" && initial?.pictures) {
+      const kept = initial.pictures.filter((pic) => !deletedImageIds.includes(pic.id));
+      for (const pic of kept) {
+        try {
+          const proxyUrl = `/api/storage/${pic.path.replace(/^\//, "")}`;
+          const res = await fetch(proxyUrl);
+          if (res.ok) {
+            const blob = await res.blob();
+            const ext = pic.path.split(".").pop() || "jpg";
+            allFiles.push(new File([blob], `pic-${pic.id}.${ext}`, { type: blob.type || "image/jpeg" }));
+          }
+        } catch {
+          // skip — file might not exist on disk
+        }
+      }
+    }
+
     await onSubmit(
       {
         marque: marque.trim(),
@@ -403,7 +426,8 @@ function VehicleCreateEditModal({
         category_id: categoryId,
         Occupants: occupants.trim(),
       },
-      imagesFiles
+      allFiles,
+      deletedImageIds.length > 0 ? deletedImageIds : undefined
     );
   };
 
@@ -547,6 +571,48 @@ function VehicleCreateEditModal({
                 onChange={(e) => setOccupants(e.target.value)}
               />
             </div>
+
+            {/* Existing Pictures (edit mode) */}
+            {mode === "edit" && initial?.pictures && initial.pictures.length > 0 && (
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
+                  Current Pictures
+                </label>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {initial.pictures
+                    .filter((pic) => !deletedImageIds.includes(pic.id))
+                    .map((pic) => (
+                      <div key={pic.id} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-[#D5DEEF] group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={vehicleImageUrl(pic.path)}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setDeletedImageIds((prev) => [...prev, pic.id])}
+                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity duration-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+                </div>
+                {deletedImageIds.length > 0 && (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
+                    <span>{deletedImageIds.length} picture(s) will be removed on save.</span>
+                    <button
+                      type="button"
+                      onClick={() => setDeletedImageIds([])}
+                      className="ml-auto underline hover:text-rose-800 cursor-pointer"
+                    >
+                      Undo all
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Drag & Drop File Zone */}
             <div className="flex flex-col gap-1 md:col-span-2">
@@ -744,8 +810,8 @@ function VehicleViewModal({
                 <div className="border-t border-[#D5DEEF]/40 pt-4 flex items-baseline justify-between">
                   <span className="text-sm font-black text-[#395886]">Rental Daily Rate</span>
                   <div className="text-right">
-                    <span className="text-3xl font-black text-[#395886]">${vehicle.pricePerDay}</span>
-                    <span className="text-[#638ECB] text-xs font-bold ml-1">USD/day</span>
+                    <span className="text-3xl font-black text-[#395886]">{vehicle.pricePerDay} DH</span>
+                    <span className="text-[#638ECB] text-xs font-bold ml-1">DH/day</span>
                   </div>
                 </div>
               </div>
@@ -771,7 +837,9 @@ function VehicleViewModal({
 
 // MAIN PAGE COMPONENT
 export default function AdminVehiclesPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -854,11 +922,20 @@ export default function AdminVehiclesPage() {
   }
 
   async function loadCategories() {
+    setCategoriesError(null);
     try {
       const data = await getAdminCategories();
       setCategories(data);
-    } catch (e) {
-      console.error("Failed to load categories", e);
+    } catch (e: unknown) {
+      let msg = "Failed to load categories";
+      if (e && typeof e === "object") {
+        const err = e as Record<string, unknown>;
+        if (typeof err.message === "string") msg = err.message;
+        if (typeof err.status === "number") msg += ` (status: ${err.status})`;
+      } else if (typeof e === "string") {
+        msg = e;
+      }
+      setCategoriesError(msg);
     }
   }
 
@@ -870,6 +947,10 @@ export default function AdminVehiclesPage() {
       allVehiclesRef.current = full;
       setAllVehicles(full);
     } catch (e) {
+      if (isAuthError(e)) {
+        router.replace("/login");
+        return;
+      }
       const msg = e instanceof Error ? e.message : "Failed to load vehicles";
       setError(msg);
     } finally {
@@ -939,13 +1020,17 @@ export default function AdminVehiclesPage() {
     setEditVehicle(found);
   }
 
-  async function onEditSubmit(payload: AdminVehiclePayload, images: File[]) {
+  async function onEditSubmit(payload: AdminVehiclePayload, images: File[], deletedImageIds?: number[]) {
     if (!editVehicle) return;
 
     setEditSubmitting(true);
     setEditError(null);
     try {
-      await updateAdminVehicle(editVehicle.id, { ...payload, images: images.length ? images : undefined });
+      await updateAdminVehicle(editVehicle.id, {
+        ...payload,
+        images: images.length ? images : undefined,
+        deletedImages: deletedImageIds,
+      });
       setEditOpen(false);
       await loadVehicles();
       applyFilters();
@@ -1098,187 +1183,188 @@ export default function AdminVehiclesPage() {
         </div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Filter / Category Sidebar */}
-        <div className="lg:col-span-1 flex flex-col gap-5">
-          {/* Categories card */}
-          <div className="bg-white rounded-3xl border border-[#D5DEEF]/75 p-5 shadow-sm">
-            <h3 className="font-extrabold text-sm text-[#395886] uppercase tracking-wider mb-4 flex items-center justify-between">
-              <span>Categories</span>
-              <span className="h-5 px-2 bg-[#F0F3FA] text-[#395886] rounded-md text-[10px] font-black flex items-center justify-center">
-                {categories.length}
-              </span>
-            </h3>
-
-            <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto pr-1">
-              <button
-                type="button"
-                onClick={() => setSelectedCategoryId(0)}
-                className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-                  selectedCategoryId === 0
-                    ? "bg-[#395886] text-white shadow-md hover:bg-[#395886]/95"
-                    : "text-[#638ECB] hover:text-[#395886] hover:bg-[#F0F3FA]"
-                }`}
-              >
-                📁 All Categories
-              </button>
-
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setSelectedCategoryId(cat.id)}
-                  className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-                    selectedCategoryId === cat.id
-                      ? "bg-[#395886] text-white shadow-md hover:bg-[#395886]/95"
-                      : "text-[#638ECB] hover:text-[#395886] hover:bg-[#F0F3FA]"
-                  }`}
-                >
-                  📄 {cat.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Detailed Filters Card */}
-          <div className="bg-white rounded-3xl border border-[#D5DEEF]/75 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 border-b border-[#D5DEEF]/40 pb-3">
-              <h3 className="font-extrabold text-sm text-[#395886] uppercase tracking-wider">
-                Filters
-              </h3>
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="text-[10px] font-bold text-[#638ECB] hover:text-[#395886] cursor-pointer px-2 py-1 rounded-lg hover:bg-[#F0F3FA] transition-colors"
-              >
-                Clear All
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Marque</label>
-                <input
-                  type="text"
-                  className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                  placeholder="e.g. BMW"
-                  value={filters.marque}
-                  onChange={(e) => setFilters({ ...filters, marque: e.target.value })}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Model</label>
-                <input
-                  type="text"
-                  className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                  placeholder="e.g. Clio"
-                  value={filters.model}
-                  onChange={(e) => setFilters({ ...filters, model: e.target.value })}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Fuel</label>
-                <select
-                  className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/20 px-3 py-2.5 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886] outline-none transition-colors"
-                  value={filters.fuelType}
-                  onChange={(e) => setFilters({ ...filters, fuelType: e.target.value })}
-                >
-                  <option value="">Any</option>
-                  <option value="Electricity">Electricity</option>
-                  <option value="Diesel">Diesel</option>
-                  <option value="Gasoline">Gasoline</option>
-                  <option value="hybrid">hybrid</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Min Price</label>
-                  <input
-                    type="number"
-                    min={0}
-                    className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
-                    placeholder="$0"
-                    value={filters.min_price}
-                    onChange={(e) => setFilters({ ...filters, min_price: e.target.value })}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Max Price</label>
-                  <input
-                    type="number"
-                    min={0}
-                    className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
-                    placeholder="$500"
-                    value={filters.max_price}
-                    onChange={(e) => setFilters({ ...filters, max_price: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Seats Limit</label>
-                <input
-                  type="text"
-                  className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
-                  placeholder="e.g. 5"
-                  value={filters.Occupants}
-                  onChange={(e) => setFilters({ ...filters, Occupants: e.target.value })}
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={applyFilters}
-                className="mt-2 w-full py-3 rounded-xl bg-[#395886] hover:bg-[#395886]/90 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:shadow-md active:scale-95"
-              >
-                <SearchIcon /> Apply Filters
-              </button>
-            </div>
+      {/* ── Horizontal Filter Bar ── */}
+      <div className="bg-white rounded-3xl border border-[#D5DEEF]/75 p-5 shadow-sm">
+        {/* Categories chips */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#395886] uppercase tracking-wider">
+            <span>Categories</span>
+            <span className="h-5 px-2 bg-[#F0F3FA] text-[#395886] rounded-md text-[10px] font-black flex items-center justify-center">
+              {categories.length}
+            </span>
           </div>
         </div>
 
-        {/* Vehicles Grid list */}
-        <div className="lg:col-span-3">
-          {error && (
-            <div className="p-3.5 rounded-2xl border border-rose-200 bg-rose-50 text-sm font-bold text-rose-700 mb-5">
-              ⚠️ {error}
-            </div>
-          )}
+        {categoriesError && (
+          <div className="mb-4 p-2.5 rounded-xl border border-rose-200 bg-rose-50 text-xs font-bold text-rose-700">
+            ⚠️ {categoriesError}
+          </div>
+        )}
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {Array.from({ length: 6 }).map((_, idx) => (
-                <SkeletonCard key={idx} />
-              ))}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+          <button
+            type="button"
+            onClick={() => setSelectedCategoryId(0)}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+              selectedCategoryId === 0
+                ? "bg-[#395886] text-white shadow-md"
+                : "bg-[#F0F3FA] text-[#638ECB] hover:bg-[#D5DEEF] hover:text-[#395886]"
+            }`}
+          >
+            📁 All Categories
+          </button>
+
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setSelectedCategoryId(cat.id)}
+              className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                selectedCategoryId === cat.id
+                  ? "bg-[#395886] text-white shadow-md"
+                  : "bg-[#F0F3FA] text-[#638ECB] hover:bg-[#D5DEEF] hover:text-[#395886]"
+              }`}
+            >
+              📄 {cat.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Filters row */}
+        <div className="mt-5 pt-4 border-t border-[#D5DEEF]/40">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#395886]">Refine</h3>
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="text-[10px] font-bold text-[#638ECB] hover:text-[#395886] cursor-pointer px-2 py-1 rounded-lg hover:bg-[#F0F3FA] transition-colors"
+            >
+              Clear All
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Marque</label>
+              <input
+                type="text"
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                placeholder="e.g. BMW"
+                value={filters.marque}
+                onChange={(e) => setFilters({ ...filters, marque: e.target.value })}
+              />
             </div>
-          ) : vehicles.length === 0 ? (
-            <EmptyState
-              onCreate={() => setCreateOpen(true)}
-              onSeed={() => seedDemoVehicles(6)}
-              seeding={seeding}
-              seedProgress={seedProgress}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {vehicles.map((v) => (
-                <VehicleCard
-                  key={v.id}
-                  vehicle={v}
-                  categoryName={categoryById.get(v.category_id)}
-                  onView={onOpenView}
-                  onEdit={onOpenEdit}
-                  onDelete={onDelete}
-                  deleting={deletingId === v.id}
-                />
-              ))}
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Model</label>
+              <input
+                type="text"
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                placeholder="e.g. Clio"
+                value={filters.model}
+                onChange={(e) => setFilters({ ...filters, model: e.target.value })}
+              />
             </div>
-          )}
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Fuel</label>
+              <select
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/20 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886] outline-none transition-colors"
+                value={filters.fuelType}
+                onChange={(e) => setFilters({ ...filters, fuelType: e.target.value })}
+              >
+                <option value="">Any</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Gasoline">Gasoline</option>
+                <option value="hybrid">hybrid</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Min Price</label>
+              <input
+                type="number"
+                min={0}
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
+                placeholder="$0"
+                value={filters.min_price}
+                onChange={(e) => setFilters({ ...filters, min_price: e.target.value })}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Max Price</label>
+              <input
+                type="number"
+                min={0}
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
+                placeholder="$500"
+                value={filters.max_price}
+                onChange={(e) => setFilters({ ...filters, max_price: e.target.value })}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Seats</label>
+              <input
+                type="text"
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
+                placeholder="e.g. 5"
+                value={filters.Occupants}
+                onChange={(e) => setFilters({ ...filters, Occupants: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              type="button"
+              onClick={applyFilters}
+              className="h-9 px-5 rounded-xl bg-[#395886] hover:bg-[#395886]/90 text-white font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:shadow-md active:scale-95"
+            >
+              <SearchIcon /> Apply Filters
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* ── Error Banner ── */}
+      {error && (
+        <div className="p-3.5 rounded-2xl border border-rose-200 bg-rose-50 text-sm font-bold text-rose-700">
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* ── Vehicles Grid ── */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <SkeletonCard key={idx} />
+          ))}
+        </div>
+      ) : vehicles.length === 0 ? (
+        <EmptyState
+          onCreate={() => setCreateOpen(true)}
+          onSeed={() => seedDemoVehicles(6)}
+          seeding={seeding}
+          seedProgress={seedProgress}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {vehicles.map((v) => (
+            <VehicleCard
+              key={v.id}
+              vehicle={v}
+              categoryName={categoryById.get(v.category_id)}
+              onView={onOpenView}
+              onEdit={onOpenEdit}
+              onDelete={onDelete}
+              deleting={deletingId === v.id}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Reusable Category Manager Modal */}
       <CategoriesManagerModal

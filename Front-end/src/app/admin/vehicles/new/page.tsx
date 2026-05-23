@@ -269,14 +269,6 @@ export default function AdminVehicleNewPage() {
           <h1 className="font-black text-3xl">Add vehicle</h1>
           <div className="font-bold text-sm mt-1">Admin CRUD</div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/admin/vehicles")}
-          className="font-black border-2 border-black px-4 py-2 bg-white hover:bg-zinc-100"
-        >
-          Back
-        </button>
       </div>
 
       {loadingCategories ? (

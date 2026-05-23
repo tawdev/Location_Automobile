@@ -45,7 +45,7 @@
                 </tr>
             </table>
 
-            <div class="total">Total : {{ number_format($reservation->TotalPrice, 2) }} €</div>
+            <div class="total">Total : {{ number_format($reservation->TotalPrice, 2) }} DH</div>
         </div>
         <div class="footer">
             &copy; {{ date('Y') }} CARFORFAR &mdash; Location de voitures &agrave; Marrakech

@@ -33,7 +33,7 @@ class ReservationService
     public function getAllReservition(){
         $reservations = Reservation::with('user','vehicle')->get();
         foreach($reservations as $reservation){
-            if(now() > $reservation->end_date){
+            if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
                 $reservation->update([
                     'status'=>'Terminée'
                 ]);
@@ -46,8 +46,7 @@ class ReservationService
 {
     $vehicle = Vehicle::findOrFail($id);
 
-    $startDate = (new DateTime($data['start_date']))->modify('+1 day');
-    $data['start_date'] = $startDate->format('Y-m-d');
+
 
     $conflict = $vehicle->reservations()
         ->where('status', '=', 'Confirmée')
@@ -66,6 +65,9 @@ class ReservationService
     }
 
     if ($conflict) {
+        return false;
+    }
+    if($data['start_date']==$data['end_date']){
         return false;
     }
 
@@ -117,7 +119,7 @@ class ReservationService
         ]);
         return $reservaition;
     }
-    
+
     public function AdminRefuseReservition($id){
             $reservaition = Reservation::findOrFail($id);
 
