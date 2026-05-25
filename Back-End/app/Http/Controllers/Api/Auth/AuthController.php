@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\Auth;
 
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendResetCode;
 use App\Mail\SendVerificationCode;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -216,5 +219,102 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return redirect()->away(env('FRONTEND_URL') . '/auth/callback?token=' . $token);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+        ]);
+
+        $user = User::where('email', $validated['email'])->first();
+
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'token' => $code,
+                'created_at' => now(),
+            ]
+        );
+
+        try {
+            Mail::to($user->email)->send(new SendResetCode($user, $code));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send reset code: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'Un code de réinitialisation vous a été envoyé par email.',
+        ], 200);
+    }
+
+    public function verifyResetCode(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+            'code' => ['required', 'string', 'size:6'],
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $validated['email'])
+            ->first();
+
+        if (!$record || $record->token !== $validated['code']) {
+            return response()->json([
+                'message' => 'Code de réinitialisation invalide.',
+            ], 422);
+        }
+
+        $createdAt = Carbon::parse($record->created_at);
+        if ($createdAt->diffInMinutes(now()) > 10) {
+            DB::table('password_reset_tokens')->where('email', $validated['email'])->delete();
+            return response()->json([
+                'message' => 'Le code a expiré. Veuillez en demander un nouveau.',
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Code valide.',
+        ], 200);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+            'code' => ['required', 'string', 'size:6'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $validated['email'])
+            ->first();
+
+        if (!$record || $record->token !== $validated['code']) {
+            return response()->json([
+                'message' => 'Code de réinitialisation invalide.',
+            ], 422);
+        }
+
+        $createdAt = Carbon::parse($record->created_at);
+        if ($createdAt->diffInMinutes(now()) > 10) {
+            DB::table('password_reset_tokens')->where('email', $validated['email'])->delete();
+            return response()->json([
+                'message' => 'Le code a expiré. Veuillez en demander un nouveau.',
+            ], 422);
+        }
+
+        $user = User::where('email', $validated['email'])->first();
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $validated['email'])->delete();
+
+        return response()->json([
+            'message' => 'Mot de passe réinitialisé avec succès.',
+        ], 200);
     }
 }
