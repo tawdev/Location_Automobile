@@ -210,7 +210,7 @@ export function LoginCard({
               <div className="text-[12px] font-semibold text-[#395886] mb-1">{mode === "login" ? "Password" : "Password"}</div>
 
               {mode === "login" ? (
-                <a href="." className="text-[12px] font-semibold text-[#638ECB] underline hover:opacity-80">
+                <a href="/forgot-password" className="text-[12px] font-semibold text-[#638ECB] underline hover:opacity-80">
                   Forgot Password?
                 </a>
               ) : (

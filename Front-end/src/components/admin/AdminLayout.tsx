@@ -112,7 +112,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   );
 
   const activeHref = useMemo(() => {
-    const found = navItems.find((i) => {
+    const sorted = [...navItems].sort((a, b) => b.href.length - a.href.length);
+    const found = sorted.find((i) => {
       if (i.href === "/admin") return pathname === i.href;
       return pathname === i.href || pathname.startsWith(i.href + "/");
     });

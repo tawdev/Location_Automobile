@@ -23,6 +23,9 @@ Route::post('auth/verify-email', [AuthController::class, 'verifyEmail']);
 Route::post('auth/resend-code', [AuthController::class, 'resendCode']);
 Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
 Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
+Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('auth/verify-reset-code', [AuthController::class, 'verifyResetCode']);
+Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('Vehicles' , [VehicleController::class, 'index']);

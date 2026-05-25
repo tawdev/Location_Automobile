@@ -72,3 +72,34 @@ export function authUser() {
     path: "/auth/user",
   });
 }
+
+export function authVerifyResetCode(payload: { email: string; code: string }) {
+  return apiRequest<{ message: string }>({
+    method: "POST",
+    path: "/auth/verify-reset-code",
+    body: payload,
+    auth: false,
+  });
+}
+
+export function authForgotPassword(payload: { email: string }) {
+  return apiRequest<{ message: string }>({
+    method: "POST",
+    path: "/auth/forgot-password",
+    body: payload,
+    auth: false,
+  });
+}
+
+export function authResetPassword(payload: {
+  email: string;
+  code: string;
+  password: string;
+}) {
+  return apiRequest<{ message: string }>({
+    method: "POST",
+    path: "/auth/reset-password",
+    body: payload,
+    auth: false,
+  });
+}
