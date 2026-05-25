@@ -29,6 +29,7 @@ export type AdminVehiclePayload = {
   fuelType: string;
   category_id: number;
   Occupants: string;
+  device_id?: string;
   images?: File[];
   deletedImages?: number[];
 };
@@ -45,6 +46,7 @@ function toVehicleFormData(payload: AdminVehiclePayload): FormData {
   fd.set("fuelType", payload.fuelType);
   fd.set("category_id", String(payload.category_id));
   fd.set("Occupants", payload.Occupants);
+  if (payload.device_id) fd.set("device_id", payload.device_id);
 
   if (payload.images && payload.images.length > 0) {
     for (const file of payload.images) {

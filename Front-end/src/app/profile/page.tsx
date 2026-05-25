@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import BackButton from "@/components/BackButton";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/authContext";
 import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
@@ -57,7 +59,7 @@ function UploadZone({
   );
 }
 
-export default function ProfilePage() {
+export default function ProfilePage({ hideBackButton }: { hideBackButton?: boolean }) {
   const { user, refreshUser } = useAuth();
 
   const initial = useMemo(() => ({
@@ -182,15 +184,26 @@ export default function ProfilePage() {
 
   const docsComplete = !!(initial.cin_recto && initial.cin_verso && initial.permi_recto && initial.permi_verso);
 
+  const searchParams = useSearchParams();
+  const uploadPrompt = searchParams.get("upload");
+
   return (
     <RequireAuth>
       <div className="min-h-screen bg-[#F0F3FA]">
+        {uploadPrompt === "documents" && (
+          <div className="bg-amber-50 border-b border-amber-200 px-6 py-4 text-center">
+            <p className="text-amber-800 font-bold text-sm">
+              Veuillez uploader votre CIN et votre permis de conduire avant de réserver un véhicule.
+            </p>
+          </div>
+        )}
         {/* ── Hero ── */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
           <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/4" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
           <div className="relative max-w-4xl mx-auto px-6 py-14">
+            {!hideBackButton && <BackButton />}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

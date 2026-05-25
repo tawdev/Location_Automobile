@@ -28,6 +28,7 @@ function AdminVehicleEditForm({
   const [fuelType, setFuelType] = useState(initial.fuelType);
   const [categoryId, setCategoryId] = useState<number>(initial.category_id);
   const [occupants, setOccupants] = useState(initial.Occupants);
+  const [deviceId, setDeviceId] = useState(initial.device_id ?? "");
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
 
   const categoryOptions = useMemo(
@@ -67,6 +68,7 @@ function AdminVehicleEditForm({
             fuelType: fuelType.trim(),
             category_id: categoryId,
             Occupants: occupants.trim(),
+            device_id: deviceId.trim() || undefined,
             images: undefined,
           },
           imagesFiles
@@ -178,6 +180,16 @@ function AdminVehicleEditForm({
           />
         </label>
 
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">GPS Device ID <span className="text-gray-400 font-normal">(optional)</span></span>
+          <input
+            className="border-2 border-black p-2"
+            value={deviceId}
+            onChange={(e) => setDeviceId(e.target.value)}
+            placeholder="e.g. GPS-001"
+          />
+        </label>
+
         <div className="flex flex-col gap-2">
           <span className="font-bold">New images (replace)</span>
           <input
@@ -279,14 +291,6 @@ export default function AdminVehicleEditPage() {
           <h1 className="font-black text-3xl">Edit vehicle</h1>
           <div className="font-bold text-sm mt-1">#{vehicle.id}</div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/admin/vehicles")}
-          className="font-black border-2 border-black px-4 py-2 bg-white hover:bg-zinc-100"
-        >
-          Back
-        </button>
       </div>
 
       <div className="mt-6 border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">

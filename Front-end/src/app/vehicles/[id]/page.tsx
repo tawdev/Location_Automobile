@@ -6,6 +6,7 @@ import { RequireClient } from "@/components/RequireClient";
 import { vehicleImageUrl } from "@/lib/media";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { makeReservation } from "@/lib/reservationsApi";
+import BackButton from "@/components/BackButton";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -62,7 +63,7 @@ export default function VehicleDetailPage() {
         const json = await res.json();
         if (!cancelled) setVehicle(json.data);
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load vehicle");
+        if (!cancelled) setError((e as { message?: string })?.message || "Failed to load vehicle");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -85,6 +86,7 @@ export default function VehicleDetailPage() {
         });
         if (!res.ok) throw new Error("Failed to fetch reserved dates");
         const json = await res.json();
+        console.log("RAW reserved API response:", JSON.stringify(json));
         const dates: Date[] = [];
         for (const range of json.data ?? []) {
           if (!range.start_date || !range.end_date) continue;
@@ -96,9 +98,10 @@ export default function VehicleDetailPage() {
             current.setDate(current.getDate() + 1);
           }
         }
+        console.log("Reserved dates parsed:", dates.map(d => d.toDateString()));
         if (!cancelled) setReservedDates(dates);
       } catch (err) {
-        console.error(err);
+        console.error("Reserved-dates error:", err);
         if (!cancelled) setReservedDates([]);
       }
     }
@@ -128,7 +131,12 @@ export default function VehicleDetailPage() {
       });
       setShowSuccess(true);
     } catch (e) {
-      setReserveError(e instanceof Error ? e.message : "Reservation failed");
+      const errMsg = (e as { message?: string })?.message || "";
+      if (errMsg.includes("CIN") || errMsg.includes("permi")) {
+        router.push("/profile?upload=documents");
+        return;
+      }
+      setReserveError(errMsg || "Reservation failed");
     } finally {
       setReserving(false);
     }
@@ -164,6 +172,8 @@ export default function VehicleDetailPage() {
       <div className="bg-white min-h-screen">
         <main className="pt-14 pb-24 bg-white">
           <div className="max-w-[1180px] mx-auto px-7">
+
+            <BackButton />
 
             {/* Title */}
             <motion.h1
@@ -254,7 +264,7 @@ export default function VehicleDetailPage() {
                 <div className="flex items-center justify-between mb-7">
                   <div className="flex items-end gap-2">
                     <h2 className="text-[58px] leading-none font-extrabold tracking-[-0.04em] text-[#d08a1b]">
-                      €{vehicle.pricePerDay}
+                      {vehicle.pricePerDay} DH
                     </h2>
                     <span className="text-gray-500 text-[18px] mb-1">/ day</span>
                   </div>
@@ -282,8 +292,11 @@ export default function VehicleDetailPage() {
                           mode="single"
                           selected={reserveStartDate}
                           onSelect={(d) => d && setReserveStartDate(d)}
-                          disabled={reservedDates}
-                          modifiers={{ reserved: reservedDates }}
+                          disabled={(date) =>
+                            reservedDates.some(
+                              (r) => r.toDateString() === date.toDateString()
+                            )
+                          }
                         />
                       </div>
                     </PopoverContent>
@@ -306,8 +319,11 @@ export default function VehicleDetailPage() {
                           mode="single"
                           selected={reserveEndDate}
                           onSelect={(d) => d && setReserveEndDate(d)}
-                          disabled={reservedDates}
-                          modifiers={{ reserved: reservedDates }}
+                          disabled={(date) =>
+                            reservedDates.some(
+                              (r) => r.toDateString() === date.toDateString()
+                            )
+                          }
                         />
                       </div>
                     </PopoverContent>
@@ -320,8 +336,8 @@ export default function VehicleDetailPage() {
                 {days > 0 && (
                   <div className="flex flex-col gap-5 mb-6">
                     <div className="flex items-center justify-between text-[18px] text-gray-500">
-                      <span>€{vehicle.pricePerDay} × {days} {days === 1 ? "day" : "days"}</span>
-                      <strong className="text-gray-700 font-semibold">€{subtotal.toLocaleString()}</strong>
+                      <span>{vehicle.pricePerDay} DH × {days} {days === 1 ? "day" : "days"}</span>
+                      <strong className="text-gray-700 font-semibold">{subtotal.toLocaleString()} DH</strong>
                     </div>
                   </div>
                 )}
@@ -336,7 +352,7 @@ export default function VehicleDetailPage() {
                 {days > 0 && (
                   <div className="flex items-center justify-between mb-7">
                     <span className="text-[#16386b] text-[22px] font-bold">Total Estimate</span>
-                    <h3 className="text-[42px] font-extrabold tracking-[-0.03em] text-[#d08a1b]">€{total.toLocaleString()}</h3>
+                    <h3 className="text-[42px] font-extrabold tracking-[-0.03em] text-[#d08a1b]">{total.toLocaleString()} DH</h3>
                   </div>
                 )}
 

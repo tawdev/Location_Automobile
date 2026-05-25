@@ -3,5 +3,5 @@
 import ProfilePage from "@/app/profile/page";
 
 export default function AdminProfilePage() {
-  return <ProfilePage />;
+  return <ProfilePage hideBackButton />;
 }

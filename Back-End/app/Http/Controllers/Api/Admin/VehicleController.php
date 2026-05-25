@@ -9,6 +9,7 @@ use App\Services\ReservationService;
 use App\Services\VehicleService;
 use Illuminate\Http\Request;
 use App\Http\Requests\FilterVehiclesRequest;
+use App\Models\Location;
 class VehicleController extends Controller
 {
     public function __construct(
@@ -141,5 +142,32 @@ class VehicleController extends Controller
             'status' => 'success',
             'data' => $Vehicles
         ], 200);
+    }
+
+    public function locations()
+    {
+        $vehicles = Vehicle::with('latestLocation', 'pictures')->get()->map(function ($v) {
+            $loc = $v->latestLocation;
+            return [
+                'id'        => $v->id,
+                'marque'    => $v->marque,
+                'model'     => $v->model,
+                'registration' => $v->registration,
+                'device_id' => $v->device_id,
+                'picture'   => $v->pictures->first()?->path,
+                'location'  => $loc ? [
+                    'latitude'  => (float) $loc->latitude,
+                    'longitude' => (float) $loc->longitude,
+                    'speed'     => $loc->speed,
+                    'heading'   => $loc->heading,
+                    'updated_at'=> $loc->created_at,
+                ] : null,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $vehicles,
+        ]);
     }
 }

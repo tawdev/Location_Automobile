@@ -92,10 +92,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     if (isAdmin) router.replace("/admin/vehicles");
   }, [isAdmin, router]);
 
-  if (status === "loading" || isAdmin) {
-    return <div className="min-h-screen bg-[#F0F3FA]" />;
-  }
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -105,6 +101,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  if (status === "loading" || isAdmin) {
+    return <div className="min-h-screen bg-[#F0F3FA]" />;
+  }
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] flex flex-col font-sans">

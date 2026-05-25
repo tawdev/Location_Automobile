@@ -34,14 +34,6 @@ export default function AdminCategoryNewPage() {
           <h1 className="font-black text-3xl">Add category</h1>
           <div className="font-bold text-sm mt-1">Admin CRUD</div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/admin/categories")}
-          className="font-black border-2 border-black px-4 py-2 bg-white hover:bg-zinc-100"
-        >
-          Back
-        </button>
       </div>
 
       <div className="mt-6 border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
