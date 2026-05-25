@@ -33,7 +33,7 @@ class ReservationService
     public function getAllReservition(){
         $reservations = Reservation::with('user','vehicle', 'vehicle.pictures')->get();
         foreach($reservations as $reservation){
-            if(now() > $reservation->end_date){
+            if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
                 $reservation->update([
                     'status'=>'Terminée'
                 ]);
@@ -46,8 +46,7 @@ class ReservationService
 {
     $vehicle = Vehicle::findOrFail($id);
 
-    $startDate = (new DateTime($data['start_date']))->modify('+1 day');
-    $data['start_date'] = $startDate->format('Y-m-d');
+
 
     $conflict = $vehicle->reservations()
         ->where('status', '=', 'Confirmée')
@@ -68,7 +67,16 @@ class ReservationService
     if ($conflict) {
         return false;
     }
+    if($data['start_date']==$data['end_date']){
+        return false;
+    }
+    if(!auth()->user()->cin_recto || !auth()->user()->cin_verso){
+        return 'cin_missing';
+    }
 
+    if(!auth()->user()->permi_recto || !auth()->user()->permi_verso){
+        return 'permi_missing';
+    }
     $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
     $total = $days * $vehicle->pricePerDay;
 
@@ -117,7 +125,7 @@ class ReservationService
         ]);
         return $reservaition;
     }
-    
+
     public function AdminRefuseReservition($id){
             $reservaition = Reservation::findOrFail($id);
 

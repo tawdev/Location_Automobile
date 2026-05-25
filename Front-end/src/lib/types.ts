@@ -40,6 +40,7 @@ export type Vehicle = {
   fuelType: string;
   category_id: number;
   Occupants: string;
+  device_id?: string | null;
   pictures?: Picture[];
   category?: Category;
   created_at?: string;

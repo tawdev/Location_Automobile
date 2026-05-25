@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, X, CheckCircle, Loader2, Search, Car, Calendar, DollarSign, Clock, ArrowRight } from "lucide-react";
 import { getAuthToken } from "@/lib/tokenStorage";
+import BackButton from "@/components/BackButton";
 import { RequireClient } from "@/components/RequireClient";
 import { API_BASE_URL } from "@/lib/config";
 
@@ -208,7 +209,7 @@ function ReservationCard({
               </div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886]">
                 <DollarSign className="w-3.5 h-3.5 text-[#638ECB]" />
-                {cancelled ? "€0.00" : `€${Number(res.total_price).toLocaleString()}`}
+                {cancelled ? "0.00 DH" : `${Number(res.total_price).toLocaleString()} DH`}
               </div>
             </div>
           </div>
@@ -497,6 +498,7 @@ export default function BookingHistoryPage() {
           <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" />
           <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
           <div className="relative max-w-7xl mx-auto px-6 py-14">
+            <BackButton />
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -776,7 +778,7 @@ export default function BookingHistoryPage() {
 
                     <div className="bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-2xl px-6 py-5 flex items-center justify-between mt-auto shadow-sm">
                       <span className="text-sm font-bold text-gray-600">Total Amount</span>
-                      <span className="text-2xl font-black text-[#395886]">€{Number(detailReservation.total_price).toLocaleString()}</span>
+                      <span className="text-2xl font-black text-[#395886]">{Number(detailReservation.total_price).toLocaleString()} DH</span>
                     </div>
                   </div>
                 </div>

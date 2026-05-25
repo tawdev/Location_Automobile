@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { RequireClient } from "@/components/RequireClient";
+import BackButton from "@/components/BackButton";
 import { makeReservation } from "@/lib/reservationsApi";
 import { useAuth } from "@/lib/authContext";
 
@@ -39,8 +40,12 @@ export default function ReservationNewPage() {
       await refreshUser();
       router.replace("/reservations");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to create reservation";
-      setError(msg);
+      const errMsg = (e as { message?: string })?.message || "";
+      if (errMsg.includes("CIN") || errMsg.includes("permi")) {
+        router.push("/profile?upload=documents");
+        return;
+      }
+      setError(errMsg || "Failed to create reservation");
     } finally {
       setSubmitting(false);
     }
@@ -50,6 +55,7 @@ export default function ReservationNewPage() {
     <RequireClient>
       <div className="min-h-screen bg-zinc-50 text-black p-4">
         <div className="max-w-xl mx-auto border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <BackButton />
           <h1 className="font-black text-3xl mb-2">New reservation</h1>
           <p className="font-bold mb-6">Vehicle ID: {vehicleId ?? "—"}</p>
 
@@ -88,15 +94,7 @@ export default function ReservationNewPage() {
               {submitting ? "Creating..." : "Reserve"}
             </button>
 
-            <div className="flex items-center justify-between pt-2">
-              <button
-                type="button"
-                onClick={() => router.push("/vehicles")}
-                className="underline font-bold"
-              >
-                Back to vehicles
-              </button>
-
+            <div className="flex items-center justify-end pt-2">
               <button
                 type="button"
                 onClick={() => router.push("/reservations")}

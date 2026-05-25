@@ -26,6 +26,18 @@ class ReservationController extends Controller
     {
 
         $data = $this->reservitionService->makeReservation($id, $request->all());
+        if($data === 'cin_missing'){
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Veuillez ajouter votre CIN (recto et verso) dans votre profil avant de réserver.'
+            ], 400);
+        }
+        if($data === 'permi_missing'){
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Veuillez ajouter votre permis de conduire (recto et verso) dans votre profil avant de réserver.'
+            ], 400);
+        }
         if(!$data){
              return response()->json([
         'status'=>'failed',

@@ -89,6 +89,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const isAdmin = status === "authenticated" && user?.role_id === 1;
 
   useEffect(() => {
+    if (isAdmin) router.replace("/admin/vehicles");
+  }, [isAdmin, router]);
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -97,10 +101,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
-
-  useEffect(() => {
-    if (isAdmin) router.replace("/admin/vehicles");
-  }, [isAdmin, router]);
 
   if (status === "loading" || isAdmin) {
     return <div className="min-h-screen bg-[#F0F3FA]" />;

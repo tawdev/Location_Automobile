@@ -28,6 +28,7 @@ function AdminVehicleForm({
   const [fuelType, setFuelType] = useState(initial?.fuelType ?? "");
   const [categoryId, setCategoryId] = useState<number>(initial?.category_id ?? 0);
   const [occupants, setOccupants] = useState(initial?.Occupants ?? "");
+  const [deviceId, setDeviceId] = useState(initial?.device_id ?? "");
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
 
   const categoryOptions = useMemo(() => categories.slice().sort((a, b) => a.id - b.id), [categories]);
@@ -63,6 +64,7 @@ function AdminVehicleForm({
             fuelType: fuelType.trim(),
             category_id: categoryId,
             Occupants: occupants.trim(),
+            device_id: deviceId.trim() || undefined,
             images: undefined,
           },
           imagesFiles
@@ -182,6 +184,16 @@ function AdminVehicleForm({
           />
         </label>
 
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">GPS Device ID <span className="text-gray-400 font-normal">(optional)</span></span>
+          <input
+            className="border-2 border-black p-2"
+            value={deviceId}
+            onChange={(e) => setDeviceId(e.target.value)}
+            placeholder="e.g. GPS-001"
+          />
+        </label>
+
         <div className="flex flex-col gap-2">
           <span className="font-bold">Images (optional)</span>
           <input
@@ -269,14 +281,6 @@ export default function AdminVehicleNewPage() {
           <h1 className="font-black text-3xl">Add vehicle</h1>
           <div className="font-bold text-sm mt-1">Admin CRUD</div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/admin/vehicles")}
-          className="font-black border-2 border-black px-4 py-2 bg-white hover:bg-zinc-100"
-        >
-          Back
-        </button>
       </div>
 
       {loadingCategories ? (
