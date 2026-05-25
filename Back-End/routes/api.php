@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Api\Admin\VehicleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use Illuminate\Container\Attributes\Auth;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\LocationController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -20,9 +22,14 @@ Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth
 Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
 Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 
-// Route::middleware('auth:sanctum')->group(function () {
-
-// });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('Vehicles' , [VehicleController::class, 'index']);
+    Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
+    Route::post('/vehicle' , [VehicleController::class , 'store']);
+    Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
+    Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
+    Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
+});
 
 
 
@@ -39,31 +46,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile/picture',[ProfileController::class,'updateUserProfilePicture']);
     Route::put('/profile/email',[ProfileController::class,'updateUserEmail']);
     Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
-
-
-
-
-
-
-Route::patch('/MyReservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
-
+    Route::get('Vehicles' , [VehicleController::class, 'index']);
+    Route::get('Vehicles/{id}' , [VehicleController::class, 'show']);
+    Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
 
 
 });
 
-//i will put this two routes in Middlware of adminRole , i will make it later
+
 Route::middleware(['auth:sanctum','admin'])->group(function (){
+Route::get('/admin/dashboard/stats', [DashboardController::class, 'stats']);
 Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);
 Route::get('Reservation/filter',[ReservationController::class,'filterAdminReservation']);
 
-Route::get('Vehicles' , [VehicleController::class, 'index']);
-Route::get('Vehicles/{id}' , [VehicleController::class, 'show']);
 Route::post('/vehicle' , [VehicleController::class , 'store']);
 Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
 Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
-Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
 
 Route::get('Categories', [CategoryController::class , 'index']);
 Route::post('Category' , [CategoryController::class , 'store']);
@@ -72,12 +72,13 @@ Route::delete('Categories/{id}', [CategoryController::class , 'destroy']);
 Route::get('Categories/{id}', [CategoryController::class , 'show']);
 Route::post('Categories/search' , [CategoryController::class , 'FilterByName']);
 
-
-
-
-
+Route::get('/admin/vehicles/location',        [VehicleController::class, 'locations']);
+Route::get ('/location/live/{deviceId}',    [LocationController::class, 'live']);
+Route::get ('/location/history/{deviceId}', [LocationController::class, 'history']);
 
 });
+
+Route::match(['get','post'],'/gps/data', [LocationController::class, 'store']);
 
 
 

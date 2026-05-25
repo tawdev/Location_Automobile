@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Vehicle extends Model
 {
 
-    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'Occupants'];
+    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'Occupants', 'device_id'];
     /** @use HasFactory<VehicleFactory> */
     use HasFactory;
 
@@ -39,5 +39,11 @@ class Vehicle extends Model
     public function pictures(): HasMany
     {
         return $this->hasMany(Picture::class);
+    }
+
+    public function latestLocation()
+    {
+        return $this->hasOne(Location::class, 'device_id', 'device_id')
+            ->latestOfMany();
     }
 }

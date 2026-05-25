@@ -3,12 +3,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import BackButton from "@/components/BackButton";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireClient } from "@/components/RequireClient";
 import { filterVehicles, listVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle } from "@/lib/types";
 import { vehicleImageUrl } from "@/lib/media";
 import { Search } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 const NEW_COUNT = 10;
 
@@ -58,7 +58,7 @@ export default function VehiclesPage() {
       const data = await listVehicles();
       setVehicles(data);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to load vehicles";
+      const msg = (e as { message?: string })?.message || "Failed to load vehicles";
       setError(msg);
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ export default function VehiclesPage() {
       const data = await filterVehicles(params);
       setVehicles(data);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Filtering failed";
+      const msg = (e as { message?: string })?.message || "Filtering failed";
       setError(msg);
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export default function VehiclesPage() {
   }, [vehicles, selectedCategory, searchQuery]);
 
   return (
-    <RequireAuth>
+    <RequireClient>
       <div className="bg-[#f6f6f8] overflow-hidden">
 
         {/* HERO */}
@@ -266,10 +266,10 @@ export default function VehiclesPage() {
           <div className="flex items-end justify-between mb-10">
             <div>
               <h2 className="text-[46px] font-extrabold tracking-[-0.03em] text-[#1f4276]">
-                S&eacute;lection Vedette
+                Sélection Vedette
               </h2>
               <p className="mt-2 text-[16px] text-gray-500">
-                Des v&eacute;hicules de luxe choisis pour votre voyage.
+                Des véhicules de luxe choisis pour votre voyage.
               </p>
             </div>
 
@@ -471,6 +471,6 @@ export default function VehiclesPage() {
         </section>
 
       </div>
-    </RequireAuth>
+    </RequireClient>
   );
 }

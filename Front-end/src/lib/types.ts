@@ -36,9 +36,44 @@ export type Vehicle = {
   fuelType: string;
   category_id: number;
   Occupants: string;
+  device_id?: string | null;
   pictures?: Picture[];
   category?: Category;
   created_at?: string;
+};
+
+export type DashboardStats = {
+  totalVehicles: number;
+  totalReservations: number;
+  totalClients: number;
+  totalRevenue: number;
+  reservationsByStatus: {
+    En_Attente: number;
+    Confirmée: number;
+    Annulée: number;
+    Terminée: number;
+  };
+  monthlyRevenue: { month: string; revenue: number }[];
+  recentReservations: {
+    id: number;
+    start_date: string;
+    end_date: string;
+    status: string;
+    TotalPrice: number;
+    user: { id: number; name: string; email: string } | null;
+    vehicle: { id: number; marque: string; model: string } | null;
+  }[];
+  popularVehicles: {
+    count: number;
+    vehicle: {
+      id: number;
+      marque: string;
+      model: string;
+      pricePerDay: number;
+      pictures?: Picture[];
+      category?: Category;
+    } | null;
+  }[];
 };
 
 export type ReservationStatus = string;

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireClient } from "@/components/RequireClient";
 import { vehicleImageUrl } from "@/lib/media";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { makeReservation } from "@/lib/reservationsApi";
@@ -131,7 +131,12 @@ export default function VehicleDetailPage() {
       });
       setShowSuccess(true);
     } catch (e) {
-      setReserveError((e as { message?: string })?.message || "Reservation failed");
+      const errMsg = (e as { message?: string })?.message || "";
+      if (errMsg.includes("CIN") || errMsg.includes("permi")) {
+        router.push("/profile?upload=documents");
+        return;
+      }
+      setReserveError(errMsg || "Reservation failed");
     } finally {
       setReserving(false);
     }
@@ -139,17 +144,17 @@ export default function VehicleDetailPage() {
 
   if (loading) {
     return (
-      <RequireAuth>
+      <RequireClient>
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="w-10 h-10 border-4 border-[#16386b] border-t-transparent rounded-full animate-spin" />
         </div>
-      </RequireAuth>
+      </RequireClient>
     );
   }
 
   if (error || !vehicle) {
     return (
-      <RequireAuth>
+      <RequireClient>
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600 text-lg">{error || "Vehicle not found"}</p>
@@ -158,12 +163,12 @@ export default function VehicleDetailPage() {
             </button>
           </div>
         </div>
-      </RequireAuth>
+      </RequireClient>
     );
   }
 
   return (
-    <RequireAuth>
+    <RequireClient>
       <div className="bg-white min-h-screen">
         <main className="pt-14 pb-24 bg-white">
           <div className="max-w-[1180px] mx-auto px-7">
@@ -467,6 +472,6 @@ export default function VehicleDetailPage() {
           </div>
         </div>
       )}
-    </RequireAuth>
+    </RequireClient>
   );
 }

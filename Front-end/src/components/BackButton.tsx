@@ -14,7 +14,7 @@ export default function BackButton({ small }: Props) {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
-      className={`inline-flex items-center gap-1.5 rounded-lg bg-[#f39c12] hover:bg-[#e08e0b] text-white font-bold shadow-sm transition-all group active:scale-95 ${
+      className={`${small ? "" : "fixed top-20 md:top-24 left-4 z-50"} inline-flex items-center gap-1.5 rounded-lg bg-[#f39c12] hover:bg-[#e08e0b] text-white font-bold shadow-sm transition-all group active:scale-95 ${
         small
           ? "px-2 py-0.5 text-[11px] leading-none"
           : "px-4 py-2 text-sm"

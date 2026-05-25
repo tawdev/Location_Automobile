@@ -44,3 +44,17 @@ export async function refuseAdminReservation(
 
   return res.data;
 }
+
+export async function filterAdminReservations(filters: {
+  start_date?: string;
+  end_date?: string;
+  status?: string;
+  vehicle_marque?: string;
+}): Promise<Reservation[]> {
+  const res = await apiRequest<AdminReservationsResponse>({
+    method: "GET",
+    path: "/Reservation/filter",
+    query: filters,
+  });
+  return ensureReservations(res.data);
+}

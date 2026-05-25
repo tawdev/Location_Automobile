@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { RequireClient } from "@/components/RequireClient";
 import BackButton from "@/components/BackButton";
-import { RequireAuth } from "@/components/RequireAuth";
 import { makeReservation } from "@/lib/reservationsApi";
 import { useAuth } from "@/lib/authContext";
 
@@ -40,15 +40,19 @@ export default function ReservationNewPage() {
       await refreshUser();
       router.replace("/reservations");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to create reservation";
-      setError(msg);
+      const errMsg = (e as { message?: string })?.message || "";
+      if (errMsg.includes("CIN") || errMsg.includes("permi")) {
+        router.push("/profile?upload=documents");
+        return;
+      }
+      setError(errMsg || "Failed to create reservation");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <RequireAuth>
+    <RequireClient>
       <div className="min-h-screen bg-zinc-50 text-black p-4">
         <div className="max-w-xl mx-auto border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
           <BackButton />
@@ -102,6 +106,6 @@ export default function ReservationNewPage() {
           </form>
         </div>
       </div>
-    </RequireAuth>
+    </RequireClient>
   );
 }

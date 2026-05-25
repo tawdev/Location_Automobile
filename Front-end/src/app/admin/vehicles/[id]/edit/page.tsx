@@ -28,6 +28,7 @@ function AdminVehicleEditForm({
   const [fuelType, setFuelType] = useState(initial.fuelType);
   const [categoryId, setCategoryId] = useState<number>(initial.category_id);
   const [occupants, setOccupants] = useState(initial.Occupants);
+  const [deviceId, setDeviceId] = useState(initial.device_id ?? "");
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
 
   const categoryOptions = useMemo(
@@ -67,6 +68,7 @@ function AdminVehicleEditForm({
             fuelType: fuelType.trim(),
             category_id: categoryId,
             Occupants: occupants.trim(),
+            device_id: deviceId.trim() || undefined,
             images: undefined,
           },
           imagesFiles
@@ -175,6 +177,16 @@ function AdminVehicleEditForm({
             onChange={(e) => setOccupants(e.target.value)}
             required
             placeholder="e.g. 4"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">GPS Device ID <span className="text-gray-400 font-normal">(optional)</span></span>
+          <input
+            className="border-2 border-black p-2"
+            value={deviceId}
+            onChange={(e) => setDeviceId(e.target.value)}
+            placeholder="e.g. GPS-001"
           />
         </label>
 

@@ -26,6 +26,18 @@ class ReservationController extends Controller
     {
 
         $data = $this->reservitionService->makeReservation($id, $request->all());
+        if($data === 'cin_missing'){
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Veuillez ajouter votre CIN (recto et verso) dans votre profil avant de réserver.'
+            ], 400);
+        }
+        if($data === 'permi_missing'){
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Veuillez ajouter votre permis de conduire (recto et verso) dans votre profil avant de réserver.'
+            ], 400);
+        }
         if(!$data){
              return response()->json([
         'status'=>'failed',
@@ -98,15 +110,11 @@ class ReservationController extends Controller
     }
 
     public function filterAdminReservation(Request $request){
-           $data=$this->reservitionService->filterAllReservation($request);
+        $data=$this->reservitionService->filterAllReservation($request);
 
-        if(empty($data)){
-            return response()->json([
-                'message'=>'Aucan reservation',
-            ]);
-        }
         return response()->json([
-            'data'=>$data
+            'status' => 'success',
+            'data' => $data,
         ]);
     }
 

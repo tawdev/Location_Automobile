@@ -1,71 +1,299 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { acceptAdminReservation, getAdminReservations, refuseAdminReservation } from "@/lib/adminReservationsApi";
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  acceptAdminReservation,
+  getAdminReservations,
+  refuseAdminReservation,
+  filterAdminReservations,
+} from "@/lib/adminReservationsApi";
 import type { Reservation } from "@/lib/types";
+import { vehicleImageUrl } from "@/lib/media";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-function ReservationRow({
-  reservation,
-  onAccept,
-  onRefuse,
-  accepting,
-  refusing,
-}: {
-  reservation: Reservation;
-  onAccept: (id: number) => void;
-  onRefuse: (id: number) => void;
-  accepting: boolean;
-  refusing: boolean;    
-}) {
-  const status = reservation.status;
+const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
+  En_Attente: {
+    label: "En attente",
+    classes: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  Confirmée: {
+    label: "Confirmée",
+    classes: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  Annulée: {
+    label: "Annulée",
+    classes: "bg-rose-50 text-rose-600 border-rose-200",
+  },
+  Terminée: {
+    label: "Terminée",
+    classes: "bg-sky-50 text-sky-700 border-sky-200",
+  },
+};
 
-  const isFinal =
-    status === "Confirmée" || status === "Annulée" || status === "Términée";
+function statusStyle(status: string) {
+  return (
+    STATUS_STYLES[status] ?? {
+      label: status,
+      classes: "bg-zinc-50 text-zinc-600 border-zinc-200",
+    }
+  );
+}
+
+const FINAL_STATUSES = ["Confirmée", "Annulée", "Terminée"];
+
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("fr-FR", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function ImageModal({ url, label, onClose }: { url: string; label: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
 
   return (
-    <div className="border-4 border-black bg-white p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="font-black text-xl leading-tight">
-            Reservation #{reservation.id}
-          </div>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+      onClick={onClose}
+    >
+      <div
+        className="relative flex items-center justify-center w-screen h-screen"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-5 right-5 w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all z-10 cursor-pointer shadow-lg"
+        >
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <img
+          src={url}
+          alt={label}
+          className="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-6 py-4">
+          <span className="text-white/90 text-base font-bold">{label}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-          <div className="font-bold text-sm mt-1">
-            Vehicle ID: {reservation.vehicle_id} • User ID: {reservation.user_id}
-          </div>
+function DocThumb({ url, label, onOpen }: { url: string | null | undefined; label: string; onOpen: (url: string, label: string) => void }) {
+  if (!url) {
+    return (
+      <div className="flex flex-col items-center gap-1.5">
+        <div className="w-[90px] h-[64px] rounded-xl bg-[#F0F3FA] border border-dashed border-[#D5DEEF]" />
+        <span className="text-[10px] font-bold text-[#B0C4DE]">{label}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <button
+        type="button"
+        onClick={() => onOpen(url, label)}
+        className="block w-[90px] h-[64px] rounded-xl overflow-hidden border border-[#D5DEEF]/60 hover:border-[#638ECB]/50 hover:shadow-md transition-all group relative cursor-pointer"
+      >
+        <img
+          src={url}
+          alt={label}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
+          <svg className="w-5 h-5 text-white/0 group-hover:text-white/80 transition-all drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+          </svg>
+        </div>
+      </button>
+      <span className="text-[10px] font-bold text-[#638ECB]">{label}</span>
+    </div>
+  );
+}
 
-          <div className="mt-2 font-bold">
-            From: <span className="font-black">{reservation.start_date}</span>
-          </div>
-          <div className="font-bold">
-            To: <span className="font-black">{reservation.end_date}</span>
-          </div>
+function EyeIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  );
+}
 
-          <div className="mt-2 font-black text-lg">
-            Status: {reservation.status}
-          </div>
+function RefreshIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+  );
+}
 
-          <div className="mt-1 font-bold">Total: {reservation.TotalPrice}</div>
+function SkeletonRow() {
+  return (
+    <div className="bg-white rounded-3xl border border-[#D5DEEF]/60 overflow-hidden shadow-sm animate-pulse flex items-center gap-4 p-4">
+      <div className="w-20 h-20 rounded-2xl bg-[#F0F3FA] shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-5 bg-[#F0F3FA] rounded-md w-1/4" />
+        <div className="h-4 bg-[#F0F3FA] rounded-md w-1/3" />
+      </div>
+      <div className="flex gap-2 shrink-0">
+        <div className="h-9 w-24 rounded-xl bg-[#F0F3FA]" />
+        <div className="h-9 w-24 rounded-xl bg-[#F0F3FA]" />
+        <div className="h-9 w-24 rounded-xl bg-[#F0F3FA]" />
+      </div>
+    </div>
+  );
+}
+
+function DetailModal({
+  reservation,
+  open,
+  onClose,
+  onOpenLightbox,
+}: {
+  reservation: Reservation | null;
+  open: boolean;
+  onClose: () => void;
+  onOpenLightbox: (url: string, label: string) => void;
+}) {
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  if (!open || !reservation) return null;
+
+  const userName = reservation.user?.name ?? `Utilisateur #${reservation.user_id}`;
+  const userEmail = reservation.user?.email ?? "";
+  const vehicleName = reservation.vehicle
+    ? `${reservation.vehicle.marque} ${reservation.vehicle.model}`
+    : `Véhicule #${reservation.vehicle_id}`;
+
+  const vehiclePic = reservation.vehicle?.pictures?.[0]?.path
+    ? vehicleImageUrl(reservation.vehicle.pictures[0].path)
+    : null;
+
+  const cinRecto = reservation.user?.cin_recto ? vehicleImageUrl(reservation.user.cin_recto) : null;
+  const cinVerso = reservation.user?.cin_verso ? vehicleImageUrl(reservation.user.cin_verso) : null;
+  const permiRecto = reservation.user?.permi_recto ? vehicleImageUrl(reservation.user.permi_recto) : null;
+  const permiVerso = reservation.user?.permi_verso ? vehicleImageUrl(reservation.user.permi_verso) : null;
+
+  const ss = statusStyle(reservation.status);
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl border border-[#D5DEEF]/80 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 pb-0">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
+              {vehiclePic ? (
+                <img src={vehiclePic} alt={vehicleName} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[#B0C4DE] text-xs font-bold">—</div>
+              )}
+            </div>
+            <div>
+              <h3 className="font-extrabold text-[#395886] text-lg leading-tight">{vehicleName}</h3>
+              <p className="text-xs font-bold text-[#638ECB]">{userName}</p>
+            </div>
+          </div>
+          <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold border ${ss.classes}`}>
+            {ss.label}
+          </span>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
-          <button
-            type="button"
-            disabled={isFinal || accepting}
-            onClick={() => onAccept(reservation.id)}
-            className="font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100 disabled:opacity-50"
-          >
-            {accepting ? "Accepting..." : "Accept"}
-          </button>
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] flex items-center justify-center transition-all cursor-pointer"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
 
-          <button
-            type="button"
-            disabled={isFinal || refusing}
-            onClick={() => onRefuse(reservation.id)}
-            className="font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100 disabled:opacity-50"
-          >
-            {refusing ? "Refusing..." : "Refuse"}
-          </button>
+        <div className="p-5 pt-4 space-y-5">
+          {/* Vehicle details */}
+          <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Véhicule</span>
+              <span className="text-sm font-bold text-[#395886]">{vehicleName}</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Prix / jour</span>
+              <span className="text-sm font-bold text-[#395886]">{reservation.vehicle?.pricePerDay ?? "—"} MAD</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Client</span>
+              <span className="text-sm font-bold text-[#395886]">{userName}</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Email</span>
+              <span className="text-sm font-bold text-[#395886] truncate block">{userEmail || "—"}</span>
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Début</span>
+              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.start_date)}</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Fin</span>
+              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.end_date)}</span>
+            </div>
+            <div className="col-span-2 pt-2 border-t border-[#D5DEEF]/30">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Total</span>
+              <span className="text-xl font-black text-[#395886]">{reservation.TotalPrice} MAD</span>
+            </div>
+          </div>
+
+          {/* Documents */}
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-3">
+              Documents du client
+            </span>
+            <div className="flex flex-wrap items-start gap-6">
+              <div className="flex items-start gap-3">
+                <DocThumb url={cinRecto} label="CIN Recto" onOpen={onOpenLightbox} />
+                <DocThumb url={cinVerso} label="CIN Verso" onOpen={onOpenLightbox} />
+              </div>
+              <div className="w-px h-[72px] bg-[#D5DEEF]/40 hidden sm:block self-center" />
+              <div className="flex items-start gap-3">
+                <DocThumb url={permiRecto} label="Permis Recto" onOpen={onOpenLightbox} />
+                <DocThumb url={permiVerso} label="Permis Verso" onOpen={onOpenLightbox} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -77,97 +305,346 @@ export default function AdminReservationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [acceptingId, setAcceptingId] = useState<number | null>(null);
-  const [refusingId, setRefusingId] = useState<number | null>(null);
+  const [actionId, setActionId] = useState<number | null>(null);
+  const [actionType, setActionType] = useState<"accept" | "refuse" | null>(null);
+
+  const [lightbox, setLightbox] = useState<{ url: string; label: string } | null>(null);
+  const openLightbox = useCallback((url: string, label: string) => setLightbox({ url, label }), []);
+  const closeLightbox = useCallback(() => setLightbox(null), []);
+
+  const [detailReservation, setDetailReservation] = useState<Reservation | null>(null);
+
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
+
+  function buildFilters() {
+    const filters: Record<string, string> = {};
+    if (search.trim()) filters.vehicle_marque = search.trim();
+    if (status !== "all") filters.status = status;
+    return filters;
+  }
+
+  const hasFilters = search.trim() || status !== "all";
 
   async function load() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getAdminReservations();
+      const f = buildFilters();
+      const data = Object.keys(f).length > 0
+        ? await filterAdminReservations(f)
+        : await getAdminReservations();
       setReservations(data);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to load reservations";
+      const msg = e instanceof Error ? e.message : "Échec du chargement des réservations";
       setError(msg);
     } finally {
       setLoading(false);
     }
   }
 
+  function clearFilters() {
+    setSearch("");
+    setStatus("all");
+  }
+
+  function handleStatusChange(value: string | null) {
+    setStatus(value ?? "all");
+  }
+
   useEffect(() => {
     void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function onAccept(id: number) {
-    setAcceptingId(id);
+  async function handleAccept(id: number) {
+    setActionId(id);
+    setActionType("accept");
     setError(null);
     try {
       await acceptAdminReservation(id);
       await load();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to accept reservation";
+      const msg = e instanceof Error ? e.message : "Échec de la confirmation de la réservation";
       setError(msg);
     } finally {
-      setAcceptingId(null);
+      setActionId(null);
+      setActionType(null);
     }
   }
 
-  async function onRefuse(id: number) {
-    setRefusingId(id);
+  async function handleRefuse(id: number) {
+    setActionId(id);
+    setActionType("refuse");
     setError(null);
     try {
       await refuseAdminReservation(id);
       await load();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to refuse reservation";
+      const msg = e instanceof Error ? e.message : "Échec de l'annulation de la réservation";
       setError(msg);
     } finally {
-      setRefusingId(null);
+      setActionId(null);
+      setActionType(null);
     }
   }
 
+  const isBusy = (id: number) => actionId === id;
+  const isAccepting = (id: number) => isBusy(id) && actionType === "accept";
+  const isRefusing = (id: number) => isBusy(id) && actionType === "refuse";
+
   return (
     <div>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 mb-5">
         <div>
-          <h1 className="font-black text-3xl">Reservations</h1>
-          <div className="font-bold text-sm mt-1">Admin accept / refuse</div>
+          <h1 className="text-3xl font-extrabold text-[#395886]">Réservations</h1>
+          <p className="text-sm font-bold text-[#638ECB] mt-1">
+            Gérer toutes les demandes de réservation
+          </p>
         </div>
         <button
           type="button"
           onClick={() => void load()}
-          className="font-black border-2 border-black px-4 py-2 bg-white hover:bg-zinc-100"
+          disabled={loading}
+          className="h-10 px-4 rounded-xl bg-white border border-[#D5DEEF] text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-sm"
         >
-          Refresh
+          <RefreshIcon />
+          <span>{loading ? "Chargement..." : "Actualiser"}</span>
         </button>
       </div>
 
-      {error ? (
-        <div className="mt-4 p-3 border-2 border-black bg-white font-bold">
-          {error}
-        </div>
-      ) : null}
+      {/* Filter bar */}
+      <div className="mb-5 p-4 rounded-2xl bg-white border border-[#D5DEEF]/60 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-3 items-end">
+          <div className="flex-1 min-w-0 w-full lg:w-auto">
+            <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-1.5">
+              Véhicule
+            </label>
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#B0C4DE] pointer-events-none"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Rechercher par marque..."
+                className="w-full pl-10 pr-4 h-10 rounded-xl border border-[#D5DEEF]/60 bg-[#F0F3FA] text-sm text-[#395886] font-bold placeholder:text-[#B0C4DE] focus:outline-none focus:ring-2 focus:ring-[#638ECB]/30 focus:border-[#638ECB] transition-all"
+              />
+            </div>
+          </div>
 
-      {loading ? (
-        <div className="mt-6 font-black">Loading...</div>
-      ) : reservations.length === 0 ? (
-        <div className="mt-8 p-4 border-2 border-black bg-white font-black text-center">
-          No reservations found.
+          <div className="w-full sm:w-[180px]">
+            <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-1.5">
+              Statut
+            </label>
+            <Select value={status} onValueChange={handleStatusChange}>
+              <SelectTrigger className="h-10 rounded-xl border border-[#D5DEEF]/60 bg-[#F0F3FA] text-sm text-[#395886] font-bold">
+                <SelectValue placeholder="Tous les statuts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="En_Attente">En attente</SelectItem>
+                <SelectItem value="Confirmée">Confirmée</SelectItem>
+                <SelectItem value="Annulée">Annulée</SelectItem>
+                <SelectItem value="Terminée">Terminée</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => void load()}
+              disabled={loading}
+              className="flex-1 sm:flex-none h-10 px-5 rounded-xl bg-[#395886] text-white font-bold text-xs hover:bg-[#2c4570] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+              </svg>
+              <span>Rechercher</span>
+            </button>
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="flex-1 sm:flex-none h-10 px-4 rounded-xl border border-[#D5DEEF]/60 bg-white text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Effacer</span>
+              </button>
+            )}
+          </div>
         </div>
-      ) : (
-        <div className="mt-6 flex flex-col gap-4">
-          {reservations.map((r) => (
-            <ReservationRow
-              key={r.id}
-              reservation={r}
-              onAccept={onAccept}
-              onRefuse={onRefuse}
-              accepting={acceptingId === r.id}
-              refusing={refusingId === r.id}
-            />
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 rounded-2xl border border-rose-200 bg-rose-50 text-sm font-bold text-rose-700 flex items-center gap-2">
+          <span>⚠️</span>
+          <span>{error}</span>
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonRow key={i} />
           ))}
         </div>
       )}
+
+      {!loading && !error && reservations.length === 0 && (
+        <div className="mt-12 flex flex-col items-center justify-center text-center">
+          <div className="h-16 w-16 rounded-full bg-[#D5DEEF]/40 flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-extrabold text-[#395886]">
+            {hasFilters ? "Aucune réservation ne correspond à vos filtres" : "Aucune réservation pour l'instant"}
+          </h3>
+          <p className="text-sm font-bold text-[#638ECB] mt-1">
+            {hasFilters
+              ? "Essayez d'ajuster votre recherche ou d'effacer les filtres."
+              : "Les demandes de réservation apparaîtront ici une fois que les clients auront réservé des véhicules."}
+          </p>
+        </div>
+      )}
+
+      {!loading && reservations.length > 0 && (
+        <div className="flex flex-col gap-3">
+          {reservations.map((r) => {
+            const isFinal = FINAL_STATUSES.includes(r.status);
+            const ss = statusStyle(r.status);
+            const userName = r.user?.name ?? `Utilisateur #${r.user_id}`;
+            const vehicleName = r.vehicle
+              ? `${r.vehicle.marque} ${r.vehicle.model}`
+              : `Véhicule #${r.vehicle_id}`;
+
+            const vehiclePic = r.vehicle?.pictures?.[0]?.path
+              ? vehicleImageUrl(r.vehicle.pictures[0].path)
+              : null;
+
+            return (
+              <div
+                key={r.id}
+                className="group flex items-center gap-4 rounded-3xl border border-[#D5DEEF]/70 bg-white hover:border-[#638ECB]/50 hover:shadow-[0_4px_20px_rgba(99,142,203,0.10)] transition-all duration-300 p-4"
+              >
+                {/* Vehicle image */}
+                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
+                  {vehiclePic ? (
+                    <img
+                      src={vehiclePic}
+                      alt={vehicleName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px]">
+                      Aucune
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-extrabold text-[#395886] text-base leading-tight truncate">
+                      {vehicleName}
+                    </h4>
+                    <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${ss.classes}`}>
+                      {ss.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1 text-xs font-semibold text-[#638ECB]">
+                    <span>{userName}</span>
+                    <span className="text-[#D5DEEF]">|</span>
+                    <span>{formatDate(r.start_date)}</span>
+                    <svg className="w-3 h-3 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span>{formatDate(r.end_date)}</span>
+                    <span className="text-[#D5DEEF]">|</span>
+                    <span className="text-[#395886] font-bold">{r.TotalPrice} MAD</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setDetailReservation(r)}
+                    className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <EyeIcon />
+                    <span>Voir détails</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isFinal || isAccepting(r.id)}
+                    onClick={() => handleAccept(r.id)}
+                    className={`h-9 px-4 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 ${
+                      isFinal
+                        ? "bg-zinc-50 text-zinc-400 border border-zinc-200"
+                        : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                    }`}
+                  >
+                    {isAccepting(r.id) ? (
+                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    )}
+                    {!isAccepting(r.id) && <span>Confirmer</span>}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isFinal || isRefusing(r.id)}
+                    onClick={() => handleRefuse(r.id)}
+                    className={`h-9 px-4 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 ${
+                      isFinal
+                        ? "bg-zinc-50 text-zinc-400 border border-zinc-200"
+                        : "bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100"
+                    }`}
+                  >
+                    {isRefusing(r.id) ? (
+                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
+                    {!isRefusing(r.id) && <span>Annuler</span>}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {lightbox && (
+        <ImageModal url={lightbox.url} label={lightbox.label} onClose={closeLightbox} />
+      )}
+
+      <DetailModal
+        reservation={detailReservation}
+        open={!!detailReservation}
+        onClose={() => setDetailReservation(null)}
+        onOpenLightbox={openLightbox}
+      />
     </div>
   );
 }

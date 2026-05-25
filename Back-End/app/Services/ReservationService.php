@@ -31,7 +31,7 @@ class ReservationService
         return $data;
     }
     public function getAllReservition(){
-        $reservations = Reservation::with('user','vehicle')->get();
+        $reservations = Reservation::with('user','vehicle', 'vehicle.pictures')->get();
         foreach($reservations as $reservation){
             if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
                 $reservation->update([
@@ -70,7 +70,13 @@ class ReservationService
     if($data['start_date']==$data['end_date']){
         return false;
     }
+    if(!auth()->user()->cin_recto || !auth()->user()->cin_verso){
+        return 'cin_missing';
+    }
 
+    if(!auth()->user()->permi_recto || !auth()->user()->permi_verso){
+        return 'permi_missing';
+    }
     $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
     $total = $days * $vehicle->pricePerDay;
 
@@ -182,7 +188,7 @@ class ReservationService
 
 
     public function filterAllReservation($request) {
-        $query = Reservation::query()->with('vehicle');
+        $query = Reservation::query()->with('user', 'vehicle', 'vehicle.pictures');
 
         $query->when($request->filled('start_date'), function ($q) use ($request) {
             $q->where('start_date', '>=', $request->start_date);
