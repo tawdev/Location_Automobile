@@ -35,8 +35,8 @@ function LoginInner() {
   async function handleSignUp(payload: { name: string; email: string; password: string }) {
     setSubmitting(true);
     try {
-      const user = await signUp(payload);
-      router.replace(user.role_id === 1 ? "/admin/vehicles" : "/vehicles");
+      await signUp(payload);
+      router.replace("/signup");
     } finally {
       setSubmitting(false);
     }

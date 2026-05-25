@@ -102,9 +102,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   );
 
   const activeHref = useMemo(() => {
-    const found = navItems.find(
-      (i) => pathname === i.href || pathname.startsWith(i.href + "/")
-    );
+    const found = navItems.find((i) => {
+      if (i.href === "/admin") return pathname === i.href;
+      return pathname === i.href || pathname.startsWith(i.href + "/");
+    });
     return found?.href ?? "/admin/vehicles";
   }, [pathname, navItems]);
 
@@ -192,6 +193,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main */}
       <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        {pathname !== "/admin" && (
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="group flex items-center gap-2 mb-4 text-xs font-bold text-[#638ECB] hover:text-[#395886] transition-colors cursor-pointer"
+          >
+            <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Retour</span>
+          </button>
+        )}
         {children}
       </main>
     </div>

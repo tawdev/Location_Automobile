@@ -18,6 +18,8 @@ Route::post('auth/register' , [AuthController::class, 'register']);
 Route::post('auth/login' , [AuthController::class, 'login']);
 Route::post('auth/logout' , [AuthController::class , 'logout'])->middleware('auth:sanctum');
 Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth:sanctum');
+Route::post('auth/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('auth/resend-code', [AuthController::class, 'resendCode']);
 Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
 Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 

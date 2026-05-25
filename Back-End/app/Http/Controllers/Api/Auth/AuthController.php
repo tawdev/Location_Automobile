@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendVerificationCode;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -36,18 +38,81 @@ class AuthController extends Controller
             'role_id' => $clientRole->id,
         ]);
 
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->update(['verification_code' => $code]);
+
+        try {
+            Mail::to($user->email)->send(new SendVerificationCode($user, $code));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send verification email: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'user_id' => $user->id,
+            'message' => 'Un code de vérification vous a été envoyé par email.',
+        ], 201);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'code' => ['required', 'string', 'size:6'],
+        ]);
+
+        $user = User::find($validated['user_id']);
+
+        if (!$user || $user->verification_code !== $validated['code']) {
+            return response()->json([
+                'message' => 'Code de vérification invalide.',
+            ], 422);
+        }
+
+        $user->update([
+            'email_verified_at' => now(),
+            'verification_code' => null,
+        ]);
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user' => $user,
             'token' => $token,
-        ], 201);
+        ], 200);
+    }
+
+    public function resendCode(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $user = User::find($validated['user_id']);
+
+        if (!$user || $user->email_verified_at) {
+            return response()->json([
+                'message' => 'Email déjà vérifié.',
+            ], 422);
+        }
+
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->update(['verification_code' => $code]);
+
+        try {
+            Mail::to($user->email)->send(new SendVerificationCode($user, $code));
+        } catch (\Throwable $e) {
+            Log::error('Failed to resend verification email: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'Un nouveau code vous a été envoyé par email.',
+        ], 200);
     }
 
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'email' => ['required', 'email:rfc,dns', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
             'password' => ['required', 'string'],
         ]);
 
