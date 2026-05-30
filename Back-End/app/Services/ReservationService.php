@@ -79,16 +79,38 @@ class ReservationService
     }
     $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
     $total = $days * $vehicle->pricePerDay;
+    $kmIncluded = $days * 200;
 
     $Reservation = Reservation::create(
         array_merge($data, [
             'user_id'    => auth()->id(),
             'vehicle_id' => $id,
-            'TotalPrice' => $total
+            'TotalPrice' => $total,
+            'km_included' => $kmIncluded,
         ])
     );
 
     return $Reservation;
+}
+
+public function finalizeReservation($id, $kmDriven)
+{
+    $reservation = Reservation::findOrFail($id);
+
+    if ($reservation->status !== 'Confirmée') {
+        return false;
+    }
+
+    $overage = max(0, $kmDriven - $reservation->km_included);
+    $overageCharge = $overage > 0 ? 100 : 0;
+
+    $reservation->update([
+        'km_driven'         => $kmDriven,
+        'km_overage_charge' => $overageCharge,
+        'TotalPrice'        => $reservation->TotalPrice + $overageCharge,
+    ]);
+
+    return $reservation;
 }
 
 

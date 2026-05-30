@@ -30,7 +30,7 @@ export default function ReservationNewPage() {
     setError(null);
 
     if (!vehicleId) {
-      setError("Invalid vehicle id.");
+      setError("ID véhicule invalide.");
       setSubmitting(false);
       return;
     }
@@ -45,7 +45,7 @@ export default function ReservationNewPage() {
         router.push("/profile?upload=documents");
         return;
       }
-      setError(errMsg || "Failed to create reservation");
+      setError(errMsg || "Échec de la création de la réservation");
     } finally {
       setSubmitting(false);
     }
@@ -56,8 +56,8 @@ export default function ReservationNewPage() {
       <div className="min-h-screen bg-zinc-50 text-black p-4">
         <div className="max-w-xl mx-auto border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
           <BackButton />
-          <h1 className="font-black text-3xl mb-2">New reservation</h1>
-          <p className="font-bold mb-6">Vehicle ID: {vehicleId ?? "—"}</p>
+          <h1 className="font-black text-3xl mb-2">Nouvelle réservation</h1>
+          <p className="font-bold mb-6">Véhicule ID : {vehicleId ?? "—"}</p>
 
           {error ? (
             <div className="mb-4 p-3 border-2 border-black bg-white font-bold">{error}</div>
@@ -65,7 +65,7 @@ export default function ReservationNewPage() {
 
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <label className="flex flex-col gap-2">
-              <span className="font-bold">Start date</span>
+              <span className="font-bold">Date de début</span>
               <input
                 type="date"
                 value={startDate}
@@ -76,7 +76,7 @@ export default function ReservationNewPage() {
             </label>
 
             <label className="flex flex-col gap-2">
-              <span className="font-bold">End date</span>
+              <span className="font-bold">Date de fin</span>
               <input
                 type="date"
                 value={endDate}
@@ -91,7 +91,7 @@ export default function ReservationNewPage() {
               disabled={submitting}
               className="mt-2 h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
             >
-              {submitting ? "Creating..." : "Reserve"}
+              {submitting ? "Création..." : "Réserver"}
             </button>
 
             <div className="flex items-center justify-end pt-2">
@@ -100,7 +100,7 @@ export default function ReservationNewPage() {
                 onClick={() => router.push("/reservations")}
                 className="underline font-bold"
               >
-                My reservations
+                Mes réservations
               </button>
             </div>
           </form>

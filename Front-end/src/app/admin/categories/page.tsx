@@ -30,7 +30,7 @@ function CategoryRow({
             onClick={() => onEdit(category.id)}
             className="font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100"
           >
-            Edit
+            Modifier
           </button>
           <button
             type="button"
@@ -38,7 +38,7 @@ function CategoryRow({
             onClick={() => onDelete(category.id)}
             className="font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100 disabled:opacity-50"
           >
-            {deleting ? "Deleting..." : "Delete"}
+            {deleting ? "Suppression..." : "Supprimer"}
           </button>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function AdminCategoriesPage() {
       const data = await getAdminCategories();
       setCategories(data);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to load categories";
+      const msg = e instanceof Error ? e.message : "Échec du chargement des catégories";
       setError(msg);
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export default function AdminCategoriesPage() {
       await deleteAdminCategory(categoryId);
       await loadCategories();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to delete category";
+      const msg = e instanceof Error ? e.message : "Échec de la suppression de la catégorie";
       setError(msg);
     } finally {
       setDeletingId(null);
@@ -91,7 +91,7 @@ export default function AdminCategoriesPage() {
     <div>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Categories</h1>
+          <h1 className="font-black text-3xl">Catégories</h1>
           <div className="font-bold text-sm mt-1">Admin CRUD</div>
         </div>
 
@@ -100,7 +100,7 @@ export default function AdminCategoriesPage() {
           onClick={() => router.push("/admin/categories/new")}
           className="font-black border-2 border-black px-4 py-2 bg-white hover:bg-zinc-100"
         >
-          Add category
+          Ajouter une catégorie
         </button>
       </div>
 
@@ -111,10 +111,10 @@ export default function AdminCategoriesPage() {
       ) : null}
 
       {loading ? (
-        <div className="mt-6 font-black">Loading...</div>
+        <div className="mt-6 font-black">Chargement...</div>
       ) : categories.length === 0 ? (
         <div className="mt-8 p-4 border-2 border-black bg-white font-black text-center">
-          No categories found.
+          Aucune catégorie trouvée.
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-4">

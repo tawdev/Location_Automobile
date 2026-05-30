@@ -99,9 +99,9 @@ export function LoginCard({
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
     const nextErrors = {
-      name: mode === "signup" ? (NAME_RE.test(trimmedName) ? null : "Name must be at least 2 letters.") : null,
-      email: EMAIL_RE.test(trimmedEmail) ? null : "Enter a valid email address.",
-      password: PASSWORD_RE.test(password) ? null : "Password must be 8+ chars and include letters + numbers.",
+      name: mode === "signup" ? (NAME_RE.test(trimmedName) ? null : "Le nom doit contenir au moins 2 lettres.") : null,
+      email: EMAIL_RE.test(trimmedEmail) ? null : "Entrez une adresse e-mail valide.",
+      password: PASSWORD_RE.test(password) ? null : "Le mot de passe doit comporter 8+ caractères avec des lettres et des chiffres.",
     };
 
     setFieldErrors(nextErrors);
@@ -120,8 +120,8 @@ export function LoginCard({
         err instanceof Error
           ? err.message
           : mode === "login"
-            ? "Sign in failed"
-            : "Sign up failed";
+            ? "Échec de la connexion"
+            : "Échec de l'inscription";
       setFormError(msg);
     }
   }
@@ -137,17 +137,17 @@ export function LoginCard({
         <h2 className="text-[26px] md:text-[30px] lg:text-[38px] font-extrabold text-[#395886] leading-[1.05] text-center">
           {mode === "login" ? (
             <>
-              Welcome <span className="text-[#F39C12]">Back</span>
+              Bon retour <span className="text-[#F39C12]">parmi nous</span>
             </>
           ) : (
             <>
-              Create <span className="text-[#F39C12]">Account</span>
+              Créer un <span className="text-[#F39C12]">compte</span>
             </>
           )}
         </h2>
 
         <p className="mt-[4px] text-[13px] md:text-[14px] lg:text-[16px] text-[#395886] text-center">
-          {mode === "login" ? "Sign in to continue your journey" : "Sign up to start booking with ease"}
+          {mode === "login" ? "Connectez-vous pour continuer" : "Inscrivez-vous pour réserver facilement"}
         </p>
 
         {displayError ? (
@@ -160,10 +160,10 @@ export function LoginCard({
           {mode === "signup" ? (
             <div>
               <div className="sr-only">
-                <label htmlFor="signup-name">Name</label>
+                <label htmlFor="signup-name">Nom</label>
               </div>
               <InputField
-                label="Name"
+                label="Nom"
                 type="text"
                 value={name}
                 onChange={(next) => {
@@ -184,10 +184,10 @@ export function LoginCard({
 
           <div>
             <div className="sr-only">
-              <label htmlFor={emailId}>Email address</label>
+              <label htmlFor={emailId}>Adresse e-mail</label>
             </div>
             <InputField
-              label="Email Address"
+              label="Adresse e-mail"
               type="email"
               value={email}
               onChange={(next) => {
@@ -207,11 +207,11 @@ export function LoginCard({
 
           <div>
             <div className="flex items-end justify-between">
-              <div className="text-[12px] font-semibold text-[#395886] mb-1">{mode === "login" ? "Password" : "Password"}</div>
+              <div className="text-[12px] font-semibold text-[#395886] mb-1">Mot de passe</div>
 
               {mode === "login" ? (
                 <a href="/forgot-password" className="text-[12px] font-semibold text-[#638ECB] underline hover:opacity-80">
-                  Forgot Password?
+                  Mot de passe oublié ?
                 </a>
               ) : (
                 <span />
@@ -258,7 +258,7 @@ export function LoginCard({
                 onChange={(e) => setRemember(e.target.checked)}
                 className="w-[16px] h-[16px] accent-[#638ECB]"
               />
-              <span className="text-[13px] text-[#395886] font-medium">Remember this device</span>
+              <span className="text-[13px] text-[#395886] font-medium">Mémoriser cet appareil</span>
             </label>
           ) : null}
 
@@ -267,18 +267,18 @@ export function LoginCard({
             disabled={isSubmitting}
             className="mt-[4px] h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 disabled:opacity-60 disabled:hover:opacity-60 transition-opacity"
           >
-            {isSubmitting ? (mode === "login" ? "Signing in..." : "Creating...") : mode === "login" ? "Sign In" : "Create Account"}
+            {isSubmitting ? (mode === "login" ? "Connexion..." : "Création...") : mode === "login" ? "Connexion" : "Créer un compte"}
           </button>
 
           <>
             <div className="flex items-center gap-[14px] mt-[6px]">
               <div className="h-[1px] flex-1 bg-[#D5DEEF]" />
-              <div className="text-[11px] font-extrabold tracking-[0.16em] text-[#395886]">OR CONTINUE WITH</div>
+              <div className="text-[11px] font-extrabold tracking-[0.16em] text-[#395886]">OU CONTINUER AVEC</div>
               <div className="h-[1px] flex-1 bg-[#D5DEEF]" />
             </div>
 
             <SocialButton
-              label="Continue with Google"
+              label="Continuer avec Google"
               icon={<GoogleIcon />}
               disabled={isSubmitting}
               onClick={() => {
@@ -290,16 +290,16 @@ export function LoginCard({
           <div className="mt-[12px] text-center text-[13px] text-[#395886] font-medium">
             {mode === "login" ? (
               <>
-                Don't have an account?{" "}
+                Vous n'avez pas de compte ?{" "}
                 <a href="/register" className="text-[#638ECB] font-extrabold underline hover:opacity-80">
-                  register
+                  inscrivez-vous
                 </a>
               </>
             ) : (
               <>
-                Already have an account?{" "}
+                Vous avez déjà un compte ?{" "}
                 <a href="/login" className="text-[#638ECB] font-extrabold underline hover:opacity-80">
-                  login
+                  connectez-vous
                 </a>
               </>
             )}
@@ -307,11 +307,11 @@ export function LoginCard({
 
           <div className="mt-[18px] flex flex-wrap items-center justify-center gap-[10px] text-[11px] text-[#395886]">
             <a href="." className="hover:text-[#395886] hover:opacity-90 underline-offset-2 underline">
-              Privacy Policy
+              Politique de confidentialité
             </a>
             <span className="opacity-50">|</span>
             <a href="." className="hover:text-[#395886] hover:opacity-90 underline-offset-2 underline">
-              Terms of Service
+              Conditions d'utilisation
             </a>
           </div>
         </form>

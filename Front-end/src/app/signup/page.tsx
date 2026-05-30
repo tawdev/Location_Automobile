@@ -48,9 +48,9 @@ export default function SignupPage() {
     const trimmedEmail = email.trim();
 
     const nextErrors = {
-      name: NAME_RE.test(trimmedName) ? null : "Name must be at least 2 letters.",
-      email: EMAIL_RE.test(trimmedEmail) ? null : "Enter a valid email address.",
-      password: PASSWORD_RE.test(password) ? null : "Password must be 8+ chars and include letters + numbers.",
+      name: NAME_RE.test(trimmedName) ? null : "Le nom doit contenir au moins 2 lettres.",
+      email: EMAIL_RE.test(trimmedEmail) ? null : "Entrez une adresse e-mail valide.",
+      password: PASSWORD_RE.test(password) ? null : "Le mot de passe doit comporter 8+ caractères avec des lettres et des chiffres.",
     };
 
     setFieldErrors(nextErrors);
@@ -67,7 +67,7 @@ export default function SignupPage() {
         setTimeout(() => inputRefs.current[0]?.focus(), 100);
       }
     } catch (err) {
-      const msg = (err as any)?.message || "Sign up failed";
+      const msg = (err as any)?.message || "Échec de l'inscription";
       setFormError(msg);
     } finally {
       setSubmitting(false);
@@ -109,7 +109,7 @@ export default function SignupPage() {
   async function handleVerifyCode() {
     const fullCode = code.join("");
     if (fullCode.length !== CODE_DIGITS) {
-      setCodeError("Please enter the full code.");
+      setCodeError("Veuillez entrer le code complet.");
       return;
     }
     if (userId === null) return;
@@ -120,7 +120,7 @@ export default function SignupPage() {
       await verifyEmail({ user_id: userId, code: fullCode });
       router.replace("/vehicles");
     } catch (err) {
-      setCodeError((err as any)?.message || "Invalid code");
+      setCodeError((err as any)?.message || "Code invalide");
       setCode(Array(CODE_DIGITS).fill(""));
       inputRefs.current[0]?.focus();
     } finally {
@@ -155,7 +155,7 @@ export default function SignupPage() {
         transition={{ duration: 0.4, delay: 0.15 }}
         className="text-3xl font-black tracking-tight mb-2"
       >
-        Sign up
+        Inscription
       </motion.h1>
       <motion.p
         initial={{ opacity: 0 }}
@@ -163,7 +163,7 @@ export default function SignupPage() {
         transition={{ duration: 0.4, delay: 0.25 }}
         className="mb-6 font-semibold"
       >
-        Create your account
+        Créez votre compte
       </motion.p>
 
       {(error || formError) && (
@@ -185,7 +185,7 @@ export default function SignupPage() {
           transition={{ duration: 0.35, delay: 0.4 }}
           className="flex flex-col gap-2"
         >
-          <span className="font-bold">Name</span>
+          <span className="font-bold">Nom</span>
           <input
             value={name}
             onChange={(e) => {
@@ -210,7 +210,7 @@ export default function SignupPage() {
           transition={{ duration: 0.35, delay: 0.48 }}
           className="flex flex-col gap-2"
         >
-          <span className="font-bold">Email</span>
+          <span className="font-bold">E-mail</span>
           <input
             value={email}
             onChange={(e) => {
@@ -235,7 +235,7 @@ export default function SignupPage() {
           transition={{ duration: 0.35, delay: 0.56 }}
           className="flex flex-col gap-2"
         >
-          <span className="font-bold">Password</span>
+          <span className="font-bold">Mot de passe</span>
           <input
             value={password}
             onChange={(e) => {
@@ -265,7 +265,7 @@ export default function SignupPage() {
           disabled={submitting}
           className="mt-2 h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50 cursor-pointer"
         >
-          {submitting ? "Creating..." : "Create account"}
+          {submitting ? "Création..." : "Créer un compte"}
         </motion.button>
 
         <motion.div
@@ -279,7 +279,7 @@ export default function SignupPage() {
             onClick={() => router.push("/login")}
             className="underline font-bold cursor-pointer"
           >
-            I have an account
+            J'ai déjà un compte
           </button>
 
           <button
@@ -287,7 +287,7 @@ export default function SignupPage() {
             onClick={() => router.push("/vehicles")}
             className="underline font-bold cursor-pointer"
           >
-            Browse vehicles
+            Parcourir les véhicules
           </button>
         </motion.div>
       </motion.form>
@@ -302,7 +302,7 @@ export default function SignupPage() {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="text-3xl font-black tracking-tight mb-2"
       >
-        Check your email
+        Vérifiez votre e-mail
       </motion.h1>
       <motion.p
         initial={{ opacity: 0 }}
@@ -310,7 +310,7 @@ export default function SignupPage() {
         transition={{ duration: 0.4, delay: 0.2 }}
         className="mb-6 font-semibold"
       >
-        We sent a 6-digit code to <span className="font-black">{email}</span>
+        Nous avons envoyé un code à 6 chiffres à <span className="font-black">{email}</span>
       </motion.p>
 
       {codeError && (
@@ -350,7 +350,7 @@ export default function SignupPage() {
           disabled={codeSubmitting}
           className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50 cursor-pointer"
         >
-          {codeSubmitting ? "Verifying..." : "Verify code"}
+          {codeSubmitting ? "Vérification..." : "Vérifier le code"}
         </motion.button>
 
         <div className="flex items-center justify-between text-sm font-bold">
@@ -359,7 +359,7 @@ export default function SignupPage() {
             onClick={backToForm}
             className="underline cursor-pointer"
           >
-            Back
+            Retour
           </button>
           <button
             type="button"
@@ -367,7 +367,7 @@ export default function SignupPage() {
             disabled={resending}
             className="underline cursor-pointer disabled:opacity-50"
           >
-            {resending ? "Sending..." : "Resend code"}
+            {resending ? "Envoi..." : "Renvoyer le code"}
           </button>
         </div>
       </div>

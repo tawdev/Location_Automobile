@@ -8,14 +8,16 @@ import { useAuth } from "@/lib/authContext";
 import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
 import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword } from "@/lib/profileApi";
 import type { ApiError } from "@/lib/apiClient";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function UploadZone({
-  label, file, existingUrl, onChange, hasImage, bgType,
+  label, file, existingUrl, onChange, hasImage, bgType, tapReplaceText, formatsText,
 }: {
   label: string; file: File | null; existingUrl?: string | null;
   onChange: (f: File | null) => void; hasImage?: boolean; bgType?: "license" | "cin";
+  tapReplaceText?: string; formatsText?: string;
 }) {
   const [dragging, setDragging] = useState(false);
 
@@ -38,7 +40,7 @@ function UploadZone({
               <Upload className="w-4 h-4 text-white" />
             </div>
             <span className="text-xs font-extrabold text-[#395886]">{label}</span>
-            <span className="text-[10px] font-semibold text-[#638ECB]/70">Tap to replace</span>
+            <span className="text-[10px] font-semibold text-[#638ECB]/70">{tapReplaceText}</span>
           </div>
         </>
       ) : file ? (
@@ -52,7 +54,7 @@ function UploadZone({
             <Upload className="w-5 h-5 text-[#395886]" />
           </div>
           <span className="text-xs font-extrabold text-[#395886]">{label}</span>
-          <span className="text-[10px] font-semibold text-[#638ECB]/60">JPG, PNG or PDF</span>
+          <span className="text-[10px] font-semibold text-[#638ECB]/60">{formatsText}</span>
         </div>
       )}
     </motion.label>
@@ -60,6 +62,7 @@ function UploadZone({
 }
 
 export default function ProfilePage({ hideBackButton }: { hideBackButton?: boolean }) {
+  const { t } = useI18n();
   const { user, refreshUser } = useAuth();
 
   const initial = useMemo(() => ({
@@ -119,11 +122,11 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
       if (profilePicFile) {
         await updateProfilePicture(profilePicFile);
       }
-      setBasicSuccess("Profile updated successfully.");
+      setBasicSuccess(t("profile.update_success"));
       setProfilePicFile(null);
       await refreshUser();
     } catch (err) {
-      setBasicError((err as ApiError)?.message ?? "Failed to update profile");
+      setBasicError((err as ApiError)?.message ?? t("profile.update_error"));
     } finally {
       setBasicSubmitting(false);
     }
@@ -140,12 +143,12 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
         new_password: newPassword,
         confirme_password: confirmePassword,
       });
-      setPwSuccess("Password updated successfully.");
+      setPwSuccess(t("profile.password_success"));
       setCurrentPassword("");
       setNewPassword("");
       setConfirmePassword("");
     } catch (err) {
-      setPwError((err as ApiError)?.message ?? "Failed to update password");
+      setPwError((err as ApiError)?.message ?? t("profile.password_error"));
     } finally {
       setPwSubmitting(false);
     }
@@ -153,29 +156,29 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
 
   async function onUploadPermi(e: React.FormEvent) {
     e.preventDefault();
-    if (!permiRectoFile || !permiVersoFile) { setDocsError("Please select both Permi recto and Permi verso."); return; }
+    if (!permiRectoFile || !permiVersoFile) { setDocsError(t("profile.license_validation")); return; }
     setDocsSubmitting(true); setDocsError(null); setDocsSuccess(null);
     try {
       await addPermi(permiRectoFile, permiVersoFile);
-      setDocsSuccess("Driver's License uploaded successfully.");
+      setDocsSuccess(t("profile.license_success"));
       setPermiRectoFile(null); setPermiVersoFile(null);
       await refreshUser();
     } catch (err) {
-      setDocsError((err as ApiError)?.message ?? "Failed to upload");
+      setDocsError((err as ApiError)?.message ?? t("profile.upload_error"));
     } finally { setDocsSubmitting(false); }
   }
 
   async function onUploadCin(e: React.FormEvent) {
     e.preventDefault();
-    if (!cinRectoFile || !cinVersoFile) { setDocsError("Please select both CIN recto and CIN verso."); return; }
+    if (!cinRectoFile || !cinVersoFile) { setDocsError(t("profile.cin_validation")); return; }
     setDocsSubmitting(true); setDocsError(null); setDocsSuccess(null);
     try {
       await addCin(cinRectoFile, cinVersoFile);
-      setDocsSuccess("CIN / Passport uploaded successfully.");
+      setDocsSuccess(t("profile.cin_success"));
       setCinRectoFile(null); setCinVersoFile(null);
       await refreshUser();
     } catch (err) {
-      setDocsError((err as ApiError)?.message ?? "Failed to upload");
+      setDocsError((err as ApiError)?.message ?? t("profile.upload_error"));
     } finally { setDocsSubmitting(false); }
   }
 
@@ -193,7 +196,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
         {uploadPrompt === "documents" && (
           <div className="bg-amber-50 border-b border-amber-200 px-6 py-4 text-center">
             <p className="text-amber-800 font-bold text-sm">
-              Veuillez uploader votre CIN et votre permis de conduire avant de réserver un véhicule.
+              {t("profile.documents_banner")}
             </p>
           </div>
         )}
@@ -228,9 +231,9 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-4 h-4 text-[#f39c12]" />
-                  <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">Your Profile</span>
+                  <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">{t("profile.your_profile")}</span>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight truncate">{initial.name || "Welcome"}</h1>
+                <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight truncate">{initial.name || t("profile.welcome")}</h1>
                 <p className="text-white/60 text-sm font-semibold mt-1">{initial.email}</p>
                 {profilePicFile && (
                   <motion.span
@@ -238,7 +241,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                     animate={{ opacity: 1, y: 0 }}
                     className="inline-block mt-2 text-[10px] font-extrabold text-[#f39c12] bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full"
                   >
-                    New photo selected — save to apply
+                    {t("profile.photo_hint")}
                   </motion.span>
                 )}
               </div>
@@ -259,8 +262,8 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                   <User className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h2 className="font-extrabold text-[#395886] text-sm">Personal Details</h2>
-                  <p className="text-[11px] font-semibold text-[#638ECB]/70">Manage your basic information</p>
+                  <h2 className="font-extrabold text-[#395886] text-sm">{t("profile.personal_info")}</h2>
+                  <p className="text-[11px] font-semibold text-[#638ECB]/70">{t("profile.personal_subtitle")}</p>
                 </div>
               </div>
 
@@ -269,20 +272,20 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                   <div className="flex-1 flex flex-col gap-4">
                     <div>
                       <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                        <User className="w-3 h-3" /> Full Name
+                        <User className="w-3 h-3" /> {t("profile.name_label")}
                       </label>
                       <input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
                         type="text"
-                        placeholder="Enter your name"
+                        placeholder={t("profile.name_placeholder")}
                       />
                     </div>
 
                     <div>
                       <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                        <Mail className="w-3 h-3" /> Email Address
+                        <Mail className="w-3 h-3" /> {t("profile.email_label")}
                       </label>
                       <div className="relative">
                         <input
@@ -292,7 +295,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                           type="email"
                         />
                       </div>
-                      <p className="text-[11px] font-semibold text-[#638ECB]/50 mt-1.5">Contact support to change your email.</p>
+                      <p className="text-[11px] font-semibold text-[#638ECB]/50 mt-1.5">{t("profile.email_change_hint")}</p>
                     </div>
                   </div>
                 </div>
@@ -320,8 +323,8 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                     className="px-7 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-sm font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                   >
                     {basicSubmitting ? (
-                      <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving...</span>
-                    ) : "Save Changes"}
+                      <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> {t("profile.saving")}</span>
+                    ) : t("profile.save")}
                   </motion.button>
                 </div>
               </form>
@@ -340,8 +343,8 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                   <Shield className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h2 className="font-extrabold text-[#395886] text-sm">Security</h2>
-                  <p className="text-[11px] font-semibold text-[#638ECB]/70">Update your password</p>
+                  <h2 className="font-extrabold text-[#395886] text-sm">{t("profile.security")}</h2>
+                  <p className="text-[11px] font-semibold text-[#638ECB]/70">{t("profile.security_subtitle")}</p>
                 </div>
               </div>
 
@@ -349,27 +352,27 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
                     <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                      <Lock className="w-3 h-3" /> Current
+                      <Lock className="w-3 h-3" /> {t("profile.password_current")}
                     </label>
                     <div className="relative">
-                      <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••"
+                      <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder={t("profile.password_placeholder")}
                         className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 pr-10 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
                         type={showPw ? "text" : "password"} />
                     </div>
                   </div>
                   <div>
                     <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                      <Lock className="w-3 h-3" /> New
+                      <Lock className="w-3 h-3" /> {t("profile.password_new")}
                     </label>
-                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••"
+                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder={t("profile.password_placeholder")}
                       className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
                       type={showPw ? "text" : "password"} />
                   </div>
                   <div>
                     <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                      <Lock className="w-3 h-3" /> Confirm
+                      <Lock className="w-3 h-3" /> {t("profile.password_confirm")}
                     </label>
-                    <input value={confirmePassword} onChange={(e) => setConfirmePassword(e.target.value)} placeholder="••••••••"
+                    <input value={confirmePassword} onChange={(e) => setConfirmePassword(e.target.value)} placeholder={t("profile.password_placeholder")}
                       className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
                       type={showPw ? "text" : "password"} />
                   </div>
@@ -378,7 +381,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                 <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-[#638ECB] hover:text-[#395886] transition-colors">
                   <input type="checkbox" checked={showPw} onChange={(e) => setShowPw(e.target.checked)}
                     className="w-4 h-4 accent-[#638ECB]" />
-                  <Eye className="w-3.5 h-3.5" /> Show passwords
+                  <Eye className="w-3.5 h-3.5" /> {t("profile.show_passwords")}
                 </label>
 
                 <AnimatePresence>
@@ -404,8 +407,8 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                     className="px-7 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm font-extrabold shadow-lg shadow-amber-500/20 hover:shadow-xl disabled:opacity-50 transition-all"
                   >
                     {pwSubmitting ? (
-                      <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Updating...</span>
-                    ) : "Update Password"}
+                      <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> {t("profile.updating")}</span>
+                    ) : t("profile.update_button")}
                   </motion.button>
                 </div>
               </form>
@@ -425,17 +428,17 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                     <IdCard className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <h2 className="font-extrabold text-[#395886] text-sm">Required Documents</h2>
-                    <p className="text-[11px] font-semibold text-[#638ECB]/70">Upload to verify your identity</p>
+                    <h2 className="font-extrabold text-[#395886] text-sm">{t("profile.documents")}</h2>
+                    <p className="text-[11px] font-semibold text-[#638ECB]/70">{t("profile.documents_subtitle")}</p>
                   </div>
                 </div>
                 {docsComplete ? (
                   <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 rounded-full px-4 py-2">
-                    <CheckCircle className="w-3.5 h-3.5" /> All Verified
+                    <CheckCircle className="w-3.5 h-3.5" /> {t("profile.all_verified")}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-amber-700 bg-amber-50/80 border border-amber-200/60 rounded-full px-4 py-2">
-                    <Fingerprint className="w-3.5 h-3.5" /> Pending
+                    <Fingerprint className="w-3.5 h-3.5" /> {t("profile.pending")}
                   </span>
                 )}
               </div>
@@ -463,19 +466,21 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${initial.permi_recto && initial.permi_verso ? "bg-emerald-100" : "bg-[#F0F3FA]"}`}>
                         <FileText className={`w-4 h-4 ${initial.permi_recto && initial.permi_verso ? "text-emerald-600" : "text-[#638ECB]"}`} />
                       </div>
-                      <span className="text-sm font-extrabold text-[#395886]">Driver&apos;s License</span>
+                      <span className="text-sm font-extrabold text-[#395886]">{t("profile.license_section")}</span>
                       {initial.permi_recto && initial.permi_verso && (
                         <CheckCircle className="w-4 h-4 text-emerald-500" />
                       )}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 mb-4">
-                    <UploadZone label="Front Side" file={permiRectoFile}
+                    <UploadZone label={t("profile.front_label")} file={permiRectoFile}
                       existingUrl={initial.permi_recto ? vehicleImageUrl(initial.permi_recto) : null}
-                      onChange={setPermiRectoFile} hasImage={!!initial.permi_recto} bgType="license" />
-                    <UploadZone label="Back Side" file={permiVersoFile}
+                      onChange={setPermiRectoFile} hasImage={!!initial.permi_recto} bgType="license"
+                      tapReplaceText={t("profile.upload_tap_replace")} formatsText={t("profile.upload_formats")} />
+                    <UploadZone label={t("profile.back_label")} file={permiVersoFile}
                       existingUrl={initial.permi_verso ? vehicleImageUrl(initial.permi_verso) : null}
-                      onChange={setPermiVersoFile} hasImage={!!initial.permi_verso} bgType="license" />
+                      onChange={setPermiVersoFile} hasImage={!!initial.permi_verso} bgType="license"
+                      tapReplaceText={t("profile.upload_tap_replace")} formatsText={t("profile.upload_formats")} />
                   </div>
                   <div className="flex justify-end">
                     <motion.button
@@ -484,7 +489,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                       type="submit" disabled={docsSubmitting}
                       className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                     >
-                      {docsSubmitting ? "Uploading..." : "Upload License"}
+                      {docsSubmitting ? t("profile.uploading") : t("profile.upload_license_button")}
                     </motion.button>
                   </div>
                 </form>
@@ -498,19 +503,21 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${initial.cin_recto && initial.cin_verso ? "bg-emerald-100" : "bg-[#F0F3FA]"}`}>
                         <IdCard className={`w-4 h-4 ${initial.cin_recto && initial.cin_verso ? "text-emerald-600" : "text-[#638ECB]"}`} />
                       </div>
-                      <span className="text-sm font-extrabold text-[#395886]">CIN / Passport</span>
+                      <span className="text-sm font-extrabold text-[#395886]">{t("profile.cin_section")}</span>
                       {initial.cin_recto && initial.cin_verso && (
                         <CheckCircle className="w-4 h-4 text-emerald-500" />
                       )}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 mb-4">
-                    <UploadZone label="Front Side" file={cinRectoFile}
+                    <UploadZone label={t("profile.front_label")} file={cinRectoFile}
                       existingUrl={initial.cin_recto ? vehicleImageUrl(initial.cin_recto) : null}
-                      onChange={setCinRectoFile} hasImage={!!initial.cin_recto} bgType="cin" />
-                    <UploadZone label="Back Side" file={cinVersoFile}
+                      onChange={setCinRectoFile} hasImage={!!initial.cin_recto} bgType="cin"
+                      tapReplaceText={t("profile.upload_tap_replace")} formatsText={t("profile.upload_formats")} />
+                    <UploadZone label={t("profile.back_label")} file={cinVersoFile}
                       existingUrl={initial.cin_verso ? vehicleImageUrl(initial.cin_verso) : null}
-                      onChange={setCinVersoFile} hasImage={!!initial.cin_verso} bgType="cin" />
+                      onChange={setCinVersoFile} hasImage={!!initial.cin_verso} bgType="cin"
+                      tapReplaceText={t("profile.upload_tap_replace")} formatsText={t("profile.upload_formats")} />
                   </div>
                   <div className="flex justify-end">
                     <motion.button
@@ -519,7 +526,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                       type="submit" disabled={docsSubmitting}
                       className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                     >
-                      {docsSubmitting ? "Uploading..." : "Upload CIN"}
+                      {docsSubmitting ? t("profile.uploading") : t("profile.upload_cin_button")}
                     </motion.button>
                   </div>
                 </form>

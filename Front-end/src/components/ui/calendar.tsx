@@ -1,36 +1,198 @@
 "use client";
 
 import * as React from "react";
-import { DayPicker, getDefaultClassNames, type Locale } from "react-day-picker";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { DayPicker, getDefaultClassNames, type Locale, type DayButtonProps } from "react-day-picker";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ChevronLeftIcon, ChevronRightIcon, X } from "lucide-react";
+
+function CalendarDayButton(props: DayButtonProps) {
+  const { day, modifiers, ...buttonProps } = props;
+  
+  if (modifiers.disabled) {
+    return (
+      <div className="relative flex h-9 w-9 items-center justify-center opacity-30">
+        <X className="absolute h-4 w-4 text-red-600" />
+      </div>
+    );
+  }
+
+  return (
+    <Button
+      variant={modifiers.selected ? "default" : "ghost"}
+      className={cn(
+        "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+        modifiers.today && "bg-accent text-accent-foreground font-bold",
+      )}
+      {...buttonProps}
+    />
+  );
+}
 
 export function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  locale,
   ...props
-}: React.ComponentProps<typeof DayPicker> & {
-  locale?: Partial<Locale>;
+}: {
+  className?: string;
+  classNames?: Record<string, string>;
+  showOutsideDays?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }) {
   const defaultClassNames = getDefaultClassNames();
 
   return (
     <>
-      <style>{`[data-disabled="true"]{position:relative!important}[data-disabled="true"] button{opacity:.35;pointer-events:none}[data-disabled="true"]::after{content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#dc2626;pointer-events:none;z-index:20;line-height:1}`}</style>
+      <style>{`
+.rdp-root {
+  --rdp-accent-color: #16386b;
+  --rdp-accent-background-color: #eef3fa;
+  font-family: inherit;
+}
+.rdp-months {
+  display: flex;
+  justify-content: center;
+}
+.rdp-month {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+}
+.rdp-month_grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rdp-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 4px;
+}
+.rdp-nav button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e9f0;
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.rdp-nav button:hover {
+  background: #f0f3fa;
+  border-color: #16386b;
+}
+.rdp-chevron {
+  width: 16px;
+  height: 16px;
+  color: #16386b;
+}
+.rdp-month_caption {
+  font-size: 14px;
+  font-weight: 700;
+  color: #16386b;
+  text-align: center;
+  padding: 0;
+}
+.rdp-weekday {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a9bb5;
+  text-transform: uppercase;
+  padding: 4px 0;
+  text-align: center;
+}
+.rdp-day {
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a2a4a;
+  border-radius: 8px;
+  transition: all 0.12s;
+  cursor: pointer;
+}
+.rdp-day:hover:not(.rdp-disabled) {
+  background: #eef3fa;
+  color: #16386b;
+}
+.rdp-day_button {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rdp-day_button:focus-visible {
+  outline: 2px solid #16386b;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.rdp-today .rdp-day_button {
+  font-weight: 800;
+  color: #16386b;
+  background: #eef3fa;
+  border-radius: 8px;
+}
+.rdp-selected .rdp-day_button {
+  background: #16386b;
+  color: white;
+  font-weight: 700;
+  border-radius: 8px;
+}
+.rdp-outside {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Reserved dates: red X + disabled */
+.rdp-disabled {
+  position: relative !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+.rdp-disabled .rdp-day_button {
+  opacity: 0.3;
+  cursor: default !important;
+}
+.rdp-disabled::after {
+  content: "✕";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: #dc2626;
+  pointer-events: none;
+  z-index: 5;
+  line-height: 1;
+}
+`}</style>
       <DayPicker
         showOutsideDays={showOutsideDays}
         fixedWeeks
-        className={`p-2 ${className ?? ""}`}
+        className={`p-1 ${className ?? ""}`}
         classNames={{
           ...defaultClassNames,
-          day_button: "text-[15px] font-semibold",
           ...classNames,
         }}
         components={{
           Chevron: ({ orientation }) => {
-            if (orientation === "left") return <ChevronLeftIcon className="h-4 w-4" />;
-            return <ChevronRightIcon className="h-4 w-4" />;
+            if (orientation === "left") return <ChevronLeftIcon className="rdp-chevron" />;
+            return <ChevronRightIcon className="rdp-chevron" />;
           },
         }}
         {...props}

@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type Props = {
   small?: boolean;
@@ -8,6 +9,7 @@ type Props = {
 
 export default function BackButton({ small }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   return (
     <motion.button
       onClick={() => router.back()}
@@ -23,7 +25,7 @@ export default function BackButton({ small }: Props) {
       <svg xmlns="http://www.w3.org/2000/svg" width={small ? 13 : 16} height={small ? 13 : 16} fill="none" viewBox="0 0 24 24" stroke="currentColor" className="transition-transform group-hover:-translate-x-1">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
       </svg>
-      Retour
+      {t("back")}
     </motion.button>
   );
 }

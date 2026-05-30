@@ -11,6 +11,7 @@
         .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; }
         .header p { color: #fff3e0; margin: 8px 0 0; font-size: 14px; }
         .body { padding: 32px 40px; }
+        
         .details { width: 100%; border-collapse: collapse; }
         .details td { padding: 10px 0; border-bottom: 1px solid #eef0f4; font-size: 14px; }
         .details td:first-child { color: #638ECB; font-weight: 600; width: 40%; }

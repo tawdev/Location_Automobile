@@ -20,7 +20,7 @@ export default function AdminCategoryNewPage() {
       const created = await createAdminCategory(payload);
       router.push(`/admin/categories/${created.id}/edit`);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to create category";
+      const msg = e instanceof Error ? e.message : "Échec de la création de la catégorie";
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -31,7 +31,7 @@ export default function AdminCategoryNewPage() {
     <div className="max-w-xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Add category</h1>
+          <h1 className="font-black text-3xl">Ajouter une catégorie</h1>
           <div className="font-bold text-sm mt-1">Admin CRUD</div>
         </div>
       </div>
@@ -50,7 +50,7 @@ export default function AdminCategoryNewPage() {
           ) : null}
 
           <label className="flex flex-col gap-2">
-            <span className="font-bold">Name</span>
+            <span className="font-bold">Nom</span>
             <input
               className="border-2 border-black p-2"
               value={name}
@@ -64,7 +64,7 @@ export default function AdminCategoryNewPage() {
             disabled={!canSubmit || submitting}
             className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
           >
-            {submitting ? "Creating..." : "Create category"}
+            {submitting ? "Création..." : "Créer la catégorie"}
           </button>
         </form>
       </div>

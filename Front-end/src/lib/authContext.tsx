@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await authRegister(payload);
       return res;
     } catch (e) {
-      const msg = (e as any)?.message || "Sign up failed";
+      const msg = (e as any)?.message || "Échec de l'inscription";
       setError(msg);
       throw e;
     }
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStatus("authenticated");
       return res.user;
     } catch (e) {
-      const msg = (e as any)?.message || "Verification failed";
+      const msg = (e as any)?.message || "Échec de la vérification";
       setError(msg);
       throw e;
     }

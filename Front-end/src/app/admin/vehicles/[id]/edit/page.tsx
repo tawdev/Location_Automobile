@@ -79,7 +79,7 @@ function AdminVehicleEditForm({
       {error ? <div className="p-3 border-2 border-black bg-white font-bold">{error}</div> : null}
 
       <div className="border-2 border-black bg-white p-3 font-bold text-sm">
-        Note: Updating a vehicle will replace its images. Please upload at least 1 image.
+        Note : La mise à jour d'un véhicule remplacera ses images. Veuillez télécharger au moins 1 image.
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -89,12 +89,12 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Model</span>
+          <span className="font-bold">Modèle</span>
           <input className="border-2 border-black p-2" value={model} onChange={(e) => setModel(e.target.value)} required />
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Year</span>
+          <span className="font-bold">Année</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -106,7 +106,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Registration</span>
+          <span className="font-bold">Immatriculation</span>
           <input
             className="border-2 border-black p-2"
             value={registration}
@@ -129,7 +129,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Price / day</span>
+          <span className="font-bold">Prix / jour</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -142,25 +142,25 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Fuel type</span>
+          <span className="font-bold">Carburant</span>
           <input
             className="border-2 border-black p-2"
             value={fuelType}
             onChange={(e) => setFuelType(e.target.value)}
             required
-            placeholder="e.g. Diesel"
+            placeholder="ex. Diesel"
           />
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Category</span>
+          <span className="font-bold">Catégorie</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={categoryId || ""}
             onChange={(e) => setCategoryId(Number(e.target.value))}
             required
           >
-            <option value="" disabled>Select category</option>
+            <option value="" disabled>Sélectionner une catégorie</option>
             {categoryOptions.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -170,28 +170,28 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Occupants</span>
+          <span className="font-bold">Places</span>
           <input
             className="border-2 border-black p-2"
             value={occupants}
             onChange={(e) => setOccupants(e.target.value)}
             required
-            placeholder="e.g. 4"
+            placeholder="ex. 4"
           />
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">GPS Device ID <span className="text-gray-400 font-normal">(optional)</span></span>
+          <span className="font-bold">ID du dispositif GPS <span className="text-gray-400 font-normal">(optionnel)</span></span>
           <input
             className="border-2 border-black p-2"
             value={deviceId}
             onChange={(e) => setDeviceId(e.target.value)}
-            placeholder="e.g. GPS-001"
+            placeholder="ex. GPS-001"
           />
         </label>
 
         <div className="flex flex-col gap-2">
-          <span className="font-bold">New images (replace)</span>
+          <span className="font-bold">Nouvelles images (remplacer)</span>
           <input
             className="bg-white"
             type="file"
@@ -200,7 +200,7 @@ function AdminVehicleEditForm({
             onChange={(e) => setImagesFiles(e.target.files ? Array.from(e.target.files) : [])}
             required
           />
-          <span className="text-xs font-bold">Upload at least 1 image.</span>
+          <span className="text-xs font-bold">Téléchargez au moins 1 image.</span>
         </div>
       </div>
 
@@ -210,7 +210,7 @@ function AdminVehicleEditForm({
           disabled={!canSubmit || submitting}
           className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
         >
-          {submitting ? "Saving..." : "Save changes"}
+          {submitting ? "Sauvegarde..." : "Enregistrer"}
         </button>
       </div>
     </form>
@@ -247,7 +247,7 @@ export default function AdminVehicleEditPage() {
         setVehicle(v);
         setCategories(allCategories);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Failed to load vehicle";
+        const msg = e instanceof Error ? e.message : "Échec du chargement du véhicule";
         setError(msg);
       } finally {
         setLoading(false);
@@ -265,7 +265,7 @@ export default function AdminVehicleEditPage() {
       await updateAdminVehicle(vehicleId, { ...payload, images });
       router.push("/admin/vehicles");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to update vehicle";
+      const msg = e instanceof Error ? e.message : "Échec de la mise à jour du véhicule";
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -273,13 +273,13 @@ export default function AdminVehicleEditPage() {
   }
 
   if (loading) {
-    return <div className="font-black">Loading...</div>;
+    return <div className="font-black">Chargement...</div>;
   }
 
   if (!vehicle) {
     return (
       <div className="p-4 border-2 border-black bg-white font-black">
-        Vehicle not found.
+        Véhicule introuvable.
       </div>
     );
   }
@@ -288,7 +288,7 @@ export default function AdminVehicleEditPage() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Edit vehicle</h1>
+          <h1 className="font-black text-3xl">Modifier le véhicule</h1>
           <div className="font-bold text-sm mt-1">#{vehicle.id}</div>
         </div>
       </div>

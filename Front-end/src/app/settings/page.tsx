@@ -10,6 +10,7 @@ import { vehicleImageUrl } from "@/lib/media";
 import { API_BASE_URL } from "@/lib/config";
 import { useAuth } from "@/lib/authContext";
 import { Car, Calendar, ChevronRight, FileText, IdCard, User, Sparkles, ArrowRight, CheckCircle, AlertCircle, Clock, MapPin, ShieldCheck } from "lucide-react";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 interface SettingsReservation {
   id: number;
@@ -25,21 +26,13 @@ interface SettingsReservation {
   };
 }
 
-function formatDate(d: string | undefined) {
+function formatDate(d: string | undefined, locale: string) {
   if (!d) return "—";
   const date = new Date(d + "T00:00:00");
-  return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  return date.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
 }
 
-function statusLabel(s: string) {
-  const map: Record<string, string> = {
-    "en_attente": "En Attente",
-    "confirmée": "Confirmée",
-    "terminée": "Terminée",
-    "annulée": "Annulée",
-  };
-  return map[s?.toLowerCase()] ?? s;
-}
+
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
   confirmée: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
@@ -48,15 +41,7 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> =
   en_attente: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-400" },
 };
 
-function StatusBadge({ status }: { status: string }) {
-  const s = STATUS_STYLES[status?.toLowerCase()] ?? { bg: "bg-gray-50", text: "text-gray-700", dot: "bg-gray-400" };
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider ${s.bg} ${s.text}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-      {statusLabel(status)}
-    </span>
-  );
-}
+
 
 function DocRow({ icon: Icon, label, sublabel, verified, onClick }: { icon: React.ComponentType<{ className?: string }>; label: string; sublabel: string; verified: boolean; onClick: () => void }) {
   return (
@@ -87,6 +72,28 @@ function DocRow({ icon: Icon, label, sublabel, verified, onClick }: { icon: Reac
 export default function SettingsPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { t, locale } = useI18n();
+
+  const statusLabel = (s: string) => {
+    const map: Record<string, string> = {
+      "en_attente": t("settings.status_pending"),
+      "confirmée": t("settings.status_confirmed"),
+      "terminée": t("settings.status_completed"),
+      "annulée": t("settings.status_cancelled"),
+    };
+    return map[s?.toLowerCase()] ?? s;
+  };
+
+  function StatusBadge({ status }: { status: string }) {
+    const s = STATUS_STYLES[status?.toLowerCase()] ?? { bg: "bg-gray-50", text: "text-gray-700", dot: "bg-gray-400" };
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider ${s.bg} ${s.text}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+        {statusLabel(status)}
+      </span>
+    );
+  }
+
   const [reservations, setReservations] = useState<SettingsReservation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -134,10 +141,10 @@ export default function SettingsPage() {
             >
               <div className="flex items-center gap-2.5 mb-2">
                 <Sparkles className="w-4 h-4 text-[#f39c12]" />
-                <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">Dashboard</span>
+                <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">{t("reservations.dashboard")}</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Paramètres</h1>
-              <p className="text-white/70 text-base font-semibold mt-2 max-w-xl">Gérez votre compte, vos documents et suivez vos réservations actives.</p>
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">{t("settings.title")}</h1>
+              <p className="text-white/70 text-base font-semibold mt-2 max-w-xl">{t("settings.subtitle")}</p>
             </motion.div>
           </div>
         </div>
@@ -161,8 +168,8 @@ export default function SettingsPage() {
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
                 </div>
-                <h2 className="text-lg font-black text-[#395886]">{user?.name ?? "User"}</h2>
-                <p className="text-xs font-extrabold text-[#638ECB]/60 uppercase tracking-[0.12em] mt-0.5 mb-5">Membre</p>
+                <h2 className="text-lg font-black text-[#395886]">{user?.name ?? t("settings.user")}</h2>
+                <p className="text-xs font-extrabold text-[#638ECB]/60 uppercase tracking-[0.12em] mt-0.5 mb-5">{t("settings.member")}</p>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -170,7 +177,7 @@ export default function SettingsPage() {
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold tracking-wider shadow-lg shadow-[#395886]/20 hover:shadow-xl transition-all flex items-center justify-center gap-2"
                 >
                   <User className="w-3.5 h-3.5" />
-                  Modifier le profil
+                  {t("settings.edit_profile")}
                 </motion.button>
               </motion.div>
 
@@ -182,20 +189,20 @@ export default function SettingsPage() {
                 className="rounded-3xl border border-[#D5DEEF]/50 bg-white/70 backdrop-blur-xl shadow-lg shadow-black/5 p-7"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-extrabold text-[#395886]">Documents requis</h3>
+                  <h3 className="text-sm font-extrabold text-[#395886]">{t("settings.documents_card")}</h3>
                   {(hasPermi && hasCin) ? (
                     <span className="flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 rounded-full px-3 py-1">
-                      <CheckCircle className="w-3 h-3" /> Complet
+                      <CheckCircle className="w-3 h-3" /> {t("settings.complete")}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 text-[10px] font-extrabold text-amber-700 bg-amber-50/80 border border-amber-200/60 rounded-full px-3 py-1">
-                      <AlertCircle className="w-3 h-3" /> En attente
+                      <AlertCircle className="w-3 h-3" /> {t("settings.pending_status")}
                     </span>
                   )}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <DocRow icon={FileText} label="Permis de conduire" sublabel="Recto & Verso" verified={hasPermi} onClick={() => router.push("/profile")} />
-                  <DocRow icon={IdCard} label="CIN / Passport" sublabel="Recto & Verso" verified={hasCin} onClick={() => router.push("/profile")} />
+                  <DocRow icon={FileText} label={t("settings.license_row")} sublabel={t("settings.front_back")} verified={hasPermi} onClick={() => router.push("/profile")} />
+                  <DocRow icon={IdCard} label={t("settings.cin_row")} sublabel={t("settings.front_back")} verified={hasCin} onClick={() => router.push("/profile")} />
                 </div>
               </motion.div>
             </div>
@@ -214,8 +221,8 @@ export default function SettingsPage() {
                       <Car className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-extrabold text-[#395886]">Réservations actives</h3>
-                      <p className="text-[11px] font-semibold text-[#638ECB]/70">Vos trajets en cours et à venir</p>
+                      <h3 className="text-sm font-extrabold text-[#395886]">{t("settings.active_reservations")}</h3>
+                      <p className="text-[11px] font-semibold text-[#638ECB]/70">{t("settings.active_reservations_subtitle")}</p>
                     </div>
                   </div>
                   <motion.a
@@ -223,7 +230,7 @@ export default function SettingsPage() {
                     href="/MyReservations"
                     className="text-xs font-extrabold text-[#f39c12] hover:text-[#e08e0b] transition-colors flex items-center gap-1"
                   >
-                    Historique <ArrowRight className="w-3 h-3" />
+                    {t("settings.history_link")} <ArrowRight className="w-3 h-3" />
                   </motion.a>
                 </div>
 
@@ -234,15 +241,15 @@ export default function SettingsPage() {
                         <div className="w-10 h-10 border-3 border-[#D5DEEF] rounded-full" />
                         <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] rounded-full animate-spin" />
                       </div>
-                      <span className="ml-3 text-sm font-extrabold text-[#638ECB]">Chargement...</span>
+                      <span className="ml-3 text-sm font-extrabold text-[#638ECB]">{t("settings.loading")}</span>
                     </div>
                   ) : reservations.length === 0 ? (
                     <div className="text-center py-16">
                       <div className="w-14 h-14 rounded-2xl bg-[#F0F3FA] flex items-center justify-center mx-auto mb-4">
                         <Calendar className="w-7 h-7 text-[#638ECB]" />
                       </div>
-                      <p className="text-base font-black text-[#395886]">Aucune réservation active</p>
-                      <p className="text-sm font-semibold text-[#638ECB]/70 mt-1 mb-5">Réservez un véhicule pour commencer.</p>
+                      <p className="text-base font-black text-[#395886]">{t("settings.no_active")}</p>
+                      <p className="text-sm font-semibold text-[#638ECB]/70 mt-1 mb-5">{t("settings.no_active_cta")}</p>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -250,7 +257,7 @@ export default function SettingsPage() {
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl transition-all"
                       >
                         <Car className="w-3.5 h-3.5" />
-                        Parcourir les véhicules
+                        {t("settings.browse_vehicles")}
                       </motion.button>
                     </div>
                   ) : (
@@ -284,24 +291,24 @@ export default function SettingsPage() {
                                       {r.vehicle?.marque} {r.vehicle?.model}
                                     </h4>
                                     <div className="flex items-center gap-1 text-xs font-semibold text-[#638ECB]/60 mt-0.5">
-                                      <MapPin className="w-3 h-3" /> Marrakech
+                                      <MapPin className="w-3 h-3" /> {t("settings.location")}
                                     </div>
                                   </div>
                                   <StatusBadge status={r.status} />
                                 </div>
                                 <div className="flex gap-6 mt-3">
                                   <div>
-                                    <p className="text-[10px] font-extrabold text-[#638ECB] uppercase tracking-[0.1em]">Départ</p>
+                                    <p className="text-[10px] font-extrabold text-[#638ECB] uppercase tracking-[0.1em]">{t("settings.departure")}</p>
                                     <p className="text-sm font-bold text-[#395886] mt-0.5 flex items-center gap-1.5">
                                       <Calendar className="w-3.5 h-3.5 text-[#f39c12]" />
-                                      {formatDate(r.start_date)}
+                                      {formatDate(r.start_date, locale)}
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="text-[10px] font-extrabold text-[#638ECB] uppercase tracking-[0.1em]">Retour</p>
+                                    <p className="text-[10px] font-extrabold text-[#638ECB] uppercase tracking-[0.1em]">{t("settings.return_date")}</p>
                                     <p className="text-sm font-bold text-[#395886] mt-0.5 flex items-center gap-1.5">
                                       <Calendar className="w-3.5 h-3.5 text-[#f39c12]" />
-                                      {formatDate(r.end_date)}
+                                      {formatDate(r.end_date, locale)}
                                     </p>
                                   </div>
                                 </div>
