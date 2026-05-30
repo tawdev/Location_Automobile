@@ -34,7 +34,7 @@ export default function AdminCategoryEditPage() {
         setCategory(found);
         setName(found?.name ?? "");
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load category");
+        setError(e instanceof Error ? e.message : "Échec du chargement de la catégorie");
       } finally {
         setLoading(false);
       }
@@ -51,20 +51,20 @@ export default function AdminCategoryEditPage() {
       await updateAdminCategory(categoryId, payload);
       router.push("/admin/categories");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to update category");
+      setError(e instanceof Error ? e.message : "Échec de la mise à jour de la catégorie");
     } finally {
       setSubmitting(false);
     }
   }
 
   if (loading) {
-    return <div className="font-black">Loading...</div>;
+    return <div className="font-black">Chargement...</div>;
   }
 
   if (!category) {
     return (
       <div className="p-4 border-2 border-black bg-white font-black">
-        Category not found.
+        Catégorie introuvable.
       </div>
     );
   }
@@ -75,7 +75,7 @@ export default function AdminCategoryEditPage() {
     <div className="max-w-xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Edit category</h1>
+          <h1 className="font-black text-3xl">Modifier la catégorie</h1>
           <div className="font-bold text-sm mt-1">#{category.id}</div>
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function AdminCategoryEditPage() {
           ) : null}
 
           <label className="flex flex-col gap-2">
-            <span className="font-bold">Name</span>
+            <span className="font-bold">Nom</span>
             <input
               className="border-2 border-black p-2"
               value={name}
@@ -108,7 +108,7 @@ export default function AdminCategoryEditPage() {
             disabled={!canSubmit || submitting}
             className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
           >
-            {submitting ? "Saving..." : "Save changes"}
+            {submitting ? "Sauvegarde..." : "Enregistrer"}
           </button>
         </form>
       </div>

@@ -12,6 +12,10 @@ export type User = {
   cin_verso?: string | null;
   permi_recto?: string | null;
   permi_verso?: string | null;
+  scCinRecto?: string | null;
+  scCinVerso?: string | null;
+  scPermiRecto?: string | null;
+  scPermiVerso?: string | null;
 };
 
 export type Picture = {

@@ -4,6 +4,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function LoginInner() {
   const router = useRouter();
@@ -16,9 +17,9 @@ function LoginInner() {
   useEffect(() => {
     const err = searchParams.get("error");
     if (err === "google_auth_failed") {
-      setGoogleError("Google sign-in failed. Please try again.");
+      setGoogleError("Connexion Google échouée. Veuillez réessayer.");
     } else if (err === "missing_role") {
-      setGoogleError("Account creation failed. Please contact support.");
+      setGoogleError("Échec de la création du compte. Veuillez contacter le support.");
     }
   }, [searchParams]);
 
@@ -35,8 +36,8 @@ function LoginInner() {
   async function handleSignUp(payload: { name: string; email: string; password: string }) {
     setSubmitting(true);
     try {
-      const user = await signUp(payload);
-      router.replace(user.role_id === 1 ? "/admin/vehicles" : "/vehicles");
+      await signUp(payload);
+      router.replace("/signup");
     } finally {
       setSubmitting(false);
     }

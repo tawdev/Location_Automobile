@@ -3,10 +3,12 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export function RequireClient({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { status, user } = useAuth();
+  const { t } = useI18n();
 
   const isAdmin = status === "authenticated" && user?.role_id === 1;
 
@@ -21,7 +23,7 @@ export function RequireClient({ children }: { children: React.ReactNode }) {
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-[40vh] text-black">
-        Loading...
+        {t("loading")}
       </div>
     );
   }
@@ -29,7 +31,7 @@ export function RequireClient({ children }: { children: React.ReactNode }) {
   if (status === "unauthenticated") {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        Redirecting to login...
+        {t("redirecting_login")}
       </div>
     );
   }
@@ -38,16 +40,16 @@ export function RequireClient({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center p-6">
         <div className="border-4 border-black bg-white p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <div className="font-black text-xl">Accès refusé</div>
+          <div className="font-black text-xl">{t("access_denied")}</div>
           <div className="font-bold mt-2 text-sm">
-            Cette page est réservée aux clients.
+            {t("access_denied_client")}
           </div>
           <button
             type="button"
             onClick={() => router.push("/admin/vehicles")}
             className="mt-4 font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100 cursor-pointer"
           >
-            Retour à l'administration
+            {t("back_to_admin")}
           </button>
         </div>
       </div>

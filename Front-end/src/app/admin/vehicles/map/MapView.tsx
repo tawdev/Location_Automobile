@@ -8,6 +8,7 @@ type VehicleLocation = {
   id: number;
   marque: string;
   model: string;
+  registration: string;
   device_id: string | null;
   picture: string | null;
   location: { latitude: number; longitude: number; speed: number | null; heading: number | null; updated_at: string } | null;

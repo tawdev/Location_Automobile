@@ -17,10 +17,33 @@ type AuthResponse = {
   token: string;
 };
 
+type RegisterResponse = {
+  user_id: number;
+  message: string;
+};
+
 export function authRegister(payload: RegisterPayload) {
-  return apiRequest<AuthResponse>({
+  return apiRequest<RegisterResponse>({
     method: "POST",
     path: "/auth/register",
+    body: payload,
+    auth: false,
+  });
+}
+
+export function authVerifyEmail(payload: { user_id: number; code: string }) {
+  return apiRequest<AuthResponse>({
+    method: "POST",
+    path: "/auth/verify-email",
+    body: payload,
+    auth: false,
+  });
+}
+
+export function authResendCode(payload: { user_id: number }) {
+  return apiRequest<{ message: string }>({
+    method: "POST",
+    path: "/auth/resend-code",
     body: payload,
     auth: false,
   });
@@ -47,5 +70,36 @@ export function authUser() {
   return apiRequest<{ message: string; data: User }>({
     method: "GET",
     path: "/auth/user",
+  });
+}
+
+export function authVerifyResetCode(payload: { email: string; code: string }) {
+  return apiRequest<{ message: string }>({
+    method: "POST",
+    path: "/auth/verify-reset-code",
+    body: payload,
+    auth: false,
+  });
+}
+
+export function authForgotPassword(payload: { email: string }) {
+  return apiRequest<{ message: string }>({
+    method: "POST",
+    path: "/auth/forgot-password",
+    body: payload,
+    auth: false,
+  });
+}
+
+export function authResetPassword(payload: {
+  email: string;
+  code: string;
+  password: string;
+}) {
+  return apiRequest<{ message: string }>({
+    method: "POST",
+    path: "/auth/reset-password",
+    body: payload,
+    auth: false,
   });
 }

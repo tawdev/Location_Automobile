@@ -206,7 +206,7 @@ export default function AdminDashboardPage() {
         className="flex items-center justify-between gap-4 mb-6"
       >
         <div>
-          <h1 className="text-3xl font-extrabold text-[#395886]">Dashboard</h1>
+          <h1 className="text-3xl font-extrabold text-[#395886]">Tableau de bord</h1>
           <p className="text-sm font-bold text-[#638ECB] mt-1">
             Aperçu général de votre activité
           </p>

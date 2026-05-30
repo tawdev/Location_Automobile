@@ -19,8 +19,13 @@ Route::post('auth/register' , [AuthController::class, 'register']);
 Route::post('auth/login' , [AuthController::class, 'login']);
 Route::post('auth/logout' , [AuthController::class , 'logout'])->middleware('auth:sanctum');
 Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth:sanctum');
+Route::post('auth/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('auth/resend-code', [AuthController::class, 'resendCode']);
 Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
 Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
+Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('auth/verify-reset-code', [AuthController::class, 'verifyResetCode']);
+Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('Vehicles' , [VehicleController::class, 'index']);
@@ -38,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/MyReservation/filter',[ReservationController::class,'filterUserReservation']);
 
     Route::get('/MyReservations',[ReservationController::class, 'index']);
+    Route::patch('/MyReservations/{id}/annuler',[ReservationController::class, 'annulleMyReservation']);
     Route::get('/Reservations/{id}',[ReservationController::class, 'show']);
     Route::delete('/Reservations/{id}',[ReservationController::class, 'destroy']);
     Route::get('/profile',[ProfileController::class,'index']);
@@ -59,6 +65,7 @@ Route::get('/admin/dashboard/stats', [DashboardController::class, 'stats']);
 Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeReservation']);
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);
+Route::post('/Reservations/{id}/finalize',[ReservationController::class, 'finalize']);
 Route::get('Reservation/filter',[ReservationController::class,'filterAdminReservation']);
 
 Route::post('/vehicle' , [VehicleController::class , 'store']);

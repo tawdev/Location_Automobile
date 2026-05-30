@@ -22,10 +22,10 @@ export function HeroSection() {
             style={{ fontFamily: "var(--font-geist-sans)" }}
             className="font-sans text-[42px] lg:text-[50px] leading-[1.02] font-black tracking-[-0.4px] ml-[22px] lg:ml-[80px] text-[#F0F3FA] drop-shadow-[0_2px_10px_rgba(0,0,0,0.20)]"
           >
-            Your Journey,
+            Votre parcours,
             <br />
-            <span className="text-[#F0F3FA]">Our </span>
-            <span className="text-[#F39C12]">Priority.</span>
+            <span className="text-[#F0F3FA]">Notre </span>
+            <span className="text-[#F39C12]">Priorité.</span>
           </h1>
         </div>
       </div>

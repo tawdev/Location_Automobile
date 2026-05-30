@@ -8,6 +8,7 @@ import { getAuthToken } from "@/lib/tokenStorage";
 import BackButton from "@/components/BackButton";
 import { RequireClient } from "@/components/RequireClient";
 import { API_BASE_URL } from "@/lib/config";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 interface Reservation {
   id: number;
@@ -58,13 +59,13 @@ function getToken(): string | null {
   return getAuthToken();
 }
 
-function statusLabel(s: string) {
-  if (!s) return "À VENIR";
+function statusLabel(s: string, t: (key: string) => string) {
+  if (!s) return t("reservations.upcoming").toUpperCase();
   const map: Record<string, string> = {
-    "en_attente": "En Attente",
-    "confirmée": "Confirmée",
-    "terminée": "Terminée",
-    "annulée": "Annulée",
+    "en_attente": t("reservations.status.pending"),
+    "confirmée": t("reservations.status.confirmed"),
+    "terminée": t("reservations.status.completed"),
+    "annulée": t("reservations.status.cancelled"),
   };
   return map[s.toLowerCase()] ?? s.toUpperCase();
 }
@@ -83,21 +84,21 @@ function canCancel(pickupDateStr: string) {
   return diffHours >= 48;
 }
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, locale: string) {
   if (!dateStr) return "—";
   const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString(locale, {
     month: "short",
     day: "2-digit",
     year: "numeric",
   });
 }
 
-function vehicleName(r: Reservation) {
+function vehicleName(r: Reservation, fallback = "Vehicle") {
   if (r.vehicle?.name) return r.vehicle.name;
   if (r.vehicle?.brand && r.vehicle?.model)
     return `${r.vehicle.brand} ${r.vehicle.model}`;
-  return "Vehicle";
+  return fallback;
 }
 
 function vehicleImage(r: Reservation) {
@@ -120,11 +121,12 @@ function getStatusConfig(status: string) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useI18n();
   const c = getStatusConfig(status);
   return (
     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider ${c.bg} ${c.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-      {statusLabel(status)}
+      {statusLabel(status, t)}
     </span>
   );
 }
@@ -162,6 +164,7 @@ function ReservationCard({
   onCancel: (id: number) => void;
   onShowDetails: (res: Reservation) => void;
 }) {
+  const { t, locale } = useI18n();
   const cancelled = isCancelled(res.status);
   const s = res.status.toLowerCase();
   const completed = s === "terminée";
@@ -183,7 +186,7 @@ function ReservationCard({
           <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#F0F3FA] shrink-0 ring-2 ring-[#D5DEEF]/30 group-hover:ring-[#638ECB]/30 transition-all">
             <img
               src={vehicleImage(res)}
-              alt={vehicleName(res)}
+              alt={vehicleName(res, t("vehicle.default_name"))}
               className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${cancelled ? "grayscale opacity-60" : ""}`}
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
@@ -194,7 +197,7 @@ function ReservationCard({
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
               <h3 className={`text-base font-extrabold truncate ${cancelled ? "text-gray-400" : "text-[#395886]"}`}>
-                {vehicleName(res)}
+                {vehicleName(res, t("vehicle.default_name"))}
               </h3>
               <span className="text-[11px] font-bold text-[#638ECB]/60 bg-[#F0F3FA] px-2 py-0.5 rounded-md shrink-0">
                 {refCode(res)}
@@ -203,13 +206,13 @@ function ReservationCard({
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886]">
                 <Calendar className="w-3.5 h-3.5 text-[#638ECB]" />
-                <span>{formatDate(res.pickup_date)}</span>
+                <span>{formatDate(res.pickup_date, locale)}</span>
                 <ArrowRight className="w-3 h-3 text-[#638ECB]/40" />
-                <span>{formatDate(res.dropoff_date)}</span>
+                <span>{formatDate(res.dropoff_date, locale)}</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886]">
                 <DollarSign className="w-3.5 h-3.5 text-[#638ECB]" />
-                {cancelled ? "0.00 DH" : `${Number(res.total_price).toLocaleString()} DH`}
+                {cancelled ? "0,00 DH" : `${Number(res.total_price).toLocaleString(locale)} DH`}
               </div>
             </div>
           </div>
@@ -221,7 +224,7 @@ function ReservationCard({
 
         <div className="flex items-center gap-2 shrink-0">
           {cancelled ? (
-            <span className="text-xs font-bold text-gray-400 italic">Cancelled</span>
+            <span className="text-xs font-bold text-gray-400 italic">{t("reservations.status.cancelled")}</span>
           ) : upcoming ? (
             <>
               <motion.button
@@ -230,7 +233,7 @@ function ReservationCard({
                 onClick={() => onShowDetails(res)}
                 className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all cursor-pointer"
               >
-                DETAILS
+                {t("reservations.details_button")}
               </motion.button>
               {cancellable && (
                 <motion.button
@@ -239,7 +242,7 @@ function ReservationCard({
                   onClick={() => onCancel(res.id)}
                   className="px-5 py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-extrabold border border-rose-200 hover:bg-rose-100 hover:border-rose-300 transition-all cursor-pointer"
                 >
-                  ANNULER
+                  {t("reservations.cancel_button")}
                 </motion.button>
               )}
             </>
@@ -251,14 +254,14 @@ function ReservationCard({
                 onClick={() => onBookAgain(res.vehicle?.id ?? res.id)}
                 className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all cursor-pointer"
               >
-                BOOK AGAIN
+                {t("reservations.rebook_button")}
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 className="px-5 py-2.5 rounded-xl bg-white text-[#475569] text-xs font-extrabold border border-[#D5DEEF] hover:bg-[#F0F3FA] transition-all cursor-pointer"
               >
-                RECEIPT
+                {t("reservations.receipt_button")}
               </motion.button>
             </>
           )}
@@ -269,13 +272,14 @@ function ReservationCard({
 }
 
 function FilterDropdown({ filter, onChange }: { filter: string; onChange: (v: string) => void }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
 
   const labels: Record<string, string> = {
-    all: "All Reservations",
-    upcoming: "Upcoming",
-    completed: "Completed",
-    cancelled: "Cancelled",
+    all: t("reservations.total"),
+    upcoming: t("reservations.upcoming"),
+    completed: t("reservations.completed"),
+    cancelled: t("reservations.cancelled"),
   };
 
   return (
@@ -322,6 +326,7 @@ function FilterDropdown({ filter, onChange }: { filter: string; onChange: (v: st
 
 export default function BookingHistoryPage() {
   const router = useRouter();
+  const { t, locale } = useI18n();
 
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -339,7 +344,7 @@ export default function BookingHistoryPage() {
   async function fetchReservations(pageNum = 1) {
     const token = getToken();
     if (!token) {
-      setError("Not authenticated. Please log in.");
+      setError(t("reservations.auth_error"));
       setLoading(false);
       return;
     }
@@ -377,8 +382,8 @@ export default function BookingHistoryPage() {
         total_price: item.TotalPrice ?? item.total_price ?? 0,
         pickup_date: item.start_date ?? item.pickup_date ?? "",
         dropoff_date: item.end_date ?? item.dropoff_date ?? "",
-        pickup_location: "Office / Pick-up",
-        dropoff_location: "Office / Drop-off",
+        pickup_location: t("reservations.agency_pickup"),
+        dropoff_location: t("reservations.agency_return"),
         vehicle: item.vehicle ? {
           id: item.vehicle.id,
           brand: item.vehicle.marque ?? item.vehicle.brand,
@@ -400,7 +405,7 @@ export default function BookingHistoryPage() {
 
       setHasMore(mappedItems.length >= PER_PAGE && items.length > 0);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load reservations.");
+      setError((e as { message?: string })?.message || "Échec du chargement des réservations.");
     } finally {
       setLoading(false);
     }
@@ -428,7 +433,7 @@ export default function BookingHistoryPage() {
   }
 
   function handleCancelReservation(reservationId: number) {
-    setModal({ type: "confirm", message: "Are you sure you want to cancel this reservation?", resId: reservationId });
+    setModal({ type: "confirm", message: t("reservations.cancel_confirm"), resId: reservationId });
   }
 
   function handleShowDetails(res: Reservation) {
@@ -455,14 +460,14 @@ export default function BookingHistoryPage() {
 
       const json = await res.json();
       if (!res.ok) {
-        setModal({ type: "error", message: json.message || "Failed to cancel reservation" });
+        setModal({ type: "error", message: json.message || t("reservations.cancel_error") });
         return;
       }
 
-      setModal({ type: "success", message: "Reservation cancelled successfully" });
+      setModal({ type: "success", message: t("reservations.cancel_success") });
       fetchReservations(page);
     } catch (err) {
-      setModal({ type: "error", message: "An error occurred while cancelling your reservation." });
+      setModal({ type: "error", message: t("reservations.error_default") });
     } finally {
       setCancelling(false);
     }
@@ -483,7 +488,7 @@ export default function BookingHistoryPage() {
     if (!search.trim()) return reservations;
     const q = search.toLowerCase();
     return reservations.filter((r) => {
-      return vehicleName(r).toLowerCase().includes(q)
+      return vehicleName(r, t("vehicle.default_name")).toLowerCase().includes(q)
         || r.vehicle?.brand?.toLowerCase().includes(q)
         || r.vehicle?.model?.toLowerCase().includes(q);
     });
@@ -508,13 +513,13 @@ export default function BookingHistoryPage() {
                 <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
                   <Car className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-white/60 text-sm font-bold uppercase tracking-[0.2em]">Client Dashboard</span>
+                <span className="text-white/60 text-sm font-bold uppercase tracking-[0.2em]">{t("reservations.dashboard")}</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                My Reservations
+                {t("reservations.title")}
               </h1>
               <p className="text-white/70 text-base font-semibold mt-2 max-w-xl">
-                Track, manage, and review all your vehicle rentals in one place.
+                {t("reservations.subtitle")}
               </p>
             </motion.div>
           </div>
@@ -523,10 +528,10 @@ export default function BookingHistoryPage() {
         <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10">
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard icon={<Car className="w-5 h-5 text-white" />} label="Total Reservations" value={stats.total} gradient="bg-gradient-to-br from-[#638ECB] to-[#395886]" delay={0} />
-            <StatCard icon={<Calendar className="w-5 h-5 text-white" />} label="Upcoming" value={stats.upcoming} gradient="bg-gradient-to-br from-amber-400 to-amber-600" delay={0.1} />
-            <StatCard icon={<CheckCircle className="w-5 h-5 text-white" />} label="Completed" value={stats.completed} gradient="bg-gradient-to-br from-emerald-400 to-emerald-600" delay={0.2} />
-            <StatCard icon={<AlertTriangle className="w-5 h-5 text-white" />} label="Cancelled" value={stats.cancelled} gradient="bg-gradient-to-br from-rose-400 to-rose-600" delay={0.3} />
+            <StatCard icon={<Car className="w-5 h-5 text-white" />} label={t("reservations.total")} value={stats.total} gradient="bg-gradient-to-br from-[#638ECB] to-[#395886]" delay={0} />
+            <StatCard icon={<Calendar className="w-5 h-5 text-white" />} label={t("reservations.upcoming")} value={stats.upcoming} gradient="bg-gradient-to-br from-amber-400 to-amber-600" delay={0.1} />
+            <StatCard icon={<CheckCircle className="w-5 h-5 text-white" />} label={t("reservations.completed")} value={stats.completed} gradient="bg-gradient-to-br from-emerald-400 to-emerald-600" delay={0.2} />
+            <StatCard icon={<AlertTriangle className="w-5 h-5 text-white" />} label={t("reservations.cancelled")} value={stats.cancelled} gradient="bg-gradient-to-br from-rose-400 to-rose-600" delay={0.3} />
           </div>
 
           {/* Toolbar */}
@@ -539,7 +544,7 @@ export default function BookingHistoryPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by vehicle name or model..."
+                placeholder={t("reservations.search_placeholder")}
                 className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#D5DEEF]/60 bg-white/80 backdrop-blur-sm text-sm text-[#395886] font-semibold placeholder:text-[#638ECB]/50 focus:outline-none focus:ring-2 focus:ring-[#638ECB]/20 focus:border-[#638ECB]/40 focus:bg-white transition-all shadow-sm"
               />
             </div>
@@ -581,10 +586,10 @@ export default function BookingHistoryPage() {
                 <Car className="w-8 h-8 text-[#638ECB]" />
               </div>
               <p className="text-xl font-black text-[#395886]">
-                {search ? "No matches found" : "No reservations yet"}
+                {search ? t("reservations.no_results") : t("reservations.no_reservations")}
               </p>
               <p className="text-sm font-semibold text-[#638ECB] mt-1.5">
-                {search ? "Try a different search term." : "Book a vehicle to get started."}
+                {search ? t("reservations.no_results_search") : t("reservations.no_reservations_cta")}
               </p>
             </motion.div>
           ) : null}
@@ -596,7 +601,7 @@ export default function BookingHistoryPage() {
                 <div className="w-10 h-10 border-3 border-[#D5DEEF] rounded-full" />
                 <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] rounded-full animate-spin" />
               </div>
-              <span className="ml-4 text-sm font-extrabold text-[#638ECB]">Loading reservations...</span>
+              <span className="ml-4 text-sm font-extrabold text-[#638ECB]">{t("reservations.loading")}</span>
             </div>
           )}
 
@@ -613,7 +618,7 @@ export default function BookingHistoryPage() {
                 onClick={loadMore}
                 className="inline-flex items-center gap-2.5 bg-white border-2 border-[#D5DEEF]/60 text-[#395886] font-extrabold text-sm tracking-wider px-10 py-3.5 rounded-xl hover:border-[#638ECB]/30 hover:bg-white hover:shadow-lg transition-all"
               >
-                Load More
+                {t("reservations.load_more")}
                 <ArrowRight className="w-4 h-4" />
               </motion.button>
             </motion.div>
@@ -664,7 +669,7 @@ export default function BookingHistoryPage() {
                       onClick={() => setModal(null)}
                       className="flex-1 border-2 border-[#D5DEEF] text-[#395886] font-extrabold text-sm py-3 rounded-xl hover:bg-[#F0F3FA] transition-all"
                     >
-                      Keep Booking
+                      {t("reservations.cancel_modal_keep")}
                     </button>
                     <button
                       onClick={confirmCancel}
@@ -672,9 +677,9 @@ export default function BookingHistoryPage() {
                       className="flex-1 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 disabled:opacity-50 text-white font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-rose-500/20 transition-all flex items-center justify-center gap-2"
                     >
                       {cancelling ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> Cancelling...</>
+                        <><Loader2 className="w-4 h-4 animate-spin" /> {t("reservations.cancel_modal_cancelling")}</>
                       ) : (
-                        "Yes, Cancel"
+                        t("reservations.cancel_yes")
                       )}
                     </button>
                   </div>
@@ -741,7 +746,7 @@ export default function BookingHistoryPage() {
               transition={{ type: "spring", duration: 0.5 }}
             >
               <div className="bg-gradient-to-r from-[#dde4ef] to-[#e8edf5] px-6 py-4 flex items-center justify-between shrink-0 rounded-t-3xl">
-                <span className="text-sm font-extrabold text-[#395886]">Reservation Details</span>
+                <span className="text-sm font-extrabold text-[#395886]">{t("reservations.details_title")}</span>
                 <button
                   onClick={() => setDetailReservation(null)}
                   className="w-8 h-8 rounded-full bg-white/60 hover:bg-white flex items-center justify-center text-[#395886] hover:text-[#1d3560] transition-all"
@@ -755,7 +760,7 @@ export default function BookingHistoryPage() {
                   <div className="w-full md:w-[340px] flex-shrink-0 rounded-2xl overflow-hidden bg-[#1a1e2e] ring-2 ring-[#D5DEEF]/30" style={{ minHeight: 200 }}>
                     <img
                       src={vehicleImage(detailReservation)}
-                      alt={vehicleName(detailReservation)}
+                      alt={vehicleName(detailReservation, t("vehicle.default_name"))}
                       className="w-full h-full object-cover"
                       style={{ minHeight: 200 }}
                       onError={(e) => {
@@ -767,18 +772,18 @@ export default function BookingHistoryPage() {
 
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-bold text-[#638ECB]">REF: {refCode(detailReservation).replace("#", "")}</span>
+                      <span className="text-sm font-bold text-[#638ECB]">{t("reservations.ref_label")} {refCode(detailReservation).replace("#", "")}</span>
                       <StatusBadge status={detailReservation.status} />
                     </div>
 
                     <div className="mb-4">
-                      <h2 className="text-3xl font-black text-[#395886] leading-tight">{vehicleName(detailReservation)}</h2>
+                      <h2 className="text-3xl font-black text-[#395886] leading-tight">{vehicleName(detailReservation, t("vehicle.default_name"))}</h2>
                       <p className="text-[#638ECB] text-sm font-semibold mt-1">{detailReservation.vehicle?.brand} {detailReservation.vehicle?.model}</p>
                     </div>
 
                     <div className="bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-2xl px-6 py-5 flex items-center justify-between mt-auto shadow-sm">
-                      <span className="text-sm font-bold text-gray-600">Total Amount</span>
-                      <span className="text-2xl font-black text-[#395886]">{Number(detailReservation.total_price).toLocaleString()} DH</span>
+                      <span className="text-sm font-bold text-gray-600">{t("reservations.total_amount")}</span>
+                      <span className="text-2xl font-black text-[#395886]">{Number(detailReservation.total_price).toLocaleString(locale)} DH</span>
                     </div>
                   </div>
                 </div>
@@ -789,12 +794,12 @@ export default function BookingHistoryPage() {
                       <div className="w-8 h-8 rounded-lg bg-[#F0F3FA] flex items-center justify-center">
                         <Calendar className="w-4 h-4 text-[#395886]" />
                       </div>
-                      <span className="text-[#395886] font-extrabold text-sm">Pick-up</span>
+                      <span className="text-[#395886] font-extrabold text-sm">{t("reservations.pickup_label")}</span>
                     </div>
                     <div className="border-l-2 border-[#D5DEEF] pl-4">
-                      <p className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-widest mb-1">Date</p>
+                      <p className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-widest mb-1">{t("reservations.date_label")}</p>
                       <p className="text-base font-bold text-[#395886]">
-                        {formatDate(detailReservation.pickup_date)}
+                        {formatDate(detailReservation.pickup_date, locale)}
                       </p>
                       {detailReservation.pickup_location && (
                         <p className="text-xs font-semibold text-[#638ECB] mt-1">{detailReservation.pickup_location}</p>
@@ -807,12 +812,12 @@ export default function BookingHistoryPage() {
                       <div className="w-8 h-8 rounded-lg bg-[#F0F3FA] flex items-center justify-center">
                         <Calendar className="w-4 h-4 text-[#395886]" />
                       </div>
-                      <span className="text-[#395886] font-extrabold text-sm">Drop-off</span>
+                      <span className="text-[#395886] font-extrabold text-sm">{t("reservations.return_label")}</span>
                     </div>
                     <div className="border-l-2 border-[#D5DEEF] pl-4">
-                      <p className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-widest mb-1">Date</p>
+                      <p className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-widest mb-1">{t("reservations.date_label")}</p>
                       <p className="text-base font-bold text-[#395886]">
-                        {formatDate(detailReservation.dropoff_date)}
+                        {formatDate(detailReservation.dropoff_date, locale)}
                       </p>
                       {detailReservation.dropoff_location && (
                         <p className="text-xs font-semibold text-[#638ECB] mt-1">{detailReservation.dropoff_location}</p>
@@ -822,13 +827,13 @@ export default function BookingHistoryPage() {
                 </div>
 
                 <div className="mb-8">
-                  <h3 className="text-base font-extrabold text-[#395886] mb-4">Vehicle Specifications</h3>
+                  <h3 className="text-base font-extrabold text-[#395886] mb-4">{t("reservations.specs_title")}</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {[
-                      { label: "Fuel Type", value: detailReservation.vehicle?.fuelType ?? "—", icon: "fuel" },
-                      { label: "Gearbox", value: "Automatic", icon: "gear" },
-                      { label: "Seats", value: detailReservation.vehicle?.Occupants ?? "—", icon: "seat" },
-                      { label: "Year", value: detailReservation.vehicle?.year?.toString() ?? "—", icon: "year" },
+                      { label: t("reservations.fuel_label"), value: detailReservation.vehicle?.fuelType ?? "—", icon: "fuel" },
+                      { label: t("reservations.gearbox_label"), value: "Automatique", icon: "gear" },
+                      { label: t("reservations.seats_label"), value: detailReservation.vehicle?.Occupants ?? "—", icon: "seat" },
+                      { label: t("reservations.year_label"), value: detailReservation.vehicle?.year?.toString() ?? "—", icon: "year" },
                     ].map((spec) => (
                       <div key={spec.label} className="bg-white/70 border border-[#D5DEEF]/40 rounded-xl px-4 py-5 flex flex-col items-center gap-2.5 shadow-sm">
                         <div className="w-9 h-9 rounded-lg bg-[#F0F3FA] flex items-center justify-center">
@@ -851,7 +856,7 @@ export default function BookingHistoryPage() {
                     }}
                     className="px-6 py-3 rounded-xl border-2 border-[#D5DEEF] text-sm font-extrabold text-[#395886] hover:bg-[#F0F3FA] transition-all"
                   >
-                    Cancel Reservation
+                    {t("reservations.cancel_in_detail")}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -859,7 +864,7 @@ export default function BookingHistoryPage() {
                     onClick={() => setDetailReservation(null)}
                     className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-sm font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl transition-all"
                   >
-                    Back to History
+                    {t("reservations.back_to_history")}
                   </motion.button>
                 </div>
               </div>

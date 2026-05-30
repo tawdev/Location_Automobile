@@ -15,12 +15,12 @@ function CallbackInner() {
     const errorParam = searchParams.get("error");
 
     if (errorParam) {
-      setError("Google sign-in failed. Please try again.");
+      setError("Connexion Google échouée. Veuillez réessayer.");
       return;
     }
 
     if (!token) {
-      setError("Invalid authentication response.");
+      setError("Réponse d'authentification invalide.");
       return;
     }
 
@@ -50,13 +50,13 @@ function CallbackInner() {
             href="/login"
             className="inline-block bg-[#2B4C7E] text-white font-semibold px-6 py-2.5 rounded-xl hover:bg-[#1d3560] transition-colors"
           >
-            Back to Login
+            Retour à la connexion
           </a>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 text-[#2B4C7E] animate-spin" />
-          <p className="text-gray-500 text-sm font-medium">Signing you in...</p>
+          <p className="text-gray-500 text-sm font-medium">Connexion en cours...</p>
         </div>
       )}
     </div>
@@ -69,7 +69,7 @@ export default function AuthCallbackPage() {
       <div className="min-h-screen bg-[#F4F7FB] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 text-[#2B4C7E] animate-spin" />
-          <p className="text-gray-500 text-sm font-medium">Signing you in...</p>
+          <p className="text-gray-500 text-sm font-medium">Connexion en cours...</p>
         </div>
       </div>
     }>

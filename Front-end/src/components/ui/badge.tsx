@@ -1,4 +1,6 @@
+// @ts-expect-error - Base UI missing type definition
 import { mergeProps } from "@base-ui/react/merge-props"
+// @ts-expect-error - Base UI missing type definition
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
 
