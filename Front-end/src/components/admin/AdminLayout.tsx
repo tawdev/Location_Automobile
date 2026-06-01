@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { Sun, Moon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { profileImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 
 type NavItem = {
@@ -65,6 +67,14 @@ function MapIcon() {
   );
 }
 
+function ExtrasIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+    </svg>
+  );
+}
+
 function SidebarLink({
   label,
   active,
@@ -83,10 +93,10 @@ function SidebarLink({
       className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
         active
           ? "bg-[#395886] text-white shadow-sm"
-          : "text-[#638ECB] hover:text-[#395886] hover:bg-[#F0F3FA]"
+          : "text-[#638ECB] dark:text-[#94A3B8] hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]"
       }`}
     >
-      <span className={active ? "text-white" : "text-[#638ECB]"}>
+      <span className={active ? "text-white" : "text-[#638ECB] dark:text-[#94A3B8]"}>
         {icon}
       </span>
       <span>{label}</span>
@@ -100,12 +110,27 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { t } = useI18n();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = stored === "dark" || (!stored && prefersDark);
+    setDark(isDark);
+  }, []);
+
+  const toggleDark = () => {
+    const next = !dark;
+    setDark(next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  };
 
   const navItems: NavItem[] = useMemo(
     () => [
       { label: t("admin.dashboard"), href: "/admin", icon: <DashboardIcon /> },
       { label: t("admin.vehicles"), href: "/admin/vehicles", icon: <FleetIcon /> },
       { label: t("admin.reservations"), href: "/admin/reservations", icon: <CalendarIcon /> },
+      { label: t("admin.extras"), href: "/admin/extras", icon: <ExtrasIcon /> },
       { label: t("admin.profile"), href: "/admin/profile", icon: <UserIcon /> },
       { label: t("admin.map"), href: "/admin/vehicles/map", icon: <MapIcon /> },
     ],
@@ -130,16 +155,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-[#F0F3FA] text-[#395886] flex">
+    <div className={`min-h-screen bg-[#F0F3FA] text-[#395886] flex ${dark ? "dark" : ""}`}>
       {/* Sidebar */}
-      <aside className="w-[240px] h-screen sticky top-0 bg-white border-r border-[#D5DEEF] flex flex-col justify-between p-5 shrink-0 hidden md:flex z-30">
+      <aside className="w-[240px] h-screen sticky top-0 bg-white dark:bg-[#0f1729] border-r border-[#D5DEEF] dark:border-[#1e293b] flex flex-col justify-between p-5 shrink-0 hidden md:flex z-30">
         {/* Logo */}
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-9 rounded-lg bg-[#395886] flex items-center justify-center text-white text-sm font-black">
               LA
             </div>
-            <div className="text-sm font-extrabold text-[#395886]">{t("admin.administration")}</div>
+            <div className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</div>
           </div>
 
           {/* Nav */}
@@ -157,13 +182,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Bottom */}
-        <div className="flex flex-col gap-3 border-t border-[#D5DEEF] pt-4">
+        <div className="flex flex-col gap-3 border-t border-[#D5DEEF] dark:border-[#1e293b] pt-4">
           <button
             type="button"
             onClick={() => router.push("/admin/profile")}
-            className="flex items-center gap-2.5 w-full text-left cursor-pointer hover:bg-[#F0F3FA] rounded-lg p-1.5 -mx-1.5 transition-colors"
+            className="flex items-center gap-2.5 w-full text-left cursor-pointer hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] rounded-lg p-1.5 -mx-1.5 transition-colors"
           >
-            <div className="h-8 w-8 rounded-full bg-[#F0F3FA] border border-[#D5DEEF] flex items-center justify-center text-[#395886] font-bold text-xs shrink-0 overflow-hidden">
+            <div className="h-8 w-8 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b] border border-[#D5DEEF] dark:border-[#334155] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] font-bold text-xs shrink-0 overflow-hidden">
               {userProfilePicUrl ? (
                 <img src={userProfilePicUrl} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -171,13 +196,28 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold text-[#395886] truncate leading-tight">
+              <div className="text-xs font-bold text-[#395886] dark:text-[#D5DEEF] truncate leading-tight">
                 {user?.name ?? "Admin"}
               </div>
-              <div className="text-[10px] font-semibold text-[#638ECB] truncate leading-tight">
+              <div className="text-[10px] font-semibold text-[#638ECB] dark:text-[#94A3B8] truncate leading-tight">
                 {user?.email ?? ""}
               </div>
             </div>
+          </button>
+
+          <div className="flex justify-center">
+            <LanguageSwitcher upward />
+          </div>
+
+          {/* Dark/Light toggle (admin only) */}
+          <button
+            type="button"
+            onClick={toggleDark}
+            className="w-full h-9 rounded-lg border border-[#D5DEEF] bg-white/50 hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 dark:bg-[#0f1729] dark:border-[#1e293b] dark:hover:bg-[#1e293b]"
+            aria-label="Toggle theme"
+          >
+            {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            <span>{dark ? "Dark" : "Light"}</span>
           </button>
 
           <button

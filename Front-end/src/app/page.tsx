@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { getAuthToken } from "@/lib/tokenStorage";
 
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
@@ -615,7 +616,14 @@ function VehiclesMarquee() {
                 key={`${v.id}-${i}`}
                 whileHover={{ scale: 1.03, y: -6 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => router.push("/register")}
+                onClick={() => {
+                  if (getAuthToken()) {
+                    router.push(`/vehicles/${v.id}`);
+                  } else {
+                    localStorage.setItem("pendingVehicleRedirect", `/vehicles/${v.id}`);
+                    router.push(`/login?redirect=/vehicles/${v.id}`);
+                  }
+                }}
                 className="shrink-0 w-[300px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_50px_rgba(57,88,134,0.15)] dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.4)] transition-all duration-500 group"
               >
                 <div className="h-44 bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden relative">

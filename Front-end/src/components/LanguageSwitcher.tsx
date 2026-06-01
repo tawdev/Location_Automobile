@@ -17,7 +17,7 @@ const LABEL: Record<Locale, string> = {
   ar: "AR",
 };
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ upward }: { upward?: boolean }) {
   const { locale, setLocale } = useI18n();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -43,7 +43,7 @@ export default function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-1.5 bg-white rounded-xl shadow-lg border border-[#D5DEEF]/30 overflow-hidden z-[100] min-w-[120px]">
+        <div className={`absolute ${upward ? "bottom-full right-0 mb-1.5" : "top-full right-0 mt-1.5"} bg-white rounded-xl shadow-lg border border-[#D5DEEF]/30 overflow-hidden z-[100] min-w-[120px]`}>
           {otherLocales.map((l) => (
             <button
               key={l}

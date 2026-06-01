@@ -70,9 +70,16 @@ export default function RegisterPage() {
   const [resending, setResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  const redirectTo = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("redirect") || localStorage.getItem("pendingVehicleRedirect") || null
+    : null;
+
   useEffect(() => {
-    if (status === "authenticated") router.replace("/vehicles");
-  }, [status, router]);
+    if (status === "authenticated") {
+      localStorage.removeItem("pendingVehicleRedirect");
+      router.replace(redirectTo || "/vehicles");
+    }
+  }, [status, router, redirectTo]);
 
   const displayError = formError ?? error ?? null;
 
@@ -148,7 +155,8 @@ export default function RegisterPage() {
     setCodeError(null);
     try {
       await verifyEmail({ user_id: userId, code: fullCode });
-      router.replace("/vehicles");
+      localStorage.removeItem("pendingVehicleRedirect");
+      router.replace(redirectTo || "/vehicles");
     } catch (err) {
       setCodeError((err as any)?.message || "Invalid code");
       setCode(Array(CODE_DIGITS).fill(""));
@@ -332,7 +340,7 @@ export default function RegisterPage() {
                       <div className="h-[1px] flex-1 bg-[#D5DEEF]" />
                     </div>
 
-                    <SocialButton label="Continuer avec Google" icon={<GoogleIcon />} disabled={submitting} onClick={() => { window.location.href = `${API_BASE_URL}/auth/google/redirect`; }} />
+                    <SocialButton label="Continuer avec Google" icon={<GoogleIcon />} disabled={submitting} onClick={() => { if (redirectTo) localStorage.setItem("pendingVehicleRedirect", redirectTo); window.location.href = `${API_BASE_URL}/auth/google/redirect`; }} />
 
                     <div className="mt-[12px] text-center text-[13px] text-[#395886] font-medium">
                       {mode === "login" ? (

@@ -53,11 +53,11 @@ export function Modal({
             transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
             className={`relative w-full ${maxWidthClassName} bg-white rounded-3xl border border-[#D5DEEF]/80 shadow-[0_20px_50px_rgba(57,88,134,0.15)] flex flex-col max-h-[90vh] overflow-hidden`}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#D5DEEF]/50 bg-gradient-to-r from-[#F0F3FA] to-white">
-              <h3 className="text-lg font-extrabold text-[#395886] tracking-tight">
-                {title}
-              </h3>
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[#D5DEEF]/50 bg-gradient-to-r from-[#F0F3FA] to-white">
+            <h3 className="text-lg font-extrabold text-[#395886] tracking-tight">
+              {title}
+            </h3>
               <button
                 type="button"
                 onClick={onClose}

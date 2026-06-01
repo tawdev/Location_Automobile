@@ -27,7 +27,9 @@ function LoginInner() {
     setSubmitting(true);
     try {
       const user = await signIn(payload);
-      router.replace(user.role_id === 1 ? "/admin/vehicles" : "/vehicles");
+      const redirect = searchParams.get("redirect") || localStorage.getItem("pendingVehicleRedirect");
+      localStorage.removeItem("pendingVehicleRedirect");
+      router.replace(redirect || (user.role_id === 1 ? "/admin/vehicles" : "/vehicles"));
     } finally {
       setSubmitting(false);
     }
@@ -37,7 +39,9 @@ function LoginInner() {
     setSubmitting(true);
     try {
       await signUp(payload);
-      router.replace("/signup");
+      const redirect = searchParams.get("redirect") || localStorage.getItem("pendingVehicleRedirect");
+      const qs = redirect ? `?redirect=${encodeURIComponent(redirect)}` : "";
+      router.replace(`/signup${qs}`);
     } finally {
       setSubmitting(false);
     }

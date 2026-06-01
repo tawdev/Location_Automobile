@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Extra;
 use App\Models\Reservation;
 use App\Models\Vehicle;
 use DateTime;
@@ -81,7 +82,15 @@ class ReservationService
     }
 
     $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
-    $total = $days * $vehicle->pricePerDay;
+    $days = $days > 0 ? $days : 1;
+
+    $extraPricePerDay = 0;
+    $extraIds = $data['extra_ids'] ?? [];
+    if (!empty($extraIds)) {
+        $extraPricePerDay = Extra::whereIn('id', $extraIds)->sum('price_per_day');
+    }
+
+    $total = $days * ($vehicle->pricePerDay + $extraPricePerDay);
     $kmIncluded = $days * 200;
 
     $Reservation = Reservation::create(
@@ -92,6 +101,10 @@ class ReservationService
             'km_included' => $kmIncluded,
         ])
     );
+
+    if (!empty($extraIds)) {
+        $Reservation->extras()->sync($extraIds);
+    }
 
     return $Reservation;
 }

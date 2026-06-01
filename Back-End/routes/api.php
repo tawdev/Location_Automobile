@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DashboardController;
+use App\Http\Controllers\Api\Admin\ExtraController;
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,13 +28,15 @@ Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('auth/verify-reset-code', [AuthController::class, 'verifyResetCode']);
 Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
 
+// Public vehicle routes (no auth required)
+Route::get('Vehicles' , [VehicleController::class, 'index']);
+Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
+Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
+
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('Vehicles' , [VehicleController::class, 'index']);
-    Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
     Route::post('/vehicle' , [VehicleController::class , 'store']);
     Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
     Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
-    Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
 });
 
 
@@ -52,9 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile/picture',[ProfileController::class,'updateUserProfilePicture']);
     Route::put('/profile/email',[ProfileController::class,'updateUserEmail']);
     Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
-    Route::get('Vehicles' , [VehicleController::class, 'index']);
-    Route::get('Vehicles/{id}' , [VehicleController::class, 'show']);
-    Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
+    Route::get('extras', [ExtraController::class, 'index']);
 
 
 });
@@ -82,6 +83,8 @@ Route::post('Categories/search' , [CategoryController::class , 'FilterByName']);
 Route::get('/admin/vehicles/location',        [VehicleController::class, 'locations']);
 Route::get ('/location/live/{deviceId}',    [LocationController::class, 'live']);
 Route::get ('/location/history/{deviceId}', [LocationController::class, 'history']);
+
+Route::apiResource('admin/extras', ExtraController::class)->parameters(['extras' => 'extra']);
 
 });
 
