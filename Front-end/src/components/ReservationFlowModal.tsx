@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { addCin, addPermi } from "@/lib/profileApi";
 import { makeReservation } from "@/lib/reservationsApi";
+import { getExtras } from "@/lib/extrasApi";
 import { vehicleImageUrl } from "@/lib/media";
-import { Upload, CheckCircle, X, User, Users, FileText, IdCard } from "lucide-react";
+import type { Extra } from "@/lib/types";
+import { Upload, CheckCircle, X, User, Users, FileText, IdCard, Package } from "lucide-react";
 
 type Choice = "one" | "two" | null;
 
@@ -21,7 +23,7 @@ type Props = {
   onSuccess: () => void;
 };
 
-type Step = "choose" | "oneDriverUpload" | "twoDrivers" | "reserving" | "reservationError" | "done";
+type Step = "choose" | "oneDriverUpload" | "twoDrivers" | "extras" | "reserving" | "reservationError" | "done";
 
 export default function ReservationFlowModal({
   vehicleId,
@@ -63,19 +65,38 @@ export default function ReservationFlowModal({
   const d2PermiRectoRef = useRef<HTMLInputElement>(null);
   const d2PermiVersoRef = useRef<HTMLInputElement>(null);
 
+  const [extras, setExtras] = useState<Extra[]>([]);
+  const [selectedExtraIds, setSelectedExtraIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    getExtras().then(setExtras).catch(() => {});
+  }, []);
+
+  const extrasTotalPerDay = extras
+    .filter((e) => selectedExtraIds.includes(e.id))
+    .reduce((sum, e) => sum + e.price_per_day, 0);
+
+  function toggleExtra(extraId: number) {
+    setSelectedExtraIds((prev) =>
+      prev.includes(extraId) ? prev.filter((id) => id !== extraId) : [...prev, extraId]
+    );
+  }
+
   async function handleChooseOneDriver() {
     setSavedChoice("one");
     if (userHasCin && userHasPermi) {
-      setStep("reserving");
-      await doReservation(null);
+      setStep("extras");
     } else {
       setStep("oneDriverUpload");
     }
   }
 
+  async function proceedFromUploads() {
+    setStep("extras");
+  }
+
   async function handleUploadAndReserve() {
     setError(null);
-    setStep("reserving");
     try {
       if (!userHasCin && (!cinRecto || !cinVerso)) {
         throw new Error("Veuillez sélectionner votre CIN (recto et verso).");
@@ -92,7 +113,7 @@ export default function ReservationFlowModal({
       }
 
       await refreshUser();
-      await doReservation(null);
+      setStep("extras");
     } catch (e: any) {
       setError(e?.message || "Erreur lors de l'envoi des documents.");
       setStep("oneDriverUpload");
@@ -114,7 +135,6 @@ export default function ReservationFlowModal({
       return;
     }
 
-    setStep("reserving");
     try {
       if (cinRecto && cinVerso) {
         await addCin(cinRecto, cinVerso);
@@ -124,31 +144,42 @@ export default function ReservationFlowModal({
       }
 
       await refreshUser();
-      await doReservation({
-        driver2_name: driver2Name.trim(),
-        driver2_cin_recto: d2CinRecto,
-        driver2_cin_verso: d2CinVerso,
-        driver2_permi_recto: d2PermiRecto,
-        driver2_permi_verso: d2PermiVerso,
-      });
+      setStep("extras");
     } catch (e: any) {
       setError(e?.message || "Erreur lors de la réservation.");
       setStep("twoDrivers");
     }
   }
 
-  async function doReservation(extra: Record<string, any> | null) {
+  async function handleProceedToReservation() {
+    setStep("reserving");
+    setError(null);
+
+    const extra: Record<string, any> = {};
+
+    if (savedChoice === "two") {
+      extra.driver2_name = driver2Name.trim();
+      extra.driver2_cin_recto = d2CinRecto;
+      extra.driver2_cin_verso = d2CinVerso;
+      extra.driver2_permi_recto = d2PermiRecto;
+      extra.driver2_permi_verso = d2PermiVerso;
+    }
+
     const formData = new FormData();
     formData.set("start_date", startDate);
     formData.set("end_date", endDate);
 
-    if (extra) {
-      for (const [key, value] of Object.entries(extra)) {
-        if (value instanceof File) {
-          formData.set(key, value);
-        } else {
-          formData.set(key, String(value));
-        }
+    if (selectedExtraIds.length > 0) {
+      for (const id of selectedExtraIds) {
+        formData.append("extra_ids[]", String(id));
+      }
+    }
+
+    for (const [key, value] of Object.entries(extra)) {
+      if (value instanceof File) {
+        formData.set(key, value);
+      } else {
+        formData.set(key, String(value));
       }
     }
 
@@ -284,7 +315,7 @@ export default function ReservationFlowModal({
                 )}
 
                 <button onClick={handleUploadAndReserve} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity">
-                  Uploader et réserver
+                  Uploader et continuer
                 </button>
               </motion.div>
             )}
@@ -297,7 +328,6 @@ export default function ReservationFlowModal({
 
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
 
-                {/* Driver 1 - User */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <User className="w-4 h-4 text-[#395886]" />
@@ -328,7 +358,6 @@ export default function ReservationFlowModal({
                   )}
                 </div>
 
-                {/* Driver 2 */}
                 <div className="border-t border-[#D5DEEF]/40 pt-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Users className="w-4 h-4 text-[#395886]" />
@@ -363,7 +392,77 @@ export default function ReservationFlowModal({
                 </div>
 
                 <button onClick={handleTwoDriversSubmit} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity mt-2">
-                  Confirmer la réservation
+                  Confirmer et choisir les extras
+                </button>
+              </motion.div>
+            )}
+
+            {step === "extras" && (
+              <motion.div key="extras" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
+                <div className="text-center">
+                  <Package className="w-8 h-8 text-[#395886] mx-auto mb-2" />
+                  <p className="text-sm text-[#395886] font-semibold">
+                    Souhaitez-vous ajouter des services supplémentaires à votre location ?
+                  </p>
+                </div>
+
+                {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
+
+                {extras.length === 0 ? (
+                  <div className="text-center py-6 text-[#638ECB] font-semibold text-sm">
+                    Chargement des extras disponibles...
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {extras.map((extra) => {
+                      const selected = selectedExtraIds.includes(extra.id);
+                      return (
+                        <button
+                          key={extra.id}
+                          type="button"
+                          onClick={() => toggleExtra(extra.id)}
+                          className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
+                            selected
+                              ? "border-[#395886] bg-[#F0F3FA]"
+                              : "border-[#D5DEEF] hover:border-[#638ECB]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                selected
+                                  ? "bg-[#395886] border-[#395886]"
+                                  : "border-[#D5DEEF]"
+                              }`}
+                            >
+                              {selected && <CheckCircle className="w-4 h-4 text-white" />}
+                            </div>
+                            <span className="font-bold text-[#395886] text-sm">{extra.name}</span>
+                          </div>
+                          <span className="font-extrabold text-[#395886] text-sm">
+                            {extra.price_per_day} DH / jour
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {selectedExtraIds.length > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                    <span className="text-[13px] font-bold text-amber-800">
+                      +{extrasTotalPerDay} DH / jour pour les extras sélectionnés
+                    </span>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleProceedToReservation}
+                  className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity mt-2"
+                >
+                  {selectedExtraIds.length === 0
+                    ? "Non merci, réserver"
+                    : "Confirmer et réserver"}
                 </button>
               </motion.div>
             )}
@@ -392,11 +491,7 @@ export default function ReservationFlowModal({
                   <button
                     onClick={() => {
                       setError(null);
-                      if (savedChoice === "two") {
-                        setStep("twoDrivers");
-                      } else {
-                        handleChooseOneDriver();
-                      }
+                      setStep("extras");
                     }}
                     className="w-full h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA]"
                   >

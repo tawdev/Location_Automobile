@@ -11,6 +11,10 @@ export default function SignupPage() {
   const router = useRouter();
   const { signUp, verifyEmail, error, status } = useAuth();
 
+  const redirectTo = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("redirect") || localStorage.getItem("pendingVehicleRedirect") || null
+    : null;
+
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const NAME_RE = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}$/;
   const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -37,8 +41,11 @@ export default function SignupPage() {
   }>({ name: null, email: null, password: null });
 
   useEffect(() => {
-    if (status === "authenticated") router.replace("/vehicles");
-  }, [status, router]);
+    if (status === "authenticated") {
+      localStorage.removeItem("pendingVehicleRedirect");
+      router.replace(redirectTo || "/vehicles");
+    }
+  }, [status, router, redirectTo]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -118,7 +125,8 @@ export default function SignupPage() {
     setCodeError(null);
     try {
       await verifyEmail({ user_id: userId, code: fullCode });
-      router.replace("/vehicles");
+      localStorage.removeItem("pendingVehicleRedirect");
+      router.replace(redirectTo || "/vehicles");
     } catch (err) {
       setCodeError((err as any)?.message || "Code invalide");
       setCode(Array(CODE_DIGITS).fill(""));

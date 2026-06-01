@@ -94,4 +94,15 @@ export type Reservation = {
   // Backend /with('user','vehicle') may also return nested objects
   vehicle?: Vehicle;
   user?: User;
+  extras?: Extra[];
+};
+
+export type Extra = {
+  id: number;
+  name: string;
+  price_per_day: number;
+  image?: string | null;
+  image_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
 };

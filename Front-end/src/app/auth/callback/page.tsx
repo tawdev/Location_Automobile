@@ -29,10 +29,14 @@ function CallbackInner() {
     authUser()
       .then((res) => {
         const user = res.data;
-        window.location.href = user.role_id === 1 ? "/admin" : "/vehicles";
+        const pendingRedirect = localStorage.getItem("pendingVehicleRedirect");
+        localStorage.removeItem("pendingVehicleRedirect");
+        window.location.href = pendingRedirect || (user.role_id === 1 ? "/admin" : "/vehicles");
       })
       .catch(() => {
-        window.location.href = "/vehicles";
+        const pendingRedirect = localStorage.getItem("pendingVehicleRedirect");
+        localStorage.removeItem("pendingVehicleRedirect");
+        window.location.href = pendingRedirect || "/vehicles";
       });
   }, [searchParams]);
 

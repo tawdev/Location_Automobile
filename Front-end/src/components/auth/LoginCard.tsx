@@ -51,6 +51,20 @@ function EyeOffIcon() {
   );
 }
 
+function EyeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+        stroke="#638ECB"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="3" stroke="#638ECB" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
 export function LoginCard({
   onSignIn,
   onSignUp,
@@ -65,11 +79,14 @@ export function LoginCard({
   const NAME_RE = useMemo(() => /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}$/, []);
   const PASSWORD_RE = useMemo(() => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/, []);
 
+  const [currentSearch, setCurrentSearch] = useState("");
+  useEffect(() => { setCurrentSearch(window.location.search); }, []);
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
 
   const [formError, setFormError] = useState<string | null>(null);
@@ -231,16 +248,20 @@ export function LoginCard({
                     setPassword(e.target.value);
                     setFieldErrors((prev) => ({ ...prev, password: null }));
                   }}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete={mode === "login" ? "current-password" : "new-password"}
                   className="w-full rounded-[8px] border border-[#D5DEEF] bg-white/70 h-[40px] px-3 pl-10 pr-10 text-[13px] text-[#395886] placeholder:text-[#638ECB]/70 focus:outline-none focus:ring-2 focus:ring-[#638ECB]/40 focus:border-[#638ECB] transition-colors"
                   required
                   minLength={mode === "signup" ? 8 : undefined}
                 />
 
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-90">
-                  <EyeOffIcon />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-90 hover:opacity-100 cursor-pointer"
+                >
+                  {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                </button>
               </div>
               {fieldErrors.password ? (
                 <span className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">
@@ -282,6 +303,9 @@ export function LoginCard({
               icon={<GoogleIcon />}
               disabled={isSubmitting}
               onClick={() => {
+                const params = new URLSearchParams(window.location.search);
+                const redirect = params.get("redirect");
+                if (redirect) localStorage.setItem("pendingVehicleRedirect", redirect);
                 window.location.href = `${API_BASE_URL}/auth/google/redirect`;
               }}
             />
@@ -291,14 +315,14 @@ export function LoginCard({
             {mode === "login" ? (
               <>
                 Vous n'avez pas de compte ?{" "}
-                <a href="/register" className="text-[#638ECB] font-extrabold underline hover:opacity-80">
+                <a href={`/register${currentSearch}`} className="text-[#638ECB] font-extrabold underline hover:opacity-80">
                   inscrivez-vous
                 </a>
               </>
             ) : (
               <>
                 Vous avez déjà un compte ?{" "}
-                <a href="/login" className="text-[#638ECB] font-extrabold underline hover:opacity-80">
+                <a href={`/login${currentSearch}`} className="text-[#638ECB] font-extrabold underline hover:opacity-80">
                   connectez-vous
                 </a>
               </>

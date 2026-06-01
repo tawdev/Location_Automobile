@@ -309,6 +309,7 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin.reservations": { en: "Reservations", fr: "Réservations", ar: "الحجوزات" },
   "admin.map": { en: "Map", fr: "Carte", ar: "الخريطة" },
   "admin.profile": { en: "Profile", fr: "Profil", ar: "الملف الشخصي" },
+  "admin.extras": { en: "Extras", fr: "Extras", ar: "الإضافات" },
   "admin.administration": { en: "Administration", fr: "Administration", ar: "الإدارة" },
   "admin.new_vehicle": { en: "New Vehicle", fr: "Nouveau véhicule", ar: "مركبة جديدة" },
   "admin.edit_vehicle": { en: "Edit Vehicle", fr: "Modifier le véhicule", ar: "تعديل المركبة" },
