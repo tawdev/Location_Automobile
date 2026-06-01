@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { InputField } from "@/components/auth/InputField";
 import { authForgotPassword, authResetPassword, authVerifyResetCode } from "@/lib/authApi";
-import { Mail, KeyRound, Lock, ArrowLeft, CheckCircle } from "lucide-react";
+import { Mail, Lock, ArrowLeft, CheckCircle } from "lucide-react";
+
+const CODE_DIGITS = 6;
 
 type Step = "email" | "code" | "password" | "done";
 
@@ -14,11 +16,12 @@ export default function ForgotPasswordPage() {
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [codeDigits, setCodeDigits] = useState<string[]>(Array(CODE_DIGITS).fill(""));
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -43,18 +46,21 @@ export default function ForgotPasswordPage() {
     }
   }
 
+  function getCode() { return codeDigits.join(""); }
+
   async function handleVerifyCode(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+    const fullCode = getCode();
+    if (fullCode.length !== CODE_DIGITS || !/^\d{6}$/.test(fullCode)) {
       setError("Veuillez entrer un code valide à 6 chiffres.");
       return;
     }
 
     setSubmitting(true);
     try {
-      await authVerifyResetCode({ email: email.trim(), code });
+      await authVerifyResetCode({ email: email.trim(), code: fullCode });
       setStep("password");
     } catch (err: any) {
       setError(err?.message || "Code invalide.");
@@ -63,11 +69,39 @@ export default function ForgotPasswordPage() {
     }
   }
 
+  function handleCodeChange(index: number, value: string) {
+    if (value.length > 1) return;
+    if (!/^\d*$/.test(value)) return;
+    const next = [...codeDigits];
+    next[index] = value;
+    setCodeDigits(next);
+    setError(null);
+    if (value && index < CODE_DIGITS - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function handleCodeKeyDown(index: number, e: React.KeyboardEvent) {
+    if (e.key === "Backspace" && !codeDigits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  }
+
+  function handleCodePaste(e: React.ClipboardEvent) {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, CODE_DIGITS);
+    const next = [...codeDigits];
+    for (let i = 0; i < CODE_DIGITS; i++) next[i] = text[i] ?? "";
+    setCodeDigits(next);
+    inputRefs.current[Math.min(text.length, CODE_DIGITS - 1)]?.focus();
+  }
+
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+    const fullCode = getCode();
+    if (fullCode.length !== CODE_DIGITS || !/^\d{6}$/.test(fullCode)) {
       setError("Veuillez entrer un code valide à 6 chiffres.");
       return;
     }
@@ -86,7 +120,7 @@ export default function ForgotPasswordPage() {
     try {
       await authResetPassword({
         email: email.trim(),
-        code,
+        code: fullCode,
         password,
       });
       setStep("done");
@@ -222,21 +256,25 @@ export default function ForgotPasswordPage() {
                       </div>
                     )}
 
-                    <div className="mt-6">
-                      <InputField
-                        label="Code de vérification"
-                        type="text"
-                        value={code}
-                        onChange={(v) => { setCode(v.replace(/\D/g, "").slice(0, 6)); setError(null); }}
-                        autoComplete="one-time-code"
-                        placeholder="000000"
-                        leftIcon={<KeyRound className="w-4 h-4" />}
-                      />
+                    <div className="mt-[28px] flex gap-2 justify-center" onPaste={handleCodePaste}>
+                      {codeDigits.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => { inputRefs.current[i] = el; }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleCodeChange(i, e.target.value)}
+                          onKeyDown={(e) => handleCodeKeyDown(i, e)}
+                          className="w-11 h-14 text-center text-xl font-black border border-[#D5DEEF] rounded-[8px] bg-white/70 text-[#395886] focus:outline-none focus:ring-2 focus:ring-[#638ECB]/40 focus:border-[#638ECB] transition-colors"
+                        />
+                      ))}
                     </div>
 
                     <button
                       type="submit"
-                      disabled={submitting || code.length !== 6}
+                      disabled={submitting || getCode().length !== CODE_DIGITS}
                       className="mt-6 w-full h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 disabled:opacity-60 transition-opacity"
                     >
                       {submitting ? "Vérification..." : "Vérifier le code"}

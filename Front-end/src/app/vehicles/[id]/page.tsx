@@ -43,6 +43,12 @@ export default function VehicleDetailPage() {
   // Reservation
   const [reserveStartDate, setReserveStartDate] = useState<Date>();
   const [reserveEndDate, setReserveEndDate] = useState<Date>();
+
+  useEffect(() => {
+    if (reserveEndDate && reserveStartDate && reserveEndDate < reserveStartDate) {
+      setReserveEndDate(undefined);
+    }
+  }, [reserveStartDate]);
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState<string | null>(null);
   const [reservedDates, setReservedDates] = useState<Date[]>([]);
@@ -283,12 +289,13 @@ export default function VehicleDetailPage() {
                           mode="single"
                           selected={reserveStartDate}
                           onSelect={(d: Date | undefined) => d && setReserveStartDate(d)}
-                          fromDate={new Date()}
-                          disabled={(date: Date) =>
-                            reservedDates.some(
-                              (r) => r.toDateString() === date.toDateString()
-                            )
-                          }
+                          disabled={[
+                            { before: new Date() },
+                            (date: Date) =>
+                              reservedDates.some(
+                                (r) => r.toDateString() === date.toDateString()
+                              )
+                          ]}
                         />
                       </div>
                     </PopoverContent>
@@ -311,12 +318,13 @@ export default function VehicleDetailPage() {
                           mode="single"
                           selected={reserveEndDate}
                           onSelect={(d: Date | undefined) => d && setReserveEndDate(d)}
-                          fromDate={new Date()}
-                          disabled={(date: Date) =>
-                            reservedDates.some(
-                              (r) => r.toDateString() === date.toDateString()
-                            )
-                          }
+                          disabled={[
+                            { before: reserveStartDate ?? new Date() },
+                            (date: Date) =>
+                              reservedDates.some(
+                                (r) => r.toDateString() === date.toDateString()
+                              )
+                          ]}
                         />
                       </div>
                     </PopoverContent>

@@ -243,7 +243,7 @@ export default function HomeMap() {
   }, []);
 
   return (
-    <section className="bg-white py-20 px-8">
+    <section className="bg-white dark:bg-[#070b14] py-20 px-8 transition-colors duration-500">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -253,10 +253,10 @@ export default function HomeMap() {
           className="text-center mb-12"
         >
           <span className="text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase">Nous trouver</span>
-          <h2 className="text-4xl md:text-5xl font-black text-[#395886] mt-3 leading-tight">
+          <h2 className="text-4xl md:text-5xl font-black text-[#395886] dark:text-[#D5DEEF] mt-3 leading-tight">
             Notre agence &agrave; Marrakech
           </h2>
-          <p className="text-[#638ECB] text-lg mt-4 max-w-xl mx-auto">
+          <p className="text-[#638ECB] dark:text-[#94A3B8] text-lg mt-4 max-w-xl mx-auto">
             Venez nous rencontrer pour choisir votre v&eacute;hicule en personne.
           </p>
         </motion.div>
@@ -266,7 +266,7 @@ export default function HomeMap() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="rounded-3xl overflow-hidden shadow-[0_10px_40px_rgba(57,88,134,0.12)] border border-[#D5DEEF]/40 relative"
+          className="rounded-3xl overflow-hidden shadow-[0_10px_40px_rgba(57,88,134,0.12)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.3)] border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 relative"
         >
           <div ref={containerRef} className="w-full h-[440px]" />
         </motion.div>
@@ -276,7 +276,7 @@ export default function HomeMap() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-8 flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-[#638ECB]"
+          className="mt-8 flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-[#638ECB] dark:text-[#94A3B8]"
         >
           {contacts.map((item, i) => (
             <motion.a
@@ -288,12 +288,12 @@ export default function HomeMap() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.35 + i * 0.1 }}
-              className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#F0F3FA]/60 hover:bg-[#F0F3FA] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+              className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#F0F3FA]/60 hover:bg-[#F0F3FA] dark:bg-[#1e293b]/60 dark:hover:bg-[#1e293b] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-lg bg-white shadow-sm border border-[#D5DEEF]/40 flex items-center justify-center text-[#395886] shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#0f1729] shadow-sm border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] shrink-0">
                 {item.icon}
               </div>
-              <span className="font-semibold text-[#395886]">{item.text}</span>
+              <span className="font-semibold text-[#395886] dark:text-[#D5DEEF]">{item.text}</span>
             </motion.a>
           ))}
         </motion.div>
