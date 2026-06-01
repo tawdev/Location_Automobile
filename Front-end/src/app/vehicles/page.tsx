@@ -9,6 +9,7 @@ import type { Vehicle } from "@/lib/types";
 import { vehicleImageUrl } from "@/lib/media";
 import { Search } from "lucide-react";
 import BackButton from "@/components/BackButton";
+import HomeMap from "@/components/HomeMap";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const NEW_COUNT = 10;
@@ -445,27 +446,7 @@ export default function VehiclesPage() {
         </section>
 
         {/* LOCATION */}
-        <section className="py-28">
-          <div className="max-w-[1280px] mx-auto px-8">
-            <div className="text-center">
-              <h2 className="text-[56px] font-extrabold text-[#1f4276]">{t("vehicles.location_title")}</h2>
-              <p className="mt-3 text-[18px] text-gray-500">{t("vehicles.location_subtitle")}</p>
-            </div>
-
-            <div className="mt-16 h-[520px] rounded-[22px] border border-[#d7dbe5] bg-[#ececf1] flex flex-col items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="#4b5563">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <div className="mt-6 text-[30px] font-semibold text-gray-700">
-                {t("vehicles.address")}
-              </div>
-              <button className="mt-8 h-12 px-8 rounded-xl bg-[#1f4276] text-white text-[14px] font-semibold">
-                {t("vehicles.directions_button")}
-              </button>
-            </div>
-          </div>
-        </section>
+        <HomeMap />
 
       </div>
     </RequireClient>

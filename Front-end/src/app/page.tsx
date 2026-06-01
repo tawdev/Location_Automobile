@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+
+const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
 const cars = [
   "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80",
@@ -617,6 +620,7 @@ export default function HomePage() {
       <VehiclesMarquee />
       <StatsSection />
       <CTASection />
+      <MapSection />
       <FooterSection />
     </div>
   );

@@ -7,6 +7,7 @@ import { vehicleImageUrl } from "@/lib/media";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { makeReservation } from "@/lib/reservationsApi";
 import BackButton from "@/components/BackButton";
+import ReservationFlowModal from "@/components/ReservationFlowModal";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -46,6 +47,8 @@ export default function VehicleDetailPage() {
   const [reserveError, setReserveError] = useState<string | null>(null);
   const [reservedDates, setReservedDates] = useState<Date[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showReservationModal, setShowReservationModal] = useState(false);
+  const [reservationChoice, setReservationChoice] = useState<"one" | "two" | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -121,29 +124,13 @@ export default function VehicleDetailPage() {
   const subtotal = days && vehicle ? days * vehicle.pricePerDay : 0;
   const total = subtotal;
 
-  async function handleReserve() {
+  function handleReserve() {
     if (!vehicle || !reserveStartDate || !reserveEndDate) {
       setReserveError(t("vehicle.error.select_dates"));
       return;
     }
-    setReserving(true);
     setReserveError(null);
-    try {
-      await makeReservation(vehicle.id, {
-        start_date: reserveStartDate.toISOString().split("T")[0],
-        end_date: reserveEndDate.toISOString().split("T")[0],
-      });
-      setShowSuccess(true);
-    } catch (e) {
-      const errMsg = (e as { message?: string })?.message || "";
-      if (errMsg.includes("CIN") || errMsg.includes("permi")) {
-        router.push("/profile?upload=documents");
-        return;
-      }
-      setReserveError(errMsg || t("vehicle.error.reservation_failed"));
-    } finally {
-      setReserving(false);
-    }
+    setShowReservationModal(true);
   }
 
   if (loading) {
@@ -485,6 +472,25 @@ export default function VehicleDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {showReservationModal && vehicle && reserveStartDate && reserveEndDate && (
+        <ReservationFlowModal
+          vehicleId={vehicle.id}
+          vehicleName={`${vehicle.marque} ${vehicle.model}`}
+          startDate={reserveStartDate.toISOString().split("T")[0]}
+          endDate={reserveEndDate.toISOString().split("T")[0]}
+          defaultChoice={reservationChoice}
+          onClose={(choice) => {
+            if (choice) setReservationChoice(choice);
+            setShowReservationModal(false);
+          }}
+          onSuccess={() => {
+            setShowReservationModal(false);
+            setReservationChoice(null);
+            setShowSuccess(true);
+          }}
+        />
       )}
     </RequireClient>
   );

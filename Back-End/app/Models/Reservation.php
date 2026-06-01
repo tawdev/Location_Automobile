@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Reservation extends Model
 {
-    protected $fillable = ['start_date' , 'end_date','user_id' , 'vehicle_id', 'status','TotalPrice'];
+    protected $fillable = ['start_date' , 'end_date','user_id' , 'vehicle_id', 'status','TotalPrice','driver2_name','driver2_cin_recto','driver2_cin_verso','driver2_permi_recto','driver2_permi_verso'];
     /** @use HasFactory<ReservationFactory> */
     use HasFactory;
 
