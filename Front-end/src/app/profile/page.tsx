@@ -9,7 +9,7 @@ import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
 import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword } from "@/lib/profileApi";
 import type { ApiError } from "@/lib/apiClient";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function UploadZone({
@@ -23,10 +23,12 @@ function UploadZone({
 
   return (
     <motion.label
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
-      className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer transition-all h-40 overflow-hidden
-        ${dragging ? "border-[#395886] bg-[#eef2fb] shadow-inner" : "border-[#D5DEEF]/70 bg-white/50 hover:border-[#638ECB]/50 hover:bg-[#F0F3FA]/80 hover:shadow-md"}`}
+      whileHover={{ scale: 1.015 }}
+      whileTap={{ scale: 0.98 }}
+      className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 h-40 overflow-hidden
+        ${dragging
+          ? "border-[#395886] dark:border-[#f39c12] bg-[#eef2fb] dark:bg-[#1e293b]/60 shadow-inner"
+          : "border-[#D5DEEF]/70 dark:border-[#1e293b]/70 bg-white/50 dark:bg-[#0f1729]/40 hover:border-[#638ECB]/50 dark:hover:border-[#638ECB]/40 hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50 hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}
       onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) onChange(f); }}
@@ -34,32 +36,158 @@ function UploadZone({
       <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
       {existingUrl && hasImage ? (
         <>
-          <img src={existingUrl} alt={label} className="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-30" />
-          <div className="relative z-10 flex flex-col items-center gap-1.5 bg-white/60 backdrop-blur-sm rounded-xl px-4 py-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#638ECB] to-[#395886] flex items-center justify-center shadow-md">
+          <img src={existingUrl} alt={label} className="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-30 dark:opacity-20" />
+          <div className="relative z-10 flex flex-col items-center gap-1.5 bg-white/60 dark:bg-[#0f1729]/70 backdrop-blur-sm rounded-xl px-4 py-3 shadow-lg">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#638ECB] to-[#395886] dark:from-[#f39c12] dark:to-[#d68910] flex items-center justify-center shadow-md">
               <Upload className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xs font-extrabold text-[#395886]">{label}</span>
-            <span className="text-[10px] font-semibold text-[#638ECB]/70">{tapReplaceText}</span>
+            <span className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF]">{label}</span>
+            <span className="text-[10px] font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]">{tapReplaceText}</span>
           </div>
         </>
       ) : file ? (
-        <div className="flex flex-col items-center gap-1.5 bg-white/60 backdrop-blur-sm rounded-xl px-4 py-3">
+        <div className="flex flex-col items-center gap-1.5 bg-white/60 dark:bg-[#0f1729]/70 backdrop-blur-sm rounded-xl px-4 py-3 shadow-lg">
           <CheckCircle className="w-7 h-7 text-emerald-500" />
-          <span className="text-xs font-bold text-gray-700 text-center px-2 truncate max-w-[140px]">{file.name}</span>
+          <span className="text-xs font-bold text-gray-700 dark:text-[#D5DEEF] text-center px-2 truncate max-w-[140px]">{file.name}</span>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-1.5">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D5DEEF] to-[#bccbe0] flex items-center justify-center">
-            <Upload className="w-5 h-5 text-[#395886]" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D5DEEF] to-[#bccbe0] dark:from-[#1e293b] dark:to-[#334155] flex items-center justify-center shadow-inner">
+            <Upload className="w-5 h-5 text-[#395886] dark:text-[#94A3B8]" />
           </div>
-          <span className="text-xs font-extrabold text-[#395886]">{label}</span>
-          <span className="text-[10px] font-semibold text-[#638ECB]/60">{formatsText}</span>
+          <span className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF]">{label}</span>
+          <span className="text-[10px] font-semibold text-[#638ECB]/60 dark:text-[#64748b]">{formatsText}</span>
         </div>
       )}
     </motion.label>
   );
 }
+
+function Particles() {
+  const particles = useMemo(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      duration: Math.random() * 6 + 4,
+      delay: Math.random() * 4,
+    })), []);
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.3, 0.8, 0.3],
+          }}
+          transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ShimmerButton({ children, ...props }: React.ComponentProps<typeof motion.button> & { children: React.ReactNode }) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      {...props}
+      className={`relative overflow-hidden group ${props.className || ""}`}
+    >
+      <span className="absolute inset-0 bg-[linear-gradient(110deg,transparent,transparent,rgba(255,255,255,0.15),transparent,transparent)] dark:bg-[linear-gradient(110deg,transparent,transparent,rgba(255,255,255,0.08),transparent,transparent)] bg-[length:200%_100%] group-hover:animate-[shimmer_2.5s_infinite]" />
+      <span className="relative z-10">{children}</span>
+    </motion.button>
+  );
+}
+
+function InputField({ icon: Icon, label, error, ...props }: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  error?: string;
+} & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div>
+      <label className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+        {Icon && <Icon className="w-3 h-3" />} {label}
+      </label>
+      <input
+        {...props}
+        className={`w-full border-2 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200 outline-none
+          ${props.disabled
+            ? "border-[#D5DEEF]/60 dark:border-[#1e293b]/60 bg-gray-50/50 dark:bg-[#1e293b]/30 text-[#638ECB]/60 dark:text-[#64748b] cursor-not-allowed"
+            : "border-[#D5DEEF]/60 dark:border-[#1e293b]/70 bg-white/80 dark:bg-[#1e293b]/60 text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 dark:placeholder:text-[#64748b]/50 focus:border-[#638ECB]/50 dark:focus:border-[#638ECB]/40 focus:ring-4 focus:ring-[#638ECB]/10 dark:focus:ring-[#638ECB]/5 hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/20"
+          } ${props.className || ""}`}
+      />
+      {error && <p className="text-[11px] font-semibold text-rose-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+function StatusBadge({ verified }: { verified: boolean }) {
+  return verified ? (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-full px-4 py-2 shadow-sm">
+      <CheckCircle className="w-3.5 h-3.5" /> Tout est v&eacute;rifi&eacute;
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 rounded-full px-4 py-2 shadow-sm">
+      <Fingerprint className="w-3.5 h-3.5" /> En attente
+    </span>
+  );
+}
+
+function SectionCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-3xl border border-[#D5DEEF]/50 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 backdrop-blur-xl shadow-lg shadow-black/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:shadow-xl dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-500 overflow-hidden ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function SectionHeader({ icon: Icon, gradient, title, subtitle, right }: {
+  icon: React.ComponentType<{ className?: string }>;
+  gradient: string;
+  title: string;
+  subtitle: string;
+  right?: React.ReactNode;
+}) {
+  return (
+    <div className="px-7 py-5 border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/60 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className={`w-10 h-10 rounded-xl ${gradient} flex items-center justify-center shadow-lg shadow-black/10`}>
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h2 className="font-extrabold text-[#395886] dark:text-[#D5DEEF] text-sm">{title}</h2>
+          <p className="text-[11px] font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70">{subtitle}</p>
+        </div>
+      </div>
+      {right}
+    </div>
+  );
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 export default function ProfilePage({ hideBackButton }: { hideBackButton?: boolean }) {
   const { t } = useI18n();
@@ -192,19 +320,21 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
 
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-[#F0F3FA]">
+      <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
         {uploadPrompt === "documents" && (
-          <div className="bg-amber-50 border-b border-amber-200 px-6 py-4 text-center">
-            <p className="text-amber-800 font-bold text-sm">
+          <div className="bg-amber-50 dark:bg-amber-950/50 border-b border-amber-200 dark:border-amber-800/50 px-6 py-4 text-center">
+            <p className="text-amber-800 dark:text-amber-300 font-bold text-sm">
               {t("profile.documents_banner")}
             </p>
           </div>
         )}
+
         {/* ── Hero ── */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
+          <Particles />
           <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/4" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
           <div className="relative max-w-4xl mx-auto px-6 py-14">
             {!hideBackButton && <BackButton />}
             <motion.div
@@ -213,8 +343,8 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="flex items-center gap-6"
             >
-              <div className="relative shrink-0">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-white/20 shadow-2xl bg-gradient-to-br from-[#638ECB] to-[#395886]">
+              <div className="relative shrink-0 group">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-white/20 shadow-2xl bg-gradient-to-br from-[#638ECB] to-[#395886] transition-transform duration-300 group-hover:scale-[1.03]">
                   {profilePicSrc ? (
                     <img src={profilePicSrc} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -223,8 +353,8 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                     </div>
                   )}
                 </div>
-                <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-[#f39c12] to-[#e08e0b] flex items-center justify-center cursor-pointer shadow-lg shadow-[#f39c12]/30 hover:scale-110 transition-transform border-2 border-white">
-                  <Camera className="w-3.5 h-3.5 text-white" />
+                <label className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-[#f39c12] to-[#e08e0b] flex items-center justify-center cursor-pointer shadow-lg shadow-[#f39c12]/30 hover:scale-110 hover:rotate-12 transition-all duration-300 border-2 border-white dark:border-[#0f1729]">
+                  <Camera className="w-4 h-4 text-white" />
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => setProfilePicFile(e.target.files?.[0] ?? null)} />
                 </label>
               </div>
@@ -247,68 +377,55 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
               </div>
             </motion.div>
           </div>
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-[#F0F3FA]/20 to-[#F0F3FA] dark:via-[#070b14]/20 dark:to-[#070b14] pointer-events-none" />
         </div>
 
-        <div className="max-w-4xl mx-auto px-6 -mt-6 relative z-10 pb-12 flex flex-col gap-6">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="max-w-4xl mx-auto px-6 mt-8 relative z-10 pb-16 flex flex-col gap-7"
+        >
           {/* ── Personal Details ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="rounded-3xl border border-[#D5DEEF]/50 bg-white/70 backdrop-blur-xl shadow-lg shadow-black/5 overflow-hidden">
-              <div className="px-7 py-5 border-b border-[#D5DEEF]/40 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#638ECB] to-[#395886] flex items-center justify-center shadow-md">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h2 className="font-extrabold text-[#395886] text-sm">{t("profile.personal_info")}</h2>
-                  <p className="text-[11px] font-semibold text-[#638ECB]/70">{t("profile.personal_subtitle")}</p>
-                </div>
-              </div>
-
+          <motion.div variants={cardVariants}>
+            <SectionCard>
+              <SectionHeader
+                icon={User}
+                gradient="bg-gradient-to-br from-[#638ECB] to-[#395886]"
+                title={t("profile.personal_info")}
+                subtitle={t("profile.personal_subtitle")}
+              />
               <form onSubmit={onUpdateBasic} className="px-7 py-6">
                 <div className="flex flex-col sm:flex-row gap-6">
-                  <div className="flex-1 flex flex-col gap-4">
-                    <div>
-                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                        <User className="w-3 h-3" /> {t("profile.name_label")}
-                      </label>
-                      <input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
-                        type="text"
-                        placeholder={t("profile.name_placeholder")}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                        <Mail className="w-3 h-3" /> {t("profile.email_label")}
-                      </label>
-                      <div className="relative">
-                        <input
-                          value={email}
-                          disabled
-                          className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold bg-gray-50/50 text-[#638ECB]/60 cursor-not-allowed"
-                          type="email"
-                        />
-                      </div>
-                      <p className="text-[11px] font-semibold text-[#638ECB]/50 mt-1.5">{t("profile.email_change_hint")}</p>
-                    </div>
+                  <div className="flex-1 flex flex-col gap-5">
+                    <InputField
+                      icon={User}
+                      label={t("profile.name_label")}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={t("profile.name_placeholder")}
+                      type="text"
+                    />
+                    <InputField
+                      icon={Mail}
+                      label={t("profile.email_label")}
+                      value={email}
+                      disabled
+                      type="email"
+                    />
+                    <p className="text-[11px] font-semibold text-[#638ECB]/50 dark:text-[#94A3B8]/50 -mt-3">{t("profile.email_change_hint")}</p>
                   </div>
                 </div>
 
                 <AnimatePresence>
                   {basicError && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-4">
-                      <div className="text-sm text-rose-700 bg-rose-50/80 border border-rose-200/60 rounded-xl px-4 py-3 font-bold">{basicError}</div>
+                      <div className="text-sm text-rose-700 dark:text-rose-400 bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 rounded-xl px-4 py-3 font-bold">{basicError}</div>
                     </motion.div>
                   )}
                   {basicSuccess && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-4">
-                      <div className="text-sm text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 rounded-xl px-4 py-3 font-bold flex items-center gap-2">
+                      <div className="text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl px-4 py-3 font-bold flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" /> {basicSuccess}
                       </div>
                     </motion.div>
@@ -316,83 +433,74 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                 </AnimatePresence>
 
                 <div className="flex justify-end mt-6">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <ShimmerButton
                     type="submit" disabled={basicSubmitting}
-                    className="px-7 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-sm font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl disabled:opacity-50 transition-all"
+                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-sm font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                   >
                     {basicSubmitting ? (
-                      <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> {t("profile.saving")}</span>
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white dark:border-[#0f1729] border-t-transparent rounded-full animate-spin" />
+                        {t("profile.saving")}
+                      </span>
                     ) : t("profile.save")}
-                  </motion.button>
+                  </ShimmerButton>
                 </div>
               </form>
-            </div>
+            </SectionCard>
           </motion.div>
 
           {/* ── Security ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="rounded-3xl border border-[#D5DEEF]/50 bg-white/70 backdrop-blur-xl shadow-lg shadow-black/5 overflow-hidden">
-              <div className="px-7 py-5 border-b border-[#D5DEEF]/40 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h2 className="font-extrabold text-[#395886] text-sm">{t("profile.security")}</h2>
-                  <p className="text-[11px] font-semibold text-[#638ECB]/70">{t("profile.security_subtitle")}</p>
-                </div>
-              </div>
-
-              <form onSubmit={onUpdatePassword} className="px-7 py-6 flex flex-col gap-4">
+          <motion.div variants={cardVariants}>
+            <SectionCard>
+              <SectionHeader
+                icon={Shield}
+                gradient="bg-gradient-to-br from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-700"
+                title={t("profile.security")}
+                subtitle={t("profile.security_subtitle")}
+              />
+              <form onSubmit={onUpdatePassword} className="px-7 py-6 flex flex-col gap-5">
                 <div className="grid sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                      <Lock className="w-3 h-3" /> {t("profile.password_current")}
-                    </label>
-                    <div className="relative">
-                      <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder={t("profile.password_placeholder")}
-                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 pr-10 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
-                        type={showPw ? "text" : "password"} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                      <Lock className="w-3 h-3" /> {t("profile.password_new")}
-                    </label>
-                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder={t("profile.password_placeholder")}
-                      className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
-                      type={showPw ? "text" : "password"} />
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
-                      <Lock className="w-3 h-3" /> {t("profile.password_confirm")}
-                    </label>
-                    <input value={confirmePassword} onChange={(e) => setConfirmePassword(e.target.value)} placeholder={t("profile.password_placeholder")}
-                      className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
-                      type={showPw ? "text" : "password"} />
-                  </div>
+                  <InputField
+                    icon={Lock}
+                    label={t("profile.password_current")}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder={t("profile.password_placeholder")}
+                    type={showPw ? "text" : "password"}
+                  />
+                  <InputField
+                    icon={Lock}
+                    label={t("profile.password_new")}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder={t("profile.password_placeholder")}
+                    type={showPw ? "text" : "password"}
+                  />
+                  <InputField
+                    icon={Lock}
+                    label={t("profile.password_confirm")}
+                    value={confirmePassword}
+                    onChange={(e) => setConfirmePassword(e.target.value)}
+                    placeholder={t("profile.password_placeholder")}
+                    type={showPw ? "text" : "password"}
+                  />
                 </div>
 
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-[#638ECB] hover:text-[#395886] transition-colors">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-[#638ECB] dark:text-[#94A3B8] hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">
                   <input type="checkbox" checked={showPw} onChange={(e) => setShowPw(e.target.checked)}
-                    className="w-4 h-4 accent-[#638ECB]" />
+                    className="w-4 h-4 accent-[#638ECB] dark:accent-[#f39c12] rounded" />
                   <Eye className="w-3.5 h-3.5" /> {t("profile.show_passwords")}
                 </label>
 
                 <AnimatePresence>
                   {pwError && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="text-sm text-rose-700 bg-rose-50/80 border border-rose-200/60 rounded-xl px-4 py-3 font-bold">{pwError}</div>
+                      <div className="text-sm text-rose-700 dark:text-rose-400 bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 rounded-xl px-4 py-3 font-bold">{pwError}</div>
                     </motion.div>
                   )}
                   {pwSuccess && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="text-sm text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 rounded-xl px-4 py-3 font-bold flex items-center gap-2">
+                      <div className="text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl px-4 py-3 font-bold flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" /> {pwSuccess}
                       </div>
                     </motion.div>
@@ -400,59 +508,43 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                 </AnimatePresence>
 
                 <div className="flex justify-end">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <ShimmerButton
                     type="submit" disabled={pwSubmitting}
-                    className="px-7 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm font-extrabold shadow-lg shadow-amber-500/20 hover:shadow-xl disabled:opacity-50 transition-all"
+                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 text-white text-sm font-extrabold shadow-lg shadow-amber-500/20 hover:shadow-xl disabled:opacity-50 transition-all"
                   >
                     {pwSubmitting ? (
-                      <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> {t("profile.updating")}</span>
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        {t("profile.updating")}
+                      </span>
                     ) : t("profile.update_button")}
-                  </motion.button>
+                  </ShimmerButton>
                 </div>
               </form>
-            </div>
+            </SectionCard>
           </motion.div>
 
           {/* ── Documents ── */}
-          {user?.role_id !== 1 && <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="rounded-3xl border border-[#D5DEEF]/50 bg-white/70 backdrop-blur-xl shadow-lg shadow-black/5 overflow-hidden">
-              <div className="px-7 py-5 border-b border-[#D5DEEF]/40 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-md">
-                    <IdCard className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="font-extrabold text-[#395886] text-sm">{t("profile.documents")}</h2>
-                    <p className="text-[11px] font-semibold text-[#638ECB]/70">{t("profile.documents_subtitle")}</p>
-                  </div>
-                </div>
-                {docsComplete ? (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 rounded-full px-4 py-2">
-                    <CheckCircle className="w-3.5 h-3.5" /> {t("profile.all_verified")}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-amber-700 bg-amber-50/80 border border-amber-200/60 rounded-full px-4 py-2">
-                    <Fingerprint className="w-3.5 h-3.5" /> {t("profile.pending")}
-                  </span>
-                )}
-              </div>
+          {user?.role_id !== 1 && <motion.div variants={cardVariants}>
+            <SectionCard>
+              <SectionHeader
+                icon={IdCard}
+                gradient="bg-gradient-to-br from-emerald-400 to-emerald-600 dark:from-emerald-500 dark:to-emerald-700"
+                title={t("profile.documents")}
+                subtitle={t("profile.documents_subtitle")}
+                right={<StatusBadge verified={docsComplete} />}
+              />
 
               <div className="px-7 py-6 flex flex-col gap-8">
                 <AnimatePresence>
                   {docsError && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="text-sm text-rose-700 bg-rose-50/80 border border-rose-200/60 rounded-xl px-4 py-3 font-bold">{docsError}</div>
+                      <div className="text-sm text-rose-700 dark:text-rose-400 bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 rounded-xl px-4 py-3 font-bold">{docsError}</div>
                     </motion.div>
                   )}
                   {docsSuccess && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="text-sm text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 rounded-xl px-4 py-3 font-bold flex items-center gap-2">
+                      <div className="text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl px-4 py-3 font-bold flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" /> {docsSuccess}
                       </div>
                     </motion.div>
@@ -463,10 +555,10 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                 <form onSubmit={onUploadPermi}>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${initial.permi_recto && initial.permi_verso ? "bg-emerald-100" : "bg-[#F0F3FA]"}`}>
-                        <FileText className={`w-4 h-4 ${initial.permi_recto && initial.permi_verso ? "text-emerald-600" : "text-[#638ECB]"}`} />
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${initial.permi_recto && initial.permi_verso ? "bg-emerald-100 dark:bg-emerald-950/50" : "bg-[#F0F3FA] dark:bg-[#1e293b]/60"}`}>
+                        <FileText className={`w-4 h-4 ${initial.permi_recto && initial.permi_verso ? "text-emerald-600 dark:text-emerald-400" : "text-[#638ECB] dark:text-[#94A3B8]"}`} />
                       </div>
-                      <span className="text-sm font-extrabold text-[#395886]">{t("profile.license_section")}</span>
+                      <span className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("profile.license_section")}</span>
                       {initial.permi_recto && initial.permi_verso && (
                         <CheckCircle className="w-4 h-4 text-emerald-500" />
                       )}
@@ -483,27 +575,25 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                       tapReplaceText={t("profile.upload_tap_replace")} formatsText={t("profile.upload_formats")} />
                   </div>
                   <div className="flex justify-end">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <ShimmerButton
                       type="submit" disabled={docsSubmitting}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl disabled:opacity-50 transition-all"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                     >
                       {docsSubmitting ? t("profile.uploading") : t("profile.upload_license_button")}
-                    </motion.button>
+                    </ShimmerButton>
                   </div>
                 </form>
 
-                <div className="border-t border-[#D5DEEF]/40" />
+                <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60" />
 
                 {/* CIN / Passport */}
                 <form onSubmit={onUploadCin}>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${initial.cin_recto && initial.cin_verso ? "bg-emerald-100" : "bg-[#F0F3FA]"}`}>
-                        <IdCard className={`w-4 h-4 ${initial.cin_recto && initial.cin_verso ? "text-emerald-600" : "text-[#638ECB]"}`} />
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${initial.cin_recto && initial.cin_verso ? "bg-emerald-100 dark:bg-emerald-950/50" : "bg-[#F0F3FA] dark:bg-[#1e293b]/60"}`}>
+                        <IdCard className={`w-4 h-4 ${initial.cin_recto && initial.cin_verso ? "text-emerald-600 dark:text-emerald-400" : "text-[#638ECB] dark:text-[#94A3B8]"}`} />
                       </div>
-                      <span className="text-sm font-extrabold text-[#395886]">{t("profile.cin_section")}</span>
+                      <span className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("profile.cin_section")}</span>
                       {initial.cin_recto && initial.cin_verso && (
                         <CheckCircle className="w-4 h-4 text-emerald-500" />
                       )}
@@ -520,20 +610,18 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                       tapReplaceText={t("profile.upload_tap_replace")} formatsText={t("profile.upload_formats")} />
                   </div>
                   <div className="flex justify-end">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <ShimmerButton
                       type="submit" disabled={docsSubmitting}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white text-xs font-extrabold shadow-lg shadow-[#395886]/20 hover:shadow-xl disabled:opacity-50 transition-all"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                     >
                       {docsSubmitting ? t("profile.uploading") : t("profile.upload_cin_button")}
-                    </motion.button>
+                    </ShimmerButton>
                   </div>
                 </form>
               </div>
-            </div>
+            </SectionCard>
           </motion.div>}
-        </div>
+        </motion.div>
       </div>
     </RequireAuth>
   );
