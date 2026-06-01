@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/authContext";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { profileImageUrl } from "@/lib/media";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 
 type NavItem = {
@@ -97,18 +98,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
-
+  const { t } = useI18n();
   const [loggingOut, setLoggingOut] = useState(false);
 
   const navItems: NavItem[] = useMemo(
     () => [
-      { label: "Dashboard", href: "/admin", icon: <DashboardIcon /> },
-      { label: "Véhicules", href: "/admin/vehicles", icon: <FleetIcon /> },
-      { label: "Réservations", href: "/admin/reservations", icon: <CalendarIcon /> },
-      { label: "Profil", href: "/admin/profile", icon: <UserIcon /> },
-      { label: "Carte", href: "/admin/vehicles/map", icon: <MapIcon /> },
+      { label: t("admin.dashboard"), href: "/admin", icon: <DashboardIcon /> },
+      { label: t("admin.vehicles"), href: "/admin/vehicles", icon: <FleetIcon /> },
+      { label: t("admin.reservations"), href: "/admin/reservations", icon: <CalendarIcon /> },
+      { label: t("admin.profile"), href: "/admin/profile", icon: <UserIcon /> },
+      { label: t("admin.map"), href: "/admin/vehicles/map", icon: <MapIcon /> },
     ],
-    []
+    [t]
   );
 
   const activeHref = useMemo(() => {
@@ -138,7 +139,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <div className="h-9 w-9 rounded-lg bg-[#395886] flex items-center justify-center text-white text-sm font-black">
               LA
             </div>
-            <div className="text-sm font-extrabold text-[#395886]">Administration</div>
+            <div className="text-sm font-extrabold text-[#395886]">{t("admin.administration")}</div>
           </div>
 
           {/* Nav */}
@@ -196,7 +197,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className="w-full h-9 rounded-lg border border-[#D5DEEF] hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
             <LogoutIcon />
-            <span>{loggingOut ? "Déconnexion..." : "Se déconnecter"}</span>
+            <span>{loggingOut ? t("nav.logout_loading") : t("nav.logout")}</span>
           </button>
 
         </div>
@@ -213,7 +214,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span>Retour</span>
+            <span>{t("back")}</span>
           </button>
         )}
         {children}

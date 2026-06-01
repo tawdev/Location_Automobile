@@ -7,6 +7,7 @@ use App\Http\Requests\ReservationRequest;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Reservation;
 
 class ReservationController extends Controller
 {
@@ -135,13 +136,33 @@ class ReservationController extends Controller
 
     public function getReservedDates($id)
     {
-        $dates = \App\Models\Reservation::where('vehicle_id', $id)
+        $dates = Reservation::where('vehicle_id', $id)
             ->where('status', 'Confirmée')
             ->get(['start_date', 'end_date']);
 
         return response()->json([
             'status' => 'success',
             'data' => $dates
+        ]);
+    }
+
+    public function finalize($id, Request $request)
+    {
+        $request->validate(['km_driven' => 'required|integer|min:0']);
+
+        $data = $this->reservitionService->finalizeReservation($id, $request->km_driven);
+
+        if (!$data) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Impossible de finaliser cette réservation.'
+            ], 400);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Réservation finalisée avec succès.',
+            'data' => $data,
         ]);
     }
 

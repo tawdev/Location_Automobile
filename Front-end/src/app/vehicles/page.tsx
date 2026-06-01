@@ -10,6 +10,7 @@ import { vehicleImageUrl } from "@/lib/media";
 import { Search } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import HomeMap from "@/components/HomeMap";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const NEW_COUNT = 10;
 
@@ -41,6 +42,7 @@ export default function VehiclesPage() {
   const [pickupDate, setPickupDate] = useState<string>("");
   const [returnDate, setReturnDate] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const categories = ["All", "SUV", "Sports"];
@@ -59,7 +61,7 @@ export default function VehiclesPage() {
       const data = await listVehicles();
       setVehicles(data);
     } catch (e) {
-      const msg = (e as { message?: string })?.message || "Failed to load vehicles";
+      const msg = (e as { message?: string })?.message || t("vehicles.error_load");
       setError(msg);
     } finally {
       setLoading(false);
@@ -82,7 +84,7 @@ export default function VehiclesPage() {
       const data = await filterVehicles(params);
       setVehicles(data);
     } catch (e) {
-      const msg = (e as { message?: string })?.message || "Filtering failed";
+      const msg = (e as { message?: string })?.message || t("vehicles.error_filter");
       setError(msg);
     } finally {
       setLoading(false);
@@ -134,7 +136,7 @@ export default function VehiclesPage() {
 
           <div className="relative z-10 w-full max-w-[1280px] mx-auto px-8 pt-12 pb-16" style={{ zoom: 0.85 }}>
             <h1 className="text-center text-white text-[48px] font-extrabold tracking-[-0.04em] drop-shadow-lg">
-              R&eacute;servez votre v&eacute;hicule au Maroc
+              {t("vehicles.page_title")}
             </h1>
 
             {/* SEARCH CARD */}
@@ -142,13 +144,13 @@ export default function VehiclesPage() {
               {/* Search */}
               <div className="mb-6">
                 <label className="block text-[11px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
-                  Rechercher
+                  {t("vehicles.search_label")}
                 </label>
                 <div className="h-[50px] bg-white/60 border border-white/40 rounded-xl flex items-center px-5">
                   <Search className="w-[18px] h-[18px] text-[#8b94a9]" />
                   <input
                     type="text"
-                    placeholder="Rechercher par mod&egrave;le..."
+                    placeholder={t("vehicles.search_placeholder")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-transparent outline-none ml-3 w-full text-[15px] text-gray-700 placeholder:text-gray-400"
@@ -160,7 +162,7 @@ export default function VehiclesPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
-                    Date d&eacute;part
+                    {t("vehicles.pickup_date")}
                   </label>
                   <div className="h-[50px] bg-white/60 border border-white/40 rounded-xl flex items-center px-5">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#8b94a9">
@@ -177,7 +179,7 @@ export default function VehiclesPage() {
 
                 <div>
                   <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
-                    Date retour
+                    {t("vehicles.return_date")}
                   </label>
                   <div className="h-[50px] bg-white/60 border border-white/40 rounded-xl flex items-center px-5">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#8b94a9">
@@ -194,11 +196,11 @@ export default function VehiclesPage() {
 
                 <div>
                   <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
-                    Marque
+                    {t("vehicles.brand")}
                   </label>
                   <input
                     type="text"
-                    placeholder="Ex: BMW, Mercedes..."
+                    placeholder={t("vehicles.brand_placeholder")}
                     value={query.marque ?? ""}
                     onChange={(e) => setQuery((q) => ({ ...q, marque: e.target.value }))}
                     className="w-full h-[50px] bg-white/60 border border-white/40 rounded-xl px-5 outline-none text-[15px] text-gray-700 placeholder:text-gray-400"
@@ -207,22 +209,22 @@ export default function VehiclesPage() {
 
                 <div>
                   <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
-                    Cat&eacute;gorie
+                    {t("vehicles.category")}
                   </label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="w-full h-[50px] bg-white/60 border border-white/40 rounded-xl px-5 outline-none text-[15px] text-gray-700"
                   >
-                    <option value="All">Toutes</option>
+                    <option value="All">{t("vehicles.all")}</option>
                     <option value="SUV">SUV</option>
-                    <option value="Sports">Sport</option>
+                    <option value="Sports">{t("vehicles.sport")}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
-                    Prix min
+                    {t("vehicles.min_price")}
                   </label>
                   <input
                     type="number"
@@ -235,7 +237,7 @@ export default function VehiclesPage() {
 
                 <div>
                   <label className="block text-black text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] mb-2">
-                    Prix max
+                    {t("vehicles.max_price")}
                   </label>
                   <input
                     type="number"
@@ -255,7 +257,7 @@ export default function VehiclesPage() {
                   className="h-[50px] px-10 rounded-xl bg-[#4c6797] hover:bg-[#395784] transition text-white text-[14px] font-semibold flex items-center gap-3 disabled:opacity-50"
                 >
                   <Search className="w-[17px] h-[17px]" />
-                  Rechercher
+                  {t("vehicles.filter_button")}
                 </button>
               </div>
             </div>
@@ -267,10 +269,10 @@ export default function VehiclesPage() {
           <div className="flex items-end justify-between mb-10">
             <div>
               <h2 className="text-[46px] font-extrabold tracking-[-0.03em] text-[#1f4276]">
-                Sélection Vedette
+                {t("vehicles.featured_title")}
               </h2>
               <p className="mt-2 text-[16px] text-gray-500">
-                Des véhicules de luxe choisis pour votre voyage.
+                {t("vehicles.featured_subtitle")}
               </p>
             </div>
 
@@ -285,7 +287,7 @@ export default function VehiclesPage() {
                       : "bg-[#ececf1] text-gray-700 hover:bg-[#dde0e8]"
                   }`}
                 >
-                  {cat === "All" ? "Toutes" : cat === "Sports" ? "Sport" : cat}
+                  {cat === "All" ? t("vehicles.all") : cat === "Sports" ? t("vehicles.sport") : cat}
                 </button>
               ))}
             </div>
@@ -335,7 +337,7 @@ export default function VehiclesPage() {
                             transition={{ delay: idx * 0.06 + 0.2 }}
                             className="px-3 py-1 rounded-full bg-green-500 text-white text-[11px] font-bold"
                           >
-                            Nouveau
+                            {t("vehicles.new_badge")}
                           </motion.span>
                         )}
                         <motion.span
@@ -344,7 +346,7 @@ export default function VehiclesPage() {
                           transition={{ delay: idx * 0.06 + 0.3 }}
                           className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[#6d7da2] text-[11px] font-bold"
                         >
-                          Disponible
+                          {t("vehicles.available_badge")}
                         </motion.span>
                       </div>
                     </motion.div>
@@ -359,17 +361,17 @@ export default function VehiclesPage() {
                         {v.marque} {v.model}
                       </h3>
                       <p className="mt-2 text-[14px] text-gray-500">
-                        {v.year} &bull; Automatique
+                        {v.year} &bull; {t("vehicles.automatic")}
                       </p>
                       <div className="flex items-center gap-8 mt-6 text-[13px] text-gray-600">
-                        <span className="flex items-center gap-1.5">&#128100; {v.Occupants} places</span>
+                        <span className="flex items-center gap-1.5">&#128100; {v.Occupants} {t("vehicles.seats")}</span>
                         <span className="flex items-center gap-1.5">&#9971; {v.fuelType}</span>
                       </div>
 
                       <div className="mt-6 border-t border-[#d5deeF]/60 pt-5 flex items-center justify-between">
                         <div className="leading-none">
                           <span className="text-[34px] font-extrabold text-[#1f4276]">{v.pricePerDay} DH</span>
-                          <span className="text-gray-500 text-[14px] ml-1">/ jour</span>
+                          <span className="text-gray-500 text-[14px] ml-1">{t("vehicles.per_day")}</span>
                         </div>
                         <motion.button
                           whileHover={{ scale: 1.06 }}
@@ -380,7 +382,7 @@ export default function VehiclesPage() {
                           }}
                           className="h-11 px-6 rounded-xl border border-[#f39c12] text-[#f39c12] text-[13px] font-semibold hover:bg-[#f39c12] hover:text-white hover:scale-105 transition-all duration-200"
                         >
-                          R&eacute;server
+                          {t("vehicles.book_button")}
                         </motion.button>
                       </div>
                     </motion.div>
@@ -392,7 +394,7 @@ export default function VehiclesPage() {
 
           {!loading && filteredVehicles.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">Aucun v&eacute;hicule trouv&eacute;.</p>
+              <p className="text-gray-500 text-lg">{t("vehicles.no_results")}</p>
             </div>
           )}
         </section>
@@ -401,30 +403,25 @@ export default function VehiclesPage() {
         <section className="bg-[#f7f7fa] py-24 border-t border-[#ebedf2]">
           <div className="max-w-[1280px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
             <div>
-              <div className="text-[11px] uppercase tracking-[0.18em] font-bold text-[#7385a9]">Excellence en Mouvement</div>
+              <div className="text-[11px] uppercase tracking-[0.18em] font-bold text-[#7385a9]">{t("vehicles.about_label")}</div>
               <h2 className="mt-4 text-[56px] leading-[1.05] font-extrabold text-[#1f4276]">
-                &Agrave; propos de Marrakech Elite Mobility
+                {t("vehicles.about_title")}
               </h2>
               <p className="mt-8 text-[18px] leading-[1.9] text-gray-600">
-                Chez Marrakech Elite Mobility, nous red&eacute;finissons les standards du voyage de luxe
-                &agrave; travers le Maroc. Notre engagement va au-del&agrave; de la fourniture d&rsquo;un v&eacute;hicule&nbsp;;
-                nous offrons un service de conciergerie automobile complet adapt&eacute; aux voyageurs les plus exigeants.
+                {t("vehicles.about_text1")}
               </p>
               <p className="mt-8 text-[18px] leading-[1.9] text-gray-600">
-                Avec une flotte m&eacute;ticuleusement s&eacute;lectionn&eacute;e allant des plus beaux grands
-                tourisme du monde aux SUV ultra-luxueux, nous veillons &agrave; ce que chaque kilom&egrave;tre de
-                votre voyage marocain soit caract&eacute;ris&eacute; par un prestige sans effort et un confort
-                sophistiqu&eacute;.
+                {t("vehicles.about_text2")}
               </p>
 
               <div className="flex gap-20 mt-16">
                 <div>
-                  <div className="text-[60px] font-extrabold text-[#1f4276]">15+</div>
-                  <div className="text-[14px] uppercase tracking-[0.12em] text-gray-500">Ans de Luxe</div>
+                  <div className="text-[60px] font-extrabold text-[#1f4276]">{t("vehicles.stats_years_value")}</div>
+                  <div className="text-[14px] uppercase tracking-[0.12em] text-gray-500">{t("vehicles.stats_years_label")}</div>
                 </div>
                 <div>
-                  <div className="text-[60px] font-extrabold text-[#1f4276]">24/7</div>
-                  <div className="text-[14px] uppercase tracking-[0.12em] text-gray-500">Conciergerie VIP</div>
+                  <div className="text-[60px] font-extrabold text-[#1f4276]">{t("vehicles.stats_concierge_value")}</div>
+                  <div className="text-[14px] uppercase tracking-[0.12em] text-gray-500">{t("vehicles.stats_concierge_label")}</div>
                 </div>
               </div>
             </div>
@@ -442,7 +439,7 @@ export default function VehiclesPage() {
                 </div>
               </div>
               <div className="absolute -bottom-10 right-0 bg-[#dfe5f4] text-[#1f4276] text-[16px] font-semibold leading-[1.7] rounded-2xl p-8 shadow-xl max-w-[320px]">
-                &laquo;&nbsp;Une attention in&eacute;gal&eacute;e aux d&eacute;tails dans chaque voyage.&nbsp;&raquo;
+                {t("vehicles.quote")}
               </div>
             </div>
           </div>

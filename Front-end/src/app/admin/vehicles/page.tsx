@@ -469,7 +469,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Prix de location ($/jour)</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Prix de location (DH/jour)</label>
               <input
                 type="number"
                 required

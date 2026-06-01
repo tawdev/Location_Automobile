@@ -199,10 +199,10 @@ export default function RegisterPage() {
               >
                 <div className="rounded-[16px] bg-white/65 backdrop-blur-xl border border-[#D5DEEF]/55 shadow-[0_10px_30px_rgba(57,88,134,0.18)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px]">
                   <h2 className="text-[26px] md:text-[30px] lg:text-[38px] font-extrabold text-[#395886] leading-[1.05] text-center">
-                    Check <span className="text-[#F39C12]">Your Email</span>
+                    Vérifiez <span className="text-[#F39C12]">votre e-mail</span>
                   </h2>
                   <p className="mt-[4px] text-[13px] md:text-[14px] lg:text-[16px] text-[#395886] text-center">
-                    We sent a 6-digit code to <span className="font-black">{email}</span>
+                    Nous avons envoyé un code à 6 chiffres à <span className="font-black">{email}</span>
                   </p>
 
                   {codeError && (
@@ -233,22 +233,22 @@ export default function RegisterPage() {
                     onClick={handleVerifyCode}
                     className="mt-[22px] w-full h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 disabled:opacity-60 transition-opacity cursor-pointer"
                   >
-                    {codeSubmitting ? "Verifying..." : "Verify Code"}
+                    {codeSubmitting ? "Vérification..." : "Vérifier le code"}
                   </button>
 
                   <div className="mt-[16px] flex items-center justify-between text-[13px] font-semibold">
                     <button type="button" onClick={backToForm} className="text-[#638ECB] underline hover:opacity-80 cursor-pointer">
-                      Back
+                      Retour
                     </button>
                     <button type="button" onClick={handleResend} disabled={resending} className="text-[#638ECB] underline hover:opacity-80 disabled:opacity-50 cursor-pointer">
-                      {resending ? "Sending..." : "Resend code"}
+                      {resending ? "Envoi..." : "Renvoyer le code"}
                     </button>
                   </div>
 
                   <div className="mt-[18px] flex flex-wrap items-center justify-center gap-[10px] text-[11px] text-[#395886]">
-                    <a href="." className="hover:opacity-90 underline-offset-2 underline">Privacy Policy</a>
+                    <a href="." className="hover:opacity-90 underline-offset-2 underline">Politique de confidentialité</a>
                     <span className="opacity-50">|</span>
-                    <a href="." className="hover:opacity-90 underline-offset-2 underline">Terms of Service</a>
+                    <a href="." className="hover:opacity-90 underline-offset-2 underline">Conditions d'utilisation</a>
                   </div>
                 </div>
               </motion.div>
@@ -261,11 +261,11 @@ export default function RegisterPage() {
               >
                 <div className="rounded-[16px] bg-white/65 backdrop-blur-xl border border-[#D5DEEF]/55 shadow-[0_10px_30px_rgba(57,88,134,0.18)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px]">
                   <h2 className="text-[26px] md:text-[30px] lg:text-[38px] font-extrabold text-[#395886] leading-[1.05] text-center">
-                    {mode === "login" ? <>Welcome <span className="text-[#F39C12]">Back</span></> : <>Create <span className="text-[#F39C12]">Account</span></>}
+                    {mode === "login" ? <>Bon retour <span className="text-[#F39C12]">parmi nous</span></> : <>Créer un <span className="text-[#F39C12]">compte</span></>}
                   </h2>
 
                   <p className="mt-[4px] text-[13px] md:text-[14px] lg:text-[16px] text-[#395886] text-center">
-                    {mode === "login" ? "Sign in to continue your journey" : "Sign up to start booking with ease"}
+                    {mode === "login" ? "Connectez-vous pour continuer" : "Inscrivez-vous pour réserver facilement"}
                   </p>
 
                   {displayError && (
@@ -277,21 +277,21 @@ export default function RegisterPage() {
                   <form className="mt-[22px] flex flex-col gap-[14px]" onSubmit={handleSubmit}>
                     {mode === "signup" && (
                       <div>
-                        <div className="sr-only"><label>Name</label></div>
-                        <InputField label="Name" type="text" value={name} onChange={(next) => { setName(next); setFieldErrors((prev) => ({ ...prev, name: null })); }} autoComplete="name" placeholder="" leftIcon={<div className="text-[#638ECB] font-extrabold">@</div>} />
+                        <div className="sr-only"><label>Nom</label></div>
+                        <InputField label="Nom" type="text" value={name} onChange={(next) => { setName(next); setFieldErrors((prev) => ({ ...prev, name: null })); }} autoComplete="name" placeholder="" leftIcon={<div className="text-[#638ECB] font-extrabold">@</div>} />
                         {fieldErrors.name && <span className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.name}</span>}
                       </div>
                     )}
 
                     <div>
-                      <InputField label="Email Address" type="email" value={email} onChange={(next) => { setEmail(next); setFieldErrors((prev) => ({ ...prev, email: null })); }} autoComplete="email" placeholder="" leftIcon={<MailIcon />} />
+                      <InputField label="Adresse e-mail" type="email" value={email} onChange={(next) => { setEmail(next); setFieldErrors((prev) => ({ ...prev, email: null })); }} autoComplete="email" placeholder="" leftIcon={<MailIcon />} />
                       {fieldErrors.email && <span className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.email}</span>}
                     </div>
 
                     <div>
                       <div className="flex items-end justify-between">
-                        <div className="text-[12px] font-semibold text-[#395886] mb-1">Password</div>
-                        {mode === "login" && <a href="." className="text-[12px] font-semibold text-[#638ECB] underline hover:opacity-80">Forgot Password?</a>}
+                        <div className="text-[12px] font-semibold text-[#395886] mb-1">Mot de passe</div>
+                        {mode === "login" && <a href="." className="text-[12px] font-semibold text-[#638ECB] underline hover:opacity-80">Mot de passe oublié ?</a>}
                       </div>
                       <div className="mt-[2px]">
                         <div className="relative">
@@ -314,7 +314,7 @@ export default function RegisterPage() {
                     {mode === "login" && (
                       <label className="flex items-center gap-[10px] mt-[2px]">
                         <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="w-[16px] h-[16px] accent-[#638ECB]" />
-                        <span className="text-[13px] text-[#395886] font-medium">Remember this device</span>
+                        <span className="text-[13px] text-[#395886] font-medium">Mémoriser cet appareil</span>
                       </label>
                     )}
 
@@ -323,29 +323,29 @@ export default function RegisterPage() {
                       disabled={submitting}
                       className="mt-[4px] h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 disabled:opacity-60 transition-opacity cursor-pointer"
                     >
-                      {submitting ? (mode === "login" ? "Signing in..." : "Creating...") : mode === "login" ? "Sign In" : "Create Account"}
+                      {submitting ? (mode === "login" ? "Connexion..." : "Création...") : mode === "login" ? "Connexion" : "Créer un compte"}
                     </button>
 
                     <div className="flex items-center gap-[14px] mt-[6px]">
                       <div className="h-[1px] flex-1 bg-[#D5DEEF]" />
-                      <div className="text-[11px] font-extrabold tracking-[0.16em] text-[#395886]">OR CONTINUE WITH</div>
+                      <div className="text-[11px] font-extrabold tracking-[0.16em] text-[#395886]">OU CONTINUER AVEC</div>
                       <div className="h-[1px] flex-1 bg-[#D5DEEF]" />
                     </div>
 
-                    <SocialButton label="Continue with Google" icon={<GoogleIcon />} disabled={submitting} onClick={() => { window.location.href = `${API_BASE_URL}/auth/google/redirect`; }} />
+                    <SocialButton label="Continuer avec Google" icon={<GoogleIcon />} disabled={submitting} onClick={() => { window.location.href = `${API_BASE_URL}/auth/google/redirect`; }} />
 
                     <div className="mt-[12px] text-center text-[13px] text-[#395886] font-medium">
                       {mode === "login" ? (
-                        <>Don't have an account? <a href="/register" className="text-[#638ECB] font-extrabold underline hover:opacity-80">register</a></>
+                        <>Vous n'avez pas de compte ? <a href="/register" className="text-[#638ECB] font-extrabold underline hover:opacity-80">inscrivez-vous</a></>
                       ) : (
-                        <>Already have an account? <a href="/login" className="text-[#638ECB] font-extrabold underline hover:opacity-80">login</a></>
+                        <>Vous avez déjà un compte ? <a href="/login" className="text-[#638ECB] font-extrabold underline hover:opacity-80">connectez-vous</a></>
                       )}
                     </div>
 
                     <div className="mt-[18px] flex flex-wrap items-center justify-center gap-[10px] text-[11px] text-[#395886]">
-                      <a href="." className="hover:opacity-90 underline-offset-2 underline">Privacy Policy</a>
+                      <a href="." className="hover:opacity-90 underline-offset-2 underline">Politique de confidentialité</a>
                       <span className="opacity-50">|</span>
-                      <a href="." className="hover:opacity-90 underline-offset-2 underline">Terms of Service</a>
+                      <a href="." className="hover:opacity-90 underline-offset-2 underline">Conditions d'utilisation</a>
                     </div>
                   </form>
                 </div>

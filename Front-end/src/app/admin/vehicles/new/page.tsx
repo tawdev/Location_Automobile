@@ -86,7 +86,7 @@ function AdminVehicleForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Model</span>
+          <span className="font-bold">Modèle</span>
           <input
             className="border-2 border-black p-2"
             value={model}
@@ -96,7 +96,7 @@ function AdminVehicleForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Year</span>
+          <span className="font-bold">Année</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -108,7 +108,7 @@ function AdminVehicleForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Registration</span>
+          <span className="font-bold">Immatriculation</span>
           <input
             className="border-2 border-black p-2"
             value={registration}
@@ -131,7 +131,7 @@ function AdminVehicleForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Price / day</span>
+          <span className="font-bold">Prix / jour</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -144,18 +144,18 @@ function AdminVehicleForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Fuel type</span>
+          <span className="font-bold">Carburant</span>
           <input
             className="border-2 border-black p-2"
             value={fuelType}
             onChange={(e) => setFuelType(e.target.value)}
             required
-            placeholder="e.g. Diesel"
+            placeholder="ex. Diesel"
           />
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Category</span>
+          <span className="font-bold">Catégorie</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={categoryId || ""}
@@ -163,7 +163,7 @@ function AdminVehicleForm({
             required
           >
             <option value="" disabled>
-              Select category
+              Sélectionner une catégorie
             </option>
             {categoryOptions.map((c) => (
               <option key={c.id} value={c.id}>
@@ -174,28 +174,28 @@ function AdminVehicleForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Occupants</span>
+          <span className="font-bold">Places</span>
           <input
             className="border-2 border-black p-2"
             value={occupants}
             onChange={(e) => setOccupants(e.target.value)}
             required
-            placeholder="e.g. 4"
+            placeholder="ex. 4"
           />
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">GPS Device ID <span className="text-gray-400 font-normal">(optional)</span></span>
+          <span className="font-bold">ID du dispositif GPS <span className="text-gray-400 font-normal">(optionnel)</span></span>
           <input
             className="border-2 border-black p-2"
             value={deviceId}
             onChange={(e) => setDeviceId(e.target.value)}
-            placeholder="e.g. GPS-001"
+            placeholder="ex. GPS-001"
           />
         </label>
 
         <div className="flex flex-col gap-2">
-          <span className="font-bold">Images (optional)</span>
+          <span className="font-bold">Images (optionnel)</span>
           <input
             className="bg-white"
             type="file"
@@ -206,7 +206,7 @@ function AdminVehicleForm({
               setImagesFiles(list);
             }}
           />
-          <span className="text-xs font-bold">You can upload multiple images.</span>
+          <span className="text-xs font-bold">Vous pouvez télécharger plusieurs images.</span>
         </div>
       </div>
 
@@ -228,7 +228,7 @@ function AdminVehicleForm({
           disabled={!canSubmit || submitting}
           className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
         >
-          {submitting ? "Creating..." : "Create vehicle"}
+          {submitting ? "Création..." : "Créer le véhicule"}
         </button>
       </div>
     </form>
@@ -251,7 +251,7 @@ export default function AdminVehicleNewPage() {
         const data = await getAdminCategories();
         setCategories(data);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Failed to load categories";
+        const msg = e instanceof Error ? e.message : "Échec du chargement des catégories";
         setError(msg);
       } finally {
         setLoadingCategories(false);
@@ -267,7 +267,7 @@ export default function AdminVehicleNewPage() {
       // Force a full reload so the list definitely re-fetches the new vehicle.
       window.location.assign("/admin/vehicles");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to create vehicle";
+      const msg = e instanceof Error ? e.message : "Échec de la création du véhicule";
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -278,16 +278,16 @@ export default function AdminVehicleNewPage() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Add vehicle</h1>
+          <h1 className="font-black text-3xl">Ajouter un véhicule</h1>
           <div className="font-bold text-sm mt-1">Admin CRUD</div>
         </div>
       </div>
 
       {loadingCategories ? (
-        <div className="mt-6 font-black">Loading categories...</div>
+        <div className="mt-6 font-black">Chargement des catégories...</div>
       ) : categories.length === 0 ? (
         <div className="mt-6 p-4 border-2 border-black bg-white font-black">
-          No categories found. Create a category first.
+          Aucune catégorie trouvée. Créez d'abord une catégorie.
         </div>
       ) : (
         <div className="mt-6 border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">

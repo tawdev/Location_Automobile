@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
@@ -64,6 +66,63 @@ const steps = [
   { num: "03", title: "Conduisez", desc: "R&eacute;cup&eacute;rez votre v&eacute;hicule et profitez de votre exp&eacute;rience." },
 ];
 
+const FEATURED_VEHICLES = [
+  {
+    id: 1,
+    marque: "BMW",
+    model: "Série 7",
+    year: 2024,
+    pricePerDay: 1200,
+    fuelType: "Diesel",
+    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80",
+  },
+  {
+    id: 2,
+    marque: "Mercedes",
+    model: "Classe S",
+    year: 2024,
+    pricePerDay: 1500,
+    fuelType: "Hybride",
+    image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=600&q=80",
+  },
+  {
+    id: 3,
+    marque: "Porsche",
+    model: "Cayenne",
+    year: 2024,
+    pricePerDay: 1800,
+    fuelType: "Essence",
+    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80",
+  },
+  {
+    id: 4,
+    marque: "Audi",
+    model: "Q8",
+    year: 2024,
+    pricePerDay: 1100,
+    fuelType: "Diesel",
+    image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600&q=80",
+  },
+  {
+    id: 5,
+    marque: "Range Rover",
+    model: "Velar",
+    year: 2024,
+    pricePerDay: 1600,
+    fuelType: "Diesel",
+    image: "https://images.unsplash.com/photo-1605020420620-20c943e46603?w=600&q=80",
+  },
+  {
+    id: 6,
+    marque: "Ferrari",
+    model: "Roma",
+    year: 2024,
+    pricePerDay: 3500,
+    fuelType: "Essence",
+    image: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=600&q=80",
+  },
+];
+
 function CarLogo({ className, dark }: { className?: string; dark?: boolean }) {
   const stroke = dark ? "#F0F3FA" : "#395886";
   return (
@@ -87,6 +146,7 @@ function CarLogo({ className, dark }: { className?: string; dark?: boolean }) {
 function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
+  const { t } = useI18n();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -105,14 +165,15 @@ function NavBar() {
       >
         <div className="max-w-6xl mx-auto px-8 h-[72px] flex items-center justify-between">
           <CarLogo dark={!scrolled} />
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => router.push("/login")}
               className={`text-sm font-semibold tracking-wide transition-all ${scrolled ? "text-[#395886] hover:opacity-70" : "text-white/90 hover:text-white"}`}
             >
-              Connexion
+              {t("nav.login")}
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.04 }}
@@ -124,7 +185,7 @@ function NavBar() {
                   : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
               }`}
             >
-              S&rsquo;inscrire
+              {t("nav.signup")}
             </motion.button>
           </div>
         </div>
@@ -389,6 +450,81 @@ function StatsSection() {
   );
 }
 
+function VehiclesMarquee() {
+  const router = useRouter();
+
+  const duplicated = [...FEATURED_VEHICLES, ...FEATURED_VEHICLES];
+
+  return (
+    <section className="bg-white py-28 px-8 overflow-hidden">
+      <div className="max-w-6xl mx-auto mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <span className="text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase">
+            Notre Flotte
+          </span>
+          <h2 className="text-4xl md:text-5xl font-black text-[#395886] mt-3 leading-tight">
+            Des v&eacute;hicules d&rsquo;exception
+          </h2>
+          <p className="text-[#638ECB] text-lg mt-4 max-w-xl mx-auto">
+            D&eacute;couvrez notre s&eacute;lection de v&eacute;hicules haut de gamme.
+          </p>
+        </motion.div>
+      </div>
+
+      <div
+        className="flex gap-6 w-max"
+        style={{ animation: "marquee 40s linear infinite" }}
+      >
+        {duplicated.map((v, i) => (
+          <motion.button
+            key={`${v.id}-${i}`}
+            whileHover={{ scale: 1.03, y: -6 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => router.push("/register")}
+            className="shrink-0 w-[300px] bg-white rounded-3xl border border-[#D5DEEF]/40 overflow-hidden text-left shadow-sm hover:shadow-xl transition-shadow duration-300 group"
+          >
+            <div className="h-44 bg-[#F0F3FA] overflow-hidden">
+              <img
+                src={v.image}
+                alt={`${v.marque} ${v.model}`}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-bold text-[#395886]">
+                  {v.marque} {v.model}
+                </h3>
+                <span className="text-xs font-bold text-[#f39c12] bg-[#f39c12]/10 px-2.5 py-1 rounded-full">
+                  {v.fuelType}
+                </span>
+              </div>
+              <p className="text-sm text-[#638ECB] mb-3">{v.year}</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-black text-[#395886]">{v.pricePerDay.toLocaleString()}</span>
+                <span className="text-sm text-[#638ECB] font-medium">DH/jour</span>
+              </div>
+            </div>
+          </motion.button>
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+    </section>
+  );
+}
+
 function CTASection() {
   const router = useRouter();
   return (
@@ -481,6 +617,7 @@ export default function HomePage() {
       <HeroSection />
       <ServicesSection />
       <HowItWorksSection />
+      <VehiclesMarquee />
       <StatsSection />
       <CTASection />
       <MapSection />

@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { API_BASE_URL } from "@/lib/config";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type Vehicle = {
   id: number;
@@ -31,6 +32,7 @@ type Vehicle = {
 export default function VehicleDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { t, locale } = useI18n();
   const id = params?.id as string;
 
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
@@ -62,11 +64,11 @@ export default function VehicleDetailPage() {
         const res = await fetch(`${API_BASE_URL}/Vehicles/${id}`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         });
-        if (!res.ok) throw new Error("Vehicle not found");
+        if (!res.ok) throw new Error(t("vehicle.error.not_found"));
         const json = await res.json();
         if (!cancelled) setVehicle(json.data);
       } catch (e) {
-        if (!cancelled) setError((e as { message?: string })?.message || "Failed to load vehicle");
+        if (!cancelled) setError((e as { message?: string })?.message || t("vehicle.error.load_failed"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -93,8 +95,10 @@ export default function VehicleDetailPage() {
         const dates: Date[] = [];
         for (const range of json.data ?? []) {
           if (!range.start_date || !range.end_date) continue;
-          const start = new Date(range.start_date + "T00:00:00");
-          const end = new Date(range.end_date + "T00:00:00");
+          const startDateStr = range.start_date.split("T")[0];
+          const endDateStr = range.end_date.split("T")[0];
+          const start = new Date(startDateStr + "T00:00:00");
+          const end = new Date(endDateStr + "T00:00:00");
           const current = new Date(start);
           while (current <= end) {
             dates.push(new Date(current));
@@ -122,7 +126,7 @@ export default function VehicleDetailPage() {
 
   function handleReserve() {
     if (!vehicle || !reserveStartDate || !reserveEndDate) {
-      setReserveError("Please select both dates.");
+      setReserveError(t("vehicle.error.select_dates"));
       return;
     }
     setReserveError(null);
@@ -144,9 +148,9 @@ export default function VehicleDetailPage() {
       <RequireClient>
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
-            <p className="text-gray-600 text-lg">{error || "Vehicle not found"}</p>
+            <p className="text-gray-600 text-lg">{error || t("vehicle.error.not_found")}</p>
             <button onClick={() => router.push("/vehicles")} className="mt-4 text-[#16386b] hover:underline">
-              Back to vehicles
+              {t("vehicle.back")}
             </button>
           </div>
         </div>
@@ -183,7 +187,7 @@ export default function VehicleDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>Available in Marrakech</span>
+              <span>{t("vehicle.available_in")}</span>
             </motion.div>
 
             {/* GRID */}
@@ -250,14 +254,14 @@ export default function VehicleDetailPage() {
                 {/* Price */}
                 <div className="flex items-center justify-between mb-7">
                   <div className="flex items-end gap-2">
-                    <h2 className="text-[58px] leading-none font-extrabold tracking-[-0.04em] text-[#d08a1b]">
+                    <h2 className="text-[36px] leading-none font-extrabold tracking-[-0.04em] text-[#d08a1b]">
                       {vehicle.pricePerDay} DH
                     </h2>
-                    <span className="text-gray-500 text-[18px] mb-1">/ day</span>
+                    <span className="text-gray-500 text-[18px] mb-1">{t("vehicle.per_day")}</span>
                   </div>
                   <div className="flex items-center gap-2 bg-[#e8f8ec] border border-[#cfeeda] text-[#1f8f4d] px-4 py-2 rounded-full text-[14px] font-bold">
                     <div className="w-2 h-2 rounded-full bg-[#20b15a]" />
-                    Available
+                    {t("vehicle.available")}
                   </div>
                 </div>
 
@@ -265,21 +269,22 @@ export default function VehicleDetailPage() {
 
                 {/* Pickup */}
                 <div className="mb-6">
-                  <label className="block mb-3 text-[14px] font-bold text-gray-700">Pick-up Date</label>
+                  <label className="block mb-3 text-[14px] font-bold text-gray-700">{t("vehicle.pickup_date")}</label>
                   <Popover>
                     <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      {reserveStartDate ? reserveStartDate.toLocaleDateString() : <span className="text-gray-400">Select date</span>}
+                      {reserveStartDate ? reserveStartDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}
                     </PopoverTrigger>
                     <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
                       <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
                         <Calendar
                           mode="single"
                           selected={reserveStartDate}
-                          onSelect={(d) => d && setReserveStartDate(d)}
-                          disabled={(date) =>
+                          onSelect={(d: Date | undefined) => d && setReserveStartDate(d)}
+                          fromDate={new Date()}
+                          disabled={(date: Date) =>
                             reservedDates.some(
                               (r) => r.toDateString() === date.toDateString()
                             )
@@ -292,21 +297,22 @@ export default function VehicleDetailPage() {
 
                 {/* Dropoff */}
                 <div className="mb-6">
-                  <label className="block mb-3 text-[14px] font-bold text-gray-700">Drop-off Date</label>
+                  <label className="block mb-3 text-[14px] font-bold text-gray-700">{t("vehicle.dropoff_date")}</label>
                   <Popover>
                     <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      {reserveEndDate ? reserveEndDate.toLocaleDateString() : <span className="text-gray-400">Select date</span>}
+                      {reserveEndDate ? reserveEndDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}
                     </PopoverTrigger>
                     <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
                       <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
                         <Calendar
                           mode="single"
                           selected={reserveEndDate}
-                          onSelect={(d) => d && setReserveEndDate(d)}
-                          disabled={(date) =>
+                          onSelect={(d: Date | undefined) => d && setReserveEndDate(d)}
+                          fromDate={new Date()}
+                          disabled={(date: Date) =>
                             reservedDates.some(
                               (r) => r.toDateString() === date.toDateString()
                             )
@@ -323,8 +329,16 @@ export default function VehicleDetailPage() {
                 {days > 0 && (
                   <div className="flex flex-col gap-5 mb-6">
                     <div className="flex items-center justify-between text-[18px] text-gray-500">
-                      <span>{vehicle.pricePerDay} DH × {days} {days === 1 ? "day" : "days"}</span>
-                      <strong className="text-gray-700 font-semibold">{subtotal.toLocaleString()} DH</strong>
+                      <span>{vehicle.pricePerDay} DH × {days} {days === 1 ? t("vehicle.day") : t("vehicle.days")}</span>
+                      <strong className="text-gray-700 font-semibold">{subtotal.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</strong>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-[14px] text-amber-800 font-medium mb-1">
+                        <span className="font-bold">{t("vehicle.km_included")}</span> 200 km/{t("vehicle.day")}
+                      </p>
+                      <p className="text-[13px] text-amber-700">
+                        {t("vehicle.km_detail", { amount: "100 DH/jour" })}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -338,8 +352,8 @@ export default function VehicleDetailPage() {
                 {/* Total */}
                 {days > 0 && (
                   <div className="flex items-center justify-between mb-7">
-                    <span className="text-[#16386b] text-[22px] font-bold">Total Estimate</span>
-                    <h3 className="text-[42px] font-extrabold tracking-[-0.03em] text-[#d08a1b]">{total.toLocaleString()} DH</h3>
+                    <span className="text-[#16386b] text-[22px] font-bold">{t("vehicle.total_estimate")}</span>
+                    <h3 className="text-[36px] font-extrabold tracking-[-0.03em] text-[#d08a1b]">{total.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</h3>
                   </div>
                 )}
 
@@ -349,7 +363,7 @@ export default function VehicleDetailPage() {
                   disabled={reserving}
                   className="w-full h-[68px] rounded-[18px] bg-[#16386b] hover:bg-[#102b54] transition text-white text-[20px] font-bold disabled:opacity-50"
                 >
-                  {reserving ? "Reserving..." : "Reserve Vehicle"}
+                  {reserving ? t("vehicle.reserving") : t("vehicle.reserve")}
                 </button>
               </motion.div>
             </div>
@@ -361,7 +375,7 @@ export default function VehicleDetailPage() {
               transition={{ duration: 0.5, delay: 0.35 }}
               className="mt-12 border border-[#edf0f4] rounded-[30px] p-10 bg-white"
             >
-              <h2 className="text-[28px] font-extrabold text-[#16386b] mb-10">Vehicle Specifications</h2>
+              <h2 className="text-[28px] font-extrabold text-[#16386b] mb-10">{t("vehicle.specs")}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
                 {/* Fuel */}
                 <motion.div
@@ -374,7 +388,7 @@ export default function VehicleDetailPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6M9 11h6m-6 4h6M5 3h14a2 2 0 012 2v16l-3-2-3 2-3-2-3 2-3-2V5a2 2 0 012-2z" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">Fuel</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.fuel")}</span>
                   </div>
                   <div className="text-[30px] font-extrabold text-gray-900 leading-none">{vehicle.fuelType}</div>
                 </motion.div>
@@ -390,9 +404,9 @@ export default function VehicleDetailPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">Gearbox</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.gearbox")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 leading-none">Automatic</div>
+                  <div className="text-[30px] font-extrabold text-gray-900 leading-none">{t("vehicle.automatic")}</div>
                 </motion.div>
                 {/* Seats */}
                 <motion.div
@@ -405,7 +419,7 @@ export default function VehicleDetailPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">Seats</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.seats")}</span>
                   </div>
                   <div className="text-[30px] font-extrabold text-gray-900 leading-none">{vehicle.Occupants}</div>
                 </motion.div>
@@ -420,7 +434,7 @@ export default function VehicleDetailPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">Year</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.year")}</span>
                   </div>
                   <div className="text-[30px] font-extrabold text-gray-900 leading-none">{vehicle.year}</div>
                 </motion.div>
@@ -438,22 +452,22 @@ export default function VehicleDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-extrabold text-[#16386b]">Reservation Confirmed!</h2>
+            <h2 className="text-2xl font-extrabold text-[#16386b]">{t("vehicle.success_title")}</h2>
             <p className="text-gray-500 text-center text-sm">
-              Your {vehicle.marque} {vehicle.model} has been reserved successfully.
+              {t("vehicle.success_msg", { vehicle: `${vehicle.marque} ${vehicle.model}` })}
             </p>
             <div className="w-full flex flex-col gap-3 mt-2">
               <button
                 onClick={() => router.push("/MyReservations")}
                 className="w-full h-14 rounded-[16px] bg-[#16386b] hover:bg-[#102b54] text-white font-bold text-[16px] transition"
               >
-                View My Reservations
+                {t("vehicle.view_reservations")}
               </button>
               <button
                 onClick={() => router.push("/vehicles")}
                 className="w-full h-14 rounded-[16px] border border-[#d9dee6] text-gray-700 font-bold text-[16px] hover:bg-gray-50 transition"
               >
-                Continue Browsing
+                {t("vehicle.continue_browsing")}
               </button>
             </div>
           </div>

@@ -1,19 +1,14 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Car, Clock, User, LogOut, Settings, Menu, X } from "lucide-react";
+import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Globe } from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/authContext";
-
-const NAV_ITEMS = [
-  { label: "Véhicules", href: "/vehicles", icon: Car },
-  { label: "Historique", href: "/MyReservations", icon: Clock },
-  { label: "Profil", href: "/profile", icon: User },
-  { label: "Paramètres", href: "/settings", icon: Settings },
-];
+import { useI18n } from "@/lib/i18n/LanguageProvider";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 function Logo({ onClick }: { onClick: () => void }) {
   return (
@@ -83,10 +78,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname();
   const { status, user } = useAuth();
+  const { t } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAdmin = status === "authenticated" && user?.role_id === 1;
+
+  const NAV_ITEMS = [
+    { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
+    { label: t("nav.history"), href: "/MyReservations", icon: Clock },
+    { label: t("nav.rules"), href: "/regles", icon: Info },
+    { label: t("nav.profile"), href: "/profile", icon: User },
+    { label: t("nav.settings"), href: "/settings", icon: Settings },
+  ];
 
   useEffect(() => {
     if (isAdmin) router.replace("/admin/vehicles");
@@ -133,6 +137,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               />
             ))}
             <div className="w-px h-8 bg-[#D5DEEF]/60 mx-3" />
+            <LanguageSwitcher />
+            <div className="w-px h-8 bg-[#D5DEEF]/60 mx-3" />
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
@@ -142,7 +148,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
             >
               <LogOut className="w-4 h-4" />
-              Déconnexion
+              {t("nav.logout")}
             </motion.button>
           </nav>
 
@@ -197,6 +203,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </button>
                 ))}
                 <div className="border-t border-[#D5DEEF]/40 my-2" />
+                <div className="flex items-center justify-center py-2">
+                  <LanguageSwitcher />
+                </div>
+                <div className="border-t border-[#D5DEEF]/40 my-2" />
                 <button
                   onClick={async () => {
                     try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
@@ -204,7 +214,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
                 >
                   <LogOut className="w-4 h-4" />
-                  Déconnexion
+                  {t("nav.logout")}
                 </button>
               </div>
             </motion.div>
@@ -221,30 +231,30 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <div className="flex-1">
               <Logo onClick={() => router.push("/vehicles")} />
               <p className="text-sm font-semibold text-[#638ECB]/70 mt-4 max-w-xs leading-relaxed">
-                Premium vehicle rental service in Marrakech. Drive luxury, drive with confidence.
+                Service premium de location de véhicules à Marrakech. Conduisez le luxe, conduisez en toute confiance.
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8 flex-[2]">
               <div>
-                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Company</h4>
+                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Société</h4>
                 <div className="flex flex-col gap-2.5">
-                  {["About Us", "Careers", "Press", "Blog"].map((l) => (
+                  {["À propos", "Carrières", "Presse", "Blog"].map((l) => (
                     <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 hover:text-[#395886] transition-colors">{l}</a>
                   ))}
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Support</h4>
+                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Assistance</h4>
                 <div className="flex flex-col gap-2.5">
-                  {["Help Center", "Contact Us", "FAQ", "Cancellation"].map((l) => (
+                  {["Centre d'aide", "Nous contacter", "FAQ", "Annulation"].map((l) => (
                     <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 hover:text-[#395886] transition-colors">{l}</a>
                   ))}
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Legal</h4>
+                <h4 className="text-xs font-extrabold text-[#395886] uppercase tracking-[0.15em] mb-4">Mentions légales</h4>
                 <div className="flex flex-col gap-2.5">
-                  {["Privacy Policy", "Terms of Service", "Insurance"].map((l) => (
+                  {["Politique de confidentialité", "Conditions d'utilisation", "Assurance"].map((l) => (
                     <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 hover:text-[#395886] transition-colors">{l}</a>
                   ))}
                 </div>
@@ -253,7 +263,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           </div>
           <div className="mt-10 pt-8 border-t border-[#D5DEEF]/40 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-xs font-semibold text-[#638ECB]/50">
-              &copy; {new Date().getFullYear()} CARFORFAR. All rights reserved.
+              &copy; {new Date().getFullYear()} CARFORFAR. Tous droits réservés.
             </p>
           </div>
         </div>

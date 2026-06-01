@@ -41,7 +41,7 @@ export function CategoriesManagerModal({
       setNewCategoryName("");
       await onRefresh();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to create category";
+      const msg = err instanceof Error ? err.message : "Échec de la création de la catégorie";
       setError(msg);
     } finally {
       setCreating(false);
@@ -59,7 +59,7 @@ export function CategoriesManagerModal({
       setEditingName("");
       await onRefresh();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to update category";
+      const msg = err instanceof Error ? err.message : "Échec de la mise à jour de la catégorie";
       setError(msg);
     } finally {
       setUpdating(false);
@@ -75,7 +75,7 @@ export function CategoriesManagerModal({
       await deleteAdminCategory(id);
       await onRefresh();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to delete category";
+      const msg = err instanceof Error ? err.message : "Échec de la suppression de la catégorie";
       setError(msg);
     } finally {
       setDeletingId(null);
@@ -86,7 +86,7 @@ export function CategoriesManagerModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Manage Categories"
+      title="Gérer les catégories"
       maxWidthClassName="max-w-2xl"
     >
       <div className="flex flex-col gap-5">
@@ -105,7 +105,7 @@ export function CategoriesManagerModal({
           <input
             type="text"
             className="flex-1 rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/40 px-4 py-3 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none transition-all placeholder:text-[#638ECB]/50"
-            placeholder="Add new category (e.g. Convertible)"
+            placeholder="Ajouter une catégorie (ex. Cabriolet)"
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
             required
@@ -116,21 +116,21 @@ export function CategoriesManagerModal({
             disabled={!newCategoryName.trim() || creating}
             className="h-[46px] px-5 rounded-xl bg-[#395886] hover:bg-[#395886]/90 disabled:opacity-50 text-white text-sm font-bold transition-all hover:shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:hover:shadow-none disabled:active:scale-100"
           >
-            {creating ? "Adding..." : "Add"}
+            {creating ? "Ajout..." : "Ajouter"}
           </button>
         </form>
 
         {/* Category List */}
         <div className="border border-[#D5DEEF]/60 rounded-2xl overflow-hidden bg-white shadow-sm">
           <div className="px-4 py-3 bg-[#F0F3FA]/40 border-b border-[#D5DEEF]/40 flex justify-between text-xs font-bold text-[#395886] uppercase tracking-wider">
-            <span>Category Name</span>
+            <span>Nom de la catégorie</span>
             <span>Actions</span>
           </div>
 
           <div className="divide-y divide-[#D5DEEF]/40 max-h-[350px] overflow-y-auto">
             {categories.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm font-bold text-[#638ECB]/70">
-                No categories available yet.
+                Aucune catégorie disponible.
               </div>
             ) : (
               categories.map((category) => (
@@ -154,14 +154,14 @@ export function CategoriesManagerModal({
                         disabled={!editingName.trim() || updating}
                         className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer"
                       >
-                        {updating ? "Saving..." : "Save"}
+                        {updating ? "Enregistrement..." : "Enregistrer"}
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
                         disabled={updating}
                         className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold transition-all cursor-pointer"
                       >
-                        Cancel
+                        Annuler
                       </button>
                     </div>
                   ) : (
