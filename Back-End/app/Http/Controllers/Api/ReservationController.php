@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRequest;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ReservationController extends Controller
 {
@@ -24,8 +25,22 @@ class ReservationController extends Controller
 
     public function store(ReservationRequest $request,$id)
     {
+        $payload = $request->all();
 
-        $data = $this->reservitionService->makeReservation($id, $request->all());
+        if ($request->hasFile('driver2_cin_recto')) {
+            $payload['driver2_cin_recto'] = $request->file('driver2_cin_recto')->store('Vehicles', 'public');
+        }
+        if ($request->hasFile('driver2_cin_verso')) {
+            $payload['driver2_cin_verso'] = $request->file('driver2_cin_verso')->store('Vehicles', 'public');
+        }
+        if ($request->hasFile('driver2_permi_recto')) {
+            $payload['driver2_permi_recto'] = $request->file('driver2_permi_recto')->store('Vehicles', 'public');
+        }
+        if ($request->hasFile('driver2_permi_verso')) {
+            $payload['driver2_permi_verso'] = $request->file('driver2_permi_verso')->store('Vehicles', 'public');
+        }
+
+        $data = $this->reservitionService->makeReservation($id, $payload);
         if($data === 'cin_missing'){
             return response()->json([
                 'status'=>'failed',

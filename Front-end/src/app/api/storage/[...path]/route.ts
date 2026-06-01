@@ -5,7 +5,7 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { path } = await params;
-  const backendUrl = `http://127.0.0.1:8000/storage/${path.join("/")}`;
+  const backendUrl = `http://192.168.100.198:8000/storage/${path.join("/")}`;
   try {
     const res = await fetch(backendUrl);
     if (!res.ok) {

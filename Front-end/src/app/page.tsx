@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
+
+const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
 const cars = [
   "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80",
@@ -480,6 +483,7 @@ export default function HomePage() {
       <HowItWorksSection />
       <StatsSection />
       <CTASection />
+      <MapSection />
       <FooterSection />
     </div>
   );

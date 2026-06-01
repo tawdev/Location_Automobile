@@ -15,18 +15,13 @@ export async function getMyReservations(): Promise<Reservation[]> {
   return res.data ?? [];
 }
 
-type MakeReservationPayload = {
-  start_date: string;
-  end_date: string;
-};
-
 type MakeReservationResponse = {
   status: string;
   message: string;
   data: Reservation;
 };
 
-export async function makeReservation(vehicleId: number, payload: MakeReservationPayload): Promise<Reservation> {
+export async function makeReservation(vehicleId: number, payload: Record<string, any> | FormData): Promise<Reservation> {
   const res = await apiRequest<MakeReservationResponse>({
     method: "POST",
     path: `/Reservations/vehicle/${vehicleId}`,
