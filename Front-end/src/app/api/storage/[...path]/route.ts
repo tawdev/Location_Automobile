@@ -5,7 +5,10 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { path } = await params;
-  const backendUrl = `http://192.168.100.198:8000/storage/${path.join("/")}`;
+  const backendOrigin =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/api\/?$/, "") ??
+    "http://localhost:8000";
+  const backendUrl = `${backendOrigin}/storage/${path.join("/")}`;
   try {
     const res = await fetch(backendUrl);
     if (!res.ok) {
