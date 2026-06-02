@@ -73,22 +73,14 @@ const steps = [
 
 
 
-function CarLogo({ className, dark }: { className?: string; dark?: boolean }) {
-  const stroke = dark ? "#F0F3FA" : "#395886";
+function CarLogo({ className }: { className?: string; dark?: boolean }) {
   return (
-    <div className={`flex flex-col items-center ${className ?? ""}`}>
-      <svg width="46" height="28" viewBox="0 0 46 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 18C6 18 12 6 23 6C34 6 40 18 40 18" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M12 18L34 18" stroke={stroke} strokeWidth="2" strokeLinecap="round" />
-        <circle cx="15" cy="20.5" r="3.5" fill="none" stroke={stroke} strokeWidth="2" />
-        <circle cx="31" cy="20.5" r="3.5" fill="none" stroke={stroke} strokeWidth="2" />
-        <path d="M21 11L29 11L31 18" stroke={stroke} strokeWidth="2" fill="none" />
-        <path d="M3 20L4 18" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M43 20L42 18" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-      <span className={`font-black italic tracking-[0.25em] text-sm leading-none mt-1 ${dark ? "text-[#F0F3FA]" : "text-[#395886]"}`}>
-        CARFORFAR
-      </span>
+    <div className={`flex items-center ${className ?? ""}`}>
+      <img
+        src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
+        alt="CARFORFAR logo"
+        className="h-10 w-auto object-contain select-none"
+      />
     </div>
   );
 }
