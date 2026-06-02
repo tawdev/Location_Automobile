@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Extra;
 use App\Models\Reservation;
 use App\Models\Vehicle;
 use DateTime;
@@ -46,8 +47,6 @@ class ReservationService
 {
     $vehicle = Vehicle::findOrFail($id);
 
-
-
     $conflict = $vehicle->reservations()
         ->where('status', '=', 'Confirmée')
         ->where('end_date', '>', $data['start_date'])
@@ -70,15 +69,28 @@ class ReservationService
     if($data['start_date']==$data['end_date']){
         return false;
     }
-    if(!auth()->user()->cin_recto || !auth()->user()->cin_verso){
-        return 'cin_missing';
+
+    $hasTwoDrivers = !empty($data['driver2_name']);
+
+    if (!$hasTwoDrivers) {
+        if(!auth()->user()->cin_recto || !auth()->user()->cin_verso){
+            return 'cin_missing';
+        }
+        if(!auth()->user()->permi_recto || !auth()->user()->permi_verso){
+            return 'permi_missing';
+        }
     }
 
-    if(!auth()->user()->permi_recto || !auth()->user()->permi_verso){
-        return 'permi_missing';
-    }
     $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
-    $total = $days * $vehicle->pricePerDay;
+    $days = $days > 0 ? $days : 1;
+
+    $extraPricePerDay = 0;
+    $extraIds = $data['extra_ids'] ?? [];
+    if (!empty($extraIds)) {
+        $extraPricePerDay = Extra::whereIn('id', $extraIds)->sum('price_per_day');
+    }
+
+    $total = $days * ($vehicle->pricePerDay + $extraPricePerDay);
     $kmIncluded = $days * 200;
 
     $Reservation = Reservation::create(
@@ -89,6 +101,10 @@ class ReservationService
             'km_included' => $kmIncluded,
         ])
     );
+
+    if (!empty($extraIds)) {
+        $Reservation->extras()->sync($extraIds);
+    }
 
     return $Reservation;
 }

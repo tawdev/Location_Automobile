@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { RequireClient } from "@/components/RequireClient";
 import BackButton from "@/components/BackButton";
@@ -20,6 +20,12 @@ export default function ReservationNewPage() {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  useEffect(() => {
+    if (endDate && startDate && endDate < startDate) {
+      setEndDate("");
+    }
+  }, [startDate]);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,6 +87,7 @@ export default function ReservationNewPage() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                min={startDate || undefined}
                 className="border-2 border-black p-2"
                 required
               />
