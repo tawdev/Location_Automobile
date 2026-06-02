@@ -142,7 +142,7 @@ export default function VehicleDetailPage() {
   if (loading) {
     return (
       <RequireClient>
-        <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
           <div className="w-10 h-10 border-4 border-[#16386b] border-t-transparent rounded-full animate-spin" />
         </div>
       </RequireClient>
@@ -152,7 +152,7 @@ export default function VehicleDetailPage() {
   if (error || !vehicle) {
     return (
       <RequireClient>
-        <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600 text-lg">{error || t("vehicle.error.not_found")}</p>
             <button onClick={() => router.push("/vehicles")} className="mt-4 text-[#16386b] hover:underline">
@@ -166,8 +166,8 @@ export default function VehicleDetailPage() {
 
   return (
     <RequireClient>
-      <div className="bg-white min-h-screen">
-        <main className="pt-14 pb-24 bg-white">
+      <div className="bg-[#F0F3FA] dark:bg-[#070b14] min-h-screen">
+        <main className="pt-14 pb-24 bg-[#F0F3FA] dark:bg-[#070b14]">
           <div className="max-w-[1180px] mx-auto px-7">
 
             <BackButton />
@@ -177,7 +177,7 @@ export default function VehicleDetailPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-[60px] leading-none font-extrabold tracking-[-0.03em] text-[#16386b] mb-4"
+              className="text-[60px] leading-none font-extrabold tracking-[-0.03em] text-[#16386b] dark:text-[#D5DEEF] mb-4"
             >
               {vehicle.marque} {vehicle.model}
             </motion.h1>
@@ -187,7 +187,7 @@ export default function VehicleDetailPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex items-center gap-2 text-gray-500 text-[18px] mb-10"
+              className="flex items-center gap-2 text-gray-500 dark:text-[#94A3B8] text-[18px] mb-10"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -255,7 +255,7 @@ export default function VehicleDetailPage() {
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.25 }}
-                className="bg-white rounded-[30px] p-8 border border-[#eef0f4] shadow-[0_10px_35px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.03)]"
+                className="bg-white dark:bg-[#0f1729] rounded-[30px] p-8 border border-[#eef0f4] dark:border-[#1e293b] shadow-[0_10px_35px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.03)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.2)]"
               >
                 {/* Price */}
                 <div className="flex items-center justify-between mb-7">
@@ -263,9 +263,9 @@ export default function VehicleDetailPage() {
                     <h2 className="text-[36px] leading-none font-extrabold tracking-[-0.04em] text-[#d08a1b]">
                       {vehicle.pricePerDay} DH
                     </h2>
-                    <span className="text-gray-500 text-[18px] mb-1">{t("vehicle.per_day")}</span>
+                    <span className="text-gray-500 dark:text-[#94A3B8] text-[18px] mb-1">{t("vehicle.per_day")}</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#e8f8ec] border border-[#cfeeda] text-[#1f8f4d] px-4 py-2 rounded-full text-[14px] font-bold">
+                  <div className="flex items-center gap-2 bg-[#e8f8ec] dark:bg-emerald-950/30 border border-[#cfeeda] dark:border-emerald-800/50 text-[#1f8f4d] dark:text-emerald-300 px-4 py-2 rounded-full text-[14px] font-bold">
                     <div className="w-2 h-2 rounded-full bg-[#20b15a]" />
                     {t("vehicle.available")}
                   </div>
@@ -275,16 +275,16 @@ export default function VehicleDetailPage() {
 
                 {/* Pickup */}
                 <div className="mb-6">
-                  <label className="block mb-3 text-[14px] font-bold text-gray-700">{t("vehicle.pickup_date")}</label>
+                  <label className="block mb-3 text-[14px] font-bold text-gray-700 dark:text-[#D5DEEF]">{t("vehicle.pickup_date")}</label>
                   <Popover>
-                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white">
+                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       {reserveStartDate ? reserveStartDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}
                     </PopoverTrigger>
-                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
-                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
+                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
+                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
                         <Calendar
                           mode="single"
                           selected={reserveStartDate}
@@ -304,16 +304,16 @@ export default function VehicleDetailPage() {
 
                 {/* Dropoff */}
                 <div className="mb-6">
-                  <label className="block mb-3 text-[14px] font-bold text-gray-700">{t("vehicle.dropoff_date")}</label>
+                  <label className="block mb-3 text-[14px] font-bold text-gray-700 dark:text-[#D5DEEF]">{t("vehicle.dropoff_date")}</label>
                   <Popover>
-                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white">
+                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       {reserveEndDate ? reserveEndDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}
                     </PopoverTrigger>
-                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white z-[200]" align="start">
-                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white rounded-md">
+                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
+                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
                         <Calendar
                           mode="single"
                           selected={reserveEndDate}
@@ -336,11 +336,11 @@ export default function VehicleDetailPage() {
                 {/* Costs */}
                 {days > 0 && (
                   <div className="flex flex-col gap-5 mb-6">
-                    <div className="flex items-center justify-between text-[18px] text-gray-500">
+                    <div className="flex items-center justify-between text-[18px] text-gray-500 dark:text-[#94A3B8]">
                       <span>{vehicle.pricePerDay} DH × {days} {days === 1 ? t("vehicle.day") : t("vehicle.days")}</span>
-                      <strong className="text-gray-700 font-semibold">{subtotal.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</strong>
+                      <strong className="text-gray-700 dark:text-[#D5DEEF] font-semibold">{subtotal.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</strong>
                     </div>
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4">
                       <p className="text-[14px] text-amber-800 font-medium mb-1">
                         <span className="font-bold">{t("vehicle.km_included")}</span> 200 km/{t("vehicle.day")}
                       </p>
@@ -352,7 +352,7 @@ export default function VehicleDetailPage() {
                 )}
 
                 {reserveError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{reserveError}</div>
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 rounded-lg text-red-700 dark:text-red-300 text-sm">{reserveError}</div>
                 )}
 
                 {days > 0 && <div className="h-px bg-[#eceff3] mb-6" />}
@@ -360,8 +360,8 @@ export default function VehicleDetailPage() {
                 {/* Total */}
                 {days > 0 && (
                   <div className="flex items-center justify-between mb-7">
-                    <span className="text-[#16386b] text-[22px] font-bold">{t("vehicle.total_estimate")}</span>
-                    <h3 className="text-[36px] font-extrabold tracking-[-0.03em] text-[#d08a1b]">{total.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</h3>
+                    <span className="text-[#16386b] dark:text-[#D5DEEF] text-[22px] font-bold">{t("vehicle.total_estimate")}</span>
+                    <h3 className="text-[36px] font-extrabold tracking-[-0.03em] text-[#d08a1b] dark:text-[#f0b24a]">{total.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</h3>
                   </div>
                 )}
 
@@ -381,9 +381,9 @@ export default function VehicleDetailPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
-              className="mt-12 border border-[#edf0f4] rounded-[30px] p-10 bg-white"
+              className="mt-12 border border-[#edf0f4] dark:border-[#1e293b] rounded-[30px] p-10 bg-white dark:bg-[#0f1729]"
             >
-              <h2 className="text-[28px] font-extrabold text-[#16386b] mb-10">{t("vehicle.specs")}</h2>
+              <h2 className="text-[28px] font-extrabold text-[#16386b] dark:text-[#D5DEEF] mb-10">{t("vehicle.specs")}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
                 {/* Fuel */}
                 <motion.div
@@ -396,9 +396,9 @@ export default function VehicleDetailPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6M9 11h6m-6 4h6M5 3h14a2 2 0 012 2v16l-3-2-3 2-3-2-3 2-3-2V5a2 2 0 012-2z" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.fuel")}</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.fuel")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 leading-none">{vehicle.fuelType}</div>
+                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.fuelType}</div>
                 </motion.div>
                 {/* Gearbox */}
                 <motion.div
@@ -412,9 +412,9 @@ export default function VehicleDetailPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.gearbox")}</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.gearbox")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 leading-none">{t("vehicle.automatic")}</div>
+                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{t("vehicle.automatic")}</div>
                 </motion.div>
                 {/* Seats */}
                 <motion.div
@@ -427,9 +427,9 @@ export default function VehicleDetailPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.seats")}</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.seats")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 leading-none">{vehicle.Occupants}</div>
+                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.Occupants}</div>
                 </motion.div>
                 {/* Year */}
                 <motion.div
@@ -442,9 +442,9 @@ export default function VehicleDetailPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500">{t("vehicle.year")}</span>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.year")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 leading-none">{vehicle.year}</div>
+                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.year}</div>
                 </motion.div>
               </div>
             </motion.section>
@@ -454,14 +454,14 @@ export default function VehicleDetailPage() {
 
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-[30px] max-w-md w-full p-10 shadow-2xl flex flex-col items-center gap-5">
+          <div className="bg-white dark:bg-[#0f1729] border border-[#d9dee6] dark:border-[#1e293b] rounded-[30px] max-w-md w-full p-10 shadow-2xl flex flex-col items-center gap-5">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-extrabold text-[#16386b]">{t("vehicle.success_title")}</h2>
-            <p className="text-gray-500 text-center text-sm">
+            <h2 className="text-2xl font-extrabold text-[#16386b] dark:text-[#D5DEEF]">{t("vehicle.success_title")}</h2>
+            <p className="text-gray-500 dark:text-[#94A3B8] text-center text-sm">
               {t("vehicle.success_msg", { vehicle: `${vehicle.marque} ${vehicle.model}` })}
             </p>
             <div className="w-full flex flex-col gap-3 mt-2">
@@ -473,7 +473,7 @@ export default function VehicleDetailPage() {
               </button>
               <button
                 onClick={() => router.push("/vehicles")}
-                className="w-full h-14 rounded-[16px] border border-[#d9dee6] text-gray-700 font-bold text-[16px] hover:bg-gray-50 transition"
+                className="w-full h-14 rounded-[16px] border border-[#d9dee6] dark:border-[#1e293b] text-gray-700 dark:text-[#94A3B8] font-bold text-[16px] hover:bg-gray-50 dark:hover:bg-[#0f1729] transition"
               >
                 {t("vehicle.continue_browsing")}
               </button>
