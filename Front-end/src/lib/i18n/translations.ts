@@ -188,6 +188,8 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "reservations.cancel_modal_cancelling": { en: "Cancelling...", fr: "Annulation en cours...", ar: "جاري الإلغاء..." },
   "reservations.cancel_in_detail": { en: "Cancel reservation", fr: "Annuler la réservation", ar: "إلغاء الحجز" },
   "reservations.back_to_history": { en: "Back to history", fr: "Retour à l'historique", ar: "العودة إلى السجل" },
+  "reservations.show_more": { en: "Show more", fr: "Afficher plus", ar: "عرض المزيد" },
+  "reservations.remaining": { en: "remaining", fr: "restantes", ar: "المتبقية" },
 
   // ── Auth ──
   "auth.login.title": { en: "Welcome back", fr: "Bon retour", ar: "مرحبًا بعودتك" },

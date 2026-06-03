@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import Head from "next/head";
+import { motion, useReducedMotion } from "framer-motion";
 import { RequireClient } from "@/components/RequireClient";
 import { filterVehicles, listVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle } from "@/lib/types";
@@ -23,6 +24,52 @@ type VehiclesQuery = {
   max_price?: number;
 };
 
+const LazyVehicleImage = memo(function LazyVehicleImage({
+  picturePath,
+  children,
+  className,
+}: {
+  picturePath: string | undefined;
+  children: React.ReactNode;
+  className: string;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoaded(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        backgroundImage: picturePath && loaded
+          ? `url(${vehicleImageUrl(picturePath)})`
+          : picturePath
+            ? undefined
+            : "linear-gradient(135deg, #2a2e3a, #1c2033)",
+        backgroundColor: picturePath && !loaded ? "#edf0f5" : undefined,
+      }}
+    >
+      {children}
+    </div>
+  );
+});
+
 export default function VehiclesPage() {
   const router = useRouter();
 
@@ -39,28 +86,19 @@ export default function VehiclesPage() {
     max_price: undefined,
   });
 
-  const [pickupDate, setPickupDate] = useState<string>("");
+  const [pickupDate, setPickupDateState] = useState<string>("");
   const [returnDate, setReturnDate] = useState<string>("");
 
-  useEffect(() => {
-    if (returnDate && pickupDate && returnDate < pickupDate) {
-      setReturnDate("");
-    }
-  }, [pickupDate]);
+  const setPickupDate = useCallback((value: string) => {
+    setPickupDateState(value);
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const categories = ["All", "SUV", "Sports"];
 
-  const hasAnyFilter = useMemo(() => {
-    return Boolean(
-      query.marque || query.model || query.Occupants || query.fuelType ||
-      query.min_price !== undefined || query.max_price !== undefined
-    );
-  }, [query]);
-
-  async function loadInitial() {
+  const loadInitial = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -72,9 +110,9 @@ export default function VehiclesPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  async function onFilterSubmit(e: React.FormEvent) {
+  const onFilterSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -95,12 +133,12 @@ export default function VehiclesPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [query, t]);
 
   useEffect(() => {
     const id = setTimeout(() => { void loadInitial(); }, 0);
     return () => clearTimeout(id);
-  }, []);
+  }, [loadInitial]);
 
   const filteredVehicles = useMemo(() => {
     const list = Array.isArray(vehicles) ? vehicles : [];
@@ -120,16 +158,6 @@ export default function VehiclesPage() {
     });
   }, [vehicles, selectedCategory, searchQuery]);
 
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = stored === "dark" || (!stored && prefersDark);
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
-  }, []);
-
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -137,15 +165,21 @@ export default function VehiclesPage() {
     const handlers: (() => void)[] = [];
     refs.forEach((card) => {
       if (!card) return;
+      let ticking = false;
       const onMove = (e: MouseEvent) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
-        const rx = ((y - cy) / cy) * -8;
-        const ry = ((x - cx) / cx) * 8;
-        card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
+        if (ticking) return;
+        requestAnimationFrame(() => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const rx = ((y - cy) / cy) * -8;
+          const ry = ((x - cx) / cx) * 8;
+          card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
+          ticking = false;
+        });
+        ticking = true;
       };
       const onLeave = () => {
         card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
@@ -157,88 +191,14 @@ export default function VehiclesPage() {
     return () => handlers.forEach(h => h());
   }, [filteredVehicles]);
 
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <RequireClient>
       <div className="bg-[#f6f6f8] dark:bg-[#070b14] overflow-hidden transition-colors duration-500">
-        <style>{`
-          html { scroll-behavior: smooth; }
-          ::selection { background: #1f4276/30; color: #fff; }
-          .dark ::selection { background: #f39c12/40; color: #fff; }
-          .noise-bg {
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-            background-repeat: repeat;
-            background-size: 256px 256px;
-          }
-          @keyframes float-drift {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(15px, -15px); }
-            50% { transform: translate(30px, 0); }
-            75% { transform: translate(15px, 15px); }
-          }
-          @keyframes float-slow {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
-          }
-          @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-          @keyframes pulse-ring {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.12); opacity: 0.2; }
-            100% { transform: scale(1); opacity: 0.5; }
-          }
-          @keyframes border-shimmer {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-          @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-          }
-          @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(0.8); }
-            50% { opacity: 0.6; transform: scale(1.3); }
-          }
-          @keyframes drive {
-            0% { transform: translateX(-120%) translateY(0); }
-            50% { transform: translateX(50vw) translateY(-8px); }
-            100% { transform: translateX(120vw) translateY(0); }
-          }
-          @keyframes scroll-indicator {
-            0%, 100% { transform: translateY(0); opacity: 0.6; }
-            50% { transform: translateY(6px); opacity: 1; }
-          }
-          .shimmer-btn::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 2.5s infinite;
-            pointer-events: none;
-            border-radius: inherit;
-          }
-          .input-focus-ring:focus-within {
-            box-shadow: 0 0 0 3px rgba(31,66,118,0.12), 0 0 20px rgba(31,66,118,0.06);
-            border-color: rgba(31,66,118,0.25);
-          }
-          .dark .input-focus-ring:focus-within {
-            box-shadow: 0 0 0 3px rgba(243,156,18,0.15), 0 0 25px rgba(243,156,18,0.08);
-            border-color: rgba(243,156,18,0.3);
-          }
-          .card-3d {
-            transform-style: preserve-3d;
-            perspective: 1200px;
-          }
-          .card-3d > * {
-            transform-style: preserve-3d;
-          }
-          .dark ::-webkit-scrollbar-track { background: #0f1729; }
-          .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-        `}</style>
+        <Head>
+          <link rel="preload" href="/CarBackGround.png" as="image" />
+        </Head>
 
         {/* HERO */}
         <section className="relative min-h-[600px] overflow-hidden bg-cover bg-center flex items-start"
@@ -254,7 +214,7 @@ export default function VehiclesPage() {
               backgroundImage:
                 "url('/CarBackGround.png')",
             }}
-            animate={{ scale: [1, 1.06, 1] }}
+            animate={prefersReducedMotion ? {} : { scale: [1, 1.06, 1] }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           />
 
@@ -264,8 +224,9 @@ export default function VehiclesPage() {
             style={{
               background: 'linear-gradient(-45deg, #1f4276, #4c6797, #f39c12, #1f4276)',
               backgroundSize: '400% 400%',
+              backgroundPosition: '0% 50%',
             }}
-            animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+            animate={prefersReducedMotion ? {} : { backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
 
@@ -302,7 +263,7 @@ export default function VehiclesPage() {
 
           <div className="absolute top-6 left-8 z-30">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
@@ -319,9 +280,9 @@ export default function VehiclesPage() {
             style={{ background: "linear-gradient(to bottom, transparent, #070b14)" }}
           />
 
-          <div className="relative z-10 w-full max-w-[1280px] mx-auto px-8 pt-16 pb-28" style={{ zoom: 0.85 }}>
+          <div className="relative z-10 w-full max-w-[1280px] mx-auto px-8 pt-16 pb-28" style={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
             <motion.h1
-              initial={{ opacity: 0, y: 40 }}
+              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
               className="text-center text-white text-[56px] md:text-[64px] font-extrabold tracking-[-0.04em] drop-shadow-2xl"
@@ -330,7 +291,7 @@ export default function VehiclesPage() {
                 {t("vehicles.page_title")}
                 <motion.span
                   className="absolute -bottom-2 left-0 right-0 h-1 bg-[#f39c12]/60 rounded-full"
-                  initial={{ scaleX: 0 }}
+                  initial={prefersReducedMotion ? { scaleX: 1 } : { scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
                   style={{ transformOrigin: 'left' }}
@@ -340,18 +301,18 @@ export default function VehiclesPage() {
 
             {/* Animated scroll indicator */}
             <motion.div
-              initial={{ opacity: 0 }}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.5 }}
               className="flex justify-center mt-6"
             >
               <motion.div
-                animate={{ y: [0, 8, 0] }}
+                animate={prefersReducedMotion ? {} : { y: [0, 8, 0] }}
                 transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                 className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center pt-2"
               >
                 <motion.div
-                  animate={{ y: [0, 6, 0] }}
+                  animate={prefersReducedMotion ? {} : { y: [0, 6, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                   className="w-1.5 h-1.5 rounded-full bg-[#f39c12]"
                 />
@@ -360,7 +321,7 @@ export default function VehiclesPage() {
 
             {/* SEARCH CARD */}
             <motion.div
-              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              initial={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 60, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="mt-8 max-w-[980px] mx-auto rounded-[24px] border border-white/30 dark:border-[#1e293b]/50 bg-white/25 dark:bg-[#0f1729]/40 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] p-8 relative overflow-hidden"
@@ -371,7 +332,8 @@ export default function VehiclesPage() {
 
               {/* Search */}
               <div className="mb-6 relative z-10">
-                <label className="block text-[11px] uppercase tracking-[0.15em] font-bold text-[#637093] dark:text-[#94A3B8] mb-2.5">
+                {/* CHANGED: label color to white */}
+                <label className="block text-[11px] uppercase tracking-[0.15em] font-bold text-white dark:text-white mb-2.5">
                   {t("vehicles.search_label")}
                 </label>
                 <div className="h-[52px] bg-white/70 dark:bg-[#1e293b]/50 border border-white/50 dark:border-[#1e293b]/60 rounded-xl flex items-center px-5 input-focus-ring transition-all duration-300">
@@ -389,7 +351,8 @@ export default function VehiclesPage() {
               {/* Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10">
                 <div>
-                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] dark:text-[#94A3B8] mb-2">
+                  {/* CHANGED: label color to white */}
+                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-white dark:text-white mb-2">
                     {t("vehicles.pickup_date")}
                   </label>
                   <div className="h-[52px] bg-white/70 dark:bg-[#1e293b]/50 border border-white/50 dark:border-[#1e293b]/60 rounded-xl flex items-center px-5 input-focus-ring transition-all duration-300">
@@ -399,14 +362,21 @@ export default function VehiclesPage() {
                     <input
                       type="date"
                       value={pickupDate}
-                      onChange={(e) => setPickupDate(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPickupDate(val);
+                        if (returnDate && val && returnDate < val) {
+                          setReturnDate("");
+                        }
+                      }}
                       className="bg-transparent outline-none ml-3 w-full text-[15px] text-gray-700 dark:text-[#D5DEEF] [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] dark:text-[#94A3B8] mb-2">
+                  {/* CHANGED: label color to white */}
+                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-white dark:text-white mb-2">
                     {t("vehicles.return_date")}
                   </label>
                   <div className="h-[52px] bg-white/70 dark:bg-[#1e293b]/50 border border-white/50 dark:border-[#1e293b]/60 rounded-xl flex items-center px-5 input-focus-ring transition-all duration-300">
@@ -424,7 +394,8 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] dark:text-[#94A3B8] mb-2">
+                  {/* CHANGED: label color to white */}
+                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-white dark:text-white mb-2">
                     {t("vehicles.brand")}
                   </label>
                   <input
@@ -437,7 +408,8 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] dark:text-[#94A3B8] mb-2">
+                  {/* CHANGED: label color to white */}
+                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-white dark:text-white mb-2">
                     {t("vehicles.category")}
                   </label>
                   <select
@@ -452,7 +424,8 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] dark:text-[#94A3B8] mb-2">
+                  {/* CHANGED: label color to white */}
+                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-white dark:text-white mb-2">
                     {t("vehicles.min_price")}
                   </label>
                   <input
@@ -465,7 +438,8 @@ export default function VehiclesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-[#637093] dark:text-[#94A3B8] mb-2">
+                  {/* CHANGED: label color to white */}
+                  <label className="block text-[12px] uppercase tracking-[0.12em] font-bold text-white dark:text-white mb-2">
                     {t("vehicles.max_price")}
                   </label>
                   <input
@@ -481,8 +455,8 @@ export default function VehiclesPage() {
               {/* Button */}
               <div className="flex justify-end mt-6 relative z-10">
                 <motion.button
-                  whileHover={{ scale: 1.04, boxShadow: "0 8px 25px rgba(31,66,118,0.3)" }}
-                  whileTap={{ scale: 0.96 }}
+                  whileHover={prefersReducedMotion ? {} : { scale: 1.04, boxShadow: "0 8px 25px rgba(31,66,118,0.3)" }}
+                  whileTap={prefersReducedMotion ? {} : { scale: 0.96 }}
                   onClick={onFilterSubmit}
                   disabled={loading}
                   className="relative overflow-hidden h-[52px] px-10 rounded-xl bg-gradient-to-r from-[#4c6797] to-[#395784] dark:from-[#f39c12] dark:to-[#d68910] hover:from-[#395784] hover:to-[#2d4670] dark:hover:from-[#d68910] dark:hover:to-[#c47a0a] transition-all duration-300 text-white dark:text-[#0f1729] text-[14px] font-semibold flex items-center gap-3 disabled:opacity-50 shadow-[0_4px_15px_rgba(31,66,118,0.2)] dark:shadow-[0_4px_15px_rgba(243,156,18,0.25)] shimmer-btn"
@@ -497,23 +471,17 @@ export default function VehiclesPage() {
 
         {/* Animated wave divider */}
         <div className="relative h-20 -mt-2 overflow-hidden pointer-events-none" aria-hidden="true">
-          <motion.svg viewBox="0 0 1200 80" className="w-full h-full text-[#f6f6f8] dark:text-[#070b14] fill-current" preserveAspectRatio="none">
-            <motion.path
+          <svg viewBox="0 0 1200 80" className="w-full h-full text-[#f6f6f8] dark:text-[#070b14] fill-current" preserveAspectRatio="none">
+            <path
               d="M0,40 C200,80 400,0 600,40 C800,80 1000,0 1200,40 L1200,80 L0,80 Z"
-              animate={{ d: [
-                "M0,40 C200,80 400,0 600,40 C800,80 1000,0 1200,40 L1200,80 L0,80 Z",
-                "M0,40 C200,0 400,80 600,40 C800,0 1000,80 1200,40 L1200,80 L0,80 Z",
-                "M0,40 C200,80 400,0 600,40 C800,80 1000,0 1200,40 L1200,80 L0,80 Z",
-              ]}}
-              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
             />
-          </motion.svg>
+          </svg>
         </div>
 
         {/* FEATURED */}
         <section className="max-w-[1280px] mx-auto px-8 pb-28 -mt-12">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6 }}
@@ -537,8 +505,8 @@ export default function VehiclesPage() {
                 <motion.button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
+                  whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
                   className={`relative px-5 h-9 rounded-full text-[13px] font-semibold transition-all duration-300 ${
                     selectedCategory === cat
                       ? "bg-[#1f4276] dark:bg-[#f39c12] text-white dark:text-[#0f1729] shadow-[0_4px_12px_rgba(31,66,118,0.25)] dark:shadow-[0_4px_12px_rgba(243,156,18,0.25)]"
@@ -553,7 +521,7 @@ export default function VehiclesPage() {
 
           {error && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-6 p-4 bg-red-50/80 dark:bg-red-950/30 backdrop-blur-sm border border-red-200/60 dark:border-red-800/40 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-3"
             >
@@ -569,7 +537,7 @@ export default function VehiclesPage() {
               {[...Array(6)].map((_, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06 }}
                   className="bg-[#edf0f5] dark:bg-[#0f1729] rounded-[18px] overflow-hidden"
@@ -597,13 +565,13 @@ export default function VehiclesPage() {
                   <motion.div
                     key={v.id}
                     ref={(el) => { cardsRef.current[idx] = el; }}
-                    initial={{ opacity: 0, y: 50, scale: 0.92 }}
+                    initial={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 50, scale: 0.92 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true, margin: "-40px" }}
                     transition={{ duration: 0.5, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -8, boxShadow: "0 25px 60px rgba(31,66,118,0.15)" }}
-                    onClick={() => router.push(`/vehicles/${v.id}`)}
+                    whileHover={prefersReducedMotion ? {} : { y: -8, boxShadow: "0 25px 60px rgba(31,66,118,0.15)" }}
                     className="group bg-[#edf0f5] dark:bg-[#0f1729] rounded-[18px] overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-xl dark:hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] cursor-pointer card-3d relative"
+                    style={{ contentVisibility: 'auto', contain: 'layout style paint' }}
                   >
                     {/* Shimmer border overlay on hover */}
                     <div className="absolute inset-0 rounded-[18px] p-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20" style={{
@@ -615,13 +583,9 @@ export default function VehiclesPage() {
                       maskComposite: 'exclude',
                     }} />
 
-                    <motion.div
+                    <LazyVehicleImage
+                      picturePath={picturePath}
                       className="h-[280px] bg-cover bg-center relative overflow-hidden"
-                      style={{
-                        backgroundImage: picturePath
-                          ? `url(${vehicleImageUrl(picturePath)})`
-                          : "linear-gradient(135deg, #2a2e3a, #1c2033)",
-                      }}
                     >
                       <motion.div
                         className="absolute inset-0 bg-cover bg-center"
@@ -630,7 +594,7 @@ export default function VehiclesPage() {
                             ? `url(${vehicleImageUrl(picturePath)})`
                             : undefined,
                         }}
-                        whileHover={{ scale: 1.15 }}
+                        whileHover={prefersReducedMotion ? {} : { scale: 1.15 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                       />
                       {/* Bottom fade */}
@@ -639,7 +603,7 @@ export default function VehiclesPage() {
                       <div className="flex gap-2 absolute top-4 right-4 z-10">
                         {isNew && (
                           <motion.span
-                            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                            initial={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.5, rotate: -10 }}
                             animate={{ opacity: 1, scale: 1, rotate: 0 }}
                             transition={{ delay: idx * 0.06 + 0.2, type: "spring", stiffness: 300 }}
                             className="px-3 py-1 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[11px] font-bold shadow-[0_4px_10px_rgba(34,197,94,0.3)]"
@@ -648,7 +612,7 @@ export default function VehiclesPage() {
                           </motion.span>
                         )}
                         <motion.span
-                          initial={{ opacity: 0, scale: 0.5 }}
+                          initial={prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: idx * 0.06 + 0.3, type: "spring", stiffness: 300 }}
                           className="px-3 py-1 rounded-full bg-white/90 dark:bg-[#1e293b]/90 backdrop-blur-sm text-[#6d7da2] dark:text-[#94A3B8] text-[11px] font-bold shadow-[0_2px_8px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
@@ -660,7 +624,7 @@ export default function VehiclesPage() {
                       {/* Price floating on image */}
                       <div className="absolute bottom-4 left-4 z-10">
                         <motion.div
-                          initial={{ opacity: 0, x: -20 }}
+                          initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           whileInView={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.06 + 0.3 }}
                           className="bg-white/90 dark:bg-[#1e293b]/90 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
@@ -673,7 +637,7 @@ export default function VehiclesPage() {
                       {/* Quick view overlay on hover */}
                       <motion.div
                         className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
-                        initial={{ opacity: 0 }}
+                        initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
                         whileHover={{ opacity: 1 }}
                         transition={{ duration: 0.3 }}
                       >
@@ -686,11 +650,11 @@ export default function VehiclesPage() {
                           </span>
                         </div>
                       </motion.div>
-                    </motion.div>
+                    </LazyVehicleImage>
 
                     <motion.div
                       className="p-6 relative z-10"
-                      initial={{ opacity: 0 }}
+                      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: idx * 0.06 + 0.15 }}
                     >
@@ -723,7 +687,7 @@ export default function VehiclesPage() {
                       >
                         <motion.div
                           className="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-[#f39c12] to-[#e67e22]"
-                          initial={{ width: '0%' }}
+                          initial={prefersReducedMotion ? { width: '100%' } : { width: '0%' }}
                           whileHover={{ width: '100%' }}
                           transition={{ duration: 0.4, ease: "easeOut" }}
                         />
@@ -731,8 +695,8 @@ export default function VehiclesPage() {
                           <span className="text-[16px] text-gray-500 dark:text-[#94A3B8] font-medium">{t("vehicles.per_day")}</span>
                         </div>
                         <motion.button
-                          whileHover={{ scale: 1.06, boxShadow: "0 8px 20px rgba(243,156,18,0.3)" }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={prefersReducedMotion ? {} : { scale: 1.06, boxShadow: "0 8px 20px rgba(243,156,18,0.3)" }}
+                          whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
                           onClick={(e) => {
                             e.stopPropagation();
                             router.push(`/vehicles/${v.id}`);
@@ -751,7 +715,7 @@ export default function VehiclesPage() {
 
           {!loading && filteredVehicles.length === 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center py-20"
             >
@@ -767,7 +731,7 @@ export default function VehiclesPage() {
         </section>
 
         {/* ABOUT */}
-        <section className="bg-[#f7f7fa] dark:bg-[#0b1121] py-28 border-t border-[#ebedf2] dark:border-[#1e293b]/60 relative overflow-hidden transition-colors duration-500">
+        <section className="bg-[#f7f7fa] dark:bg-[#0b1121] py-28 border-t border-[#ebedf2] dark:border-[#1e293b]/60 relative overflow-hidden transition-colors duration-500" style={{ contentVisibility: 'auto' }}>
           {/* Noise texture */}
           <div className="absolute inset-0 noise-bg pointer-events-none" />
 
@@ -778,13 +742,13 @@ export default function VehiclesPage() {
 
           <div className="max-w-[1280px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center relative z-10">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
+              initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.7, ease: "easeOut" }}
             >
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
@@ -812,14 +776,14 @@ export default function VehiclesPage() {
                 ].map((stat, i) => (
                   <motion.div
                     key={stat.label}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.15 + 0.3 }}
                   >
                     <motion.div
                       className="text-[56px] font-extrabold text-[#1f4276] dark:text-[#f39c12] leading-none"
-                      initial={{ opacity: 0, scale: 0.5 }}
+                      initial={prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
                       transition={{ type: "spring", stiffness: 200, damping: 12, delay: i * 0.15 + 0.5 }}
@@ -833,21 +797,21 @@ export default function VehiclesPage() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
               className="relative"
             >
               <motion.div
-                whileHover={{ y: -4, boxShadow: "0 20px 60px rgba(31,66,118,0.12)" }}
+                whileHover={prefersReducedMotion ? {} : { y: -4, boxShadow: "0 20px 60px rgba(31,66,118,0.12)" }}
                 className="bg-white dark:bg-[#0f1729] rounded-[26px] shadow-[0_12px_35px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.3)] h-[480px] flex items-center justify-center overflow-hidden relative transition-all duration-500"
               >
                 {/* Subtle gradient bg */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#f7f7fa] to-white dark:from-[#0f1729] dark:to-[#0b1121] opacity-60 dark:opacity-100" />
                 <div className="text-center relative z-10">
                   <motion.div
-                    animate={{ y: [0, -8, 0] }}
+                    animate={prefersReducedMotion ? {} : { y: [0, -8, 0] }}
                     transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                   >
                     <svg width="260" height="170" viewBox="0 0 38 28" fill="none" className="mx-auto scale-[4]">
@@ -859,7 +823,7 @@ export default function VehiclesPage() {
                         stroke="#f39c12"
                         strokeWidth="1.5"
                         strokeDasharray="3 2"
-                        animate={{ strokeDashoffset: [0, 20, 0] }}
+                        animate={prefersReducedMotion ? { strokeDashoffset: 0 } : { strokeDashoffset: [0, 20, 0] }}
                         transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
                       />
                     </svg>
@@ -874,10 +838,10 @@ export default function VehiclesPage() {
         </section>
 
         {/* Long smooth gradient separator */}
-        <div className="h-40 bg-gradient-to-b from-[#f7f7fa] via-[#fafafc] to-white dark:from-[#0b1121] dark:via-[#0a0f1d] dark:to-[#070b14] pointer-events-none" aria-hidden="true" />
+        <div className="h-40 bg-gradient-to-b from-[#f7f7fa] via-[#fafafc] to-white dark:from-[#0b1121] dark:via-[#0a0f1d] dark:to-[#070b14] pointer-events-none" aria-hidden="true" style={{ contentVisibility: 'auto' }} />
 
         {/* LOCATION */}
-        <div className="relative bg-white dark:bg-[#070b14]">
+        <div className="relative bg-white dark:bg-[#070b14]" style={{ contentVisibility: 'auto' }}>
           {/* Soft gradient veil over top of map */}
           <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white via-white/60 to-transparent dark:from-[#070b14] dark:via-[#070b14]/60 dark:to-transparent z-10 pointer-events-none" aria-hidden="true" />
           <HomeMap />
