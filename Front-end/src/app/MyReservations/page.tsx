@@ -1,14 +1,21 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, X, CheckCircle, Loader2, Search, Car, Calendar, DollarSign, Clock, ArrowRight, MapPin, Gauge, Users, Fuel } from "lucide-react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { AlertTriangle, CheckCircle, Search, Car, Calendar, DollarSign, Clock, ArrowRight } from "lucide-react";
 import { getAuthToken } from "@/lib/tokenStorage";
 import BackButton from "@/components/BackButton";
 import { RequireClient } from "@/components/RequireClient";
 import { API_BASE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+
+const ConfirmDialog = dynamic(() => import("./modals").then(m => m.ConfirmDialog), { ssr: false });
+const DetailDialog = dynamic(() => import("./modals").then(m => m.DetailDialog), { ssr: false });
+
+const Particles = dynamic(() => Promise.resolve({ default: ParticlesComponent }), { ssr: false });
 
 interface Reservation {
   id: number;
@@ -57,8 +64,47 @@ interface RawItem {
 
 const PER_PAGE = 4;
 
-function getToken(): string | null {
-  return getAuthToken();
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=128&q=75&fm=webp";
+
+const STAT_BARS = [0.3, 0.6, 0.45, 0.8, 0.55, 1, 0.7] as const;
+
+const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; glow: string; border: string }> = {
+  en_attente:  { bg: "bg-amber-50 dark:bg-amber-950/40", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-400", glow: "hover:shadow-amber-900/5 dark:hover:shadow-amber-400/5", border: "border-l-amber-400" },
+  confirmée:   { bg: "bg-blue-50 dark:bg-blue-950/40", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-400", glow: "hover:shadow-blue-900/5 dark:hover:shadow-blue-400/5", border: "border-l-blue-500" },
+  terminée:    { bg: "bg-emerald-50 dark:bg-emerald-950/40", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-400", glow: "hover:shadow-emerald-900/5 dark:hover:shadow-emerald-400/5", border: "border-l-emerald-500" },
+  annulée:     { bg: "bg-rose-50 dark:bg-rose-950/40", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-400", glow: "hover:shadow-rose-900/5 dark:hover:shadow-rose-400/5", border: "border-l-rose-500" },
+};
+
+function getStatusConfig(s: string) {
+  return STATUS_CONFIG[s.toLowerCase()] ?? STATUS_CONFIG.en_attente;
+}
+
+interface Particle { id: number; x: number; y: number; size: number; duration: number; delay: number; }
+const PARTICLE_DATA: Particle[] = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: Math.random() * 4 + 2,
+  duration: Math.random() * 6 + 4,
+  delay: Math.random() * 4,
+}));
+
+function ParticlesComponent() {
+  const prefersReducedMotion = useReducedMotion();
+  if (prefersReducedMotion) return null;
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {PARTICLE_DATA.map((d) => (
+        <motion.div
+          key={d.id}
+          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          style={{ left: `${d.x}%`, top: `${d.y}%`, width: d.size, height: d.size }}
+          animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: d.duration, repeat: Infinity, delay: d.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
 }
 
 function statusLabel(s: string, t: (key: string) => string) {
@@ -104,25 +150,14 @@ function vehicleName(r: Reservation, fallback = "Vehicle") {
 }
 
 function vehicleImage(r: Reservation) {
-  return r.vehicle?.image_url ?? r.vehicle?.image ?? "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80";
+  return r.vehicle?.image_url ?? r.vehicle?.image ?? FALLBACK_IMG;
 }
 
 function refCode(r: Reservation) {
   return r.reference ?? `#CFF-${String(r.id).padStart(4, "0")}`;
 }
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; border: string; glow: string }> = {
-  confirmée: { bg: "bg-emerald-50 dark:bg-emerald-950/40", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500", border: "border-l-emerald-500", glow: "shadow-emerald-500/5" },
-  annulée: { bg: "bg-rose-50 dark:bg-rose-950/40", text: "text-rose-700 dark:text-rose-400", dot: "bg-rose-500", border: "border-l-rose-500", glow: "shadow-rose-500/5" },
-  terminée: { bg: "bg-slate-50 dark:bg-slate-950/40", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400", border: "border-l-slate-400", glow: "shadow-slate-500/5" },
-  en_attente: { bg: "bg-amber-50 dark:bg-amber-950/40", text: "text-amber-700 dark:text-amber-400", dot: "bg-amber-400", border: "border-l-amber-400", glow: "shadow-amber-500/5" },
-};
-
-function getStatusConfig(status: string) {
-  return STATUS_CONFIG[status.toLowerCase()] ?? STATUS_CONFIG.terminée;
-}
-
-function StatusBadge({ status }: { status: string }) {
+const StatusBadge = memo(function StatusBadge({ status }: { status: string }) {
   const { t } = useI18n();
   const c = getStatusConfig(status);
   return (
@@ -131,59 +166,35 @@ function StatusBadge({ status }: { status: string }) {
       {statusLabel(status, t)}
     </span>
   );
-}
+});
 
-function Particles() {
-  const particles = useMemo(() =>
-    Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 4 + 2,
-      duration: Math.random() * 6 + 4,
-      delay: Math.random() * 4,
-    })), []);
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
-          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
-          animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
-          transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ShimmerButton({ children, ...props }: React.ComponentProps<typeof motion.button> & { children: React.ReactNode }) {
+const ShimmerButton = memo(function ShimmerButton({ children, ...props }: React.ComponentProps<typeof motion.button> & { children: React.ReactNode }) {
+  const prefersReducedMotion = useReducedMotion();
   return (
     <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
       {...props}
-      className={`relative overflow-hidden group ${props.className || ""}`}
+      className={`relative overflow-hidden group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${props.className || ""}`}
     >
       <span className="absolute inset-0 bg-[linear-gradient(110deg,transparent,transparent,rgba(255,255,255,0.15),transparent,transparent)] dark:bg-[linear-gradient(110deg,transparent,transparent,rgba(255,255,255,0.08),transparent,transparent)] bg-[length:200%_100%] group-hover:animate-[shimmer_2.5s_infinite]" />
       <span className="relative z-10 flex items-center gap-2">{children}</span>
     </motion.button>
   );
-}
+});
 
-function StatCard({ icon, label, value, gradient, delay, maxValue }: { icon: React.ReactNode; label: string; value: number; gradient: string; delay: number; maxValue?: number }) {
+const StatCard = memo(function StatCard({ icon, label, value, gradient, delay, maxValue }: { icon: React.ReactNode; label: string; value: number; gradient: string; delay: number; maxValue?: number }) {
+  const prefersReducedMotion = useReducedMotion();
   const barHeight = maxValue && maxValue > 0 ? Math.max((value / maxValue) * 100, 8) : 0;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
       className="relative group"
     >
       <div className="absolute inset-0 bg-white/40 dark:bg-[#0f1729]/40 rounded-2xl blur-xl" />
       <div className="relative rounded-2xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 backdrop-blur-xl p-5 shadow-lg shadow-black/5 dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all duration-500">
-        {/* Mini chart area */}
         <div className="flex items-end justify-between mb-3">
           <div className="flex items-center gap-2.5">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${gradient} shadow-lg shadow-black/10 shrink-0`}>
@@ -191,19 +202,18 @@ function StatCard({ icon, label, value, gradient, delay, maxValue }: { icon: Rea
             </div>
             <span className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.12em] leading-tight">{label}</span>
           </div>
-          {/* Mini stacked bars */}
           <div className="flex items-end gap-[3px] h-10">
-            {[0.3, 0.6, 0.45, 0.8, 0.55, 1, 0.7].map((h, i) => (
+            {STAT_BARS.map((h, i) => (
               <motion.div
                 key={i}
-                initial={{ height: 0 }}
+                initial={prefersReducedMotion ? { height: `${h * 40}px` } : { height: 0 }}
                 animate={{ height: `${h * 40}px` }}
                 transition={{ duration: 0.6, delay: delay + 0.3 + i * 0.05, ease: "easeOut" }}
                 className="w-[3px] rounded-full bg-[#D5DEEF]/50 dark:bg-[#1e293b]/70"
               />
             ))}
             <motion.div
-              initial={{ height: 0 }}
+              initial={prefersReducedMotion ? { height: `${barHeight * 0.4}px` } : { height: 0 }}
               animate={{ height: `${barHeight * 0.4}px` }}
               transition={{ duration: 0.8, delay: delay + 0.6, ease: "easeOut" }}
               className={`w-[5px] rounded-full bg-gradient-to-t ${gradient} shadow-sm`}
@@ -211,27 +221,24 @@ function StatCard({ icon, label, value, gradient, delay, maxValue }: { icon: Rea
           </div>
         </div>
 
-        {/* Value display */}
         <div className="flex items-baseline justify-between">
           <div className="text-[28px] font-black text-[#395886] dark:text-[#D5DEEF] tabular-nums leading-none">{value}</div>
-          {/* Trend badge */}
           <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
             value > 0
               ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
               : "text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1e293b]/60"
           }`}>
             {value > 0 && (
-              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 14l5-5 5 5H7z"/></svg>
             )}
             {value > 0 ? "Active" : "Idle"}
           </div>
         </div>
 
-        {/* Progress bar */}
         {maxValue && maxValue > 0 && (
           <div className="mt-3 h-1.5 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b]/60 overflow-hidden">
             <motion.div
-              initial={{ width: 0 }}
+              initial={prefersReducedMotion ? { width: `${(value / maxValue) * 100}%` } : { width: 0 }}
               animate={{ width: `${(value / maxValue) * 100}%` }}
               transition={{ duration: 1, delay: delay + 0.5, ease: "easeOut" }}
               className={`h-full rounded-full bg-gradient-to-r ${gradient}`}
@@ -241,9 +248,26 @@ function StatCard({ icon, label, value, gradient, delay, maxValue }: { icon: Rea
       </div>
     </motion.div>
   );
-}
+});
 
-function ReservationCard({
+const CardImage = memo(function CardImage({ src, alt, cancelled }: { src: string; alt: string; cancelled: boolean }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      width={64}
+      height={64}
+      className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${cancelled ? "grayscale opacity-60" : ""}`}
+      onError={() => setImgSrc(FALLBACK_IMG)}
+      sizes="64px"
+      quality={75}
+      loading="lazy"
+    />
+  );
+});
+
+const ReservationCard = memo(function ReservationCard({
   res,
   onBookAgain,
   onCancel,
@@ -255,6 +279,7 @@ function ReservationCard({
   onShowDetails: (res: Reservation) => void;
 }) {
   const { t, locale } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
   const cancelled = isCancelled(res.status);
   const s = res.status.toLowerCase();
   const completed = s === "terminée";
@@ -264,37 +289,27 @@ function ReservationCard({
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, x: -20 }}
+      initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className={`group relative rounded-2xl border border-[#D5DEEF]/50 dark:border-[#1e293b]/70 bg-white dark:bg-[#0f1729]/90 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-xl dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-500 ${config.glow} overflow-hidden`}
     >
-      {/* Left color bar */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${config.border.replace("border-l-", "bg-")} rounded-r-md`} />
-
-      {/* Subtle glow */}
       <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${config.border === "border-l-emerald-500" ? "from-emerald-500/5" : config.border === "border-l-rose-500" ? "from-rose-500/5" : config.border === "border-l-amber-400" ? "from-amber-400/5" : "from-slate-400/5"} to-transparent pointer-events-none blur-2xl`} />
 
       <div className="p-5 pl-7 flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
         <div className="flex items-center gap-4 min-w-0 flex-1">
-          {/* Vehicle Image */}
           <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#F0F3FA] dark:bg-[#1e293b]/60 shrink-0 ring-2 ring-[#D5DEEF]/30 dark:ring-[#1e293b]/80 group-hover:ring-[#638ECB]/30 dark:group-hover:ring-[#638ECB]/20 transition-all">
-            <img
+            <CardImage
               src={vehicleImage(res)}
               alt={vehicleName(res, t("vehicle.default_name"))}
-              className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${cancelled ? "grayscale opacity-60" : ""}`}
-              onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80";
-              }}
+              cancelled={cancelled}
             />
           </div>
 
-          {/* Info */}
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <h3 className={`text-base font-extrabold truncate ${cancelled ? "text-gray-400 dark:text-[#64748b]" : "text-[#395886] dark:text-[#D5DEEF]"}`}>
+              <h3 className={`text-base font-extrabold truncate ${cancelled ? "text-gray-500 dark:text-[#64748b]" : "text-[#395886] dark:text-[#D5DEEF]"}`}>
                 {vehicleName(res, t("vehicle.default_name"))}
               </h3>
               <span className="text-[11px] font-bold text-[#638ECB]/60 dark:text-[#94A3B8]/60 bg-[#F0F3FA] dark:bg-[#1e293b]/60 px-2 py-0.5 rounded-md shrink-0">
@@ -322,21 +337,21 @@ function ReservationCard({
 
         <div className="flex items-center gap-2 shrink-0">
           {cancelled ? (
-            <span className="text-xs font-bold text-gray-400 dark:text-[#64748b] italic">{t("reservations.status.cancelled")}</span>
+            <span className="text-xs font-bold text-gray-500 dark:text-[#64748b] italic">{t("reservations.status.cancelled")}</span>
           ) : upcoming ? (
             <>
-              <ShimmerButton
-                onClick={() => onShowDetails(res)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all"
+                <ShimmerButton
+                  onClick={() => onShowDetails(res)}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all"
               >
                 {t("reservations.details_button")}
               </ShimmerButton>
               {cancellable && (
                 <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
+                  whileHover={prefersReducedMotion ? {} : { scale: 1.04 }}
+                  whileTap={prefersReducedMotion ? {} : { scale: 0.96 }}
                   onClick={() => onCancel(res.id)}
-                  className="px-5 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-extrabold border border-rose-200 dark:border-rose-800/50 hover:bg-rose-100 dark:hover:bg-rose-950/60 hover:border-rose-300 dark:hover:border-rose-700/50 transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-extrabold border border-rose-200 dark:border-rose-800/50 hover:bg-rose-100 dark:hover:bg-rose-950/60 hover:border-rose-300 dark:hover:border-rose-700/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/60 transition-all cursor-pointer"
                 >
                   {t("reservations.cancel_button")}
                 </motion.button>
@@ -351,9 +366,9 @@ function ReservationCard({
                 {t("reservations.rebook_button")}
               </ShimmerButton>
               <motion.button
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="px-5 py-2.5 rounded-xl bg-white dark:bg-[#1e293b]/60 text-[#475569] dark:text-[#94A3B8] text-xs font-extrabold border border-[#D5DEEF] dark:border-[#1e293b]/80 hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/80 transition-all cursor-pointer"
+                whileHover={prefersReducedMotion ? {} : { scale: 1.04 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.96 }}
+                className="px-5 py-2.5 rounded-xl bg-white dark:bg-[#1e293b]/60 text-[#475569] dark:text-[#94A3B8] text-xs font-extrabold border border-[#D5DEEF] dark:border-[#1e293b]/80 hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 transition-all cursor-pointer"
               >
                 {t("reservations.receipt_button")}
               </motion.button>
@@ -363,46 +378,52 @@ function ReservationCard({
       </div>
     </motion.div>
   );
-}
+});
 
-function FilterDropdown({ filter, onChange }: { filter: string; onChange: (v: string) => void }) {
+const FilterDropdown = memo(function FilterDropdown({ filter, onChange }: { filter: string; onChange: (v: string) => void }) {
   const { t } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
 
-  const labels: Record<string, string> = {
-    all: t("reservations.total"),
-    upcoming: t("reservations.upcoming"),
-    completed: t("reservations.completed"),
-    cancelled: t("reservations.cancelled"),
-  };
+  const labels = useMemo<Record<string, string>>(() => ({
+    all:        t("reservations.total"),
+    en_attente: t("reservations.status.pending"),
+    confirmée:  t("reservations.status.confirmed"),
+    terminée:   t("reservations.status.completed"),
+    annulée:    t("reservations.status.cancelled"),
+  }), [t]);
 
   return (
     <div className="relative">
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2.5 bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-sm border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 rounded-xl px-5 py-2.5 text-sm font-bold text-[#395886] dark:text-[#D5DEEF] hover:bg-white dark:hover:bg-[#0f1729]/90 hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/20 transition-all shadow-sm"
+        aria-label={labels[filter]}
+        aria-expanded={open}
+        className="flex items-center gap-2.5 bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-sm border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 rounded-xl px-5 py-2.5 text-sm font-bold text-[#395886] dark:text-[#D5DEEF] hover:bg-white dark:hover:bg-[#0f1729]/90 hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 transition-all shadow-sm"
       >
         <Clock className="w-4 h-4 text-[#638ECB] dark:text-[#94A3B8]" />
         <span>{labels[filter]}</span>
-        <svg className={`w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8] transition-transform duration-200 ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+        <svg className={`w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8] transition-transform duration-200 ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </motion.button>
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            initial={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            exit={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="absolute right-0 top-full mt-2 bg-white/90 dark:bg-[#0f1729]/90 backdrop-blur-xl border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 rounded-xl shadow-xl shadow-black/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] p-1.5 flex flex-col gap-0.5 z-20 min-w-[180px]"
+            role="menu"
           >
-            {(["all", "upcoming", "completed", "cancelled"] as const).map((opt) => (
+            {(["all", "en_attente", "confirmée", "terminée", "annulée"] as const).map((opt) => (
               <button
                 key={opt}
+                role="menuitem"
                 onClick={() => { onChange(opt); setOpen(false); }}
-                className={`text-left px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                className={`text-left px-4 py-2.5 rounded-lg text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 focus-visible:ring-inset ${
                   filter === opt
                     ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] shadow-md"
                     : "text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/60"
@@ -416,7 +437,7 @@ function FilterDropdown({ filter, onChange }: { filter: string; onChange: (v: st
       </AnimatePresence>
     </div>
   );
-}
+});
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -425,22 +446,49 @@ const containerVariants = {
 
 export default function BookingHistoryPage() {
   const router = useRouter();
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
 
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [allReservations, setAllReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [displayCount, setDisplayCount] = useState(PER_PAGE);
 
   const [modal, setModal] = useState<{ type: "confirm" | "error" | "success"; message: string; resId?: number } | null>(null);
+  const modalRef = useRef(modal);
+  useEffect(() => { modalRef.current = modal; }, [modal]);
   const [cancelling, setCancelling] = useState(false);
   const [detailReservation, setDetailReservation] = useState<Reservation | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const detailDialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  async function fetchReservations(pageNum = 1) {
-    const token = getToken();
+  useEffect(() => {
+    if (!modal && !detailReservation) return;
+    previousFocusRef.current = document.activeElement as HTMLElement;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (modal) setModal(null);
+        if (detailReservation) setDetailReservation(null);
+      }
+    };
+    const el = dialogRef.current ?? detailDialogRef.current;
+    if (el) {
+      el.focus();
+      document.body.style.overflow = "hidden";
+    }
+    window.addEventListener("keydown", handler);
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+      previousFocusRef.current?.focus();
+    };
+  }, [modal, detailReservation]);
+
+  const fetchReservations = useCallback(async () => {
+    const token = getAuthToken();
     if (!token) {
       setError(t("reservations.auth_error"));
       setLoading(false);
@@ -449,15 +497,16 @@ export default function BookingHistoryPage() {
 
     try {
       const statusMap: Record<string, string | undefined> = {
-        all: undefined,
-        upcoming: "Confirmée",
-        completed: "Terminée",
-        cancelled: "Annulée",
+        all:        undefined,
+        en_attente: "en_attente",
+        confirmée:  "Confirmée",
+        terminée:   "Terminée",
+        annulée:    "Annulée",
       };
       const statusParam = statusMap[filter];
       const url = statusParam
-        ? `${API_BASE_URL}/MyReservation/filter?status=${encodeURIComponent(statusParam)}&page=${pageNum}`
-        : `${API_BASE_URL}/MyReservations?page=${pageNum}`;
+        ? `${API_BASE_URL}/MyReservation/filter?status=${encodeURIComponent(statusParam)}`
+        : `${API_BASE_URL}/MyReservations`;
 
       const res = await fetch(url, {
         headers: {
@@ -495,51 +544,45 @@ export default function BookingHistoryPage() {
         } : undefined
       }));
 
-      if (pageNum === 1) {
-        setReservations(mappedItems);
-      } else {
-        setReservations((prev) => [...prev, ...mappedItems]);
+      setReservations(mappedItems);
+      setDisplayCount(PER_PAGE);
+      if (filter === "all") {
+        setAllReservations(mappedItems);
       }
-
-      setHasMore(mappedItems.length >= PER_PAGE && items.length > 0);
     } catch (e: unknown) {
       setError((e as { message?: string })?.message || "Échec du chargement des réservations.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [filter, t]);
 
   useEffect(() => {
     const id = setTimeout(() => {
       setLoading(true);
       setError(null);
-      fetchReservations(1);
+      fetchReservations();
     }, 0);
     return () => clearTimeout(id);
-  }, [filter]);
+  }, [fetchReservations]);
 
-  function loadMore() {
-    const next = page + 1;
-    setPage(next);
-    setLoading(true);
-    setError(null);
-    fetchReservations(next);
-  }
+  const handleShowMore = useCallback(() => {
+    setDisplayCount((prev) => prev + PER_PAGE);
+  }, []);
 
-  function handleBookAgain(vehicleId: number) {
+  const handleBookAgain = useCallback((_vehicleId: number) => {
     router.push(`/vehicles`);
-  }
+  }, [router]);
 
-  function handleCancelReservation(reservationId: number) {
+  const handleCancelReservation = useCallback((reservationId: number) => {
     setModal({ type: "confirm", message: t("reservations.cancel_confirm"), resId: reservationId });
-  }
+  }, [t]);
 
-  function handleShowDetails(res: Reservation) {
+  const handleShowDetails = useCallback((res: Reservation) => {
     setDetailReservation(res);
-  }
+  }, []);
 
-  async function confirmCancel() {
-    const resId = modal?.resId;
+  const confirmCancel = useCallback(async () => {
+    const resId = modalRef.current?.resId;
     if (!resId) return;
     setModal(null);
     setCancelling(true);
@@ -563,24 +606,24 @@ export default function BookingHistoryPage() {
       }
 
       setModal({ type: "success", message: t("reservations.cancel_success") });
-      fetchReservations(page);
-    } catch (err) {
+      fetchReservations();
+    } catch (_err) {
       setModal({ type: "error", message: t("reservations.error_default") });
     } finally {
       setCancelling(false);
     }
-  }
+  }, [t, fetchReservations]);
 
   const stats = useMemo(() => {
-    const total = reservations.length;
-    const upcoming = reservations.filter((r) => {
+    const total = allReservations.length;
+    const upcoming = allReservations.filter((r) => {
       const s = r.status.toLowerCase();
       return s === "confirmée" || s === "en_attente";
     }).length;
-    const completed = reservations.filter((r) => r.status.toLowerCase() === "terminée").length;
-    const cancelled = reservations.filter((r) => r.status.toLowerCase() === "annulée").length;
+    const completed = allReservations.filter((r) => r.status.toLowerCase() === "terminée").length;
+    const cancelled = allReservations.filter((r) => r.status.toLowerCase() === "annulée").length;
     return { total, upcoming, completed, cancelled };
-  }, [reservations]);
+  }, [allReservations]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return reservations;
@@ -590,21 +633,29 @@ export default function BookingHistoryPage() {
         || r.vehicle?.brand?.toLowerCase().includes(q)
         || r.vehicle?.model?.toLowerCase().includes(q);
     });
-  }, [reservations, search]);
+  }, [reservations, search, t]);
+
+  const visibleItems = useMemo(() => {
+    return filtered.slice(0, displayCount);
+  }, [filtered, displayCount]);
+
+  const searchId = "reservation-search-input";
+
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <RequireClient>
-      <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
+      <main className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
         {/* Premium Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
           <Particles />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" aria-hidden="true" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" aria-hidden="true" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" aria-hidden="true" />
           <div className="relative max-w-7xl mx-auto px-6 py-14">
             <BackButton />
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
@@ -626,7 +677,7 @@ export default function BookingHistoryPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 mt-8 relative z-10 pb-16">
-          <motion.div variants={containerVariants} initial="hidden" animate="visible">
+          <motion.div variants={prefersReducedMotion ? {} : containerVariants} initial={prefersReducedMotion ? false : "hidden"} animate={prefersReducedMotion ? false : "visible"}>
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatCard icon={<Car className="w-5 h-5 text-white" />} label={t("reservations.total")} value={stats.total} gradient="bg-gradient-to-br from-[#638ECB] to-[#395886]" delay={0} maxValue={stats.total} />
@@ -638,15 +689,17 @@ export default function BookingHistoryPage() {
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
               <div className="relative flex-1 max-w-md">
+                <label htmlFor={searchId} className="sr-only">{t("reservations.search_placeholder")}</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Search className="w-4 h-4 text-[#638ECB] dark:text-[#94A3B8]" />
                 </div>
                 <input
+                  id={searchId}
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={t("reservations.search_placeholder")}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-sm text-sm text-[#395886] dark:text-[#D5DEEF] font-semibold placeholder:text-[#638ECB]/50 dark:placeholder:text-[#64748b]/50 focus:outline-none focus:ring-2 focus:ring-[#638ECB]/20 dark:focus:ring-[#638ECB]/10 focus:border-[#638ECB]/40 dark:focus:border-[#638ECB]/30 focus:bg-white dark:focus:bg-[#0f1729]/90 transition-all shadow-sm"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-sm text-sm text-[#395886] dark:text-[#D5DEEF] font-semibold placeholder:text-[#638ECB]/50 dark:placeholder:text-[#64748b]/50 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-[#638ECB]/20 dark:focus:ring-[#638ECB]/10 focus-visible:ring-[#638ECB]/40 focus:border-[#638ECB]/40 dark:focus:border-[#638ECB]/30 focus:bg-white dark:focus:bg-[#0f1729]/90 transition-all shadow-sm"
                 />
               </div>
               <FilterDropdown filter={filter} onChange={setFilter} />
@@ -655,9 +708,10 @@ export default function BookingHistoryPage() {
 
           {error && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-rose-50/80 dark:bg-rose-950/40 backdrop-blur-sm text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40 rounded-xl p-4 mb-8 text-sm font-bold"
+              role="alert"
             >
               {error}
             </motion.div>
@@ -667,7 +721,7 @@ export default function BookingHistoryPage() {
           {filtered.length > 0 ? (
             <div className="flex flex-col gap-4">
               <AnimatePresence mode="popLayout">
-                {filtered.map((res, i) => (
+                {visibleItems.map((res) => (
                   <ReservationCard
                     key={res.id}
                     res={res}
@@ -680,16 +734,16 @@ export default function BookingHistoryPage() {
             </div>
           ) : !loading && !error ? (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center py-24 bg-white/50 dark:bg-[#0f1729]/50 backdrop-blur-sm border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 rounded-3xl shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
             >
               <div className="w-16 h-16 rounded-2xl bg-[#F0F3FA] dark:bg-[#1e293b]/60 flex items-center justify-center mx-auto mb-5">
                 <Car className="w-8 h-8 text-[#638ECB] dark:text-[#94A3B8]" />
               </div>
-              <p className="text-xl font-black text-[#395886] dark:text-[#D5DEEF]">
+              <h2 className="text-xl font-black text-[#395886] dark:text-[#D5DEEF]">
                 {search ? t("reservations.no_results") : t("reservations.no_reservations")}
-              </p>
+              </h2>
               <p className="text-sm font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1.5">
                 {search ? t("reservations.no_results_search") : t("reservations.no_reservations_cta")}
               </p>
@@ -698,7 +752,7 @@ export default function BookingHistoryPage() {
 
           {/* Loading */}
           {loading && (
-            <div className="flex items-center justify-center py-20">
+            <div className="flex items-center justify-center py-20" role="status" aria-label={t("reservations.loading")}>
               <div className="relative">
                 <div className="w-10 h-10 border-3 border-[#D5DEEF] dark:border-[#1e293b] rounded-full" />
                 <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] dark:border-t-[#f39c12] rounded-full animate-spin" />
@@ -707,271 +761,57 @@ export default function BookingHistoryPage() {
             </div>
           )}
 
-          {/* Load More */}
-          {!loading && hasMore && filtered.length > 0 && (
+          {/* Show More */}
+          {!loading && visibleItems.length < filtered.length && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mt-10 text-center"
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-10 flex items-center justify-center"
             >
-              <ShimmerButton
-                onClick={loadMore}
-                className="inline-flex items-center gap-2.5 bg-white dark:bg-[#0f1729]/90 border-2 border-[#D5DEEF]/60 dark:border-[#1e293b]/70 text-[#395886] dark:text-[#D5DEEF] font-extrabold text-sm tracking-wider px-10 py-3.5 rounded-xl hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/20 hover:bg-white dark:hover:bg-[#0f1729]/90 hover:shadow-lg dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all"
+              <motion.button
+                whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+                onClick={handleShowMore}
+                className="px-10 py-3.5 rounded-xl bg-white dark:bg-[#0f1729]/80 border-2 border-[#D5DEEF]/60 dark:border-[#1e293b]/70 text-[#395886] dark:text-[#D5DEEF] font-extrabold text-sm hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/60 hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 transition-all shadow-sm hover:shadow-md flex items-center gap-2.5"
               >
-                {t("reservations.load_more")}
-                <ArrowRight className="w-4 h-4" />
-              </ShimmerButton>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+                {t("reservations.show_more")}
+                <span className="text-[11px] font-bold text-[#638ECB] dark:text-[#94A3B8]">
+                  ({filtered.length - visibleItems.length} {t("reservations.remaining")})
+                </span>
+              </motion.button>
             </motion.div>
           )}
         </div>
-      </div>
+      </main>
 
       {/* Modals */}
       <AnimatePresence>
         {modal && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setModal(null)}
-            />
-
-            <motion.div
-              className="relative bg-white/90 dark:bg-[#0f1729]/90 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] max-w-sm w-full p-8 flex flex-col items-center gap-5 border border-white/50 dark:border-[#1e293b]/70"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: "spring", duration: 0.5 }}
-            >
-              <button
-                onClick={() => setModal(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 dark:bg-[#1e293b]/60 hover:bg-gray-200 dark:hover:bg-[#1e293b] flex items-center justify-center text-gray-400 dark:text-[#94A3B8] hover:text-gray-600 dark:hover:text-[#D5DEEF] transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              {modal.type === "confirm" && (
-                <>
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-950/50 dark:to-rose-950/30 flex items-center justify-center">
-                    <AlertTriangle className="w-8 h-8 text-rose-500" />
-                  </div>
-                  <p className="text-sm text-gray-800 dark:text-[#D5DEEF] font-bold text-center">{modal.message}</p>
-                  <div className="flex gap-3 w-full mt-1">
-                    <button
-                      onClick={() => setModal(null)}
-                      className="flex-1 border-2 border-[#D5DEEF] dark:border-[#1e293b]/70 text-[#395886] dark:text-[#D5DEEF] font-extrabold text-sm py-3 rounded-xl hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/60 transition-all"
-                    >
-                      {t("reservations.cancel_modal_keep")}
-                    </button>
-                    <button
-                      onClick={confirmCancel}
-                      disabled={cancelling}
-                      className="flex-1 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 disabled:opacity-50 text-white font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-rose-500/20 transition-all flex items-center justify-center gap-2"
-                    >
-                      {cancelling ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> {t("reservations.cancel_modal_cancelling")}</>
-                      ) : (
-                        t("reservations.cancel_yes")
-                      )}
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {modal.type === "error" && (
-                <>
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-950/50 dark:to-rose-950/30 flex items-center justify-center">
-                    <AlertTriangle className="w-8 h-8 text-rose-500" />
-                  </div>
-                  <p className="text-sm text-gray-800 dark:text-[#D5DEEF] font-bold text-center">{modal.message}</p>
-                  <button
-                    onClick={() => setModal(null)}
-                    className="w-full bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl transition-all"
-                  >
-                    OK
-                  </button>
-                </>
-              )}
-
-              {modal.type === "success" && (
-                <>
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/50 dark:to-emerald-950/30 flex items-center justify-center">
-                    <CheckCircle className="w-8 h-8 text-emerald-500" />
-                  </div>
-                  <p className="text-sm text-gray-800 dark:text-[#D5DEEF] font-bold text-center">{modal.message}</p>
-                  <button
-                    onClick={() => setModal(null)}
-                    className="w-full bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl transition-all"
-                  >
-                    OK
-                  </button>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
+          <ConfirmDialog
+            modal={modal}
+            onClose={() => setModal(null)}
+            onConfirm={confirmCancel}
+            cancelling={cancelling}
+            dialogRef={dialogRef}
+          />
         )}
       </AnimatePresence>
 
       {/* Detail Modal */}
       <AnimatePresence>
         {detailReservation && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDetailReservation(null)}
-            />
-
-            <motion.div
-              className="relative bg-white/90 dark:bg-[#0f1729]/90 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] w-full max-w-3xl flex flex-col max-h-[90vh] border border-white/50 dark:border-[#1e293b]/70"
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              transition={{ type: "spring", duration: 0.5 }}
-            >
-              <div className="bg-gradient-to-r from-[#dde4ef] to-[#e8edf5] dark:from-[#0f1729] dark:to-[#1a2332] px-6 py-4 flex items-center justify-between shrink-0 rounded-t-3xl border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/70">
-                <span className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("reservations.details_title")}</span>
-                <button
-                  onClick={() => setDetailReservation(null)}
-                  className="w-8 h-8 rounded-full bg-white/60 dark:bg-[#1e293b]/60 hover:bg-white dark:hover:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] hover:text-[#1d3560] dark:hover:text-white transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="px-8 py-8 overflow-y-auto">
-                <div className="flex flex-col md:flex-row gap-8 mb-10">
-                  <div className="w-full md:w-[340px] flex-shrink-0 rounded-2xl overflow-hidden bg-[#1a1e2e] ring-2 ring-[#D5DEEF]/30 dark:ring-[#1e293b]/80 shadow-lg" style={{ minHeight: 200 }}>
-                    <img
-                      src={vehicleImage(detailReservation)}
-                      alt={vehicleName(detailReservation, t("vehicle.default_name"))}
-                      className="w-full h-full object-cover"
-                      style={{ minHeight: 200 }}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=700&q=80";
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-bold text-[#638ECB] dark:text-[#94A3B8]">{t("reservations.ref_label")} {refCode(detailReservation).replace("#", "")}</span>
-                      <StatusBadge status={detailReservation.status} />
-                    </div>
-
-                    <div className="mb-4">
-                      <h2 className="text-3xl font-black text-[#395886] dark:text-[#D5DEEF] leading-tight">{vehicleName(detailReservation, t("vehicle.default_name"))}</h2>
-                      <p className="text-[#638ECB] dark:text-[#94A3B8] text-sm font-semibold mt-1">{detailReservation.vehicle?.brand} {detailReservation.vehicle?.model}</p>
-                    </div>
-
-                    <div className="bg-gradient-to-r from-gray-50 to-white dark:from-[#0f1729] dark:to-[#1a2332] border border-gray-100 dark:border-[#1e293b]/70 rounded-2xl px-6 py-5 flex items-center justify-between mt-auto shadow-sm">
-                      <span className="text-sm font-bold text-gray-600 dark:text-[#94A3B8]">{t("reservations.total_amount")}</span>
-                      <span className="text-2xl font-black text-[#395886] dark:text-[#D5DEEF]">{Number(detailReservation.total_price).toLocaleString(locale)} DH</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border border-gray-100 dark:border-[#1e293b]/70 rounded-2xl overflow-hidden flex flex-col md:flex-row mb-8 shadow-sm">
-                  <div className="flex-1 px-6 py-5 border-b md:border-b-0 md:border-r border-gray-100 dark:border-[#1e293b]/70 bg-white/50 dark:bg-[#0f1729]/40">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-[#F0F3FA] dark:bg-[#1e293b]/60 flex items-center justify-center">
-                        <Calendar className="w-4 h-4 text-[#395886] dark:text-[#D5DEEF]" />
-                      </div>
-                      <span className="text-[#395886] dark:text-[#D5DEEF] font-extrabold text-sm">{t("reservations.pickup_label")}</span>
-                    </div>
-                    <div className="border-l-2 border-[#D5DEEF] dark:border-[#1e293b]/70 pl-4">
-                      <p className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-widest mb-1">{t("reservations.date_label")}</p>
-                      <p className="text-base font-bold text-[#395886] dark:text-[#D5DEEF]">
-                        {formatDate(detailReservation.pickup_date, locale)}
-                      </p>
-                      {detailReservation.pickup_location && (
-                        <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {detailReservation.pickup_location}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex-1 px-6 py-5 bg-white/50 dark:bg-[#0f1729]/40">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-[#F0F3FA] dark:bg-[#1e293b]/60 flex items-center justify-center">
-                        <Calendar className="w-4 h-4 text-[#395886] dark:text-[#D5DEEF]" />
-                      </div>
-                      <span className="text-[#395886] dark:text-[#D5DEEF] font-extrabold text-sm">{t("reservations.return_label")}</span>
-                    </div>
-                    <div className="border-l-2 border-[#D5DEEF] dark:border-[#1e293b]/70 pl-4">
-                      <p className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-widest mb-1">{t("reservations.date_label")}</p>
-                      <p className="text-base font-bold text-[#395886] dark:text-[#D5DEEF]">
-                        {formatDate(detailReservation.dropoff_date, locale)}
-                      </p>
-                      {detailReservation.dropoff_location && (
-                        <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {detailReservation.dropoff_location}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <h3 className="text-base font-extrabold text-[#395886] dark:text-[#D5DEEF] mb-4">{t("reservations.specs_title")}</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {[
-                      { label: t("reservations.fuel_label"), value: detailReservation.vehicle?.fuelType ?? "—", icon: Fuel },
-                      { label: t("reservations.gearbox_label"), value: "Automatique", icon: Gauge },
-                      { label: t("reservations.seats_label"), value: detailReservation.vehicle?.Occupants ?? "—", icon: Users },
-                      { label: t("reservations.year_label"), value: detailReservation.vehicle?.year?.toString() ?? "—", icon: Calendar },
-                    ].map((spec) => (
-                      <div key={spec.label} className="bg-white/70 dark:bg-[#0f1729]/60 border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 rounded-xl px-4 py-5 flex flex-col items-center gap-2.5 shadow-sm hover:shadow-md transition-all">
-                        <div className="w-9 h-9 rounded-lg bg-[#F0F3FA] dark:bg-[#1e293b]/60 flex items-center justify-center">
-                          <spec.icon className="w-4 h-4 text-[#395886] dark:text-[#D5DEEF]" />
-                        </div>
-                        <p className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-wider">{spec.label}</p>
-                        <p className="text-sm font-black text-[#395886] dark:text-[#D5DEEF]">{spec.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setDetailReservation(null);
-                      handleCancelReservation(detailReservation.id);
-                    }}
-                    className="px-6 py-3 rounded-xl border-2 border-[#D5DEEF] dark:border-[#1e293b]/70 text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/60 transition-all"
-                  >
-                    {t("reservations.cancel_in_detail")}
-                  </motion.button>
-                  <ShimmerButton
-                    onClick={() => setDetailReservation(null)}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-sm font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl transition-all"
-                  >
-                    {t("reservations.back_to_history")}
-                  </ShimmerButton>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+          <DetailDialog
+            res={detailReservation}
+            onClose={() => setDetailReservation(null)}
+            onCancel={() => {
+              setDetailReservation(null);
+              handleCancelReservation(detailReservation.id);
+            }}
+            dialogRef={detailDialogRef}
+          />
         )}
       </AnimatePresence>
     </RequireClient>

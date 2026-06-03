@@ -30,8 +30,8 @@ const services = [
         <polyline points="21 15 16 10 5 21"/>
       </svg>
     ),
-    title: "Location Premium",
-    desc: "Une flotte de v&eacute;hicules haut de gamme s&eacute;lectionn&eacute;s pour votre confort et votre prestige.",
+    titleKey: "home.services.premium",
+    descKey: "home.services.premium.desc",
   },
   {
     icon: (
@@ -40,8 +40,8 @@ const services = [
         <circle cx="12" cy="10" r="3"/>
       </svg>
     ),
-    title: "Livraison Partout",
-    desc: "Nous livrons votre v&eacute;hicule &agrave; l&rsquo;a&eacute;roport, votre h&ocirc;tel ou tout lieu &agrave; Marrakech.",
+    titleKey: "home.services.delivery",
+    descKey: "home.services.delivery.desc",
   },
   {
     icon: (
@@ -50,8 +50,8 @@ const services = [
         <circle cx="12" cy="7" r="4"/>
       </svg>
     ),
-    title: "Conciergerie 24/7",
-    desc: "Un service client d&eacute;di&eacute;, disponible &agrave; tout moment pour r&eacute;pondre &agrave; vos besoins.",
+    titleKey: "home.services.concierge",
+    descKey: "home.services.concierge.desc",
   },
   {
     icon: (
@@ -59,16 +59,15 @@ const services = [
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
       </svg>
     ),
-    // 
-    title: "Assurance Incluse",
-    desc: "Chaque r&eacute;servation comprend une assurance tous risques pour rouler en toute s&eacute;r&eacute;nit&eacute;.",
+    titleKey: "home.services.insurance",
+    descKey: "home.services.insurance.desc",
   },
 ];
 
 const steps = [
-  { num: "01", title: "Choisissez", desc: "Parcourez notre flotte et s&eacute;lectionnez le v&eacute;hicule qui vous correspond." },
-  { num: "02", title: "Réservez", desc: "Choisissez vos dates et finalisez votre réservation en quelques clics." },
-  { num: "03", title: "Conduisez", desc: "R&eacute;cup&eacute;rez votre v&eacute;hicule et profitez de votre exp&eacute;rience." },
+  { num: "01", titleKey: "home.how.step1.title", descKey: "home.how.step1.desc" },
+  { num: "02", titleKey: "home.how.step2.title", descKey: "home.how.step2.desc" },
+  { num: "03", titleKey: "home.how.step3.title", descKey: "home.how.step3.desc" },
 ];
 
 
@@ -155,6 +154,7 @@ function NavBar({ dark, onToggleDark }: { dark: boolean; onToggleDark: () => voi
 function HeroSection() {
   const router = useRouter();
   const [currentImg, setCurrentImg] = useState(0);
+  const { t } = useI18n();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentImg((p) => (p + 1) % cars.length), 5000);
@@ -206,9 +206,9 @@ function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="inline-flex items-center gap-2 bg-[#f39c12]/20 backdrop-blur-sm text-[#f39c12] text-xs font-bold tracking-[0.2em] uppercase px-4 py-2 rounded-full mb-6 border border-[#f39c12]/10">
+            <span className="inline-flex items-center gap-2 bg-[#f39c12]/20 backdrop-blur-sm text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase px-4 py-2 rounded-full mb-6 border border-[#f39c12]/10">
               <span className="w-1.5 h-1.5 rounded-full bg-[#f39c12] animate-pulse" />
-              Location de voitures de luxe &agrave; Marrakech
+              {t("home.badge")}
             </span>
           </motion.div>
 
@@ -218,9 +218,9 @@ function HeroSection() {
             transition={{ duration: 0.8, delay: 0.35 }}
             className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-[-0.04em] text-white mb-6"
           >
-            Conduisez
+            {t("home.hero.title1")}
             <br />
-            <span className="text-[#f39c12] relative inline-block after:absolute after:inset-x-0 after:bottom-1 after:h-3 after:bg-[#f39c12]/20 after:blur-sm">l&rsquo;Excellence</span>
+            <span className="text-[#f39c12] relative inline-block after:absolute after:inset-x-0 after:bottom-1 after:h-3 after:bg-[#f39c12]/20 after:blur-sm">{t("home.hero.title2")}</span>
           </motion.h1>
 
           <motion.p
@@ -229,9 +229,7 @@ function HeroSection() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="text-lg md:text-xl text-[#D5DEEF] max-w-xl leading-relaxed mb-10"
           >
-            D&eacute;couvrez une exp&eacute;rience automobile sur mesure.
-            Des v&eacute;hicules d&rsquo;exception, un service de conciergerie
-            disponible 24h/24, rien que pour vous.
+            {t("home.hero.subtitle")}
           </motion.p>
 
           <motion.div
@@ -246,7 +244,7 @@ function HeroSection() {
               onClick={() => router.push("/register")}
               className="relative overflow-hidden bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-black text-sm tracking-[0.15em] uppercase px-10 py-4 rounded-2xl transition-all duration-300 shadow-[0_4px_15px_rgba(243,156,18,0.3)] hover:shadow-[0_8px_30px_rgba(243,156,18,0.5)] shimmer-btn"
             >
-              Commencer
+              {t("home.hero.cta")}
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
@@ -254,7 +252,7 @@ function HeroSection() {
               onClick={() => router.push("/login")}
               className="border-2 border-[#F0F3FA]/30 text-[#F0F3FA] font-bold text-sm tracking-[0.15em] uppercase px-10 py-4 rounded-2xl hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
             >
-              Se connecter
+              {t("home.hero.connect")}
             </motion.button>
           </motion.div>
         </div>
@@ -290,6 +288,7 @@ function HeroSection() {
 
 function ServicesSection() {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const { t } = useI18n();
 
   useEffect(() => {
     const refs = cardsRef.current;
@@ -342,19 +341,19 @@ function ServicesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase bg-[#f39c12]/10 px-4 py-2 rounded-full border border-[#f39c12]/20">Nos Services</span>
+          <span className="inline-flex items-center gap-2 text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase bg-[#f39c12]/10 px-4 py-2 rounded-full border border-[#f39c12]/20">{t("home.services.badge")}</span>
           <h2 className="text-4xl md:text-5xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 leading-tight">
-            L&rsquo;art de la<br/>location automobile
+            {t("home.services.title")}
           </h2>
           <p className="text-[#638ECB] dark:text-[#94A3B8] text-lg mt-4 max-w-xl mx-auto">
-            Tout ce dont vous avez besoin pour une exp&eacute;rience sans accroc.
+            {t("home.services.subtitle")}
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((svc, i) => (
             <motion.div
-              key={svc.title}
+              key={svc.titleKey}
               ref={(el) => { cardsRef.current[i] = el; }}
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -373,10 +372,10 @@ function ServicesSection() {
                   {svc.icon}
                 </motion.div>
               </div>
-              <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] mb-3 transition-all duration-300 group-hover:text-[#f39c12] group-hover:translate-x-1">{svc.title}</h3>
-              <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] leading-relaxed mb-4">{svc.desc}</p>
+              <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] mb-3 transition-all duration-300 group-hover:text-[#f39c12] group-hover:translate-x-1">{t(svc.titleKey)}</h3>
+              <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] leading-relaxed mb-4">{t(svc.descKey)}</p>
               <div className="flex items-center gap-2 text-[#f39c12] text-xs font-bold opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-2 group-hover:translate-x-0">
-                <span>En savoir plus</span>
+                <span>{t("home.services.learn_more")}</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
@@ -391,6 +390,7 @@ function ServicesSection() {
 
 function HowItWorksSection() {
   const [activeStep, setActiveStep] = useState<number | null>(null);
+  const { t } = useI18n();
 
   return (
     <section className="bg-white dark:bg-[#0b1121] py-28 px-8 relative overflow-hidden transition-colors duration-500">
@@ -407,9 +407,9 @@ function HowItWorksSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase bg-[#f39c12]/10 px-4 py-2 rounded-full border border-[#f39c12]/20">Comment &ccedil;a marche</span>
+          <span className="inline-flex items-center gap-2 text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase bg-[#f39c12]/10 px-4 py-2 rounded-full border border-[#f39c12]/20">{t("home.how.badge")}</span>
           <h2 className="text-4xl md:text-5xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6">
-            Trois &eacute;tapes simples
+            {t("home.how.title")}
           </h2>
         </motion.div>
 
@@ -437,7 +437,7 @@ function HowItWorksSection() {
             >
               {/* Step badge */}
               <div className="absolute top-4 right-4 text-[10px] font-bold text-[#638ECB]/40 dark:text-[#638ECB]/30 tracking-widest uppercase">
-                {activeStep === i ? 'En cours' : `Étape ${i + 1}`}
+                {activeStep === i ? t("home.how.in_progress") : `${t("home.how.step")} ${i + 1}`}
               </div>
 
               {/* Number */}
@@ -467,9 +467,9 @@ function HowItWorksSection() {
                 animate={activeStep === i ? { x: [0, -3, 3, 0] } : {}}
                 transition={{ duration: 0.4 }}
               >
-                {step.title}
+                {t(step.titleKey)}
               </motion.h3>
-              <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] leading-relaxed max-w-xs">{step.desc}</p>
+              <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] leading-relaxed max-w-xs">{t(step.descKey)}</p>
 
               {/* Bottom indicator line */}
               <motion.div
@@ -491,7 +491,7 @@ function HowItWorksSection() {
           transition={{ duration: 0.5, delay: 0.8 }}
           className="text-center text-xs text-[#638ECB]/50 dark:text-[#638ECB]/30 mt-12 tracking-widest uppercase"
         >
-          &mdash; Pr&ecirc;t ? Commencez d&egrave;s maintenant &mdash;
+          &mdash; {t("home.how.ready")} &mdash;
         </motion.p>
       </div>
     </section>
@@ -499,6 +499,8 @@ function HowItWorksSection() {
 }
 
 function StatsSection() {
+  const { t } = useI18n();
+
   return (
     <section className="bg-[#395886] dark:bg-[#0b1121] py-24 px-8 relative overflow-hidden transition-colors duration-500">
       {/* Decorative elements */}
@@ -516,13 +518,13 @@ function StatsSection() {
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { value: "15+", label: "Ann&eacute;es d&rsquo;expertise" },
-            { value: "200+", label: "V&eacute;hicules disponibles" },
-            { value: "5000+", label: "Clients satisfaits" },
-            { value: "24/7", label: "Support client" },
+            { value: "15+", labelKey: "home.stats.years" },
+            { value: "200+", labelKey: "home.stats.vehicles" },
+            { value: "5000+", labelKey: "home.stats.clients" },
+            { value: "24/7", labelKey: "home.stats.support" },
           ].map((stat, i) => (
             <motion.div
-              key={stat.label}
+              key={stat.labelKey}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -543,7 +545,7 @@ function StatsSection() {
                   {stat.value}
                 </motion.span>
               </motion.div>
-              <span className="text-sm text-[#D5DEEF] font-medium block transition-colors duration-300 group-hover:text-white">{stat.label}</span>
+              <span className="text-sm text-[#D5DEEF] font-medium block transition-colors duration-300 group-hover:text-white">{t(stat.labelKey)}</span>
             </motion.div>
           ))}
         </div>
@@ -556,6 +558,7 @@ function VehiclesMarquee() {
   const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
 
   useEffect(() => {
     listVehicles()
@@ -578,13 +581,13 @@ function VehiclesMarquee() {
           className="text-center"
         >
           <span className="inline-flex items-center gap-2 text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase bg-[#f39c12]/10 px-4 py-2 rounded-full">
-            Notre Flotte
+            {t("home.marquee.badge")}
           </span>
           <h2 className="text-4xl md:text-5xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 leading-tight">
-            Des v&eacute;hicules d&rsquo;exception
+            {t("home.marquee.title")}
           </h2>
           <p className="text-[#638ECB] dark:text-[#94A3B8] text-lg mt-4 max-w-xl mx-auto">
-            D&eacute;couvrez notre s&eacute;lection de v&eacute;hicules haut de gamme.
+            {t("home.marquee.subtitle")}
           </p>
         </motion.div>
       </div>
@@ -618,7 +621,7 @@ function VehiclesMarquee() {
                 whileTap={{ scale: 0.97 }}
                 onClick={() => {
                   if (getAuthToken()) {
-                    router.push(`/vehicles/${v.id}`);
+                     router.push(`/vehicles/${v.id}`);
                   } else {
                     localStorage.setItem("pendingVehicleRedirect", `/vehicles/${v.id}`);
                     router.push(`/login?redirect=/vehicles/${v.id}`);
@@ -636,7 +639,7 @@ function VehiclesMarquee() {
                 </div>
                 <div className="p-5">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300">
+                     <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300">
                       {v.marque} {v.model}
                     </h3>
                     <span className="text-xs font-bold text-[#f39c12] bg-[#f39c12]/10 px-2.5 py-1 rounded-full transition-all duration-300 group-hover:bg-[#f39c12] group-hover:text-white">
@@ -646,7 +649,7 @@ function VehiclesMarquee() {
                   <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] mb-3">{v.year}</p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-xl font-black text-[#395886] dark:text-[#f39c12]">{v.pricePerDay.toLocaleString()}</span>
-                    <span className="text-sm text-[#638ECB] dark:text-[#94A3B8] font-medium">DH/jour</span>
+                    <span className="text-sm text-[#638ECB] dark:text-[#94A3B8] font-medium">DH{t("vehicles.per_day")}</span>
                   </div>
                 </div>
               </motion.button>
@@ -667,6 +670,7 @@ function VehiclesMarquee() {
 
 function CTASection() {
   const router = useRouter();
+  const { t } = useI18n();
 
   return (
     <section className="bg-[#D5DEEF] dark:bg-[#0b1121] py-32 px-8 relative overflow-hidden transition-colors duration-500">
@@ -721,7 +725,7 @@ function CTASection() {
               transition={{ repeat: Infinity, duration: 2 }}
               className="w-1.5 h-1.5 rounded-full bg-[#f39c12]"
             />
-            Pr&ecirc;t &agrave; rouler?
+            {t("home.cta.ready")}
           </motion.span>
 
           <motion.h2
@@ -731,7 +735,7 @@ function CTASection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-4xl md:text-5xl lg:text-6xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 mb-6 leading-tight"
           >
-            Rejoignez l&rsquo;exp&eacute;rience
+            {t("home.cta.title1")}
             <br />
             <span className="relative inline-block text-[#f39c12]">
               CARFORFAR
@@ -744,7 +748,7 @@ function CTASection() {
                 style={{ transformOrigin: 'left' }}
               />
             </span>
-            <span> d&egrave;s maintenant</span>
+            <span> {t("home.cta.title2")}</span>
           </motion.h2>
 
           <motion.p
@@ -754,8 +758,7 @@ function CTASection() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-[#638ECB] dark:text-[#94A3B8] text-lg mb-10 max-w-lg mx-auto"
           >
-            Inscrivez-vous en quelques secondes et acc&eacute;dez &agrave; notre flotte
-            de v&eacute;hicules d&rsquo;exception.
+            {t("home.cta.subtitle")}
           </motion.p>
 
           <motion.div
@@ -779,7 +782,7 @@ function CTASection() {
               className="relative overflow-hidden bg-gradient-to-r from-[#395886] via-[#2d4670] to-[#395886] hover:from-[#2d4670] hover:to-[#1e3560] text-white font-black text-sm tracking-[0.15em] uppercase px-14 py-5 rounded-2xl transition-all duration-500 shadow-[0_8px_30px_rgba(57,88,134,0.35)] shimmer-btn"
               style={{ backgroundSize: '200% 100%' }}
             >
-              <span className="relative z-10">Cr&eacute;er un compte</span>
+              <span className="relative z-10">{t("home.cta.button")}</span>
             </motion.button>
           </motion.div>
 
@@ -791,7 +794,7 @@ function CTASection() {
             transition={{ duration: 0.5, delay: 0.9 }}
             className="text-[11px] text-[#638ECB]/50 dark:text-[#94A3B8]/40 mt-8 tracking-wider"
           >
-            Gratuit &bull; Sans engagement &bull; 24/7
+            {t("home.cta.trust")}
           </motion.p>
         </motion.div>
       </div>
@@ -800,6 +803,8 @@ function CTASection() {
 }
 
 function FooterSection() {
+  const { t } = useI18n();
+
   return (
     <footer className="bg-[#395886] dark:bg-[#050a14] px-8 py-16 relative overflow-hidden transition-colors duration-500">
       {/* Subtle top border glow */}
@@ -816,15 +821,34 @@ function FooterSection() {
               <CarLogo dark />
             </div>
             <p className="text-[#D5DEEF]/60 text-sm max-w-xs mt-4 leading-relaxed">
-              Location de voitures de luxe &agrave; Marrakech.
-              Conduisez l&rsquo;excellence avec CARFORFAR.
+              {t("footer.description")}
             </p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
             {[
-              { title: "Services", links: ["Location", "Conciergerie", "Assurance", "Livraison"] },
-              { title: "L&eacute;gal", links: ["Conditions", "Confidentialit&eacute;", "Cookies"] },
-              { title: "Contact", links: ["contact@carforfar.ma", "+212 5XX XX XX XX", "Marrakech, Maroc"] },
+              {
+                title: t("footer.company"),
+                links: [
+                  { label: t("home.services.premium"), href: "/vehicles" },
+                  { label: t("home.services.concierge"), href: "/settings" },
+                  { label: t("home.services.insurance"), href: "/regles" },
+                  { label: t("home.services.delivery"), href: "/vehicles" },
+                ],
+              },
+              {
+                title: t("footer.legal"),
+                links: [
+                  { label: t("rules.title"), href: "/regles" },
+                ],
+              },
+              {
+                title: "Contact",
+                links: [
+                  { label: "contact@carforfar.ma", href: "mailto:contact@carforfar.ma" },
+                  { label: "+212 5XX XX XX XX", href: "tel:+2125XXXXXXXX" },
+                  { label: t("home.map.location_text"), href: "#" },
+                ],
+              },
             ].map((col, ci) => (
               <motion.div
                 key={col.title}
@@ -835,9 +859,9 @@ function FooterSection() {
               >
                 <h4 className="text-[#f39c12] text-xs font-bold tracking-[0.15em] uppercase mb-4">{col.title}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {col.links.map((l) => (
-                    <a key={l} href="#" className="text-[#D5DEEF]/70 text-sm hover:text-[#f39c12] transition-all duration-300 hover:translate-x-1 inline-block w-fit">
-                      {l}
+                  {col.links.map((linkObj) => (
+                    <a key={linkObj.label} href={linkObj.href} className="text-[#D5DEEF]/70 text-sm hover:text-[#f39c12] transition-all duration-300 hover:translate-x-1 inline-block w-fit">
+                      {linkObj.label}
                     </a>
                   ))}
                 </div>
@@ -852,7 +876,7 @@ function FooterSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="border-t border-[#638ECB]/30 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
         >
-          <p className="text-[#D5DEEF]/40 text-xs">&copy; 2024 CARFORFAR. Tous droits r&eacute;serv&eacute;s.</p>
+          <p className="text-[#D5DEEF]/40 text-xs">&copy; 2024 CARFORFAR. {t("footer.rights")}</p>
           <div className="flex gap-4">
             {["Instagram", "Facebook", "LinkedIn"].map((s) => (
               <motion.a

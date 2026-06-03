@@ -117,11 +117,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const isDark = stored === "dark" || (!stored && prefersDark);
     setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
   }, []);
 
   const toggleDark = () => {
     const next = !dark;
     setDark(next);
+    document.documentElement.classList.toggle("dark", next);
     localStorage.setItem("theme", next ? "dark" : "light");
   };
 
@@ -155,7 +157,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <div className={`min-h-screen bg-[#F0F3FA] text-[#395886] flex ${dark ? "dark" : ""}`}>
+    <div className={`admin-layout min-h-screen bg-[#F0F3FA] text-[#395886] flex ${dark ? "dark" : ""}`}>
       {/* Sidebar */}
       <aside className="w-[240px] h-screen sticky top-0 bg-white dark:bg-[#0f1729] border-r border-[#D5DEEF] dark:border-[#1e293b] flex flex-col justify-between p-5 shrink-0 hidden md:flex z-30">
         {/* Logo */}
