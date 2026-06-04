@@ -15,6 +15,7 @@ import { vehicleImageUrl } from "@/lib/media";
 import { Modal } from "@/components/admin/Modal";
 import { CategoriesManagerModal } from "@/components/admin/CategoriesManagerModal";
 import { isAuthError } from "@/lib/apiClient";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 // Dynamic reliable car images for Seeding
 const DEMO_CAR_IMAGES = [
@@ -91,6 +92,7 @@ function SkeletonRow() {
 
 // Empty State View
 function EmptyState({ onCreate, onSeed, seeding, seedProgress }: { onCreate: () => void; onSeed: () => void; seeding: boolean; seedProgress: { done: number; total: number } }) {
+  const { t } = useI18n();
   return (
     <div className="relative overflow-hidden rounded-3xl border border-[#D5DEEF]/60 bg-white p-12 text-center shadow-sm">
       <div className="absolute inset-0 bg-gradient-to-br from-[#F0F3FA]/50 to-transparent pointer-events-none" />
@@ -98,10 +100,10 @@ function EmptyState({ onCreate, onSeed, seeding, seedProgress }: { onCreate: () 
         <div className="h-20 w-20 rounded-2xl bg-[#F0F3FA] border border-[#D5DEEF] flex items-center justify-center text-3xl mb-6 shadow-sm">
           🚗
         </div>
-        <h3 className="font-extrabold text-[#395886] text-2xl tracking-tight">Aucun véhicule trouvé</h3>
-        <p className="mt-3 text-[#638ECB] text-sm font-semibold leading-relaxed">
-          Commencez à constituer votre flotte de location en ajoutant votre premier véhicule, ou remplissez avec des données de démonstration instantanément.
-        </p>
+        <h3 className="font-extrabold text-[#395886] text-2xl tracking-tight">{t("admin.no_vehicles")}</h3>
+<p className="mt-3 text-[#638ECB] text-sm font-semibold leading-relaxed">
+              {t("admin.no_vehicles_desc")}
+            </p>
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full justify-center">
           <button
@@ -143,6 +145,7 @@ function VehicleRow({
   onDelete,
   deleting,
 }: VehicleRowProps) {
+  const { t } = useI18n();
   const picturePath = vehicle.pictures?.[0]?.path;
 
   return (
@@ -158,7 +161,7 @@ function VehicleRow({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px]">
-            Aucune
+            {t("admin.no_image")}
           </div>
         )}
       </div>
@@ -181,6 +184,8 @@ function VehicleRow({
           <span>{vehicle.Occupants} places</span>
           <span className="text-[#D5DEEF]">|</span>
           <span>⛽ {vehicle.fuelType}</span>
+          {!!vehicle.air_conditioner && <span className="text-green-600">❄️ Climatisation</span>}
+          {!!vehicle.gps && <span className="text-green-600">📍 GPS</span>}
           {categoryName && (
             <>
               <span className="text-[#D5DEEF]">|</span>
@@ -192,7 +197,7 @@ function VehicleRow({
         </div>
         <div className="mt-1">
           <span className="text-lg font-black text-[#395886]">{vehicle.pricePerDay} MAD</span>
-          <span className="text-[10px] font-bold text-[#638ECB] ml-1">/ jour</span>
+          <span className="text-[10px] font-bold text-[#638ECB] ml-1">{t("admin.price_per_day_label")}</span>
         </div>
       </div>
 
@@ -212,7 +217,7 @@ function VehicleRow({
           className="h-9 px-4 rounded-xl bg-[#638ECB]/10 hover:bg-[#638ECB]/20 text-[#638ECB] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <EditIcon />
-          <span>Modifier</span>
+          <span>{t("admin.edit")}</span>
         </button>
         <button
           type="button"
@@ -221,7 +226,7 @@ function VehicleRow({
           className="h-9 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <TrashIcon />
-          <span>{deleting ? "..." : "Supprimer"}</span>
+          <span>{deleting ? "..." : t("admin.delete")}</span>
         </button>
       </div>
     </div>
@@ -261,6 +266,8 @@ function VehicleCreateEditModal({
   const [fuelType, setFuelType] = useState("");
   const [categoryId, setCategoryId] = useState<number>(0);
   const [occupants, setOccupants] = useState("");
+  const [airConditioner, setAirConditioner] = useState(false);
+  const [gps, setGps] = useState(false);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -281,6 +288,8 @@ function VehicleCreateEditModal({
     setFuelType(initial?.fuelType ?? "");
     setCategoryId(initial?.category_id ?? 0);
     setOccupants(initial?.Occupants ?? "");
+    setAirConditioner(initial?.air_conditioner ?? false);
+    setGps(initial?.gps ?? false);
     setImagesFiles([]);
     setUploadError(null);
     setPreviewUrls([]);
@@ -379,6 +388,8 @@ function VehicleCreateEditModal({
         fuelType: fuelType.trim(),
         category_id: categoryId,
         Occupants: occupants.trim(),
+        air_conditioner: airConditioner,
+        gps: gps,
       },
       allFiles,
       deletedImageIds.length > 0 ? deletedImageIds : undefined
@@ -526,6 +537,27 @@ function VehicleCreateEditModal({
               />
             </div>
 
+            <div className="flex items-center gap-6 md:col-span-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={airConditioner}
+                  onChange={(e) => setAirConditioner(e.target.checked)}
+                  className="w-5 h-5 rounded border-[#D5DEEF] text-[#395886] focus:ring-[#638ECB]"
+                />
+                <span className="text-xs font-bold text-[#395886] uppercase tracking-wider">Climatisation</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={gps}
+                  onChange={(e) => setGps(e.target.checked)}
+                  className="w-5 h-5 rounded border-[#D5DEEF] text-[#395886] focus:ring-[#638ECB]"
+                />
+                <span className="text-xs font-bold text-[#395886] uppercase tracking-wider">GPS</span>
+              </label>
+            </div>
+
             {/* Existing Pictures (edit mode) */}
             {mode === "edit" && initial?.pictures && initial.pictures.length > 0 && (
               <div className="flex flex-col gap-2 md:col-span-2">
@@ -670,6 +702,7 @@ function VehicleViewModal({
   onRemove,
   removing,
 }: VehicleViewModalProps) {
+  const { t } = useI18n();
   const pictures = vehicle?.pictures ?? [];
   const [activeIdx, setActiveIdx] = useState(0);
 
@@ -681,12 +714,12 @@ function VehicleViewModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={vehicle ? `Aperçu : ${vehicle.marque} ${vehicle.model}` : "Détails du véhicule"}
+      title={vehicle ? t("admin.vehicle_overview", { brand: vehicle.marque, model: vehicle.model }) : "Détails du véhicule"}
       maxWidthClassName="max-w-4xl"
     >
       {!vehicle ? (
         <div className="py-12 text-center text-sm font-bold text-[#638ECB]">
-          Aucune spécification disponible.
+          {t("admin.no_vehicle_specs")}
         </div>
       ) : (
         <div className="flex flex-col gap-6">
@@ -759,13 +792,25 @@ function VehicleViewModal({
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Nombre de places</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.Occupants} occupants</span>
                   </div>
+                  {!!vehicle.air_conditioner && (
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Climatisation</span>
+                      <span className="text-sm font-bold text-green-600">✓ Incluse</span>
+                    </div>
+                  )}
+                  {!!vehicle.gps && (
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">GPS</span>
+                      <span className="text-sm font-bold text-green-600">✓ Inclus</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t border-[#D5DEEF]/40 pt-4 flex items-baseline justify-between">
                   <span className="text-sm font-black text-[#395886]">Tarif journalier</span>
                   <div className="text-right">
                     <span className="text-3xl font-black text-[#395886]">{vehicle.pricePerDay} MAD</span>
-                    <span className="text-[#638ECB] text-xs font-bold ml-1">/jour</span>
+                    <span className="text-[#638ECB] text-xs font-bold ml-1">{t("admin.price_per_day_label")}</span>
                   </div>
                 </div>
               </div>
@@ -791,6 +836,7 @@ function VehicleViewModal({
 
 // MAIN PAGE COMPONENT
 export default function AdminVehiclesPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
@@ -1065,6 +1111,8 @@ export default function AdminVehiclesPage() {
           fuelType: fuel,
           category_id: cat.id,
           Occupants: occupants,
+          air_conditioner: Math.random() > 0.3,
+          gps: Math.random() > 0.5,
           images: imageFiles,
         });
       }
@@ -1087,10 +1135,10 @@ export default function AdminVehiclesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-[#395886] tracking-tight">
-                Parc Automobile
+                {t("admin.vehicle_list_title")}
               </h1>
               <p className="text-xs font-semibold text-[#638ECB] mt-0.5">
-                {vehicles.length} véhicule{vehicles.length !== 1 ? "s" : ""} enregistré{vehicles.length !== 1 ? "s" : ""}
+                {t("admin.vehicle_count", { count: vehicles.length })}
               </p>
             </div>
 
@@ -1139,7 +1187,7 @@ export default function AdminVehiclesPage() {
                   onClick={resetFilters}
                   className="text-[10px] font-bold text-[#638ECB] hover:text-[#395886] cursor-pointer px-2 py-1 rounded-lg hover:bg-[#F0F3FA] transition-colors"
                 >
-                  Tout effacer
+                  {t("admin.clear")}
                 </button>
               </div>
 

@@ -39,8 +39,9 @@ class VehicleRequest extends FormRequest
             'pricePerDay' => 'required|numeric|min:0',
             'fuelType' => 'required|string|max:100',
             'category_id' => 'required|exists:categories,id',
+            'air_conditioner' => 'sometimes|boolean',
+            'gps' => 'sometimes|boolean',
 
-        
             'images' => 'sometimes|array',
             'images.*' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:5120',
         ];

@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
   En_Attente: {
@@ -175,6 +176,7 @@ function DetailModal({
   onClose: () => void;
   onOpenLightbox: (url: string, label: string) => void;
 }) {
+  const { t } = useI18n();
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -244,19 +246,19 @@ function DetailModal({
           {/* Vehicle details */}
           <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Véhicule</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.vehicle")}</span>
               <span className="text-sm font-bold text-[#395886]">{vehicleName}</span>
             </div>
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Prix / jour</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.price_per_day_label")}</span>
               <span className="text-sm font-bold text-[#395886]">{reservation.vehicle?.pricePerDay ?? "—"} MAD</span>
             </div>
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Client</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.client")}</span>
               <span className="text-sm font-bold text-[#395886]">{userName}</span>
             </div>
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Email</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.email")}</span>
               <span className="text-sm font-bold text-[#395886] truncate block">{userEmail || "—"}</span>
             </div>
           </div>
@@ -264,15 +266,15 @@ function DetailModal({
           {/* Dates */}
           <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Début</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.start")}</span>
               <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.start_date)}</span>
             </div>
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Fin</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.end")}</span>
               <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.end_date)}</span>
             </div>
             <div className="col-span-2 pt-2 border-t border-[#D5DEEF]/30">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Total</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.total")}</span>
               <span className="text-xl font-black text-[#395886]">{reservation.TotalPrice} MAD</span>
             </div>
           </div>
@@ -280,17 +282,17 @@ function DetailModal({
           {/* Documents */}
           <div>
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-3">
-              Documents du client
+              {t("admin.client_documents")}
             </span>
             <div className="flex flex-wrap items-start gap-6">
               <div className="flex items-start gap-3">
-                <DocThumb url={cinRecto} label="CIN Recto" onOpen={onOpenLightbox} />
-                <DocThumb url={cinVerso} label="CIN Verso" onOpen={onOpenLightbox} />
+                <DocThumb url={cinRecto} label={t("admin.cin_front")} onOpen={onOpenLightbox} />
+                <DocThumb url={cinVerso} label={t("admin.cin_back")} onOpen={onOpenLightbox} />
               </div>
               <div className="w-px h-[72px] bg-[#D5DEEF]/40 hidden sm:block self-center" />
               <div className="flex items-start gap-3">
-                <DocThumb url={permiRecto} label="Permis Recto" onOpen={onOpenLightbox} />
-                <DocThumb url={permiVerso} label="Permis Verso" onOpen={onOpenLightbox} />
+                <DocThumb url={permiRecto} label={t("admin.license_front")} onOpen={onOpenLightbox} />
+                <DocThumb url={permiVerso} label={t("admin.license_back")} onOpen={onOpenLightbox} />
               </div>
             </div>
           </div>
@@ -301,6 +303,7 @@ function DetailModal({
 }
 
 export default function AdminReservationsPage() {
+  const { t } = useI18n();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -336,7 +339,7 @@ export default function AdminReservationsPage() {
         : await getAdminReservations();
       setReservations(data);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec du chargement des réservations";
+      const msg = e instanceof Error ? e.message : t("admin.reservations_load_error");
       setError(msg);
     } finally {
       setLoading(false);
@@ -365,7 +368,7 @@ export default function AdminReservationsPage() {
       await acceptAdminReservation(id);
       await load();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de la confirmation de la réservation";
+      const msg = e instanceof Error ? e.message : t("admin.reservation_confirm_error");
       setError(msg);
     } finally {
       setActionId(null);
@@ -381,7 +384,7 @@ export default function AdminReservationsPage() {
       await refuseAdminReservation(id);
       await load();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de l'annulation de la réservation";
+      const msg = e instanceof Error ? e.message : t("admin.reservation_refuse_error");
       setError(msg);
     } finally {
       setActionId(null);
@@ -397,9 +400,9 @@ export default function AdminReservationsPage() {
     <div>
       <div className="flex items-center justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#395886]">Réservations</h1>
+          <h1 className="text-3xl font-extrabold text-[#395886]">{t("admin.reservations_title")}</h1>
           <p className="text-sm font-bold text-[#638ECB] mt-1">
-            Gérer toutes les demandes de réservation
+            {t("admin.reservations_subtitle")}
           </p>
         </div>
         <button
@@ -409,7 +412,7 @@ export default function AdminReservationsPage() {
           className="h-10 px-4 rounded-xl bg-white border border-[#D5DEEF] text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-sm"
         >
           <RefreshIcon />
-          <span>{loading ? "Chargement..." : "Actualiser"}</span>
+          <span>{loading ? t("admin.loading") : t("admin.refresh")}</span>
         </button>
       </div>
 
@@ -418,7 +421,7 @@ export default function AdminReservationsPage() {
         <div className="flex flex-col lg:flex-row gap-3 items-end">
           <div className="flex-1 min-w-0 w-full lg:w-auto">
             <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-1.5">
-              Véhicule
+              {t("admin.filter_vehicle")}
             </label>
             <div className="relative">
               <svg
@@ -431,7 +434,7 @@ export default function AdminReservationsPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher par marque..."
+                placeholder={t("admin.search_brand")}
                 className="w-full pl-10 pr-4 h-10 rounded-xl border border-[#D5DEEF]/60 bg-[#F0F3FA] text-sm text-[#395886] font-bold placeholder:text-[#B0C4DE] focus:outline-none focus:ring-2 focus:ring-[#638ECB]/30 focus:border-[#638ECB] transition-all"
               />
             </div>
@@ -439,18 +442,18 @@ export default function AdminReservationsPage() {
 
           <div className="w-full sm:w-[180px]">
             <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-1.5">
-              Statut
+              {t("admin.filter_status")}
             </label>
             <Select value={status} onValueChange={handleStatusChange}>
               <SelectTrigger className="h-10 rounded-xl border border-[#D5DEEF]/60 bg-[#F0F3FA] text-sm text-[#395886] font-bold">
-                <SelectValue placeholder="Tous les statuts" />
+                <SelectValue placeholder={t("admin.all_statuses")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="En_Attente">En attente</SelectItem>
-                <SelectItem value="Confirmée">Confirmée</SelectItem>
-                <SelectItem value="Annulée">Annulée</SelectItem>
-                <SelectItem value="Terminée">Terminée</SelectItem>
+                <SelectItem value="all">{t("admin.all")}</SelectItem>
+                <SelectItem value="En_Attente">{t("admin.status_pending")}</SelectItem>
+                <SelectItem value="Confirmée">{t("admin.status_confirmed")}</SelectItem>
+                <SelectItem value="Annulée">{t("admin.status_cancelled")}</SelectItem>
+                <SelectItem value="Terminée">{t("admin.status_completed")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -466,7 +469,7 @@ export default function AdminReservationsPage() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
               </svg>
-              <span>Rechercher</span>
+              <span>{t("admin.search")}</span>
             </button>
             {hasFilters && (
               <button
@@ -477,7 +480,7 @@ export default function AdminReservationsPage() {
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                <span>Effacer</span>
+                <span>{t("admin.clear")}</span>
               </button>
             )}
           </div>
@@ -507,12 +510,12 @@ export default function AdminReservationsPage() {
             </svg>
           </div>
           <h3 className="text-lg font-extrabold text-[#395886]">
-            {hasFilters ? "Aucune réservation ne correspond à vos filtres" : "Aucune réservation pour l'instant"}
+            {hasFilters ? t("admin.no_reservations_filter") : t("admin.no_reservations_yet")}
           </h3>
           <p className="text-sm font-bold text-[#638ECB] mt-1">
             {hasFilters
-              ? "Essayez d'ajuster votre recherche ou d'effacer les filtres."
-              : "Les demandes de réservation apparaîtront ici une fois que les clients auront réservé des véhicules."}
+              ? t("admin.adjust_filters")
+              : t("admin.reservations_appear")}
           </p>
         </div>
       )}
@@ -546,7 +549,7 @@ export default function AdminReservationsPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px]">
-                      Aucune
+                      {t("admin.no_image")}
                     </div>
                   )}
                 </div>
@@ -582,7 +585,7 @@ export default function AdminReservationsPage() {
                     className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <EyeIcon />
-                    <span>Voir détails</span>
+                    <span>{t("admin.view_details")}</span>
                   </button>
                   <button
                     type="button"
@@ -604,7 +607,7 @@ export default function AdminReservationsPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     )}
-                    {!isAccepting(r.id) && <span>Confirmer</span>}
+                    {!isAccepting(r.id) && <span>{t("admin.confirm")}</span>}
                   </button>
                   <button
                     type="button"
@@ -626,7 +629,7 @@ export default function AdminReservationsPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     )}
-                    {!isRefusing(r.id) && <span>Annuler</span>}
+                    {!isRefusing(r.id) && <span>{t("admin.refuse")}</span>}
                   </button>
                 </div>
               </div>

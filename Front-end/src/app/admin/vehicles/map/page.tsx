@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { API_BASE_URL } from "@/lib/config";
 import { vehicleImageUrl } from "@/lib/media";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const MapWithNoSSR = dynamic(() => import("./MapView"), { ssr: false });
 
@@ -29,6 +30,7 @@ export default function VehicleMapPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleLocation | null>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     let cancelled = false;
@@ -39,11 +41,11 @@ export default function VehicleMapPage() {
         const res = await fetch(`${API_BASE_URL}/admin/vehicles/location`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         });
-        if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) throw new Error("Échec de la récupération des données");
         const json = await res.json();
         if (!cancelled) setVehicles(json.data ?? []);
       } catch (e) {
-        if (!cancelled) setError((e as { message?: string })?.message || "Error");
+        if (!cancelled) setError((e as { message?: string })?.message || "Erreur");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -79,7 +81,7 @@ export default function VehicleMapPage() {
 
       {/* Side panel */}
       <div className="w-80 shrink-0 rounded-xl border border-[#D5DEEF] bg-white p-4 overflow-y-auto">
-        <h2 className="text-sm font-extrabold text-[#395886] uppercase tracking-wider mb-4">Véhicules</h2>
+        <h2 className="text-sm font-extrabold text-[#395886] uppercase tracking-wider mb-4">{t("admin.vehicle")}</h2>
         {error && <p className="text-red-600 text-xs font-bold">{error}</p>}
         <div className="flex flex-col gap-2">
           {vehicles.map((v) => (
@@ -107,7 +109,7 @@ export default function VehicleMapPage() {
                   {v.location ? (
                     <div className="text-[10px] font-bold text-emerald-600 mt-0.5">En ligne</div>
                   ) : (
-                    <div className="text-[10px] font-bold text-gray-400 mt-0.5">Aucune position</div>
+                    <div className="text-[10px] font-bold text-gray-400 mt-0.5">{t("admin.no_position")}</div>
                   )}
                 </div>
               </div>

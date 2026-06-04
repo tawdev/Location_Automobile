@@ -4,10 +4,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type { Category } from "@/lib/types";
 import { getAdminCategories, updateAdminCategory, type AdminCategoryPayload } from "@/lib/adminCategoriesApi";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function AdminCategoryEditPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const { t } = useI18n();
 
   const categoryId = useMemo(() => {
     const raw = params.id;
@@ -34,7 +36,7 @@ export default function AdminCategoryEditPage() {
         setCategory(found);
         setName(found?.name ?? "");
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Échec du chargement de la catégorie");
+        setError(e instanceof Error ? e.message : t("admin.categories_load_error"));
       } finally {
         setLoading(false);
       }
@@ -51,20 +53,20 @@ export default function AdminCategoryEditPage() {
       await updateAdminCategory(categoryId, payload);
       router.push("/admin/categories");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Échec de la mise à jour de la catégorie");
+      setError(e instanceof Error ? e.message : t("admin.category_update_error"));
     } finally {
       setSubmitting(false);
     }
   }
 
   if (loading) {
-    return <div className="font-black">Chargement...</div>;
+    return <div className="font-black">{t("admin.loading")}</div>;
   }
 
   if (!category) {
     return (
       <div className="p-4 border-2 border-black bg-white font-black">
-        Catégorie introuvable.
+        {t("admin.category_not_found")}
       </div>
     );
   }
@@ -75,7 +77,7 @@ export default function AdminCategoryEditPage() {
     <div className="max-w-xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Modifier la catégorie</h1>
+          <h1 className="font-black text-3xl">{t("admin.edit_category")}</h1>
           <div className="font-bold text-sm mt-1">#{category.id}</div>
         </div>
       </div>
@@ -94,7 +96,7 @@ export default function AdminCategoryEditPage() {
           ) : null}
 
           <label className="flex flex-col gap-2">
-            <span className="font-bold">Nom</span>
+            <span className="font-bold">{t("admin.category_name")}</span>
             <input
               className="border-2 border-black p-2"
               value={name}
@@ -108,7 +110,7 @@ export default function AdminCategoryEditPage() {
             disabled={!canSubmit || submitting}
             className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
           >
-            {submitting ? "Sauvegarde..." : "Enregistrer"}
+            {submitting ? t("admin.saving") : t("admin.save")}
           </button>
         </form>
       </div>

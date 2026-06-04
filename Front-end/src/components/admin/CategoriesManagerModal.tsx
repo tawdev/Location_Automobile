@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Modal } from "./Modal";
 import type { Category } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import {
   createAdminCategory,
   updateAdminCategory,
@@ -29,6 +30,7 @@ export function CategoriesManagerModal({
   const [updating, setUpdating] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
 
   async function handleAddCategory(e: React.FormEvent) {
     e.preventDefault();
@@ -130,7 +132,7 @@ export function CategoriesManagerModal({
           <div className="divide-y divide-[#D5DEEF]/40 max-h-[350px] overflow-y-auto">
             {categories.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm font-bold text-[#638ECB]/70">
-                Aucune catégorie disponible.
+                {t("admin.no_categories")}
               </div>
             ) : (
               categories.map((category) => (
@@ -154,14 +156,14 @@ export function CategoriesManagerModal({
                         disabled={!editingName.trim() || updating}
                         className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer"
                       >
-                        {updating ? "Enregistrement..." : "Enregistrer"}
+                        {updating ? t("admin.loading") : t("admin.save")}
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
                         disabled={updating}
                         className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold transition-all cursor-pointer"
                       >
-                        Annuler
+                        {t("admin.cancel")}
                       </button>
                     </div>
                   ) : (
@@ -184,7 +186,7 @@ export function CategoriesManagerModal({
                             setEditingName(category.name);
                           }}
                           className="p-2 rounded-lg text-[#638ECB] hover:text-[#395886] hover:bg-[#F0F3FA] transition-all cursor-pointer"
-                          aria-label="Edit category"
+                          aria-label={t("admin.edit_category_aria")}
                         >
                           <svg
                             width="16"
@@ -207,7 +209,7 @@ export function CategoriesManagerModal({
                           onClick={() => handleDeleteCategory(category.id)}
                           disabled={deletingId !== null}
                           className="p-2 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-all disabled:opacity-50 cursor-pointer"
-                          aria-label="Delete category"
+                          aria-label={t("admin.delete_category_aria")}
                         >
                           {deletingId === category.id ? (
                             <svg
