@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type { Category, Vehicle } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getAdminCategories } from "@/lib/adminCategoriesApi";
 import { getAdminVehicles, updateAdminVehicle, type AdminVehiclePayload } from "@/lib/adminVehiclesApi";
 
@@ -29,7 +30,10 @@ function AdminVehicleEditForm({
   const [categoryId, setCategoryId] = useState<number>(initial.category_id);
   const [occupants, setOccupants] = useState(initial.Occupants);
   const [deviceId, setDeviceId] = useState(initial.device_id ?? "");
+  const [airConditioner, setAirConditioner] = useState(initial.air_conditioner ?? false);
+  const [gps, setGps] = useState(initial.gps ?? false);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
+  const { t } = useI18n();
 
   const categoryOptions = useMemo(
     () => categories.slice().sort((a, b) => a.id - b.id),
@@ -69,6 +73,8 @@ function AdminVehicleEditForm({
             category_id: categoryId,
             Occupants: occupants.trim(),
             device_id: deviceId.trim() || undefined,
+            air_conditioner: airConditioner,
+            gps: gps,
             images: undefined,
           },
           imagesFiles
@@ -79,7 +85,7 @@ function AdminVehicleEditForm({
       {error ? <div className="p-3 border-2 border-black bg-white font-bold">{error}</div> : null}
 
       <div className="border-2 border-black bg-white p-3 font-bold text-sm">
-        Note : La mise à jour d'un véhicule remplacera ses images. Veuillez télécharger au moins 1 image.
+        {t("admin.vehicle_update_note")}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -190,6 +196,27 @@ function AdminVehicleEditForm({
           />
         </label>
 
+        <div className="flex items-center gap-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={airConditioner}
+              onChange={(e) => setAirConditioner(e.target.checked)}
+              className="w-5 h-5"
+            />
+            <span className="font-bold">Climatisation</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={gps}
+              onChange={(e) => setGps(e.target.checked)}
+              className="w-5 h-5"
+            />
+            <span className="font-bold">GPS</span>
+          </label>
+        </div>
+
         <div className="flex flex-col gap-2">
           <span className="font-bold">Nouvelles images (remplacer)</span>
           <input
@@ -210,7 +237,7 @@ function AdminVehicleEditForm({
           disabled={!canSubmit || submitting}
           className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
         >
-          {submitting ? "Sauvegarde..." : "Enregistrer"}
+          {submitting ? t("admin.vehicle_saving") : t("admin.save")}
         </button>
       </div>
     </form>
@@ -219,6 +246,7 @@ function AdminVehicleEditForm({
 
 export default function AdminVehicleEditPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const params = useParams<{ id: string }>();
 
   const vehicleId = useMemo(() => {
@@ -247,7 +275,7 @@ export default function AdminVehicleEditPage() {
         setVehicle(v);
         setCategories(allCategories);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Échec du chargement du véhicule";
+        const msg = e instanceof Error ? e.message : t("admin.vehicle_load_error");
         setError(msg);
       } finally {
         setLoading(false);
@@ -265,7 +293,7 @@ export default function AdminVehicleEditPage() {
       await updateAdminVehicle(vehicleId, { ...payload, images });
       router.push("/admin/vehicles");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de la mise à jour du véhicule";
+      const msg = e instanceof Error ? e.message : t("admin.vehicle_update_error");
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -273,7 +301,7 @@ export default function AdminVehicleEditPage() {
   }
 
   if (loading) {
-    return <div className="font-black">Chargement...</div>;
+    return <div className="font-black">{t("admin.loading")}</div>;
   }
 
   if (!vehicle) {
@@ -288,7 +316,7 @@ export default function AdminVehicleEditPage() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Modifier le véhicule</h1>
+          <h1 className="font-black text-3xl">{t("admin.edit_vehicle_page")}</h1>
           <div className="font-bold text-sm mt-1">#{vehicle.id}</div>
         </div>
       </div>

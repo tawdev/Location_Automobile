@@ -6,6 +6,7 @@ import type { Extra } from "@/lib/types";
 import { getAdminExtras, createAdminExtra, updateAdminExtra, deleteAdminExtra, type AdminExtraPayload } from "@/lib/adminExtrasApi";
 import { getApiOrigin } from "@/lib/media";
 import { Package, Plus, Pencil, Trash2, Eye, X, AlertCircle, ImageIcon, Upload } from "lucide-react";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ModalMode = "create" | "edit" | null;
 
@@ -33,6 +34,7 @@ function SkeletonRow() {
 }
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
+  const { t } = useI18n();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,10 +48,10 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
           <Package className="w-8 h-8 text-[#638ECB]" />
         </div>
         <h3 className="text-lg font-black text-[#395886] mb-2">
-          Aucun extra
+          {t("admin.no_extras")}
         </h3>
         <p className="text-sm font-bold text-[#638ECB] mb-6 max-w-xs">
-          Ajoutez des options supplémentaires pour les réservations comme le GPS, le siège bébé, ou l&apos;assurance.
+          {t("admin.no_extras_desc")}
         </p>
         <button
           type="button"
@@ -57,7 +59,7 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
           className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:bg-[#2D4670] transition-all active:scale-95 shadow-sm cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          Ajouter un extra
+          {t("admin.create")}
         </button>
       </div>
     </motion.div>
@@ -105,6 +107,7 @@ function ImageLightbox({ url, name, onClose }: { url: string; name: string; onCl
 }
 
 export default function AdminExtrasPage() {
+  const { t } = useI18n();
   const [extras, setExtras] = useState<Extra[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -241,7 +244,7 @@ export default function AdminExtrasPage() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-[#395886] tracking-tight">
-              Extras
+              {t("admin.extras_title")}
             </h1>
           </div>
           <button
@@ -250,7 +253,7 @@ export default function AdminExtrasPage() {
             className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:bg-[#2D4670] transition-all active:scale-95 shadow-sm cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            Ajouter un extra
+            {t("admin.create")}
           </button>
         </div>
       </motion.div>
@@ -344,7 +347,7 @@ export default function AdminExtrasPage() {
                     <div className="flex items-center gap-3 mt-1 text-sm font-bold text-[#395886]">
                       <span className="tabular-nums">{extra.price_per_day}</span>
                       <span className="text-xs font-bold text-[#638ECB]">
-                        DH / per day
+                        DH / jour
                       </span>
                     </div>
                   </div>
@@ -367,7 +370,7 @@ export default function AdminExtrasPage() {
                       className="h-9 px-4 rounded-xl border border-[#D5DEEF] text-[#395886] font-extrabold text-xs hover:bg-[#F0F3FA] hover:border-[#638ECB]/30 transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Pencil className="w-3.5 h-3.5" />
-                      Modifier
+                      {t("admin.edit")}
                     </button>
                     <button
                       type="button"
@@ -378,7 +381,7 @@ export default function AdminExtrasPage() {
                       <Trash2 className="w-3.5 h-3.5" />
                       {deletingId === extra.id
                         ? "..."
-                        : "Supprimer"}
+                        : t("admin.delete")}
                     </button>
                   </div>
                 </motion.div>
@@ -414,8 +417,8 @@ export default function AdminExtrasPage() {
                   </div>
                   <h2 className="text-xl font-black text-[#395886]">
                     {modalMode === "create"
-                      ? "Ajouter un extra"
-                      : "Modifier l'extra"}
+                      ? t("admin.create")
+                      : t("admin.edit_extra")}
                   </h2>
                 </div>
                 <button
@@ -531,17 +534,17 @@ export default function AdminExtrasPage() {
                     className="flex-1 h-11 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:bg-[#2D4670] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {submitting
-                      ? "Sauvegarde..."
+                      ? t("admin.loading")
                       : modalMode === "create"
-                        ? "Créer"
-                        : "Enregistrer"}
+                        ? t("admin.create")
+                        : t("admin.save")}
                   </button>
                   <button
                     type="button"
                     onClick={closeModal}
                     className="h-11 px-6 rounded-xl border border-[#D5DEEF] text-[#395886] font-extrabold text-sm hover:bg-[#F0F3FA] transition-all active:scale-95 cursor-pointer"
                   >
-                    Annuler
+                    {t("admin.cancel")}
                   </button>
                 </div>
               </form>

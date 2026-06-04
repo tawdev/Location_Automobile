@@ -216,10 +216,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={toggleDark}
             className="w-full h-9 rounded-lg border border-[#D5DEEF] bg-white/50 hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 dark:bg-[#0f1729] dark:border-[#1e293b] dark:hover:bg-[#1e293b]"
-            aria-label="Toggle theme"
+            aria-label={t("admin.theme_label")}
           >
             {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            <span>{dark ? "Dark" : "Light"}</span>
+            <span>{dark ? "Sombre" : "Clair"}</span>
           </button>
 
           <button

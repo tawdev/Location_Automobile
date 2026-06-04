@@ -630,7 +630,6 @@ export default function VehiclesPage() {
                           className="bg-white/90 dark:bg-[#1e293b]/90 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
                         >
                           <span className="text-[18px] font-extrabold text-[#1f4276] dark:text-[#f39c12]">{v.pricePerDay.toLocaleString()} DH</span>
-                          <span className="text-gray-500 dark:text-[#94A3B8] text-[11px] ml-1 font-medium">/jr</span>
                         </motion.div>
                       </div>
 
@@ -666,35 +665,48 @@ export default function VehiclesPage() {
                       <p className="mt-1.5 text-[14px] text-gray-500 dark:text-[#94A3B8]">
                         {v.year} &bull; {t("vehicles.automatic")}
                       </p>
-                      <div className="flex items-center gap-4 mt-5 text-[13px] text-gray-600 dark:text-[#94A3B8]">
+                      <div className="flex items-center gap-4 mt-5 text-[13px] text-gray-600 dark:text-[#94A3B8] flex-wrap">
                         <span className="flex items-center gap-1.5 bg-[#e2e6ed] dark:bg-[#1e293b]/80 px-3 py-1.5 rounded-lg">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#637093] dark:text-[#94A3B8]">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
                           </svg>
                           {v.Occupants} {t("vehicles.seats")}
                         </span>
-                        <span className="flex items-center gap-1.5 bg-[#e2e6ed] dark:bg-[#1e293b]/80 px-3 py-1.5 rounded-lg">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#637093] dark:text-[#94A3B8]">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                          </svg>
-                          {v.fuelType}
-                        </span>
-                      </div>
-
-                      {/* Animated bottom accent bar on hover */}
-                      <motion.div
-                        className="mt-5 border-t border-[#d5deeF]/50 dark:border-[#1e293b]/80 pt-5 flex items-center justify-between relative overflow-hidden"
-                      >
-                        <motion.div
-                          className="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-[#f39c12] to-[#e67e22]"
-                          initial={prefersReducedMotion ? { width: '100%' } : { width: '0%' }}
-                          whileHover={{ width: '100%' }}
-                          transition={{ duration: 0.4, ease: "easeOut" }}
-                        />
-                        <div className="leading-none">
-                          <span className="text-[16px] text-gray-500 dark:text-[#94A3B8] font-medium">{t("vehicles.per_day")}</span>
+                          <span className="flex items-center gap-1.5 bg-[#e2e6ed] dark:bg-[#1e293b]/80 px-3 py-1.5 rounded-lg">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#637093] dark:text-[#94A3B8]">
+                              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                            </svg>
+                            {v.fuelType}
+                          </span>
+                          {!!v.air_conditioner && (
+                            <span className="flex items-center gap-1.5 bg-[#e2e6ed] dark:bg-[#1e293b]/80 px-3 py-1.5 rounded-lg">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#637093] dark:text-[#94A3B8]">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                              </svg>
+                              {t("vehicles.air_conditioner")}
+                            </span>
+                          )}
+                          {!!v.gps && (
+                            <span className="flex items-center gap-1.5 bg-[#e2e6ed] dark:bg-[#1e293b]/80 px-3 py-1.5 rounded-lg">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#637093] dark:text-[#94A3B8]">
+                                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" /><circle cx="12" cy="10" r="3" />
+                              </svg>
+                              GPS
+                            </span>
+                          )}
                         </div>
-                        <motion.button
+
+                        {/* Animated bottom accent bar on hover */}
+                        <motion.div
+                          className="mt-5 border-t border-[#d5deeF]/50 dark:border-[#1e293b]/80 pt-5 flex items-center justify-between relative overflow-hidden"
+                        >
+                          <motion.div
+                            className="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-[#f39c12] to-[#e67e22]"
+                            initial={prefersReducedMotion ? { width: '100%' } : { width: '0%' }}
+                            whileHover={{ width: '100%' }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                          />
+                          <motion.button
                           whileHover={prefersReducedMotion ? {} : { scale: 1.06, boxShadow: "0 8px 20px rgba(243,156,18,0.3)" }}
                           whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
                           onClick={(e) => {
