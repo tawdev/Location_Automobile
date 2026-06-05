@@ -21,6 +21,8 @@ class FilterVehiclesRequest extends FormRequest
             'fuel_type' => 'nullable|in:Electricity,Diesel,Gasoline,hybrid,LPG,CNG,biofuels',
             'min_price' => 'nullable|numeric|min:0',
             'max_price' => 'nullable|numeric|gte:min_price',
+            'pickup_date' => 'nullable|date',
+            'return_date' => 'nullable|date|after_or_equal:pickup_date',
         ];
     }
 }

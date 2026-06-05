@@ -32,6 +32,8 @@ type FilterParams = {
   fuelType?: string;
   min_price?: number;
   max_price?: number;
+  pickup_date?: string;
+  return_date?: string;
 };
 
 export async function filterVehicles(params: FilterParams): Promise<Vehicle[]> {

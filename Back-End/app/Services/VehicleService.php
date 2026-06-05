@@ -137,7 +137,16 @@ class VehicleService
         $query->when($request->filled('max_price'), function ($q) use ($request) {
             $q->where('pricePerDay', '<=', $request->max_price);
         });
-        $Vehicles = $query->get();
+
+        $query->when($request->filled('pickup_date') && $request->filled('return_date'), function ($q) use ($request) {
+            $q->whereDoesntHave('reservations', function ($q) use ($request) {
+                $q->whereIn('status', ['En_Attente', 'Confirmée'])
+                  ->where('start_date', '<=', $request->return_date)
+                  ->where('end_date', '>=', $request->pickup_date);
+            });
+        });
+
+        $Vehicles = $query->with('pictures')->get();
         
         return $Vehicles;
 
