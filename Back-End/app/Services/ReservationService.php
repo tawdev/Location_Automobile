@@ -66,7 +66,10 @@ class ReservationService
     if ($conflict) {
         return false;
     }
-    if($data['start_date']==$data['end_date']){
+    $startDate = new DateTime($data['start_date']);
+    $endDate = new DateTime($data['end_date']);
+    $days = $startDate->diff($endDate)->days;
+    if ($days < 3) {
         return false;
     }
 
@@ -81,8 +84,7 @@ class ReservationService
         }
     }
 
-    $days  = (new DateTime($data['start_date']))->diff(new DateTime($data['end_date']))->days;
-    $days = $days > 0 ? $days : 1;
+    $days = $days > 0 ? $days : 3;
 
     $extraPricePerDay = 0;
     $extraIds = $data['extra_ids'] ?? [];

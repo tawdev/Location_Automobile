@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createAdminCategory, type AdminCategoryPayload } from "@/lib/adminCategoriesApi";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function AdminCategoryNewPage() {
   const router = useRouter();
+  const { t } = useI18n();
 
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -20,7 +22,7 @@ export default function AdminCategoryNewPage() {
       const created = await createAdminCategory(payload);
       router.push(`/admin/categories/${created.id}/edit`);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de la création de la catégorie";
+      const msg = e instanceof Error ? e.message : t("admin.category_create_error");
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -31,8 +33,8 @@ export default function AdminCategoryNewPage() {
     <div className="max-w-xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Ajouter une catégorie</h1>
-          <div className="font-bold text-sm mt-1">Admin CRUD</div>
+          <h1 className="font-black text-3xl">{t("admin.add_category")}</h1>
+          <div className="font-bold text-sm mt-1">{t("admin.new_category")}</div>
         </div>
       </div>
 
@@ -50,7 +52,7 @@ export default function AdminCategoryNewPage() {
           ) : null}
 
           <label className="flex flex-col gap-2">
-            <span className="font-bold">Nom</span>
+            <span className="font-bold">{t("admin.category_name")}</span>
             <input
               className="border-2 border-black p-2"
               value={name}
@@ -64,7 +66,7 @@ export default function AdminCategoryNewPage() {
             disabled={!canSubmit || submitting}
             className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
           >
-            {submitting ? "Création..." : "Créer la catégorie"}
+            {submitting ? t("admin.creating") : t("admin.create_category")}
           </button>
         </form>
       </div>

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Vehicle extends Model
 {
 
-    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'Occupants', 'device_id'];
+    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'Occupants', 'device_id', 'air_conditioner', 'gps'];
     /** @use HasFactory<VehicleFactory> */
     use HasFactory;
 

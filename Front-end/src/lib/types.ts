@@ -41,6 +41,8 @@ export type Vehicle = {
   category_id: number;
   Occupants: string;
   device_id?: string | null;
+  air_conditioner?: boolean;
+  gps?: boolean;
   pictures?: Picture[];
   category?: Category;
   created_at?: string;

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { getDashboardStats } from "@/lib/adminDashboardApi";
 import type { DashboardStats } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   En_Attente: { label: "En attente", color: "#D97706" },
@@ -165,6 +166,7 @@ function statusBadgeClass(status: string) {
 }
 
 export default function AdminDashboardPage() {
+  const { t } = useI18n();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -206,9 +208,9 @@ export default function AdminDashboardPage() {
         className="flex items-center justify-between gap-4 mb-6"
       >
         <div>
-          <h1 className="text-3xl font-extrabold text-[#395886]">Tableau de bord</h1>
+          <h1 className="text-3xl font-extrabold text-[#395886]">{t("admin.dashboard_title")}</h1>
           <p className="text-sm font-bold text-[#638ECB] mt-1">
-            Aperçu général de votre activité
+            {t("admin.overview")}
           </p>
         </div>
         <button
@@ -218,7 +220,7 @@ export default function AdminDashboardPage() {
           className="h-10 px-4 rounded-xl bg-white border border-[#D5DEEF] text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-sm cursor-pointer"
         >
           <RefreshIcon />
-          <span>{loading ? "Chargement..." : "Actualiser"}</span>
+          <span>{loading ? t("admin.loading") : t("admin.refresh")}</span>
         </button>
       </motion.div>
 
@@ -235,7 +237,7 @@ export default function AdminDashboardPage() {
           {/* Stat cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-              label="Revenu total"
+              label={t("admin.total_revenue")}
               value={stats.totalRevenue}
               prefix=""
               suffix=" MAD"
@@ -248,7 +250,7 @@ export default function AdminDashboardPage() {
               }
             />
             <StatCard
-              label="Réservations"
+              label={t("admin.reservations_count")}
               value={stats.totalReservations}
               accent="#0284C7"
               delay={0.1}
@@ -259,7 +261,7 @@ export default function AdminDashboardPage() {
               }
             />
             <StatCard
-              label="Véhicules"
+              label={t("admin.vehicles_count")}
               value={stats.totalVehicles}
               accent="#D97706"
               delay={0.15}
@@ -270,7 +272,7 @@ export default function AdminDashboardPage() {
               }
             />
             <StatCard
-              label="Clients"
+              label={t("admin.clients_count")}
               value={stats.totalClients}
               accent="#8B5CF6"
               delay={0.2}
@@ -292,15 +294,15 @@ export default function AdminDashboardPage() {
               className="bg-white rounded-3xl border border-[#D5DEEF]/60 p-5 shadow-sm"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-extrabold text-[#395886]">Revenus mensuels</h3>
+                <h3 className="text-sm font-extrabold text-[#395886]">{t("admin.monthly_revenue")}</h3>
                 {sortedMonths.length > 0 && (
                   <span className="text-[10px] font-bold text-[#B0C4DE] uppercase tracking-wider">
-                    {sortedMonths.length} mois
+                    {sortedMonths.length} {t("admin.months")}
                   </span>
                 )}
               </div>
               {sortedMonths.length === 0 ? (
-                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">Aucune donnée</p>
+                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">{t("admin.no_data")}</p>
               ) : (
                 <div className="space-y-2.5">
                   {[...sortedMonths].reverse().map((r, i) => {
@@ -341,9 +343,9 @@ export default function AdminDashboardPage() {
               transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="bg-white rounded-3xl border border-[#D5DEEF]/60 p-5 shadow-sm"
             >
-              <h3 className="text-sm font-extrabold text-[#395886] mb-4">Réservations par statut</h3>
+              <h3 className="text-sm font-extrabold text-[#395886] mb-4">{t("admin.reservations_by_status")}</h3>
               {statusEntries.length === 0 ? (
-                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">Aucune donnée</p>
+                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">{t("admin.no_data")}</p>
               ) : (
                 <div className="space-y-3">
                   {statusEntries.map(([status, count], i) => {
@@ -389,9 +391,9 @@ export default function AdminDashboardPage() {
               transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="bg-white rounded-3xl border border-[#D5DEEF]/60 p-5 shadow-sm"
             >
-              <h3 className="text-sm font-extrabold text-[#395886] mb-4">Dernières réservations</h3>
+              <h3 className="text-sm font-extrabold text-[#395886] mb-4">{t("admin.recent_reservations")}</h3>
               {stats.recentReservations.length === 0 ? (
-                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">Aucune réservation</p>
+                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">{t("admin.no_reservations")}</p>
               ) : (
                 <div className="space-y-2">
                   {stats.recentReservations.map((r, i) => (
@@ -431,9 +433,9 @@ export default function AdminDashboardPage() {
               transition={{ duration: 0.5, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="bg-white rounded-3xl border border-[#D5DEEF]/60 p-5 shadow-sm"
             >
-              <h3 className="text-sm font-extrabold text-[#395886] mb-4">Véhicules les plus réservés</h3>
+              <h3 className="text-sm font-extrabold text-[#395886] mb-4">{t("admin.popular_vehicles")}</h3>
               {stats.popularVehicles.length === 0 ? (
-                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">Aucune donnée</p>
+                <p className="text-sm font-bold text-[#B0C4DE] py-6 text-center">{t("admin.no_data")}</p>
               ) : (
                 <div className="space-y-2">
                   {stats.popularVehicles.map((pv, i) => {

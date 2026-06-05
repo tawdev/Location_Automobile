@@ -45,8 +45,12 @@ export default function VehicleDetailPage() {
   const [reserveEndDate, setReserveEndDate] = useState<Date>();
 
   useEffect(() => {
-    if (reserveEndDate && reserveStartDate && reserveEndDate < reserveStartDate) {
-      setReserveEndDate(undefined);
+    if (reserveEndDate && reserveStartDate) {
+      const minEnd = new Date(reserveStartDate);
+      minEnd.setDate(minEnd.getDate() + 3);
+      if (reserveEndDate < minEnd) {
+        setReserveEndDate(undefined);
+      }
     }
   }, [reserveStartDate]);
   const [reserving, setReserving] = useState(false);
@@ -125,8 +129,11 @@ export default function VehicleDetailPage() {
 
   const images = vehicle?.pictures?.map(p => vehicleImageUrl(p.path)) ?? [];
   const days = reserveStartDate && reserveEndDate
-    ? Math.max(1, Math.ceil((reserveEndDate.getTime() - reserveStartDate.getTime()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(3, Math.ceil((reserveEndDate.getTime() - reserveStartDate.getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
+  const minDropoffDate = reserveStartDate
+    ? (() => { const d = new Date(reserveStartDate); d.setDate(d.getDate() + 3); return d; })()
+    : new Date();
   const subtotal = days && vehicle ? days * vehicle.pricePerDay : 0;
   const total = subtotal;
 
@@ -319,7 +326,7 @@ export default function VehicleDetailPage() {
                           selected={reserveEndDate}
                           onSelect={(d: Date | undefined) => d && setReserveEndDate(d)}
                           disabled={[
-                            { before: reserveStartDate ?? new Date() },
+                            { before: minDropoffDate },
                             (date: Date) =>
                               reservedDates.some(
                                 (r) => r.toDateString() === date.toDateString()

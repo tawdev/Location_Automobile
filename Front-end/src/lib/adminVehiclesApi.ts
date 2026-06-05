@@ -30,6 +30,8 @@ export type AdminVehiclePayload = {
   category_id: number;
   Occupants: string;
   device_id?: string;
+  air_conditioner?: boolean;
+  gps?: boolean;
   images?: File[];
   deletedImages?: number[];
 };
@@ -47,6 +49,8 @@ function toVehicleFormData(payload: AdminVehiclePayload): FormData {
   fd.set("category_id", String(payload.category_id));
   fd.set("Occupants", payload.Occupants);
   if (payload.device_id) fd.set("device_id", payload.device_id);
+  fd.set("air_conditioner", payload.air_conditioner ? "1" : "0");
+  fd.set("gps", payload.gps ? "1" : "0");
 
   if (payload.images && payload.images.length > 0) {
     for (const file of payload.images) {

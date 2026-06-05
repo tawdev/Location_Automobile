@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 interface ModalProps {
   open: boolean;
@@ -21,6 +22,8 @@ export function Modal({
   maxWidthClassName = "max-w-xl",
 }: ModalProps) {
   // Prevent background scroll when modal is open
+  const { t } = useI18n();
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -62,7 +65,7 @@ export function Modal({
                 type="button"
                 onClick={onClose}
                 className="p-2 rounded-full text-[#638ECB] hover:text-[#395886] hover:bg-[#F0F3FA] transition-all cursor-pointer"
-                aria-label="Close modal"
+                aria-label={t("admin.modal_close")}
               >
                 <svg
                   width="18"

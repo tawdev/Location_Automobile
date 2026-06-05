@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category, Vehicle } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getAdminCategories } from "@/lib/adminCategoriesApi";
 import { createAdminVehicle, type AdminVehiclePayload } from "@/lib/adminVehiclesApi";
 
@@ -29,7 +30,10 @@ function AdminVehicleForm({
   const [categoryId, setCategoryId] = useState<number>(initial?.category_id ?? 0);
   const [occupants, setOccupants] = useState(initial?.Occupants ?? "");
   const [deviceId, setDeviceId] = useState(initial?.device_id ?? "");
+  const [airConditioner, setAirConditioner] = useState(initial?.air_conditioner ?? false);
+  const [gps, setGps] = useState(initial?.gps ?? false);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
+  const { t } = useI18n();
 
   const categoryOptions = useMemo(() => categories.slice().sort((a, b) => a.id - b.id), [categories]);
 
@@ -65,6 +69,8 @@ function AdminVehicleForm({
             category_id: categoryId,
             Occupants: occupants.trim(),
             device_id: deviceId.trim() || undefined,
+            air_conditioner: airConditioner,
+            gps: gps,
             images: undefined,
           },
           imagesFiles
@@ -194,6 +200,27 @@ function AdminVehicleForm({
           />
         </label>
 
+        <div className="flex items-center gap-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={airConditioner}
+              onChange={(e) => setAirConditioner(e.target.checked)}
+              className="w-5 h-5"
+            />
+            <span className="font-bold">Climatisation</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={gps}
+              onChange={(e) => setGps(e.target.checked)}
+              className="w-5 h-5"
+            />
+            <span className="font-bold">GPS</span>
+          </label>
+        </div>
+
         <div className="flex flex-col gap-2">
           <span className="font-bold">Images (optionnel)</span>
           <input
@@ -228,7 +255,7 @@ function AdminVehicleForm({
           disabled={!canSubmit || submitting}
           className="h-12 font-black text-lg border-2 border-black bg-white hover:bg-zinc-100 disabled:opacity-50"
         >
-          {submitting ? "Création..." : "Créer le véhicule"}
+          {submitting ? t("admin.vehicle_saving") : t("admin.create_vehicle")}
         </button>
       </div>
     </form>
@@ -237,6 +264,7 @@ function AdminVehicleForm({
 
 export default function AdminVehicleNewPage() {
   const router = useRouter();
+  const { t } = useI18n();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -267,7 +295,7 @@ export default function AdminVehicleNewPage() {
       // Force a full reload so the list definitely re-fetches the new vehicle.
       window.location.assign("/admin/vehicles");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de la création du véhicule";
+      const msg = e instanceof Error ? e.message : t("admin.vehicle_create_error");
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -278,16 +306,16 @@ export default function AdminVehicleNewPage() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl">Ajouter un véhicule</h1>
-          <div className="font-bold text-sm mt-1">Admin CRUD</div>
+          <h1 className="font-black text-3xl">{t("admin.create_vehicle")}</h1>
+          <div className="font-bold text-sm mt-1">Nouveau véhicule</div>
         </div>
       </div>
 
       {loadingCategories ? (
-        <div className="mt-6 font-black">Chargement des catégories...</div>
+        <div className="mt-6 font-black">{t("admin.loading")}</div>
       ) : categories.length === 0 ? (
         <div className="mt-6 p-4 border-2 border-black bg-white font-black">
-          Aucune catégorie trouvée. Créez d'abord une catégorie.
+          {t("admin.create_category_first")}
         </div>
       ) : (
         <div className="mt-6 border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">

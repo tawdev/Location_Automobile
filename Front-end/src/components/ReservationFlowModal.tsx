@@ -67,6 +67,7 @@ export default function ReservationFlowModal({
 
   const [extras, setExtras] = useState<Extra[]>([]);
   const [selectedExtraIds, setSelectedExtraIds] = useState<number[]>([]);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
     getExtras().then(setExtras).catch(() => {});
@@ -429,7 +430,7 @@ export default function ReservationFlowModal({
                         >
                           <div className="flex items-center gap-3">
                             <div
-                              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${
                                 selected
                                   ? "bg-[#395886] border-[#395886]"
                                   : "border-[#D5DEEF]"
@@ -437,6 +438,15 @@ export default function ReservationFlowModal({
                             >
                               {selected && <CheckCircle className="w-4 h-4 text-white" />}
                             </div>
+                            {extra.image_url && (
+                              <div onClick={() => setLightboxImage(extra.image_url!)} className="shrink-0 cursor-pointer">
+                                <img
+                                  src={extra.image_url}
+                                  alt={extra.name}
+                                  className="w-20 h-20 rounded-xl object-cover pointer-events-none"
+                                />
+                              </div>
+                            )}
                             <span className="font-bold text-[#395886] text-sm">{extra.name}</span>
                           </div>
                           <span className="font-extrabold text-[#395886] text-sm">
@@ -523,6 +533,27 @@ export default function ReservationFlowModal({
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={lightboxImage}
+            alt=""
+            className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
