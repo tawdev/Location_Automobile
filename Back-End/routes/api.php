@@ -32,6 +32,7 @@ Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('Vehicles' , [VehicleController::class, 'index']);
 Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
 Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
+Route::get('Categories/public', [CategoryController::class , 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/vehicle' , [VehicleController::class , 'store']);

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Head from "next/head";
 import { motion, useReducedMotion } from "framer-motion";
 import { RequireClient } from "@/components/RequireClient";
-import { filterVehicles, listVehicles } from "@/lib/vehiclesApi";
-import type { Vehicle } from "@/lib/types";
+import { filterVehicles, listVehicles, fetchCategories } from "@/lib/vehiclesApi";
+import type { Vehicle, Category } from "@/lib/types";
 import { vehicleImageUrl } from "@/lib/media";
 import { Search } from "lucide-react";
 import BackButton from "@/components/BackButton";
@@ -96,9 +96,8 @@ export default function VehiclesPage() {
   }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useI18n();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const categories = ["All", "SUV", "Sports"];
 
   const loadInitial = useCallback(async () => {
     setLoading(true);
@@ -148,6 +147,10 @@ export default function VehiclesPage() {
     return () => clearTimeout(id);
   }, [loadInitial]);
 
+  useEffect(() => {
+    fetchCategories().then(setCategories);
+  }, []);
+
   // Auto-filter when both dates are selected
   useEffect(() => {
     if (pickupDate && returnDate) {
@@ -158,20 +161,20 @@ export default function VehiclesPage() {
   const filteredVehicles = useMemo(() => {
     const list = Array.isArray(vehicles) ? vehicles : [];
     return list.filter(vehicle => {
-      const categoryMap: Record<string, string[]> = {
-        'SUV': ['Bentayga', 'Range Rover'],
-        'Sports': ['911', '488', 'RS7'],
-      };
+      if (!vehicle.marque) return false;
+      const brandQ = query.marque?.trim().toLowerCase();
+      if (brandQ && !vehicle.marque.toLowerCase().includes(brandQ)) return false;
       const matchesCategory = selectedCategory === 'All' ||
-        (categoryMap[selectedCategory]?.some(cat =>
-          vehicle.model.includes(cat) || vehicle.marque.includes(cat)
-        ) ?? false);
-      const matchesSearch = !searchQuery ||
-        vehicle.marque.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vehicle.model.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+        vehicle.category?.name === selectedCategory;
+      if (!matchesCategory) return false;
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        vehicle.marque.toLowerCase().includes(q) ||
+        vehicle.model.toLowerCase().includes(q)
+      );
     });
-  }, [vehicles, selectedCategory, searchQuery]);
+  }, [vehicles, selectedCategory, searchQuery, query.marque]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -433,8 +436,9 @@ export default function VehiclesPage() {
                     className="w-full h-[52px] bg-white/70 dark:bg-[#1e293b]/50 border border-white/50 dark:border-[#1e293b]/60 rounded-xl px-5 outline-none text-[15px] text-gray-700 dark:text-[#D5DEEF] transition-all duration-300 focus:border-[#1f4276]/30 dark:focus:border-[#f39c12]/30 focus:shadow-[0_0_0_3px_rgba(31,66,118,0.1)] dark:focus:shadow-[0_0_0_3px_rgba(243,156,18,0.1)]"
                   >
                     <option value="All">{t("vehicles.all")}</option>
-                    <option value="SUV">SUV</option>
-                    <option value="Sports">{t("vehicles.sport")}</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.name}>{c.name}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -516,19 +520,32 @@ export default function VehiclesPage() {
             </div>
 
             <div className="flex items-center gap-2 p-1.5 bg-[#e8ebf0] dark:bg-[#1e293b]/60 rounded-full">
+              <motion.button
+                key="All"
+                onClick={() => setSelectedCategory("All")}
+                whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+                className={`relative px-5 h-9 rounded-full text-[13px] font-semibold transition-all duration-300 ${
+                  selectedCategory === "All"
+                    ? "bg-[#1f4276] dark:bg-[#f39c12] text-white dark:text-[#0f1729] shadow-[0_4px_12px_rgba(31,66,118,0.25)] dark:shadow-[0_4px_12px_rgba(243,156,18,0.25)]"
+                    : "text-gray-600 dark:text-[#94A3B8] hover:text-[#1f4276] dark:hover:text-[#D5DEEF]"
+                }`}
+              >
+                {t("vehicles.all")}
+              </motion.button>
               {categories.map((cat) => (
                 <motion.button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.name)}
                   whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
                   whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
                   className={`relative px-5 h-9 rounded-full text-[13px] font-semibold transition-all duration-300 ${
-                    selectedCategory === cat
+                    selectedCategory === cat.name
                       ? "bg-[#1f4276] dark:bg-[#f39c12] text-white dark:text-[#0f1729] shadow-[0_4px_12px_rgba(31,66,118,0.25)] dark:shadow-[0_4px_12px_rgba(243,156,18,0.25)]"
                       : "text-gray-600 dark:text-[#94A3B8] hover:text-[#1f4276] dark:hover:text-[#D5DEEF]"
                   }`}
                 >
-                  {cat === "All" ? t("vehicles.all") : cat === "Sports" ? t("vehicles.sport") : cat}
+                  {cat.name}
                 </motion.button>
               ))}
             </div>
@@ -570,6 +587,20 @@ export default function VehiclesPage() {
                 </motion.div>
               ))}
             </div>
+          ) : filteredVehicles.length === 0 ? (
+            <motion.div
+              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-20"
+            >
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-[#1e293b] mb-6">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400 dark:text-[#64748b]">
+                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                </svg>
+              </div>
+              <p className="text-gray-500 dark:text-[#94A3B8] text-lg font-medium">{t("vehicles.no_results")}</p>
+              <p className="text-gray-400 dark:text-[#64748b] text-sm mt-2">Essayez de modifier vos filtres</p>
+            </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {filteredVehicles.map((v, idx) => {
@@ -585,7 +616,7 @@ export default function VehiclesPage() {
                     viewport={{ once: true, margin: "-40px" }}
                     transition={{ duration: 0.5, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
                     whileHover={prefersReducedMotion ? {} : { y: -8, boxShadow: "0 25px 60px rgba(31,66,118,0.15)" }}
-                    className="group bg-[#edf0f5] dark:bg-[#0f1729] rounded-[18px] overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-xl dark:hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] cursor-pointer card-3d relative"
+                    className="group bg-[#edf0f5] dark:bg-[#0f1729] rounded-[18px] overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-xl dark:hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] cursor-pointer card-3d relative flex flex-col"
                     style={{ contentVisibility: 'auto', contain: 'layout style paint' }}
                   >
                     {/* Shimmer border overlay on hover */}
@@ -667,7 +698,7 @@ export default function VehiclesPage() {
                     </LazyVehicleImage>
 
                     <motion.div
-                      className="p-6 relative z-10"
+                      className="p-6 relative z-10 flex flex-col flex-1"
                       initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: idx * 0.06 + 0.15 }}
@@ -680,7 +711,7 @@ export default function VehiclesPage() {
                       <p className="mt-1.5 text-[14px] text-gray-500 dark:text-[#94A3B8]">
                         {v.year} &bull; {t("vehicles.automatic")}
                       </p>
-                      <div className="flex items-center gap-4 mt-5 text-[13px] text-gray-600 dark:text-[#94A3B8] flex-wrap">
+                      <div className="flex items-center gap-4 mt-5 text-[13px] text-gray-600 dark:text-[#94A3B8] flex-wrap flex-1">
                         <span className="flex items-center gap-1.5 bg-[#e2e6ed] dark:bg-[#1e293b]/80 px-3 py-1.5 rounded-lg">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#637093] dark:text-[#94A3B8]">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
@@ -738,22 +769,6 @@ export default function VehiclesPage() {
                 );
               })}
             </div>
-          )}
-
-          {!loading && filteredVehicles.length === 0 && (
-            <motion.div
-              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-20"
-            >
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-[#1e293b] mb-6">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400 dark:text-[#64748b]">
-                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                </svg>
-              </div>
-              <p className="text-gray-500 dark:text-[#94A3B8] text-lg font-medium">{t("vehicles.no_results")}</p>
-              <p className="text-gray-400 dark:text-[#64748b] text-sm mt-2">Essayez de modifier vos filtres</p>
-            </motion.div>
           )}
         </section>
 

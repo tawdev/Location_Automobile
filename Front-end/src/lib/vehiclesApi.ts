@@ -1,5 +1,5 @@
 import { apiRequest } from "./apiClient";
-import type { Vehicle } from "./types";
+import type { Vehicle, Category } from "./types";
 
 type VehiclesResponse = {
   status: string;
@@ -35,6 +35,22 @@ type FilterParams = {
   pickup_date?: string;
   return_date?: string;
 };
+
+type CategoriesResponse = {
+  status: string;
+  data: Category[] | string;
+};
+
+export async function fetchCategories(): Promise<Category[]> {
+  const res = await apiRequest<CategoriesResponse>({
+    method: "GET",
+    path: "/Categories/public",
+    query: undefined,
+    auth: false,
+  });
+  if (Array.isArray(res.data)) return res.data;
+  return [];
+}
 
 export async function filterVehicles(params: FilterParams): Promise<Vehicle[]> {
   const res = await apiRequest<VehiclesResponse>({
