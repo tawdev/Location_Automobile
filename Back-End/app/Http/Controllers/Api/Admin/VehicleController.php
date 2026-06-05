@@ -144,9 +144,15 @@ class VehicleController extends Controller
         ], 200);
     }
 
-    public function locations()
+    public function locations(Request $request)
     {
-        $vehicles = Vehicle::with('latestLocation', 'pictures')->get()->map(function ($v) {
+        $query = Vehicle::with('latestLocation', 'pictures');
+
+        if ($request->filled('marque')) {
+            $query->where('marque', 'LIKE', '%' . $request->input('marque') . '%');
+        }
+
+        $vehicles = $query->get()->map(function ($v) {
             $loc = $v->latestLocation;
             return [
                 'id'        => $v->id,

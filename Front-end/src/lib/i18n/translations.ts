@@ -527,6 +527,9 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin.modal_close": { en: "Close modal", fr: "Fermer la fenêtre", ar: "إغلاق النافذة" },
   "admin.edit_category_aria": { en: "Edit category", fr: "Modifier la catégorie", ar: "تعديل الفئة" },
   "admin.delete_category_aria": { en: "Delete category", fr: "Supprimer la catégorie", ar: "حذف الفئة" },
+  "admin.all_marques": { en: "All brands", fr: "Toutes les marques", ar: "جميع العلامات التجارية" },
+  "admin.filter": { en: "Filter", fr: "Filtrer", ar: "تصفية" },
+  "admin.clear_filter": { en: "Clear filter", fr: "Effacer le filtre", ar: "مسح التصفية" },
 
   // ── Errors (API) ──
   "error.cin_missing": { en: "Please add your CIN (front and back) to your profile before booking.", fr: "Veuillez ajouter votre CIN (recto et verso) dans votre profil avant de réserver.", ar: "يرجى إضافة بطاقة التعريف الوطنية (الوجه والخلف) إلى ملفك الشخصي قبل الحجز." },
