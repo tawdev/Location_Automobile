@@ -114,8 +114,7 @@ export default function VehiclesPage() {
     }
   }, [t]);
 
-  const onFilterSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doFilter = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -137,12 +136,24 @@ export default function VehiclesPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, t]);
+  }, [query, pickupDate, returnDate, t]);
+
+  const onFilterSubmit = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    doFilter();
+  }, [doFilter]);
 
   useEffect(() => {
     const id = setTimeout(() => { void loadInitial(); }, 0);
     return () => clearTimeout(id);
   }, [loadInitial]);
+
+  // Auto-filter when both dates are selected
+  useEffect(() => {
+    if (pickupDate && returnDate) {
+      doFilter();
+    }
+  }, [pickupDate, returnDate, doFilter]);
 
   const filteredVehicles = useMemo(() => {
     const list = Array.isArray(vehicles) ? vehicles : [];
