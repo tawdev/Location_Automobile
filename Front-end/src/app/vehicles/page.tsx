@@ -21,6 +21,8 @@ type VehiclesQuery = {
   fuelType?: string;
   min_price?: number;
   max_price?: number;
+  pickup_date?: string;
+  return_date?: string;
 };
 
 const LazyVehicleImage = memo(function LazyVehicleImage({
@@ -123,6 +125,8 @@ export default function VehiclesPage() {
         fuelType: query.fuelType?.trim() ? query.fuelType.trim() : undefined,
         min_price: query.min_price !== undefined && query.min_price !== null ? query.min_price : undefined,
         max_price: query.max_price !== undefined && query.max_price !== null ? query.max_price : undefined,
+        pickup_date: pickupDate || undefined,
+        return_date: returnDate || undefined,
       };
       const data = await filterVehicles(params);
       setVehicles(data);
