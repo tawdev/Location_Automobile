@@ -80,6 +80,7 @@ const DetailImage = memo(function DetailImage({ src, alt }: { src: string; alt: 
       onError={() => setImgSrc(FALLBACK_IMG_DETAIL)}
       sizes="(max-width: 768px) 100vw, 340px"
       quality={80}
+      unoptimized
     />
   );
 });

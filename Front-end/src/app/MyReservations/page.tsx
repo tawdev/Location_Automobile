@@ -10,6 +10,7 @@ import { getAuthToken } from "@/lib/tokenStorage";
 import BackButton from "@/components/BackButton";
 import { RequireClient } from "@/components/RequireClient";
 import { API_BASE_URL } from "@/lib/config";
+import { vehicleImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const ConfirmDialog = dynamic(() => import("./modals").then(m => m.ConfirmDialog), { ssr: false });
@@ -263,6 +264,7 @@ const CardImage = memo(function CardImage({ src, alt, cancelled }: { src: string
       sizes="64px"
       quality={75}
       loading="lazy"
+      unoptimized
     />
   );
 });
@@ -539,7 +541,7 @@ export default function BookingHistoryPage() {
           Occupants: item.vehicle.Occupants ?? item.vehicle.occupants,
           year: item.vehicle.year,
           image_url: item.vehicle.pictures?.[0]?.path
-            ? `http://localhost:8000/storage/${item.vehicle.pictures[0].path}`
+            ? vehicleImageUrl(item.vehicle.pictures[0].path)
             : undefined
         } : undefined
       }));

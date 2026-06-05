@@ -185,7 +185,6 @@ public function finalizeReservation($id, $kmDriven)
 
         $query = Reservation::query()->with(['vehicle', 'vehicle.pictures'])
                                      ->where('user_id', auth()->id());
-        $query = Reservation::query()->with('vehicle');
 
 
         $query->when($request->filled('start_date'), function ($q) use ($request) {
