@@ -159,7 +159,6 @@ export default function VehiclesPage() {
 
   const filteredVehicles = useMemo(() => {
     const list = Array.isArray(vehicles) ? vehicles : [];
-<<<<<<< HEAD
     return list
       .filter(vehicle => {
         const categoryMap: Record<string, string[]> = {
