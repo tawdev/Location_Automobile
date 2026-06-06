@@ -20,7 +20,7 @@ export function HeroSection() {
         <div className="mt-[126px] lg:mt-[160px]">
           <h1
             style={{ fontFamily: "var(--font-geist-sans)" }}
-            className="font-sans text-[42px] lg:text-[50px] leading-[1.02] font-black tracking-[-0.4px] ml-[22px] lg:ml-[80px] text-[#F0F3FA] drop-shadow-[0_2px_10px_rgba(0,0,0,0.20)]"
+            className="font-sans text-[42px] lg:text-[50px] leading-[1.02] font-black tracking-[-0.4px] ml-[22px] lg:ml-[80px] text-[#F0F3FA] drop-shadow-[0_2px_10px_rgba(0,0,0,0.20)] dark:drop-shadow-[0_2px_10px_rgba(0,0,0,0.50)]"
           >
             Votre parcours,
             <br />

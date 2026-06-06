@@ -156,20 +156,22 @@ export default function VehiclesPage() {
 
   const filteredVehicles = useMemo(() => {
     const list = Array.isArray(vehicles) ? vehicles : [];
-    return list.filter(vehicle => {
-      const categoryMap: Record<string, string[]> = {
-        'SUV': ['Bentayga', 'Range Rover'],
-        'Sports': ['911', '488', 'RS7'],
-      };
-      const matchesCategory = selectedCategory === 'All' ||
-        (categoryMap[selectedCategory]?.some(cat =>
-          vehicle.model.includes(cat) || vehicle.marque.includes(cat)
-        ) ?? false);
-      const matchesSearch = !searchQuery ||
-        vehicle.marque.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vehicle.model.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
+    return list
+      .filter(vehicle => {
+        const categoryMap: Record<string, string[]> = {
+          'SUV': ['Bentayga', 'Range Rover'],
+          'Sports': ['911', '488', 'RS7'],
+        };
+        const matchesCategory = selectedCategory === 'All' ||
+          (categoryMap[selectedCategory]?.some(cat =>
+            vehicle.model.includes(cat) || vehicle.marque.includes(cat)
+          ) ?? false);
+        const matchesSearch = !searchQuery ||
+          vehicle.marque.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          vehicle.model.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }, [vehicles, selectedCategory, searchQuery]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);

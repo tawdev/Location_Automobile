@@ -619,7 +619,7 @@ function VehiclesMarquee() {
                     router.push(`/login?redirect=/vehicles/${v.id}`);
                   }
                 }}
-                className="shrink-0 w-[300px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_50px_rgba(57,88,134,0.15)] dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.4)] transition-all duration-500 group"
+                className="shrink-0 w-[300px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_50px_rgba(57,88,134,0.15)] dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.4)] transition-all duration-500 group cursor-pointer"
               >
                 <div className="h-44 bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden relative">
                   <img
