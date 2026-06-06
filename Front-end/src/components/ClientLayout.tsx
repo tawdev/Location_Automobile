@@ -16,33 +16,20 @@ function Logo({ onClick }: { onClick: () => void }) {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="flex items-center gap-2.5 cursor-pointer group"
+      className="flex items-center cursor-pointer group"
       onClick={onClick}
     >
-      <div className="relative">
-        <motion.div
-          className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#395886] to-[#1d3560] flex items-center justify-center shadow-lg shadow-[#395886]/20 group-hover:shadow-[#395886]/30 transition-shadow"
-          whileHover={{ scale: 1.05, rotate: -3 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <svg width="22" height="16" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M10 16L30 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-            <circle cx="12" cy="18" r="3" fill="white" stroke="white" strokeWidth="1.5" />
-            <circle cx="28" cy="18" r="3" fill="white" stroke="white" strokeWidth="1.5" />
-            <path d="M18 10L25 10L27 16" stroke="white" strokeWidth="2" fill="none" />
-          </svg>
-        </motion.div>
-        <motion.div
-          className="absolute -inset-1 rounded-xl bg-gradient-to-br from-[#638ECB]/20 to-[#395886]/20 blur-md -z-10"
-          animate={{ opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      <motion.div
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.98 }}
+        className="flex items-center justify-center"
+      >
+        <img
+          src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
+          alt="CARFORFAR logo"
+          className="h-9 sm:h-10 w-auto object-contain select-none"
         />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[#395886] dark:text-[#D5DEEF] font-black italic tracking-[0.15em] text-sm leading-none">CARFORFAR</span>
-        <span className="text-[10px] font-bold text-[#638ECB]/60 dark:text-[#94A3B8]/60 tracking-[0.2em] uppercase leading-none mt-0.5">Location</span>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

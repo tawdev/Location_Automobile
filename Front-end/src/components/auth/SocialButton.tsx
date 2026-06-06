@@ -19,14 +19,14 @@ export function SocialButton({ label, onClick, icon, disabled }: SocialButtonPro
       className={[
         "w-full h-[46px]",
         "rounded-[10px]",
-        "border border-[#D5DEEF]",
-        "bg-white/90",
+        "border border-[#D5DEEF] dark:border-[#475569]",
+        "bg-white/90 dark:bg-[#1e293b]/80",
         "backdrop-blur-sm",
         "shadow-[0_1px_0_rgba(57,88,134,0.06)]",
-        "text-[#395886]",
+        "text-[#395886] dark:text-[#D5DEEF]",
         "font-semibold",
         "transition-transform transition-colors",
-        "hover:translate-y-[-1px] hover:bg-white",
+        "hover:translate-y-[-1px] hover:bg-white dark:hover:bg-[#1e293b]",
         "disabled:opacity-50 disabled:hover:translate-y-0",
       ].join(" ")}
     >

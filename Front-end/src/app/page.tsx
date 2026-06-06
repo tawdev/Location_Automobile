@@ -6,7 +6,7 @@ import { vehicleImageUrl } from "@/lib/media";
 import type { Vehicle } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getAuthToken } from "@/lib/tokenStorage";
@@ -72,22 +72,14 @@ const steps = [
 
 
 
-function CarLogo({ className, dark }: { className?: string; dark?: boolean }) {
-  const stroke = dark ? "#F0F3FA" : "#395886";
+function CarLogo({ className }: { className?: string; dark?: boolean }) {
   return (
-    <div className={`flex flex-col items-center ${className ?? ""}`}>
-      <svg width="46" height="28" viewBox="0 0 46 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 18C6 18 12 6 23 6C34 6 40 18 40 18" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M12 18L34 18" stroke={stroke} strokeWidth="2" strokeLinecap="round" />
-        <circle cx="15" cy="20.5" r="3.5" fill="none" stroke={stroke} strokeWidth="2" />
-        <circle cx="31" cy="20.5" r="3.5" fill="none" stroke={stroke} strokeWidth="2" />
-        <path d="M21 11L29 11L31 18" stroke={stroke} strokeWidth="2" fill="none" />
-        <path d="M3 20L4 18" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M43 20L42 18" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-      <span className={`font-black italic tracking-[0.25em] text-sm leading-none mt-1 ${dark ? "text-[#F0F3FA]" : "text-[#395886]"}`}>
-        CARFORFAR
-      </span>
+    <div className={`flex items-center ${className ?? ""}`}>
+      <img
+        src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
+        alt="CARFORFAR logo"
+        className="h-10 w-auto object-contain select-none"
+      />
     </div>
   );
 }
@@ -627,7 +619,7 @@ function VehiclesMarquee() {
                     router.push(`/login?redirect=/vehicles/${v.id}`);
                   }
                 }}
-                className="shrink-0 w-[300px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_50px_rgba(57,88,134,0.15)] dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.4)] transition-all duration-500 group"
+                className="shrink-0 w-[300px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_50px_rgba(57,88,134,0.15)] dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.4)] transition-all duration-500 group cursor-pointer"
               >
                 <div className="h-44 bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden relative">
                   <img
@@ -895,6 +887,119 @@ function FooterSection() {
   );
 }
 
+function AboutSection() {
+  const prefersReducedMotion = useReducedMotion();
+  const { t } = useI18n();
+
+  return (
+    <section className="bg-[#f7f7fa] dark:bg-[#0b1121] py-28 border-t border-[#ebedf2] dark:border-[#1e293b]/60 relative overflow-hidden transition-colors duration-500">
+      {/* Noise texture */}
+      <div className="absolute inset-0 noise-bg pointer-events-none" />
+
+      {/* Decorative circles */}
+      <div className="absolute top-20 right-20 w-72 h-72 rounded-full border border-[#1f4276]/5 dark:border-[#f39c12]/5 pointer-events-none" style={{ animation: 'float-slow 12s ease-in-out infinite' }} />
+      <div className="absolute bottom-20 left-20 w-48 h-48 rounded-full border border-[#f39c12]/8 dark:border-[#638ECB]/8 pointer-events-none" style={{ animation: 'float-drift 15s ease-in-out infinite' }} />
+      <div className="absolute top-1/3 left-1/4 w-4 h-4 rounded-full bg-[#1f4276]/10 dark:bg-[#f39c12]/10 pointer-events-none" style={{ animation: 'twinkle 3s ease-in-out infinite' }} />
+
+      <div className="max-w-[1280px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center relative z-10">
+        <motion.div
+          initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <motion.div
+            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-bold text-[#7385a9] dark:text-[#94A3B8] bg-[#7385a9]/10 dark:bg-[#94A3B8]/10 px-4 py-2 rounded-full border border-[#7385a9]/10 dark:border-[#94A3B8]/10"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#7385a9] dark:bg-[#94A3B8] animate-pulse" />
+            {t("vehicles.about_label")}
+          </motion.div>
+
+          <h2 className="mt-6 text-[56px] leading-[1.05] font-extrabold text-[#1f4276] dark:text-[#D5DEEF]">
+            {t("vehicles.about_title")}
+          </h2>
+          <div className="w-16 h-1 bg-[#f39c12] rounded-full mt-6" />
+          <p className="mt-8 text-[18px] leading-[1.9] text-gray-600 dark:text-[#94A3B8]">
+            {t("vehicles.about_text1")}
+          </p>
+          <p className="mt-6 text-[18px] leading-[1.9] text-gray-600 dark:text-[#94A3B8]">
+            {t("vehicles.about_text2")}
+          </p>
+
+          <div className="flex gap-16 mt-14">
+            {[
+              { value: t("vehicles.stats_years_value"), label: t("vehicles.stats_years_label") },
+              { value: t("vehicles.stats_concierge_value"), label: t("vehicles.stats_concierge_label") },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 + 0.3 }}
+              >
+                <motion.div
+                  className="text-[56px] font-extrabold text-[#1f4276] dark:text-[#f39c12] leading-none"
+                  initial={prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ type: "spring", stiffness: 200, damping: 12, delay: i * 0.15 + 0.5 }}
+                >
+                  {stat.value}
+                </motion.div>
+                <div className="text-[13px] uppercase tracking-[0.12em] text-gray-500 dark:text-[#94A3B8] mt-2">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+          className="relative"
+        >
+          <motion.div
+            whileHover={prefersReducedMotion ? {} : { y: -4, boxShadow: "0 20px 60px rgba(31,66,118,0.12)" }}
+            className="bg-white dark:bg-[#0f1729] rounded-[26px] shadow-[0_12px_35px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.3)] h-[480px] flex items-center justify-center overflow-hidden relative transition-all duration-500"
+          >
+            {/* Subtle gradient bg */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#f7f7fa] to-white dark:from-[#0f1729] dark:to-[#0b1121] opacity-60 dark:opacity-100" />
+            <div className="text-center relative z-10">
+              <motion.div
+                animate={prefersReducedMotion ? {} : { y: [0, -8, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+              >
+                <svg width="260" height="170" viewBox="0 0 38 28" fill="none" className="mx-auto scale-[4]">
+                  <path d="M4 20 C10 8, 28 8, 34 20" stroke="#1f4276" strokeWidth="3" fill="none" strokeLinecap="round" className="dark:stroke-[#D5DEEF]" />
+                  <circle cx="10" cy="21" r="3" fill="#1f4276" className="dark:fill-[#D5DEEF]" />
+                  <circle cx="28" cy="21" r="3" fill="#1f4276" className="dark:fill-[#D5DEEF]" />
+                  <motion.path
+                    d="M6 14 L32 14"
+                    stroke="#f39c12"
+                    strokeWidth="1.5"
+                    strokeDasharray="3 2"
+                    animate={prefersReducedMotion ? { strokeDashoffset: 0 } : { strokeDashoffset: [0, 20, 0] }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                  />
+                </svg>
+              </motion.div>
+              <div className="mt-14 text-[42px] font-black tracking-[-0.04em] text-[#1f4276] dark:text-[#D5DEEF]">
+                CAR<span className="text-[#f39c12]">FOR</span>FAR
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 function DarkModeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   return (
     <motion.button
@@ -1065,6 +1170,7 @@ export default function HomePage() {
       <VehiclesMarquee />
       <StatsSection />
       <CTASection />
+      <AboutSection />
       <MapSection />
       <FooterSection />
     </div>
