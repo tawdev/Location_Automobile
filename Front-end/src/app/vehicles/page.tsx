@@ -177,23 +177,6 @@ export default function VehiclesPage() {
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }, [vehicles, selectedCategory, searchQuery]);
-=======
-    return list.filter(vehicle => {
-      if (!vehicle.marque) return false;
-      const brandQ = query.marque?.trim().toLowerCase();
-      if (brandQ && !vehicle.marque.toLowerCase().includes(brandQ)) return false;
-      const matchesCategory = selectedCategory === 'All' ||
-        vehicle.category?.name === selectedCategory;
-      if (!matchesCategory) return false;
-      if (!searchQuery) return true;
-      const q = searchQuery.toLowerCase();
-      return (
-        vehicle.marque.toLowerCase().includes(q) ||
-        vehicle.model.toLowerCase().includes(q)
-      );
-    });
-  }, [vehicles, selectedCategory, searchQuery, query.marque]);
->>>>>>> 512f7935feeb9b8b7d9c2b6d38de6c726e71d28d
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
