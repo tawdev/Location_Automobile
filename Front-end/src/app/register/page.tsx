@@ -30,6 +30,15 @@ function LockIcon() {
   );
 }
 
+function EyeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
 function EyeOffIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -97,6 +106,7 @@ function RegisterForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
 
   const [formError, setFormError] = useState<string | null>(null);
@@ -454,13 +464,19 @@ function RegisterForm() {
                           <input
                             value={password}
                             onChange={(e) => { setPassword(e.target.value); setFieldErrors((prev) => ({ ...prev, password: null })); }}
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             autoComplete={mode === "login" ? "current-password" : "new-password"}
                             className="w-full rounded-[12px] border border-[#D5DEEF]/60 dark:border-[#475569]/50 bg-white/[0.12] dark:bg-[#1e293b]/20 h-[46px] px-3 pl-[42px] pr-[42px] text-[14px] text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 dark:placeholder:text-[#64748b]/50 focus:outline-none focus:ring-[3px] focus:ring-[#638ECB]/20 focus:border-[#638ECB] dark:focus:ring-[#638ECB]/15 dark:focus:border-[#638ECB] hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/30 transition-all duration-300 ease-out"
                             required
                             minLength={mode === "signup" ? 8 : undefined}
                           />
-                          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#638ECB]/60"><EyeOffIcon /></div>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#638ECB]/60 hover:text-[#638ECB] transition-colors duration-200 cursor-pointer"
+                          >
+                            {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                          </button>
                         </div>
                         {fieldErrors.password && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.password}</motion.span>}
                       </div>

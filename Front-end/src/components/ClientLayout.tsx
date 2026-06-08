@@ -285,7 +285,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           </div>
           <div className="mt-10 pt-8 border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-xs font-semibold text-[#638ECB]/50 dark:text-[#94A3B8]/50">
-              &copy; {new Date().getFullYear()} CARFORFAR. Tous droits réservés.
+              &copy; {new Date().getFullYear()} <a href="https://cdigital.ma/" target="_blank" rel="noopener noreferrer" className="text-[#638ECB]/70 hover:text-[#f39c12] transition-colors duration-200">Cdigital</a>. Tous droits réservés.
             </p>
           </div>
         </div>

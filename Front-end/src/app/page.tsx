@@ -861,7 +861,7 @@ function CTASection() {
           >
             {t("home.cta.title1")}
             <br />
-            <span className="relative inline-flex items-center">
+            <span className="relative inline-flex items-center pb-10">
               <img
                 src="/logo.png"
                 alt="CARFORFAR"
@@ -1010,7 +1010,7 @@ function FooterSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="border-t border-[#638ECB]/30 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
         >
-          <p className="text-[#D5DEEF]/40 text-xs">&copy; 2024 CARFORFAR. {t("footer.rights")}</p>
+          <p className="text-[#D5DEEF]/40 text-xs">&copy; 2024 <a href="https://cdigital.ma/" target="_blank" rel="noopener noreferrer" className="text-[#D5DEEF]/60 hover:text-[#f39c12] transition-colors duration-200">Cdigital</a>. {t("footer.rights")}</p>
           <div className="flex gap-4">
             {["Instagram", "Facebook", "LinkedIn"].map((s) => (
               <motion.a
