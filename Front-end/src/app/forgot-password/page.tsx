@@ -153,7 +153,7 @@ export default function ForgotPasswordPage() {
           transition={{ duration: 0.45, ease: "easeOut" }}
           className="w-full max-w-[470px]"
         >
-          <div className="rounded-[16px] bg-white/65 backdrop-blur-xl border border-[#D5DEEF]/55 shadow-[0_10px_30px_rgba(57,88,134,0.18)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px]">
+          <div className="rounded-[16px] bg-white/50 backdrop-blur-xl border border-[#D5DEEF]/55 shadow-[0_10px_30px_rgba(57,88,134,0.18)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px]">
             {/* Steps indicator */}
             <div className="flex items-center justify-center gap-2 mb-8">
               {(["email", "code", "password"] as Step[]).map((s, i) => (
