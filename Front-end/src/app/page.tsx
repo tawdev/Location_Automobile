@@ -73,14 +73,18 @@ const steps = [
 
 
 
-function CarLogo({ className }: { className?: string; dark?: boolean }) {
+function CarLogo({ className, dark: forceDark }: { className?: string; dark?: boolean }) {
+  if (forceDark) {
+    return (
+      <div className={`flex items-center ${className ?? ""}`}>
+        <img src="/logo-dark.png" alt="CARFORFAR logo" className="h-36 w-auto object-contain select-none" />
+      </div>
+    );
+  }
   return (
     <div className={`flex items-center ${className ?? ""}`}>
-      <img
-        src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
-        alt="CARFORFAR logo"
-        className="h-10 w-auto object-contain select-none"
-      />
+      <img src="/logo.png" alt="CARFORFAR logo" className="h-36 w-auto object-contain select-none dark:hidden" />
+      <img src="/logo-dark.png" alt="CARFORFAR logo" className="h-36 w-auto object-contain select-none hidden dark:block" />
     </div>
   );
 }
@@ -108,7 +112,7 @@ function NavBar({ dark, onToggleDark }: { dark: boolean; onToggleDark: () => voi
         }`}
       >
         <div className="max-w-6xl mx-auto px-8 h-[72px] flex items-center justify-between">
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="cursor-pointer -ml-2" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <CarLogo dark={!scrolled && !dark} />
           </motion.div>
           <div className="flex items-center gap-2">
@@ -857,8 +861,17 @@ function CTASection() {
           >
             {t("home.cta.title1")}
             <br />
-            <span className="relative inline-block text-[#f39c12]">
-              CARFORFAR
+            <span className="relative inline-flex items-center">
+              <img
+                src="/logo.png"
+                alt="CARFORFAR"
+                className="h-36 md:h-40 w-auto object-contain dark:hidden"
+              />
+              <img
+                src="/logo-dark.png"
+                alt="CARFORFAR"
+                className="h-36 md:h-40 w-auto object-contain hidden dark:block"
+              />
               <motion.span
                 className="absolute -bottom-1 left-0 right-0 h-2 bg-[#f39c12]/20 rounded-full"
                 initial={{ scaleX: 0 }}
@@ -1099,28 +1112,25 @@ function AboutSection() {
           >
             {/* Subtle gradient bg */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#f7f7fa] to-white dark:from-[#0f1729] dark:to-[#0b1121] opacity-60 dark:opacity-100" />
-            <div className="text-center relative z-10">
-              <motion.div
-                animate={prefersReducedMotion ? {} : { y: [0, -8, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              >
-                <svg width="260" height="170" viewBox="0 0 38 28" fill="none" className="mx-auto scale-[4]">
-                  <path d="M4 20 C10 8, 28 8, 34 20" stroke="#1f4276" strokeWidth="3" fill="none" strokeLinecap="round" className="dark:stroke-[#D5DEEF]" />
-                  <circle cx="10" cy="21" r="3" fill="#1f4276" className="dark:fill-[#D5DEEF]" />
-                  <circle cx="28" cy="21" r="3" fill="#1f4276" className="dark:fill-[#D5DEEF]" />
-                  <motion.path
-                    d="M6 14 L32 14"
-                    stroke="#f39c12"
-                    strokeWidth="1.5"
-                    strokeDasharray="3 2"
-                    animate={prefersReducedMotion ? { strokeDashoffset: 0 } : { strokeDashoffset: [0, 20, 0] }}
-                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                  />
-                </svg>
-              </motion.div>
-              <div className="mt-14 text-[42px] font-black tracking-[-0.04em] text-[#1f4276] dark:text-[#D5DEEF]">
-                CAR<span className="text-[#f39c12]">FOR</span>FAR
-              </div>
+            <div className="text-center relative z-10 p-8">
+              <motion.img
+                src="/about-logo.png"
+                alt="CARFORFAR"
+                className="w-full max-w-[420px] h-auto object-contain mx-auto dark:hidden"
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              />
+              <motion.img
+                src="/about-logo-dark.png"
+                alt="CARFORFAR"
+                className="w-full max-w-[420px] h-auto object-contain mx-auto hidden dark:block"
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              />
             </div>
           </motion.div>
         </motion.div>
@@ -1138,7 +1148,7 @@ function DarkModeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => voi
       className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${
         dark
           ? "bg-[#1e293b] text-[#f39c12] border border-[#f39c12]/20 hover:bg-[#1e293b]/80"
-          : "bg-white/10 text-white border border-white/20 hover:bg-white/20"
+          : "bg-[#D5DEEF] text-[#395886] border border-[#395886]/10 hover:bg-[#b8c7db] shadow-sm"
       }`}
       aria-label={dark ? "Activer le mode clair" : "Activer le mode sombre"}
     >

@@ -182,9 +182,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-lg bg-[#395886] flex items-center justify-center text-white text-sm font-black">
-              LA
-            </div>
+            <img
+              src="/logo.png"
+              alt="CARFORFAR logo"
+              className="h-28 w-auto object-contain dark:hidden"
+            />
+            <img
+              src="/logo-dark.png"
+              alt="CARFORFAR logo"
+              className="h-28 w-auto object-contain hidden dark:block"
+            />
             <div className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</div>
           </div>
 

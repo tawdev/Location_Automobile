@@ -169,9 +169,12 @@ export default function HomeMap() {
 
       const marker = L.marker([LAT, LNG], { icon: MarkerIcon }).addTo(map);
 
+      const isDark = document.documentElement.classList.contains("dark");
+      const logoSrc = isDark ? "/logo-dark.png" : "/logo.png";
+
       marker.bindPopup(`
         <div style="font-family:system-ui,sans-serif;min-width:180px">
-          <div style="font-size:17px;font-weight:800;color:#395886;letter-spacing:-0.01em">CARFORFAR</div>
+          <img src="${logoSrc}" alt="CARFORFAR" style="height:96px;width:auto;object-fit:contain;display:block" />
           <div style="font-size:12px;color:#638ECB;font-weight:600;margin:2px 0 8px">${t("home.badge")}</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#395886">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#395886" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
