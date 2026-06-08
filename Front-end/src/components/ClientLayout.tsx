@@ -16,33 +16,20 @@ function Logo({ onClick }: { onClick: () => void }) {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="flex items-center gap-2.5 cursor-pointer group"
+      className="flex items-center cursor-pointer group"
       onClick={onClick}
     >
-      <div className="relative">
-        <motion.div
-          className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#395886] to-[#1d3560] flex items-center justify-center shadow-lg shadow-[#395886]/20 group-hover:shadow-[#395886]/30 transition-shadow"
-          whileHover={{ scale: 1.05, rotate: -3 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <svg width="22" height="16" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M10 16L30 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-            <circle cx="12" cy="18" r="3" fill="white" stroke="white" strokeWidth="1.5" />
-            <circle cx="28" cy="18" r="3" fill="white" stroke="white" strokeWidth="1.5" />
-            <path d="M18 10L25 10L27 16" stroke="white" strokeWidth="2" fill="none" />
-          </svg>
-        </motion.div>
-        <motion.div
-          className="absolute -inset-1 rounded-xl bg-gradient-to-br from-[#638ECB]/20 to-[#395886]/20 blur-md -z-10"
-          animate={{ opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      <motion.div
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.98 }}
+        className="flex items-center justify-center"
+      >
+        <img
+          src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
+          alt="CARFORFAR logo"
+          className="h-9 sm:h-10 w-auto object-contain select-none"
         />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[#395886] dark:text-[#D5DEEF] font-black italic tracking-[0.15em] text-sm leading-none">CARFORFAR</span>
-        <span className="text-[10px] font-bold text-[#638ECB]/60 dark:text-[#94A3B8]/60 tracking-[0.2em] uppercase leading-none mt-0.5">Location</span>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -261,30 +248,30 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <div className="flex-1">
               <Logo onClick={() => router.push("/vehicles")} />
               <p className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 mt-4 max-w-xs leading-relaxed">
-                Service premium de location de véhicules à Marrakech. Conduisez le luxe, conduisez en toute confiance.
+                {t("footer.client_description")}
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8 flex-[2]">
               <div>
-                <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">Société</h4>
+                <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.company")}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {["À propos", "Carrières", "Presse", "Blog"].map((l) => (
+                  {[t("footer.about"), t("footer.careers"), t("footer.press"), t("footer.blog")].map((l) => (
                     <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
                   ))}
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">Assistance</h4>
+                <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.support")}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {["Centre d'aide", "Nous contacter", "FAQ", "Annulation"].map((l) => (
+                  {[t("footer.help_center"), t("footer.contact_us"), t("footer.faq"), t("footer.cancellation")].map((l) => (
                     <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
                   ))}
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">Mentions légales</h4>
+                <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.legal")}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {["Politique de confidentialité", "Conditions d'utilisation", "Assurance"].map((l) => (
+                  {[t("footer.privacy"), t("footer.terms"), t("footer.insurance")].map((l) => (
                     <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
                   ))}
                 </div>
@@ -293,7 +280,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           </div>
           <div className="mt-10 pt-8 border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-xs font-semibold text-[#638ECB]/50 dark:text-[#94A3B8]/50">
-              &copy; {new Date().getFullYear()} CARFORFAR. Tous droits réservés.
+              &copy; {new Date().getFullYear()} CARFORFAR. {t("footer.rights")}
             </p>
           </div>
         </div>

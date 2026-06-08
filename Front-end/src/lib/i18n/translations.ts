@@ -141,6 +141,8 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "vehicle.continue_browsing": { en: "Continue Browsing", fr: "Continuer la navigation", ar: "مواصلة التصفح" },
   "vehicle.km_included": { en: "Mileage included:", fr: "Kilométrage inclus :", ar: "عدد الكيلومترات المشمولة:" },
   "vehicle.km_detail": { en: "Beyond that, an additional fee of {amount} applies.", fr: "Au-delà, des frais supplémentaires de {amount} s'appliquent.", ar: "بعد ذلك، يتم تطبيق رسوم إضافية قدرها {amount}." },
+  "vehicle.air_conditioner": { en: "Air Conditioner", fr: "Climatisation", ar: "مكيف الهواء" },
+  "vehicle.gps": { en: "GPS", fr: "GPS", ar: "نظام تحديد المواقع" },
 
   // ── Reservations / MyReservations ──
   "reservations.title": { en: "My Reservations", fr: "Mes Réservations", ar: "حجوزاتي" },
@@ -314,6 +316,18 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "footer.support": { en: "Support", fr: "Assistance", ar: "الدعم" },
   "footer.legal": { en: "Legal", fr: "Mentions légales", ar: "الإشعارات القانونية" },
   "footer.description": { en: "Luxury car rental in Marrakech. Drive excellence with CARFORFAR.", fr: "Location de voitures de luxe à Marrakech. Conduisez l'excellence avec CARFORFAR.", ar: "تأجير السيارات الفاخرة في مراكش. قد التميز مع كارفورفار." },
+  "footer.client_description": { en: "Premium vehicle rental service in Marrakech. Drive luxury, drive with confidence.", fr: "Service premium de location de véhicules à Marrakech. Conduisez le luxe, conduisez en toute confiance.", ar: "خدمة تأجير المركبات الفاخرة في مراكش. قد الفخامة، قد بثقة." },
+  "footer.about": { en: "About", fr: "À propos", ar: "حول" },
+  "footer.careers": { en: "Careers", fr: "Carrières", ar: "الوظائف" },
+  "footer.press": { en: "Press", fr: "Presse", ar: "الصحافة" },
+  "footer.blog": { en: "Blog", fr: "Blog", ar: "المدونة" },
+  "footer.help_center": { en: "Help Center", fr: "Centre d'aide", ar: "مركز المساعدة" },
+  "footer.contact_us": { en: "Contact Us", fr: "Nous contacter", ar: "اتصل بنا" },
+  "footer.faq": { en: "FAQ", fr: "FAQ", ar: "الأسئلة الشائعة" },
+  "footer.cancellation": { en: "Cancellation", fr: "Annulation", ar: "الإلغاء" },
+  "footer.privacy": { en: "Privacy Policy", fr: "Politique de confidentialité", ar: "سياسة الخصوصية" },
+  "footer.terms": { en: "Terms of Use", fr: "Conditions d'utilisation", ar: "شروط الاستخدام" },
+  "footer.insurance": { en: "Insurance", fr: "Assurance", ar: "التأمين" },
   "footer.rights": { en: "All rights reserved.", fr: "Tous droits réservés.", ar: "جميع الحقوق محفوظة." },
 
   // ── Guard / Loading ──
@@ -527,6 +541,9 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin.modal_close": { en: "Close modal", fr: "Fermer la fenêtre", ar: "إغلاق النافذة" },
   "admin.edit_category_aria": { en: "Edit category", fr: "Modifier la catégorie", ar: "تعديل الفئة" },
   "admin.delete_category_aria": { en: "Delete category", fr: "Supprimer la catégorie", ar: "حذف الفئة" },
+  "admin.all_marques": { en: "All brands", fr: "Toutes les marques", ar: "جميع العلامات التجارية" },
+  "admin.filter": { en: "Filter", fr: "Filtrer", ar: "تصفية" },
+  "admin.clear_filter": { en: "Clear filter", fr: "Effacer le filtre", ar: "مسح التصفية" },
 
   // ── Errors (API) ──
   "error.cin_missing": { en: "Please add your CIN (front and back) to your profile before booking.", fr: "Veuillez ajouter votre CIN (recto et verso) dans votre profil avant de réserver.", ar: "يرجى إضافة بطاقة التعريف الوطنية (الوجه والخلف) إلى ملفك الشخصي قبل الحجز." },

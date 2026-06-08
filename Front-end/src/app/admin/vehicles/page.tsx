@@ -268,6 +268,7 @@ function VehicleCreateEditModal({
   const [occupants, setOccupants] = useState("");
   const [airConditioner, setAirConditioner] = useState(false);
   const [gps, setGps] = useState(false);
+  const [order, setOrder] = useState<number>(0);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -290,6 +291,7 @@ function VehicleCreateEditModal({
     setOccupants(initial?.Occupants ?? "");
     setAirConditioner(initial?.air_conditioner ?? false);
     setGps(initial?.gps ?? false);
+    setOrder(initial?.order ?? 0);
     setImagesFiles([]);
     setUploadError(null);
     setPreviewUrls([]);
@@ -390,6 +392,7 @@ function VehicleCreateEditModal({
         Occupants: occupants.trim(),
         air_conditioner: airConditioner,
         gps: gps,
+        order: order,
       },
       allFiles,
       deletedImageIds.length > 0 ? deletedImageIds : undefined
@@ -556,6 +559,18 @@ function VehicleCreateEditModal({
                 />
                 <span className="text-xs font-bold text-[#395886] uppercase tracking-wider">GPS</span>
               </label>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Ordre d'affichage</label>
+              <input
+                type="number"
+                min={0}
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                placeholder="ex. 1"
+                value={order}
+                onChange={(e) => setOrder(Number(e.target.value))}
+              />
             </div>
 
             {/* Existing Pictures (edit mode) */}
@@ -907,7 +922,7 @@ export default function AdminVehiclesPage() {
       result = result.filter((v) => v.Occupants === filters.Occupants);
     }
 
-    setVehicles(result);
+    setVehicles(result.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
   }
 
   async function loadCategories() {
@@ -1138,7 +1153,7 @@ export default function AdminVehiclesPage() {
                 {t("admin.vehicle_list_title")}
               </h1>
               <p className="text-xs font-semibold text-[#638ECB] mt-0.5">
-                {t("admin.vehicle_count", { count: vehicles.length })}
+                {t("admin.vehicle_count", { count: String(vehicles.length) })}
               </p>
             </div>
 

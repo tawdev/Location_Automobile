@@ -13,7 +13,7 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures', 'category')->latest()->get();
+        return Vehicle::with('pictures', 'category')->orderBy('order', 'asc')->get();
     }
 
     public function getById($id)
@@ -145,7 +145,7 @@ class VehicleService
             });
         });
 
-        $Vehicles = $query->with('pictures', 'category')->get();
+        $Vehicles = $query->with('pictures', 'category')->orderBy('order', 'asc')->get();
         
         return $Vehicles;
 

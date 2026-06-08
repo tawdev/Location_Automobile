@@ -32,6 +32,7 @@ function AdminVehicleForm({
   const [deviceId, setDeviceId] = useState(initial?.device_id ?? "");
   const [airConditioner, setAirConditioner] = useState(initial?.air_conditioner ?? false);
   const [gps, setGps] = useState(initial?.gps ?? false);
+  const [order, setOrder] = useState<number>(initial?.order ?? 0);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const { t } = useI18n();
 
@@ -71,6 +72,7 @@ function AdminVehicleForm({
             device_id: deviceId.trim() || undefined,
             air_conditioner: airConditioner,
             gps: gps,
+            order: order,
             images: undefined,
           },
           imagesFiles
@@ -220,6 +222,18 @@ function AdminVehicleForm({
             <span className="font-bold">GPS</span>
           </label>
         </div>
+
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">Ordre d'affichage</span>
+          <input
+            className="border-2 border-black p-2"
+            type="number"
+            min={0}
+            value={order}
+            onChange={(e) => setOrder(Number(e.target.value))}
+            placeholder="ex. 1"
+          />
+        </label>
 
         <div className="flex flex-col gap-2">
           <span className="font-bold">Images (optionnel)</span>
