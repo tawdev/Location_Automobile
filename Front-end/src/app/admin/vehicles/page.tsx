@@ -1153,7 +1153,7 @@ export default function AdminVehiclesPage() {
                 {t("admin.vehicle_list_title")}
               </h1>
               <p className="text-xs font-semibold text-[#638ECB] mt-0.5">
-                {t("admin.vehicle_count", { count: vehicles.length })}
+                {t("admin.vehicle_count", { count: String(vehicles.length) })}
               </p>
             </div>
 

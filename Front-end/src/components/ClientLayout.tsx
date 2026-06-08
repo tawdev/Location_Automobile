@@ -25,9 +25,14 @@ function Logo({ onClick }: { onClick: () => void }) {
         className="flex items-center justify-center"
       >
         <img
-          src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
+          src="/logo.png"
           alt="CARFORFAR logo"
-          className="h-9 sm:h-10 w-auto object-contain select-none"
+          className="h-28 sm:h-36 w-auto object-contain select-none dark:hidden"
+        />
+        <img
+          src="/logo-dark.png"
+          alt="CARFORFAR logo"
+          className="h-28 sm:h-36 w-auto object-contain select-none hidden dark:block"
         />
       </motion.div>
     </motion.div>

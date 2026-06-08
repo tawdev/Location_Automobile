@@ -17,17 +17,18 @@ export function SocialButton({ label, onClick, icon, disabled }: SocialButtonPro
       onClick={onClick}
       disabled={disabled}
       className={[
-        "w-full h-[46px]",
-        "rounded-[10px]",
-        "border border-[#D5DEEF] dark:border-[#475569]",
-        "bg-white/90 dark:bg-[#1e293b]/80",
-        "backdrop-blur-sm",
-        "shadow-[0_1px_0_rgba(57,88,134,0.06)]",
+        "w-full h-[48px]",
+        "rounded-[12px]",
+        "border border-[#D5DEEF]/50 dark:border-[#475569]/40",
+        "bg-white/70 dark:bg-[#1e293b]/60",
+        "backdrop-blur-md",
+        "shadow-[0_2px_8px_rgba(57,88,134,0.06)]",
         "text-[#395886] dark:text-[#D5DEEF]",
         "font-semibold",
-        "transition-transform transition-colors",
-        "hover:translate-y-[-1px] hover:bg-white dark:hover:bg-[#1e293b]",
-        "disabled:opacity-50 disabled:hover:translate-y-0",
+        "transition-all duration-300 ease-out",
+        "hover:translate-y-[-2px] hover:shadow-[0_8px_24px_rgba(57,88,134,0.12)] hover:bg-white/90 dark:hover:bg-[#1e293b]/80",
+        "active:translate-y-0 active:shadow-[0_2px_8px_rgba(57,88,134,0.06)]",
+        "disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[0_2px_8px_rgba(57,88,134,0.06)]",
       ].join(" ")}
     >
       <span className="inline-flex items-center justify-center gap-3">
@@ -39,7 +40,6 @@ export function SocialButton({ label, onClick, icon, disabled }: SocialButtonPro
 }
 
 export function GoogleIcon() {
-  // Simple Google “G” glyph (replace later if needed)
   return (
     <svg
       width="20"

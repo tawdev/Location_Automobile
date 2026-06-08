@@ -36,7 +36,7 @@ export function AuthLayout({
       />
       {/* Soft wash (lighter to preserve sky clarity) */}
       <div
-        className="absolute inset-0 bg-gradient-to-r from-[#F0F3FA]/0 via-[#F0F3FA]/15 to-[#F0F3FA]/30"
+        className="absolute inset-0 bg-gradient-to-r from-[#F0F3FA]/0 via-[#F0F3FA]/5 to-[#F0F3FA]/10"
         aria-hidden="true"
       />
 
