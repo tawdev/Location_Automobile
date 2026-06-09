@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun } from "lucide-react";
+import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House } from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,9 +25,14 @@ function Logo({ onClick }: { onClick: () => void }) {
         className="flex items-center justify-center"
       >
         <img
-          src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
+          src="/logo.png"
           alt="CARFORFAR logo"
-          className="h-9 sm:h-10 w-auto object-contain select-none"
+          className="h-28 sm:h-36 w-auto object-contain select-none dark:hidden"
+        />
+        <img
+          src="/logo-dark.png"
+          alt="CARFORFAR logo"
+          className="h-28 sm:h-36 w-auto object-contain select-none hidden dark:block"
         />
       </motion.div>
     </motion.div>
@@ -88,6 +93,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const isAdmin = status === "authenticated" && user?.role_id === 1;
 
   const NAV_ITEMS = [
+    { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
     { label: t("nav.history"), href: "/MyReservations", icon: Clock },
     { label: t("nav.rules"), href: "/regles", icon: Info },
@@ -127,7 +133,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
-          <Logo onClick={() => router.push("/vehicles")} />
+          <div className="-ml-6">
+            <Logo onClick={() => router.push("/vehicles")} />
+          </div>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
@@ -139,7 +147,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 onClick={() => router.push(item.href)}
               />
             ))}
-            <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
             <LanguageSwitcher />
             <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
             <motion.button
@@ -151,7 +158,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   ? "bg-[#1e293b] text-[#f39c12] border border-[#f39c12]/20"
                   : "bg-[#F0F3FA] text-[#395886] border border-[#D5DEEF]/40 hover:bg-[#e4e8f0]"
               }`}
-              aria-label={dark ? "Activer le mode clair" : "Activer le mode sombre"}
+              aria-label={dark ? t("theme.light") : t("theme.dark")}
             >
               {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </motion.button>
@@ -220,6 +227,38 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </button>
                 ))}
                 <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
+
+                {/* Footer links in mobile menu */}
+                <div className="px-4 py-3">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.company")}</p>
+                      <div className="flex flex-col gap-1.5">
+                        {[t("footer.about"), t("footer.careers"), t("footer.press"), t("footer.blog")].map((l) => (
+                          <a key={l} href="#" className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.support")}</p>
+                      <div className="flex flex-col gap-1.5">
+                        {[t("footer.help_center"), t("footer.contact_us"), t("footer.faq"), t("footer.cancellation")].map((l) => (
+                          <a key={l} href="#" className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.legal")}</p>
+                      <div className="flex flex-col gap-1.5">
+                        {[{ label: t("footer.privacy"), href: "/privacy" }, { label: t("footer.terms"), href: "/terms" }, { label: t("footer.insurance"), href: "/insurance" }].map((l) => (
+                          <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
                 <div className="flex items-center justify-center py-2">
                   <LanguageSwitcher />
                 </div>
@@ -246,7 +285,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex flex-col lg:flex-row gap-10">
             <div className="flex-1">
-              <Logo onClick={() => router.push("/vehicles")} />
+          <div className="-ml-4">
+            <Logo onClick={() => router.push("/vehicles")} />
+          </div>
               <p className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 mt-4 max-w-xs leading-relaxed">
                 {t("footer.client_description")}
               </p>
@@ -271,8 +312,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <div>
                 <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.legal")}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {[t("footer.privacy"), t("footer.terms"), t("footer.insurance")].map((l) => (
-                    <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
+                  {[{ label: t("footer.privacy"), href: "/privacy" }, { label: t("footer.terms"), href: "/terms" }, { label: t("footer.insurance"), href: "/insurance" }].map((l) => (
+                    <a key={l.label} href={l.href} className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                   ))}
                 </div>
               </div>

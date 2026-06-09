@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useSettings } from "@/lib/SettingsContext";
 import { getAuthToken } from "@/lib/tokenStorage";
 
 
@@ -72,14 +73,18 @@ const steps = [
 
 
 
-function CarLogo({ className }: { className?: string; dark?: boolean }) {
+function CarLogo({ className, dark: forceDark }: { className?: string; dark?: boolean }) {
+  if (forceDark) {
+    return (
+      <div className={`flex items-center ${className ?? ""}`}>
+        <img src="/logo-dark.png" alt="CARFORFAR logo" className="h-36 w-auto object-contain select-none" />
+      </div>
+    );
+  }
   return (
     <div className={`flex items-center ${className ?? ""}`}>
-      <img
-        src="/omnis-image-69cc2115-a33d-47eb-b371-c7b5386d61d3.jpeg"
-        alt="CARFORFAR logo"
-        className="h-10 w-auto object-contain select-none"
-      />
+      <img src="/logo.png" alt="CARFORFAR logo" className="h-36 w-auto object-contain select-none dark:hidden" />
+      <img src="/logo-dark.png" alt="CARFORFAR logo" className="h-36 w-auto object-contain select-none hidden dark:block" />
     </div>
   );
 }
@@ -107,7 +112,7 @@ function NavBar({ dark, onToggleDark }: { dark: boolean; onToggleDark: () => voi
         }`}
       >
         <div className="max-w-6xl mx-auto px-8 h-[72px] flex items-center justify-between">
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="cursor-pointer -ml-2" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <CarLogo dark={!scrolled && !dark} />
           </motion.div>
           <div className="flex items-center gap-2">
@@ -546,11 +551,25 @@ function StatsSection() {
   );
 }
 
+function VehicleFeature({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <motion.span
+      className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#638ECB] dark:text-[#94A3B8]"
+      whileHover={{ scale: 1.1, color: "#f39c12" }}
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+    >
+      <span className="shrink-0">{icon}</span>
+      {label}
+    </motion.span>
+  );
+}
+
 function VehiclesMarquee() {
   const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useI18n();
+  const prefersReduced = useReducedMotion();
 
   useEffect(() => {
     listVehicles()
@@ -562,16 +581,15 @@ function VehiclesMarquee() {
 
   return (
     <section className="bg-white dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
-      {/* Subtle radial gradient */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#638ECB]/5 dark:bg-[#638ECB]/[0.03] rounded-full blur-3xl pointer-events-none" />
-      <div className="max-w-6xl mx-auto mb-14 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center"
-        >
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="max-w-6xl mx-auto mb-14 relative z-10"
+      >
+        <div className="text-center">
           <span className="inline-flex items-center gap-2 text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase bg-[#f39c12]/10 px-4 py-2 rounded-full">
             {t("home.marquee.badge")}
           </span>
@@ -581,73 +599,187 @@ function VehiclesMarquee() {
           <p className="text-[#638ECB] dark:text-[#94A3B8] text-lg mt-4 max-w-xl mx-auto">
             {t("home.marquee.subtitle")}
           </p>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
       {loading ? (
         <div className="flex gap-6 justify-center">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="shrink-0 w-[300px] rounded-3xl overflow-hidden">
-              <div className="h-44 bg-[#F0F3FA] dark:bg-[#1e293b] animate-pulse" />
+            <div key={i} className="shrink-0 w-[380px] rounded-3xl overflow-hidden">
+              <div className="h-64 bg-[#F0F3FA] dark:bg-[#1e293b] animate-pulse" />
               <div className="p-5 space-y-3">
                 <div className="h-5 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-lg animate-pulse w-3/4" />
-                <div className="h-4 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-lg animate-pulse w-1/4" />
-                <div className="h-6 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-lg animate-pulse w-1/2" />
+                <div className="h-4 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-lg animate-pulse w-2/3" />
+                <div className="h-4 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-lg animate-pulse w-1/2" />
               </div>
             </div>
           ))}
         </div>
       ) : vehicles.length > 0 && (
-        <div
-          className="flex gap-6 w-max"
-          style={{ animation: "marquee 40s linear infinite" }}
+        <motion.div
+          initial={{ opacity: 0, x: -60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          {duplicated.map((v, i) => {
-            const imgSrc = v.pictures?.[0]
-              ? vehicleImageUrl(v.pictures[0].path)
-              : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80";
-            return (
-              <motion.button
-                key={`${v.id}-${i}`}
-                whileHover={{ scale: 1.03, y: -6 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  if (getAuthToken()) {
-                     router.push(`/vehicles/${v.id}`);
-                  } else {
-                    localStorage.setItem("pendingVehicleRedirect", `/vehicles/${v.id}`);
-                    router.push(`/login?redirect=/vehicles/${v.id}`);
-                  }
-                }}
-                className="shrink-0 w-[300px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_50px_rgba(57,88,134,0.15)] dark:hover:shadow-[0_15px_50px_rgba(0,0,0,0.4)] transition-all duration-500 group cursor-pointer"
-              >
-                <div className="h-44 bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden relative">
-                  <img
-                    src={imgSrc}
-                    alt={`${v.marque} ${v.model}`}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-2">
-                     <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300">
-                      {v.marque} {v.model}
-                    </h3>
-                    <span className="text-xs font-bold text-[#f39c12] bg-[#f39c12]/10 px-2.5 py-1 rounded-full transition-all duration-300 group-hover:bg-[#f39c12] group-hover:text-white">
-                      {v.fuelType}
-                    </span>
+          <div
+            className="flex gap-6 w-max pb-4"
+            style={{
+              animation: prefersReduced ? "none" : "marquee 60s linear infinite",
+              animationPlayState: "running",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.animationPlayState = "paused"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.animationPlayState = "running"; }}
+          >
+            {duplicated.map((v, i) => {
+              const imgSrc = v.pictures?.[0]
+                ? vehicleImageUrl(v.pictures[0].path)
+                : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80";
+
+              const features: { show: boolean; icon: React.ReactNode; label: string }[] = [
+                {
+                  show: v.air_conditioner === true,
+                  icon: (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v8" />
+                      <path d="M4 14h16" /><rect x="4" y="11" width="16" height="3" rx="1" />
+                    </svg>
+                  ),
+                  label: "Climatisation",
+                },
+                {
+                  show: v.gps === true,
+                  icon: (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="10" r="3" /><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z" />
+                    </svg>
+                  ),
+                  label: "GPS",
+                },
+                {
+                  show: true,
+                  icon: (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  ),
+                  label: `${v.Occupants} places`,
+                },
+                {
+                  show: true,
+                  icon: (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+                    </svg>
+                  ),
+                  label: `${v.km.toLocaleString()} km`,
+                },
+              ];
+
+              return (
+                <motion.button
+                  key={`${v.id}-${i}`}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.05 * (i % vehicles.length) }}
+                  whileHover={{ scale: 1.03, y: -10 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    if (getAuthToken()) {
+                       router.push(`/vehicles/${v.id}`);
+                    } else {
+                      localStorage.setItem("pendingVehicleRedirect", `/vehicles/${v.id}`);
+                      router.push(`/login?redirect=/vehicles/${v.id}`);
+                    }
+                  }}
+                  className="shrink-0 w-[380px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_25px_70px_rgba(57,88,134,0.2)] dark:hover:shadow-[0_25px_70px_rgba(0,0,0,0.55)] transition-all duration-500 group cursor-pointer"
+                >
+                  <div className="h-64 bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden relative">
+                    <motion.img
+                      src={imgSrc}
+                      alt={`${v.marque} ${v.model}`}
+                      className="w-full h-full object-cover"
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.12 }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                      <motion.span
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-[11px] font-bold text-white bg-[#395886]/80 dark:bg-[#0f1729]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
+                      >
+                        {v.year}
+                      </motion.span>
+                      <motion.span
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-[11px] font-bold text-white bg-[#f39c12]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
+                      >
+                        {v.fuelType}
+                      </motion.span>
+                      {v.category && (
+                        <motion.span
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.25 }}
+                          className="text-[11px] font-bold text-white bg-[#638ECB]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
+                        >
+                          {v.category.name}
+                        </motion.span>
+                      )}
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+                      <div className="flex items-baseline gap-1 text-white drop-shadow-lg">
+                        <motion.span
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="text-2xl font-black"
+                        >
+                          {v.pricePerDay.toLocaleString()}
+                        </motion.span>
+                        <span className="text-sm font-semibold opacity-90">DH / jour</span>
+                      </div>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="bg-white/20 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/30 opacity-0 group-hover:opacity-100 transition-all duration-400"
+                      >
+                        Réserver →
+                      </motion.div>
+                    </div>
                   </div>
-                  <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] mb-3">{v.year}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-black text-[#395886] dark:text-[#f39c12]">{v.pricePerDay.toLocaleString()}</span>
-                    <span className="text-sm text-[#638ECB] dark:text-[#94A3B8] font-medium">DH{t("vehicles.per_day")}</span>
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300 leading-tight">
+                        {v.marque} {v.model}
+                      </h3>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                      {features.filter((f) => f.show).map((f, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.15 + idx * 0.05 }}
+                        >
+                          <VehicleFeature icon={f.icon} label={f.label} />
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>
       )}
 
       <style>{`
@@ -729,8 +861,17 @@ function CTASection() {
           >
             {t("home.cta.title1")}
             <br />
-            <span className="relative inline-block text-[#f39c12]">
-              CARFORFAR
+            <span className="relative inline-flex items-center">
+              <img
+                src="/logo.png"
+                alt="CARFORFAR"
+                className="h-36 md:h-40 w-auto object-contain dark:hidden"
+              />
+              <img
+                src="/logo-dark.png"
+                alt="CARFORFAR"
+                className="h-36 md:h-40 w-auto object-contain hidden dark:block"
+              />
               <motion.span
                 className="absolute -bottom-1 left-0 right-0 h-2 bg-[#f39c12]/20 rounded-full"
                 initial={{ scaleX: 0 }}
@@ -796,6 +937,7 @@ function CTASection() {
 
 function FooterSection() {
   const { t } = useI18n();
+  const { settings } = useSettings();
 
   return (
     <footer className="bg-[#395886] dark:bg-[#050a14] px-8 py-16 relative overflow-hidden transition-colors duration-500">
@@ -831,14 +973,15 @@ function FooterSection() {
                 title: t("footer.legal"),
                 links: [
                   { label: t("rules.title"), href: "/regles" },
+                  { label: t("footer.privacy"), href: "/privacy" },
                 ],
               },
               {
                 title: "Contact",
                 links: [
-                  { label: "contact@carforfar.ma", href: "mailto:contact@carforfar.ma" },
-                  { label: "+212 5XX XX XX XX", href: "tel:+2125XXXXXXXX" },
-                  { label: t("home.map.location_text"), href: "#" },
+                  { label: settings.email || "contact@carforfar.ma", href: `mailto:${settings.email || "contact@carforfar.ma"}` },
+                  { label: settings.phone || "+212 5XX XX XX XX", href: `tel:${settings.phone?.replace(/\s/g, "") || "+2125XXXXXXXX"}` },
+                  { label: settings.address || t("home.map.location_text"), href: "#" },
                 ],
               },
             ].map((col, ci) => (
@@ -970,28 +1113,25 @@ function AboutSection() {
           >
             {/* Subtle gradient bg */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#f7f7fa] to-white dark:from-[#0f1729] dark:to-[#0b1121] opacity-60 dark:opacity-100" />
-            <div className="text-center relative z-10">
-              <motion.div
-                animate={prefersReducedMotion ? {} : { y: [0, -8, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              >
-                <svg width="260" height="170" viewBox="0 0 38 28" fill="none" className="mx-auto scale-[4]">
-                  <path d="M4 20 C10 8, 28 8, 34 20" stroke="#1f4276" strokeWidth="3" fill="none" strokeLinecap="round" className="dark:stroke-[#D5DEEF]" />
-                  <circle cx="10" cy="21" r="3" fill="#1f4276" className="dark:fill-[#D5DEEF]" />
-                  <circle cx="28" cy="21" r="3" fill="#1f4276" className="dark:fill-[#D5DEEF]" />
-                  <motion.path
-                    d="M6 14 L32 14"
-                    stroke="#f39c12"
-                    strokeWidth="1.5"
-                    strokeDasharray="3 2"
-                    animate={prefersReducedMotion ? { strokeDashoffset: 0 } : { strokeDashoffset: [0, 20, 0] }}
-                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                  />
-                </svg>
-              </motion.div>
-              <div className="mt-14 text-[42px] font-black tracking-[-0.04em] text-[#1f4276] dark:text-[#D5DEEF]">
-                CAR<span className="text-[#f39c12]">FOR</span>FAR
-              </div>
+            <div className="text-center relative z-10 p-8">
+              <motion.img
+                src="/about-logo.png"
+                alt="CARFORFAR"
+                className="w-full max-w-[420px] h-auto object-contain mx-auto dark:hidden"
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              />
+              <motion.img
+                src="/about-logo-dark.png"
+                alt="CARFORFAR"
+                className="w-full max-w-[420px] h-auto object-contain mx-auto hidden dark:block"
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              />
             </div>
           </motion.div>
         </motion.div>
@@ -1009,7 +1149,7 @@ function DarkModeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => voi
       className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${
         dark
           ? "bg-[#1e293b] text-[#f39c12] border border-[#f39c12]/20 hover:bg-[#1e293b]/80"
-          : "bg-white/10 text-white border border-white/20 hover:bg-white/20"
+          : "bg-[#D5DEEF] text-[#395886] border border-[#395886]/10 hover:bg-[#b8c7db] shadow-sm"
       }`}
       aria-label={dark ? "Activer le mode clair" : "Activer le mode sombre"}
     >

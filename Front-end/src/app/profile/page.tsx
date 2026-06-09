@@ -129,13 +129,14 @@ function InputField({ icon: Icon, label, error, ...props }: {
 }
 
 function StatusBadge({ verified }: { verified: boolean }) {
+  const { t } = useI18n();
   return verified ? (
     <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-full px-4 py-2 shadow-sm">
-      <CheckCircle className="w-3.5 h-3.5" /> Tout est v&eacute;rifi&eacute;
+      <CheckCircle className="w-3.5 h-3.5" /> {t("profile.all_verified")}
     </span>
   ) : (
     <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 rounded-full px-4 py-2 shadow-sm">
-      <Fingerprint className="w-3.5 h-3.5" /> En attente
+      <Fingerprint className="w-3.5 h-3.5" /> {t("profile.pending")}
     </span>
   );
 }

@@ -10,6 +10,7 @@ import { getExtras } from "@/lib/extrasApi";
 import { vehicleImageUrl } from "@/lib/media";
 import type { Extra } from "@/lib/types";
 import { Upload, CheckCircle, X, User, Users, FileText, IdCard, Package } from "lucide-react";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type Choice = "one" | "two" | null;
 
@@ -36,6 +37,7 @@ export default function ReservationFlowModal({
 }: Props) {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
+  const { t } = useI18n();
 
   const [savedChoice, setSavedChoice] = useState<Choice>(defaultChoice ?? null);
   const [step, setStep] = useState<Step>(defaultChoice ? (defaultChoice === "one" ? "oneDriverUpload" : "twoDrivers") : "choose");
@@ -247,7 +249,7 @@ export default function ReservationFlowModal({
       >
         <div className="sticky top-0 bg-white border-b border-[#D5DEEF]/40 px-6 py-4 flex items-center justify-between z-10 rounded-t-[24px]">
           <div>
-            <h2 className="text-lg font-extrabold text-[#395886]">Réservation</h2>
+            <h2 className="text-lg font-extrabold text-[#395886]">{t("reserve_modal.title")}</h2>
             <p className="text-[11px] text-[#638ECB] font-semibold">{vehicleName}</p>
           </div>
           <button onClick={() => onClose(savedChoice)} className="w-8 h-8 rounded-full hover:bg-[#F0F3FA] flex items-center justify-center">
@@ -259,14 +261,15 @@ export default function ReservationFlowModal({
           <AnimatePresence mode="wait">
             {step === "choose" && (
               <motion.div key="choose" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4">
-                <p className="text-sm text-[#395886] font-semibold text-center mb-2">Combien de conducteurs ?</p>
+                <p className="text-sm text-[#395886] font-semibold text-center mb-2">{t("reserve_modal.drivers_question")}</p>
                 <button onClick={handleChooseOneDriver} className="w-full p-5 rounded-xl border-2 border-[#D5DEEF] hover:border-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-[#F0F3FA] flex items-center justify-center">
                     <User className="w-5 h-5 text-[#395886]" />
                   </div>
                   <div className="text-left">
-                    <div className="font-extrabold text-[#395886] text-sm">Un conducteur</div>
-                    <div className="text-[11px] text-[#638ECB] font-semibold">Conduite exclusive</div>
+                    <div className="font-extrabold text-[#395886] text-sm">{t("reserve_modal.one_driver")}</div>
+
+                    <div className="text-[11px] text-[#638ECB] font-semibold">{t("reserve_modal.one_driver_desc")}</div>
                   </div>
                 </button>
                 <button onClick={() => { setSavedChoice("two"); setStep("twoDrivers"); }} className="w-full p-5 rounded-xl border-2 border-[#D5DEEF] hover:border-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center gap-4">
@@ -274,8 +277,8 @@ export default function ReservationFlowModal({
                     <Users className="w-5 h-5 text-[#395886]" />
                   </div>
                   <div className="text-left">
-                    <div className="font-extrabold text-[#395886] text-sm">Deux conducteurs</div>
-                    <div className="text-[11px] text-[#638ECB] font-semibold">Partage de conduite</div>
+                    <div className="font-extrabold text-[#395886] text-sm">{t("reserve_modal.two_drivers")}</div>
+                    <div className="text-[11px] text-[#638ECB] font-semibold">{t("reserve_modal.two_drivers_desc")}</div>
                   </div>
                 </button>
               </motion.div>
@@ -284,7 +287,7 @@ export default function ReservationFlowModal({
             {step === "oneDriverUpload" && (
               <motion.div key="oneDriver" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
                 <p className="text-sm text-[#395886] font-semibold text-center">
-                  Vous devez fournir vos documents avant de réserver.
+                  {t("reserve_modal.documents_required")}
                 </p>
 
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
@@ -293,11 +296,11 @@ export default function ReservationFlowModal({
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <IdCard className="w-4 h-4 text-[#395886]" />
-                      <span className="text-[12px] font-bold text-[#395886]">CIN</span>
+                      <span className="text-[12px] font-bold text-[#395886]">{t("reserve_modal.cin")}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <FileUpload label="Recto" file={cinRecto} setFile={setCinRecto} inputRef={cinRectoRef} />
-                      <FileUpload label="Verso" file={cinVerso} setFile={setCinVerso} inputRef={cinVersoRef} />
+                      <FileUpload label={t("reserve_modal.front")} file={cinRecto} setFile={setCinRecto} inputRef={cinRectoRef} />
+                      <FileUpload label={t("reserve_modal.back")} file={cinVerso} setFile={setCinVerso} inputRef={cinVersoRef} />
                     </div>
                   </div>
                 )}
@@ -306,17 +309,17 @@ export default function ReservationFlowModal({
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-[#395886]" />
-                      <span className="text-[12px] font-bold text-[#395886]">Permis de conduire</span>
+                      <span className="text-[12px] font-bold text-[#395886]">{t("reserve_modal.drivers_license")}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <FileUpload label="Recto" file={permiRecto} setFile={setPermiRecto} inputRef={permiRectoRef} />
-                      <FileUpload label="Verso" file={permiVerso} setFile={setPermiVerso} inputRef={permiVersoRef} />
+                      <FileUpload label={t("reserve_modal.front")} file={permiRecto} setFile={setPermiRecto} inputRef={permiRectoRef} />
+                      <FileUpload label={t("reserve_modal.back")} file={permiVerso} setFile={setPermiVerso} inputRef={permiVersoRef} />
                     </div>
                   </div>
                 )}
 
                 <button onClick={handleUploadAndReserve} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity">
-                  Uploader et continuer
+                  {t("reserve_modal.upload_continue")}
                 </button>
               </motion.div>
             )}
@@ -324,7 +327,7 @@ export default function ReservationFlowModal({
             {step === "twoDrivers" && (
               <motion.div key="twoDrivers" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
                 <p className="text-sm text-[#395886] font-semibold text-center">
-                  Remplissez les informations des deux conducteurs.
+                  {t("reserve_modal.two_drivers_info")}
                 </p>
 
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
@@ -339,19 +342,19 @@ export default function ReservationFlowModal({
                     <div className="ml-6 border-l-2 border-[#D5DEEF] pl-4 flex flex-col gap-3">
                       {!userHasCin && (
                         <div>
-                          <span className="text-[10px] font-bold text-[#638ECB] uppercase">CIN</span>
+                          <span className="text-[10px] font-bold text-[#638ECB] uppercase">{t("reserve_modal.cin")}</span>
                           <div className="grid grid-cols-2 gap-2 mt-1">
-                            <FileUpload label="Recto" file={cinRecto} setFile={setCinRecto} inputRef={cinRectoRef} />
-                            <FileUpload label="Verso" file={cinVerso} setFile={setCinVerso} inputRef={cinVersoRef} />
+                            <FileUpload label={t("reserve_modal.front")} file={cinRecto} setFile={setCinRecto} inputRef={cinRectoRef} />
+                            <FileUpload label={t("reserve_modal.back")} file={cinVerso} setFile={setCinVerso} inputRef={cinVersoRef} />
                           </div>
                         </div>
                       )}
                       {!userHasPermi && (
                         <div>
-                          <span className="text-[10px] font-bold text-[#638ECB] uppercase">Permis</span>
+                          <span className="text-[10px] font-bold text-[#638ECB] uppercase">{t("reserve_modal.drivers_license")}</span>
                           <div className="grid grid-cols-2 gap-2 mt-1">
-                            <FileUpload label="Recto" file={permiRecto} setFile={setPermiRecto} inputRef={permiRectoRef} />
-                            <FileUpload label="Verso" file={permiVerso} setFile={setPermiVerso} inputRef={permiVersoRef} />
+                            <FileUpload label={t("reserve_modal.front")} file={permiRecto} setFile={setPermiRecto} inputRef={permiRectoRef} />
+                            <FileUpload label={t("reserve_modal.back")} file={permiVerso} setFile={setPermiVerso} inputRef={permiVersoRef} />
                           </div>
                         </div>
                       )}
@@ -362,11 +365,11 @@ export default function ReservationFlowModal({
                 <div className="border-t border-[#D5DEEF]/40 pt-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Users className="w-4 h-4 text-[#395886]" />
-                    <span className="text-[12px] font-bold text-[#395886]">Second conducteur</span>
+                    <span className="text-[12px] font-bold text-[#395886]">{t("reserve_modal.second_driver")}</span>
                   </div>
                   <div className="flex flex-col gap-3 ml-6 border-l-2 border-[#D5DEEF] pl-4">
                     <div>
-                      <label className="text-[10px] font-bold text-[#638ECB] uppercase block mb-1">Nom complet</label>
+                      <label className="text-[10px] font-bold text-[#638ECB] uppercase block mb-1">{t("reserve_modal.full_name")}</label>
                       <input
                         type="text"
                         value={driver2Name}
@@ -376,24 +379,24 @@ export default function ReservationFlowModal({
                       />
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-[#638ECB] uppercase">CIN</span>
+                      <span className="text-[10px] font-bold text-[#638ECB] uppercase">{t("reserve_modal.cin")}</span>
                       <div className="grid grid-cols-2 gap-2 mt-1">
-                        <FileUpload label="Recto" file={d2CinRecto} setFile={setD2CinRecto} inputRef={d2CinRectoRef} />
-                        <FileUpload label="Verso" file={d2CinVerso} setFile={setD2CinVerso} inputRef={d2CinVersoRef} />
+                        <FileUpload label={t("reserve_modal.front")} file={d2CinRecto} setFile={setD2CinRecto} inputRef={d2CinRectoRef} />
+                        <FileUpload label={t("reserve_modal.back")} file={d2CinVerso} setFile={setD2CinVerso} inputRef={d2CinVersoRef} />
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-[#638ECB] uppercase">Permis</span>
+                      <span className="text-[10px] font-bold text-[#638ECB] uppercase">{t("reserve_modal.drivers_license")}</span>
                       <div className="grid grid-cols-2 gap-2 mt-1">
-                        <FileUpload label="Recto" file={d2PermiRecto} setFile={setD2PermiRecto} inputRef={d2PermiRectoRef} />
-                        <FileUpload label="Verso" file={d2PermiVerso} setFile={setD2PermiVerso} inputRef={d2PermiVersoRef} />
+                        <FileUpload label={t("reserve_modal.front")} file={d2PermiRecto} setFile={setD2PermiRecto} inputRef={d2PermiRectoRef} />
+                        <FileUpload label={t("reserve_modal.back")} file={d2PermiVerso} setFile={setD2PermiVerso} inputRef={d2PermiVersoRef} />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <button onClick={handleTwoDriversSubmit} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity mt-2">
-                  Confirmer et choisir les extras
+                  {t("reserve_modal.confirm_extras")}
                 </button>
               </motion.div>
             )}
@@ -403,7 +406,7 @@ export default function ReservationFlowModal({
                 <div className="text-center">
                   <Package className="w-8 h-8 text-[#395886] mx-auto mb-2" />
                   <p className="text-sm text-[#395886] font-semibold">
-                    Souhaitez-vous ajouter des services supplémentaires à votre location ?
+                    {t("reserve_modal.extras_title")}
                   </p>
                 </div>
 
@@ -411,7 +414,7 @@ export default function ReservationFlowModal({
 
                 {extras.length === 0 ? (
                   <div className="text-center py-6 text-[#638ECB] font-semibold text-sm">
-                    Chargement des extras disponibles...
+                    {t("reserve_modal.extras_loading")}
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
@@ -471,8 +474,8 @@ export default function ReservationFlowModal({
                   className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity mt-2"
                 >
                   {selectedExtraIds.length === 0
-                    ? "Non merci, réserver"
-                    : "Confirmer et réserver"}
+                    ? t("reserve_modal.no_extras")
+                    : t("reserve_modal.confirm_reserve")}
                 </button>
               </motion.div>
             )}
@@ -480,7 +483,7 @@ export default function ReservationFlowModal({
             {step === "reserving" && (
               <motion.div key="reserving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4 py-8">
                 <div className="w-10 h-10 border-4 border-[#395886] border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm font-bold text-[#395886]">Traitement de votre réservation...</p>
+                <p className="text-sm font-bold text-[#395886]">{t("reserve_modal.reserving")}</p>
               </motion.div>
             )}
 
@@ -489,14 +492,14 @@ export default function ReservationFlowModal({
                 <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
                   <X className="w-7 h-7 text-red-500" />
                 </div>
-                <h3 className="text-lg font-extrabold text-[#395886]">Réservation échouée</h3>
+                <h3 className="text-lg font-extrabold text-[#395886]">{t("reserve_modal.failed")}</h3>
                 <p className="text-sm text-[#638ECB] text-center leading-relaxed">{error}</p>
                 <div className="w-full flex flex-col gap-2 mt-2">
                   <button
                     onClick={() => onClose(savedChoice)}
                     className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95"
                   >
-                    Modifier les dates
+                    {t("reserve_modal.modify_dates")}
                   </button>
                   <button
                     onClick={() => {
@@ -505,7 +508,7 @@ export default function ReservationFlowModal({
                     }}
                     className="w-full h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA]"
                   >
-                    Réessayer
+                    {t("reserve_modal.retry")}
                   </button>
                 </div>
               </motion.div>
@@ -516,16 +519,16 @@ export default function ReservationFlowModal({
                 <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-extrabold text-[#395886]">Réservation confirmée !</h3>
+                <h3 className="text-xl font-extrabold text-[#395886]">{t("reserve_modal.success")}</h3>
                 <p className="text-sm text-[#638ECB] text-center">
                   Votre {vehicleName} a été réservé avec succès.
                 </p>
                 <div className="w-full flex flex-col gap-2 mt-2">
                   <button onClick={() => { onSuccess(); router.push("/MyReservations"); }} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95">
-                    Voir mes réservations
+                    {t("reserve_modal.view_reservations")}
                   </button>
                   <button onClick={() => onClose(savedChoice)} className="w-full h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA]">
-                    Continuer à explorer
+                    {t("reserve_modal.continue_exploring")}
                   </button>
                 </div>
               </motion.div>

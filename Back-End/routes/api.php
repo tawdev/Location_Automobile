@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\ExtraController;
+use App\Http\Controllers\Api\Admin\SettingsController;
+use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +29,9 @@ Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
 Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('auth/verify-reset-code', [AuthController::class, 'verifyResetCode']);
 Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
+
+// Public settings
+Route::get('settings', [SettingsController::class, 'index']);
 
 // Public vehicle routes (no auth required)
 Route::get('Vehicles' , [VehicleController::class, 'index']);
@@ -86,6 +91,13 @@ Route::get ('/location/live/{deviceId}',    [LocationController::class, 'live'])
 Route::get ('/location/history/{deviceId}', [LocationController::class, 'history']);
 
 Route::apiResource('admin/extras', ExtraController::class)->parameters(['extras' => 'extra']);
+
+Route::put('admin/settings', [SettingsController::class, 'update']);
+
+Route::get('/admin/users', [UserController::class, 'index']);
+Route::get('/admin/users/stats', [UserController::class, 'stats']);
+Route::get('/admin/users/{id}', [UserController::class, 'show']);
+Route::delete('/admin/users/{id}', [UserController::class, 'destroy']);
 
 });
 

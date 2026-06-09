@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { InputField } from "@/components/auth/InputField";
 import { authForgotPassword, authResetPassword, authVerifyResetCode } from "@/lib/authApi";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { Mail, Lock, ArrowLeft, CheckCircle } from "lucide-react";
 
 const CODE_DIGITS = 6;
@@ -13,6 +14,7 @@ type Step = "email" | "code" | "password" | "done";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const { t } = useI18n();
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -31,7 +33,7 @@ export default function ForgotPasswordPage() {
     setError(null);
 
     if (!EMAIL_RE.test(email)) {
-      setError("Veuillez entrer une adresse email valide.");
+      setError(t("forgot.email_error"));
       return;
     }
 
@@ -40,7 +42,7 @@ export default function ForgotPasswordPage() {
       await authForgotPassword({ email: email.trim() });
       setStep("code");
     } catch (err: any) {
-      setError(err?.message || "Erreur lors de l'envoi du code.");
+      setError(err?.message || t("forgot.send_error"));
     } finally {
       setSubmitting(false);
     }
@@ -54,7 +56,7 @@ export default function ForgotPasswordPage() {
 
     const fullCode = getCode();
     if (fullCode.length !== CODE_DIGITS || !/^\d{6}$/.test(fullCode)) {
-      setError("Veuillez entrer un code valide à 6 chiffres.");
+      setError(t("auth.code_error"));
       return;
     }
 
@@ -63,7 +65,7 @@ export default function ForgotPasswordPage() {
       await authVerifyResetCode({ email: email.trim(), code: fullCode });
       setStep("password");
     } catch (err: any) {
-      setError(err?.message || "Code invalide.");
+      setError(err?.message || t("auth.invalid_code"));
     } finally {
       setSubmitting(false);
     }
@@ -102,17 +104,17 @@ export default function ForgotPasswordPage() {
 
     const fullCode = getCode();
     if (fullCode.length !== CODE_DIGITS || !/^\d{6}$/.test(fullCode)) {
-      setError("Veuillez entrer un code valide à 6 chiffres.");
+      setError(t("auth.code_error"));
       return;
     }
 
     if (!PASSWORD_RE.test(password)) {
-      setError("Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres.");
+      setError(t("forgot.password_error"));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError(t("forgot.password_mismatch"));
       return;
     }
 
@@ -125,7 +127,7 @@ export default function ForgotPasswordPage() {
       });
       setStep("done");
     } catch (err: any) {
-      setError(err?.message || "Erreur lors de la réinitialisation.");
+      setError(err?.message || t("forgot.reset_error"));
     } finally {
       setSubmitting(false);
     }
@@ -153,7 +155,7 @@ export default function ForgotPasswordPage() {
           transition={{ duration: 0.45, ease: "easeOut" }}
           className="w-full max-w-[470px]"
         >
-          <div className="rounded-[16px] bg-white/65 backdrop-blur-xl border border-[#D5DEEF]/55 shadow-[0_10px_30px_rgba(57,88,134,0.18)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px]">
+          <div className="rounded-[16px] bg-white/50 backdrop-blur-xl border border-[#D5DEEF]/55 shadow-[0_10px_30px_rgba(57,88,134,0.18)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px]">
             {/* Steps indicator */}
             <div className="flex items-center justify-center gap-2 mb-8">
               {(["email", "code", "password"] as Step[]).map((s, i) => (
@@ -191,10 +193,10 @@ export default function ForgotPasswordPage() {
                   onSubmit={handleSendCode}
                 >
                   <h2 className="text-[22px] md:text-[26px] font-extrabold text-[#395886] text-center">
-                    Mot de passe oublié ?
+                    {t("forgot.title")}
                   </h2>
                   <p className="mt-2 text-[13px] md:text-[14px] text-[#395886] text-center">
-                    Entrez votre adresse email pour recevoir un code de réinitialisation.
+                    {t("forgot.subtitle")}
                   </p>
 
                   {error && (
@@ -205,7 +207,7 @@ export default function ForgotPasswordPage() {
 
                   <div className="mt-6">
                     <InputField
-                      label="Adresse email"
+                      label={t("forgot.email")}
                       type="email"
                       value={email}
                       onChange={(v) => { setEmail(v); setError(null); }}
@@ -220,7 +222,7 @@ export default function ForgotPasswordPage() {
                     disabled={submitting}
                     className="mt-6 w-full h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 disabled:opacity-60 transition-opacity"
                   >
-                    {submitting ? "Envoi en cours..." : "Envoyer le code"}
+                    {submitting ? t("forgot.sending") : t("forgot.send_code")}
                   </button>
 
                   <button
@@ -229,7 +231,7 @@ export default function ForgotPasswordPage() {
                     className="mt-4 w-full flex items-center justify-center gap-2 text-[13px] font-semibold text-[#638ECB] hover:opacity-80 transition-opacity"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    Retour à la connexion
+                    {t("forgot.back_to_login")}
                   </button>
                 </motion.form>
               )}
@@ -244,10 +246,10 @@ export default function ForgotPasswordPage() {
                 >
                   <form onSubmit={handleVerifyCode}>
                     <h2 className="text-[22px] md:text-[26px] font-extrabold text-[#395886] text-center">
-                      Code de vérification
+                      {t("forgot.code_title")}
                     </h2>
                     <p className="mt-2 text-[13px] md:text-[14px] text-[#395886] text-center">
-                      Un code à 6 chiffres vous a été envoyé à <strong>{email}</strong>.
+                      {t("forgot.code_sent")} <strong>{email}</strong>.
                     </p>
 
                     {error && (
@@ -277,7 +279,7 @@ export default function ForgotPasswordPage() {
                       disabled={submitting || getCode().length !== CODE_DIGITS}
                       className="mt-6 w-full h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 disabled:opacity-60 transition-opacity"
                     >
-                      {submitting ? "Vérification..." : "Vérifier le code"}
+                      {submitting ? t("forgot.verifying") : t("forgot.verify")}
                     </button>
                   </form>
 
@@ -287,7 +289,7 @@ export default function ForgotPasswordPage() {
                     className="mt-4 w-full flex items-center justify-center gap-2 text-[13px] font-semibold text-[#638ECB] hover:opacity-80 transition-opacity"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    Modifier l&apos;email
+                    {t("forgot.change_email")}
                   </button>
                 </motion.div>
               )}
@@ -302,10 +304,10 @@ export default function ForgotPasswordPage() {
                   onSubmit={handleResetPassword}
                 >
                   <h2 className="text-[22px] md:text-[26px] font-extrabold text-[#395886] text-center">
-                    Nouveau mot de passe
+                    {t("forgot.new_password")}
                   </h2>
                   <p className="mt-2 text-[13px] md:text-[14px] text-[#395886] text-center">
-                    Choisissez un nouveau mot de passe sécurisé.
+                    {t("forgot.new_password")}
                   </p>
 
                   {error && (
@@ -316,7 +318,7 @@ export default function ForgotPasswordPage() {
 
                   <div className="mt-6 flex flex-col gap-4">
                     <InputField
-                      label="Nouveau mot de passe"
+                      label={t("forgot.new_password")}
                       type="password"
                       value={password}
                       onChange={(v) => { setPassword(v); setError(null); }}
@@ -325,7 +327,7 @@ export default function ForgotPasswordPage() {
                       leftIcon={<Lock className="w-4 h-4" />}
                     />
                     <InputField
-                      label="Confirmer le mot de passe"
+                      label={t("forgot.confirm_password")}
                       type="password"
                       value={confirmPassword}
                       onChange={(v) => { setConfirmPassword(v); setError(null); }}
@@ -340,7 +342,7 @@ export default function ForgotPasswordPage() {
                     disabled={submitting}
                     className="mt-6 w-full h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 disabled:opacity-60 transition-opacity"
                   >
-                    {submitting ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
+                    {submitting ? t("forgot.resetting") : t("forgot.reset")}
                   </button>
 
                   <button
@@ -349,7 +351,7 @@ export default function ForgotPasswordPage() {
                     className="mt-4 w-full flex items-center justify-center gap-2 text-[13px] font-semibold text-[#638ECB] hover:opacity-80 transition-opacity"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    Retour
+                    {t("back")}
                   </button>
                 </motion.form>
               )}
@@ -368,16 +370,16 @@ export default function ForgotPasswordPage() {
                     </div>
                   </div>
                   <h2 className="text-[22px] md:text-[26px] font-extrabold text-[#395886]">
-                    Mot de passe réinitialisé
+                    {t("forgot.done_title")}
                   </h2>
                   <p className="mt-2 text-[13px] md:text-[14px] text-[#395886]">
-                    Votre mot de passe a été mis à jour avec succès.
+                    {t("forgot.done_msg")}
                   </p>
                   <button
                     onClick={() => router.push("/login")}
                     className="mt-8 w-full h-[48px] rounded-[10px] bg-[#638ECB] text-white font-extrabold text-[14px] shadow-[0_8px_18px_rgba(99,142,203,0.28)] hover:opacity-95 transition-opacity"
                   >
-                    Se connecter
+                    {t("forgot.sign_in")}
                   </button>
                 </motion.div>
               )}
