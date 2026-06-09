@@ -20,6 +20,7 @@ import {
   Lock,
   Copyright,
   Globe,
+  Download,
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -366,6 +367,16 @@ export default function TermsPage() {
             <p className="text-white/70 text-base font-semibold mt-3 max-w-xl">
               {t("legal.subtitle_terms")}
             </p>
+            <motion.a
+              href="/downloads/CARFORFAR_Terms_of_Use_Professional.pdf"
+              download
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-2 mt-5 bg-white/10 hover:bg-white/20 text-white font-extrabold px-5 py-3 rounded-xl text-xs border border-white/20 shadow-lg uppercase tracking-wider transition-all"
+            >
+              <Download className="w-4 h-4" />
+              Download PDF
+            </motion.a>
           </motion.div>
 
           {/* Stats bar */}

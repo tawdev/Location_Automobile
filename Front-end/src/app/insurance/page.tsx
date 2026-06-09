@@ -20,7 +20,11 @@ import {
   HelpCircle,
   PhoneCall,
   Activity,
-  FileCheck
+  FileCheck,
+  Heart,
+  Truck,
+  Scale,
+  Key
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -121,7 +125,9 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "Third-Party Liability (Responsabilité Civile)",
             "Basic Theft Protection (Deductible applies)",
             "Basic Collision Damage (Deductible applies)",
-            "Standard 24/7 Towing Service"
+            "Standard 24/7 Towing Service",
+            "Standard 24/7 Customer Support",
+            "Online claims tracking portal"
           ],
           deductible: "Security Deposit (Caution): 15,000 DH"
         },
@@ -138,7 +144,10 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "Deductible reduced by 65%",
             "Glass, Windshield & Headlight Coverage",
             "Tire puncture and rim protection",
-            "Priority Roadside Support"
+            "Priority Roadside Support",
+            "Key replacement coverage",
+            "24/7 multilingual support hotline",
+            "Online claims portal with photo upload"
           ],
           deductible: "Security Deposit (Caution): 5,000 DH"
         },
@@ -154,8 +163,12 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "All benefits of Gold Protection",
             "Zero Deductible (Franchise 0)",
             "Full Protection against Theft & Vandalism",
-            "Personal Accident Insurance (PAI) for driver",
-            "Immediate replacement vehicle in case of incident"
+            "Personal Accident Insurance (PAI) for driver & passengers",
+            "Immediate replacement vehicle in case of incident",
+            "Full legal assistance & defense coverage",
+            "Premium concierge service",
+            "Guaranteed vehicle upgrade if available",
+            "Fuel and wrong-fuel protection"
           ],
           deductible: "Security Deposit (Caution): 0 DH"
         }
@@ -172,7 +185,10 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         "Theft of the vehicle (with police report and keys returned)",
         "Windshield damage (Gold and Platinum plans only)",
         "Tire punctures and standard rim scuffs (Gold and Platinum plans only)",
-        "24/7 vehicle towing and replacement assistance"
+        "24/7 vehicle towing and replacement assistance",
+        "Emergency medical expenses for the driver (Platinum)",
+        "Legal defense costs in case of third-party dispute (Platinum)",
+        "Key replacement service (Gold and Platinum only)"
       ],
       notCoveredList: [
         "Loss or damage of vehicle keys (Charged at replacement value)",
@@ -180,7 +196,12 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         "Driving under the influence of alcohol, drugs, or without a valid license",
         "Personal belongings left inside the vehicle",
         "Using incorrect fuel type (Engine flush costs apply)",
-        "Off-road driving (Unpaved roads are strictly prohibited)"
+        "Off-road driving (Unpaved roads are strictly prohibited)",
+        "Damage from driving through flood waters or submerged roads",
+        "Gradual wear and tear, mechanical or electrical failure",
+        "Rental extension without prior notification and contract update",
+        "Damage caused by unauthorized or unnamed drivers",
+        "Operating the vehicle in competitive events or races"
       ]
     },
     details: {
@@ -206,6 +227,26 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
           title: "4. Glass, Windshield & Tire Coverage",
           icon: Eye,
           desc: "Covers chips, cracks, and full breaks to the windshield, side windows, and rear window, as well as tire punctures. Excluded from Basic, included in Gold and Platinum."
+        },
+        {
+          title: "5. Personal Accident Insurance (PAI)",
+          icon: Heart,
+          desc: "Provides financial compensation to the driver (and passengers under Platinum) in case of accidental death, permanent disability, or emergency medical expenses resulting from a covered road accident. Included in Platinum only."
+        },
+        {
+          title: "6. Roadside Assistance & Towing",
+          icon: Truck,
+          desc: "Available 24/7 across Morocco. Basic includes standard towing to the nearest authorized garage. Gold offers priority dispatch with reduced waiting times. Platinum includes premium assistance with replacement vehicle delivery on-site."
+        },
+        {
+          title: "7. Legal Protection & Defense",
+          icon: Scale,
+          desc: "Covers legal fees, lawyer consultation, and representation in case of a dispute arising from a covered accident. Available to defend your interests against third-party claims or to recover uninsured losses. Included in Platinum."
+        },
+        {
+          title: "8. Key & Fuel Protection",
+          icon: Key,
+          desc: "Covers the cost of key replacement or retrieval if keys are lost, locked inside, or damaged. Also covers engine flushing and fuel system cleaning if the wrong fuel type is used. Included in Gold and Platinum."
         }
       ]
     },
@@ -228,6 +269,30 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         {
           q: "Are personal belongings inside the car covered?",
           a: "No, standard car insurance does not cover personal effects or luggage left in the vehicle. We recommend keeping valuable items out of sight or taking them with you."
+        },
+        {
+          q: "Can I upgrade or downgrade my protection mid-rental?",
+          a: "Yes, you can change your protection level at any point during your rental. Upgrade fees are prorated for the remaining days. Downgrades are processed immediately but no refund applies for days already used. Visit any of our branches or call our support line to make the change."
+        },
+        {
+          q: "What happens if an unauthorized driver causes an accident?",
+          a: "Only named drivers on the rental contract are covered. If an unauthorized driver is behind the wheel during an accident, all insurance coverage is void, and you will be held fully liable for all damages, towing, and administrative fees. Always add additional drivers to your contract before driving."
+        },
+        {
+          q: "Is there coverage for driving outside of Morocco?",
+          a: "Our standard insurance covers driving within Morocco only. Cross-border travel requires prior written authorization and may be subject to additional fees and specific insurance extensions. Contact us at least 48 hours before your planned departure to arrange cross-border coverage."
+        },
+        {
+          q: "How does the digital claims process work?",
+          a: "After an incident, log into your account on our website or mobile portal. Fill out the digital claims form, upload photos of the damage and the police report (Constat). Our team reviews your submission within 2 hours during business hours. Approved claims receive a repair authorization number, and we coordinate directly with the repair shop."
+        },
+        {
+          q: "What if the accident is the other driver's fault?",
+          a: "If the other party is responsible and they have valid insurance, their insurer covers the damages. You must still report the incident to us within 24 hours. We can assist with the claims process against the third party. Your deductible (if any) will be refunded once the third-party insurance accepts liability."
+        },
+        {
+          q: "Can I cancel my protection upgrade and get a refund?",
+          a: "Protection upgrades can be cancelled before the rental starts for a full refund. Once the rental has begun, unused days of an upgrade may be refunded on a prorated basis, minus a small administrative fee of 50 DH. No refund is available for Basic Protection as it is already included in the base price."
         }
       ]
     },
@@ -268,7 +333,9 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "Responsabilité Civile (Tiers obligatoire)",
             "Protection Vol de base (Franchise applicable)",
             "Protection Collision de base (Franchise applicable)",
-            "Remorquage standard 24h/24"
+            "Remorquage standard 24h/24",
+            "Support client standard 24h/24",
+            "Portail de suivi des sinistres en ligne"
           ],
           deductible: "Dépôt de Garantie (Caution) : 15 000 DH"
         },
@@ -285,7 +352,10 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "Franchise réduite de 65%",
             "Garantie Bris de Glace & Optiques",
             "Protection Pneus & Jantes (crevaison)",
-            "Assistance routière prioritaire"
+            "Assistance routière prioritaire",
+            "Remplacement des clés perdues ou endommagées",
+            "Ligne d'assistance multilingue 24h/24",
+            "Portail sinistre avec téléchargement de photos"
           ],
           deductible: "Dépôt de Garantie (Caution) : 5 000 DH"
         },
@@ -301,8 +371,12 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "Tous les avantages de la Protection Gold",
             "Zéro Franchise (Responsabilité 0)",
             "Couverture Vol & Vandalisme intégrale",
-            "Assurance Personnes Transportées (PAI) conducteur",
-            "Véhicule de remplacement immédiat en cas de pépin"
+            "Assurance Personnes Transportées (PAI) conducteur & passagers",
+            "Véhicule de remplacement immédiat en cas de pépin",
+            "Assistance juridique complète & défense",
+            "Service concierge premium",
+            "Surclassement garanti si disponible",
+            "Protection erreur de carburant"
           ],
           deductible: "Dépôt de Garantie (Caution) : 0 DH"
         }
@@ -319,7 +393,10 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         "Vol du véhicule (avec dépôt de plainte et restitution des clés)",
         "Bris de glace et optiques de phares (formules Gold & Platinum)",
         "Crevaison des pneus et rayures de jantes (formules Gold & Platinum)",
-        "Assistance remorquage 24h/24 et véhicule de remplacement"
+        "Assistance remorquage 24h/24 et véhicule de remplacement",
+        "Frais médicaux d'urgence pour le conducteur (Platinum)",
+        "Frais de défense juridique en cas de litige (Platinum)",
+        "Remplacement des clés perdues (Gold et Platinum uniquement)"
       ],
       notCoveredList: [
         "Perte ou détérioration des clés du véhicule (facturée au coût réel)",
@@ -327,7 +404,12 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         "Conduite sous l'emprise d'alcool, de drogues ou sans permis valide",
         "Effets personnels et bagages laissés à l'intérieur du véhicule",
         "Erreur de carburant (frais de vidange et nettoyage moteur)",
-        "Conduite hors route (pistes non goudronnées strictement interdites)"
+        "Conduite hors route (pistes non goudronnées strictement interdites)",
+        "Dégâts causés par la conduite dans des eaux de crue ou routes submergées",
+        "Usure normale, défaillance mécanique ou électrique",
+        "Prolongation de location sans notification préalable et avenant",
+        "Dommages causés par des conducteurs non autorisés ou non déclarés",
+        "Utilisation du véhicule dans des compétitions ou courses"
       ]
     },
     details: {
@@ -353,6 +435,26 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
           title: "4. Bris de Glace & Pneus",
           icon: Eye,
           desc: "Couvre les impacts et fissures sur le pare-brise, les vitres latérales et la lunette arrière, ainsi que les crevaisons. Exclus en Basique, inclus en Gold et Platinum."
+        },
+        {
+          title: "5. Assurance Personnes Transportées (PAI)",
+          icon: Heart,
+          desc: "Compense financièrement le conducteur (et les passagers en Platinum) en cas de décès accidentel, d'invalidité permanente ou de frais médicaux d'urgence suite à un accident de la route couvert. Inclus dans la formule Platinum uniquement."
+        },
+        {
+          title: "6. Assistance Routière & Remorquage",
+          icon: Truck,
+          desc: "Disponible 24h/24 sur tout le Maroc. La formule Basique inclut le remorquage standard au garage agréé le plus proche. Gold offre un dispatch prioritaire avec des délais réduits. Platinum comprend une assistance premium avec livraison d'un véhicule de remplacement sur place."
+        },
+        {
+          title: "7. Protection Juridique & Défense",
+          icon: Scale,
+          desc: "Couvre les frais d'avocat, de consultation juridique et de représentation en cas de litige suite à un accident couvert. Permet de défendre vos intérêts contre les réclamations de tiers ou de récupérer des pertes non assurées. Inclus en Platinum."
+        },
+        {
+          title: "8. Protection Clés & Carburant",
+          icon: Key,
+          desc: "Couvre le remplacement ou la récupération des clés perdues, verrouillées à l'intérieur ou endommagées. Inclut également le nettoyage du circuit carburant en cas d'erreur de carburant. Inclus dans les formules Gold et Platinum."
         }
       ]
     },
@@ -375,6 +477,30 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         {
           q: "Mes effets personnels dans la voiture sont-ils assurés ?",
           a: "Non, les assurances de location ne couvrent pas les objets personnels ou bagages laissés à l'intérieur du véhicule. Nous vous conseillons de ne rien laisser de valeur en évidence."
+        },
+        {
+          q: "Puis-je changer mon niveau de protection en cours de location ?",
+          a: "Oui, vous pouvez modifier votre niveau de protection à tout moment. Les frais de surclassement sont proratisés pour les jours restants. Les déclassements sont traités immédiatement mais aucun remboursement n'est dû pour les jours déjà utilisés. Rendez-vous dans l'une de nos agences ou appelez notre centre d'assistance."
+        },
+        {
+          q: "Que se passe-t-il si un conducteur non autorisé cause un accident ?",
+          a: "Seuls les conducteurs nommés sur le contrat de location sont couverts. Si un conducteur non autorisé est au volant lors d'un accident, toute couverture d'assurance est annulée et vous serez tenu responsable de l'intégralité des dommages, du remorquage et des frais administratifs. Ajoutez toujours les conducteurs supplémentaires au contrat avant de conduire."
+        },
+        {
+          q: "Suis-je couvert en dehors du Maroc ?",
+          a: "Notre assurance standard couvre la conduite au Maroc uniquement. Les voyages à l'étranger nécessitent une autorisation écrite préalable et peuvent être soumis à des frais supplémentaires et à des extensions d'assurance spécifiques. Contactez-nous au moins 48 heures avant votre départ prévu."
+        },
+        {
+          q: "Comment fonctionne la déclaration de sinistre numérique ?",
+          a: "Après un incident, connectez-vous à votre compte sur notre site ou notre portail mobile. Remplissez le formulaire numérique de déclaration, téléchargez les photos des dégâts et le constat. Notre équipe examine votre soumission sous 2 heures ouvrées. Les sinistres approuvés reçoivent un numéro d'autorisation de réparation, et nous coordonnons directement avec le garage."
+        },
+        {
+          q: "Et si l'accident est de la faute de l'autre conducteur ?",
+          a: "Si l'autre partie est responsable et possède une assurance valide, son assureur couvre les dommages. Vous devez néanmoins nous signaler l'incident dans les 24 heures. Nous pouvons vous assister dans la procédure de réclamation contre le tiers. Votre franchise (si applicable) vous sera remboursée dès que l'assurance adverse acceptera sa responsabilité."
+        },
+        {
+          q: "Puis-je annuler mon surclassement et être remboursé ?",
+          a: "Les surclassements de protection peuvent être annulés avant le début de la location pour un remboursement intégral. Une fois la location commencée, les jours non utilisés du surclassement peuvent être remboursés au prorata, moins des frais administratifs de 50 DH. Aucun remboursement n'est possible pour la Protection Basique car elle est déjà incluse dans le prix de base."
         }
       ]
     },
@@ -415,7 +541,9 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "المسؤولية المدنية تجاه الغير",
             "تأمين السرقة الأساسي (يتم تطبيق مبلغ التحمل)",
             "تأمين الحوادث الأساسي (يتم تطبيق مبلغ التحمل)",
-            "خدمة سحب قياسية على مدار الساعة"
+            "خدمة سحب قياسية على مدار الساعة",
+            "دعم العملاء القياسي 24/7",
+            "بوابة تتبع المطالبات عبر الإنترنت"
           ],
           deductible: "مبلغ التأمين (الضمان): 15,000 درهم"
         },
@@ -432,7 +560,10 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "تخفيض مبلغ التحمل بنسبة 65%",
             "تغطية زجاج السيارة والزجاج الأمامي والمصابيح",
             "تغطية ثقب الإطارات وحماية العجلات",
-            "دعم أولوية المساعدة على الطريق"
+            "دعم أولوية المساعدة على الطريق",
+            "تغطية استبدال المفاتيح المفقودة",
+            "خط المساعدة متعدد اللغات على مدار الساعة",
+            "بوابة مطالبات مع رفع الصور"
           ],
           deductible: "مبلغ التأمين (الضمان): 5,000 درهم"
         },
@@ -449,7 +580,11 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
             "إعفاء كامل من مبلغ التحمل (فرنشيز 0)",
             "حماية شاملة ضد السرقة والتخريب",
             "تأمين الحوادث الشخصية (PAI) للسائق والركاب",
-            "توفير سيارة بديلة فورية في حال حدوث عطل"
+            "توفير سيارة بديلة فورية في حال حدوث عطل",
+            "المساعدة القانونية الكاملة وتغطية الدفاع",
+            "خدمة كونسيرج متميزة",
+            "ترقية مضمونة للمركبة إذا كانت متوفرة",
+            "تغطية خطأ استخدام الوقود"
           ],
           deductible: "مبلغ التأمين (الضمان): 0 درهم"
         }
@@ -466,7 +601,10 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         "سرقة السيارة (مع تقديم تقرير الشرطة وإعادة المفاتيح)",
         "أضرار الزجاج الأمامي والنوافذ (الباقة الذهبية والبلاتينية فقط)",
         "ثقوب الإطارات والخدوش الطفيفة للعجلات (الذهبية والبلاتينية فقط)",
-        "خدمة سحب السيارة 24/7 وتوفير سيارة بديلة"
+        "خدمة سحب السيارة 24/7 وتوفير سيارة بديلة",
+        "النفقات الطبية الطارئة للسائق (البلاتينية)",
+        "تكاليف الدفاع القانوني في حالة النزاع مع طرف ثالث (البلاتينية)",
+        "خدمة استبدال المفاتيح المفقودة (الذهبية والبلاتينية فقط)"
       ],
       notCoveredList: [
         "فقدان أو تلف مفاتيح السيارة (يتم احتساب تكلفة الاستبدال)",
@@ -474,7 +612,12 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         "القيادة تحت تأثير الكحول أو المواد المخدرة أو بدون رخصة قيادة سارية",
         "الأغراض والممتلكات الشخصية المتروكة داخل السيارة",
         "استخدام نوع وقود خاطئ (يتم تحميل تكاليف تفريغ وتنظيف المحرك)",
-        "القيادة في الطرق الوعرة وغير المعبدة بالكامل"
+        "القيادة في الطرق الوعرة وغير المعبدة بالكامل",
+        "الأضرار الناتجة عن القيادة في مياه الفيضانات أو الطرق المغمورة",
+        "الاهتراء الطبيعي أو العطل الميكانيكي أو الكهربائي",
+        "تمديد الإيجار دون إخطار مسبق وتحديث العقد",
+        "الأضرار الناتجة عن سائقين غير مصرح لهم أو غير مسجلين في العقد",
+        "استخدام المركبة في المسابقات أو السباقات"
       ]
     },
     details: {
@@ -500,6 +643,26 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
           title: "4. تغطية الزجاج والإطارات",
           icon: Eye,
           desc: "يغطي الشروخ والكسور في الزجاج الأمامي والنوافذ والمصابيح، بالإضافة لثقوب الإطارات. مستثنى من الأساسية ومشمول في الذهبية والبلاتينية."
+        },
+        {
+          title: "5. تأمين الحوادث الشخصية (PAI)",
+          icon: Heart,
+          desc: "يقدم تعويضًا ماليًا للسائق (والركاب في البلاتينية) في حالة الوفاة العرضية أو العجز الدائم أو النفقات الطبية الطارئة الناتجة عن حادث سير مشمول. مشمول فقط في الباقة البلاتينية."
+        },
+        {
+          title: "6. المساعدة على الطريق والسحب",
+          icon: Truck,
+          desc: "متوفرة على مدار الساعة في جميع أنحاء المغرب. الأساسية تشمل السحب إلى أقرب مرآب معتمد. الذهبية توفر أولوية في الاستجابة بأوقات انتظار أقل. البلاتينية تشمل مساعدة متميزة مع توصيل سيارة بديلة إلى موقعك."
+        },
+        {
+          title: "7. الحماية القانونية والدفاع",
+          icon: Scale,
+          desc: "يغطي الرسوم القانونية واستشارات المحامي والتمثيل في حالة نشوب نزاع ناتج عن حادث مشمول. متاح للدفاع عن مصالحك ضد مطالبات الغير أو لاسترداد خسائر غير مؤمنة. مشمول في البلاتينية."
+        },
+        {
+          title: "8. حماية المفاتيح والوقود",
+          icon: Key,
+          desc: "يغطي تكلفة استبدال أو استعادة المفاتيح المفقودة أو المقفلة داخل السيارة أو التالفة. يشمل أيضًا تنظيف نظام الوقود إذا تم استخدام نوع وقود خاطئ. مشمول في الباقة الذهبية والبلاتينية."
         }
       ]
     },
@@ -522,6 +685,30 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
         {
           q: "هل الممتلكات الشخصية داخل السيارة مغطاة؟",
           a: "لا، التأمين القياسي للسيارة لا يغطي الممتلكات الشخصية أو الحقائب المتروكة داخل السيارة. ننصحك بعدم ترك أي أشياء ثمينة ظاهرة للعيان أو أخذها معك دائمًا."
+        },
+        {
+          q: "هل يمكنني تغيير مستوى الحماية أثناء فترة الإيجار؟",
+          a: "نعم، يمكنك تغيير مستوى الحماية في أي وقت. تُحتسب رسوم الترقية بشكل نسبي للأيام المتبقية. يتم معالجة تخفيض المستوى فورًا ولكن لا يتم رد المبلغ عن الأيام المستخدمة بالفعل. تفضل بزيارة أي من فروعنا أو اتصل بخط المساعدة لإجراء التغيير."
+        },
+        {
+          q: "ماذا يحدث إذا تسبب سائق غير مصرح له في حادث؟",
+          a: "فقط السائقون المدرجون في عقد الإيجار مشمولون بالتغطية. إذا كان سائق غير مصرح له خلف المقود أثناء حادث، تُلغى جميع التغطيات التأمينية وتكون مسؤولاً كاملاً عن جميع الأضرار ورسوم السحب والمصروفات الإدارية. يجب دائمًا إضافة السائقين الإضافيين إلى العقد قبل القيادة."
+        },
+        {
+          q: "هل هناك تغطية للقيادة خارج المغرب؟",
+          a: "يغطي تأميننا القياسي القيادة داخل المغرب فقط. السفر عبر الحدود يتطلب تصريحًا كتابيًا مسبقًا وقد يخضع لرسوم إضافية وتوسعات تأمينية محددة. اتصل بنا قبل 48 ساعة على الأقل من موعد مغادرتك المخطط لترتيب التغطية عبر الحدود."
+        },
+        {
+          q: "كيف تعمل عملية تقديم المطالبات الرقمية؟",
+          a: "بعد وقوع حادث، سجل الدخول إلى حسابك على موقعنا أو بوابتنا المحمولة. املأ نموذج المطالبات الرقمي وارفع صور الأضرار وتقرير الشرطة (المعاينة). يراجع فريقنا طلبك خلال ساعتين في أوقات العمل. المطالبات المعتمدة تحصل على رقم ترخيص إصلاح ونقوم بالتنسيق المباشر مع ورشة التصليح."
+        },
+        {
+          q: "ماذا لو كان الحادث بسبب خطأ السائق الآخر؟",
+          a: "إذا كان الطرف الآخر مسؤولاً ولديه تأمين ساري، فتغطي شركة التأمين الخاصة به الأضرار. يجب عليك الإبلاغ عن الحادث لنا في غضون 24 ساعة. يمكننا مساعدتك في إجراءات المطالبة ضد الطرف الثالث. سيتم رد مبلغ التحمل (إن وجد) بمجرد قبول تأمين الطرف الآخر بالمسؤولية."
+        },
+        {
+          q: "هل يمكنني إلغاء ترقية الحماية واسترداد المبلغ؟",
+          a: "يمكن إلغاء ترقيات الحماية قبل بدء الإيجار لاسترداد كامل المبلغ. بمجرد بدء الإيجار، قد يتم رد المبلغ عن الأيام غير المستخدمة بشكل نسبي، مطروحًا منه رسوم إدارية بسيطة قدرها 50 درهمًا. لا يوجد استرداد للحماية الأساسية لأنها مشمولة بالفعل في السعر الأساسي."
         }
       ]
     },
@@ -913,14 +1100,26 @@ export default function InsurancePage() {
               {content.cta.desc}
             </p>
           </div>
-          <motion.a
-            href="tel:+212500000000"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="shrink-0 bg-gradient-to-r from-[#f39c12] to-amber-500 hover:from-amber-500 hover:to-orange-500 text-white font-extrabold px-6 py-3.5 rounded-xl text-xs shadow-lg uppercase tracking-wider transition-all"
-          >
-            {content.cta.button}
-          </motion.a>
+          <div className="flex items-center gap-3">
+            <motion.a
+              href="/downloads/CARFORFAR_Premium_Insurance_Guide.pdf"
+              download
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="shrink-0 bg-white/10 hover:bg-white/20 text-white font-extrabold px-5 py-3.5 rounded-xl text-xs border border-white/20 shadow-lg uppercase tracking-wider transition-all flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              PDF
+            </motion.a>
+            <motion.a
+              href="tel:+212500000000"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="shrink-0 bg-gradient-to-r from-[#f39c12] to-amber-500 hover:from-amber-500 hover:to-orange-500 text-white font-extrabold px-6 py-3.5 rounded-xl text-xs shadow-lg uppercase tracking-wider transition-all"
+            >
+              {content.cta.button}
+            </motion.a>
+          </div>
         </div>
       </div>
 
