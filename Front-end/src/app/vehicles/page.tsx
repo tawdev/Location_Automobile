@@ -161,21 +161,19 @@ export default function VehiclesPage() {
     const list = Array.isArray(vehicles) ? vehicles : [];
     return list
       .filter(vehicle => {
-        const categoryMap: Record<string, string[]> = {
-          'SUV': ['Bentayga', 'Range Rover'],
-          'Sports': ['911', '488', 'RS7'],
-        };
+        if (!vehicle.marque) return false;
+        const brandQ = query.marque?.trim().toLowerCase();
+        if (brandQ && !vehicle.marque.toLowerCase().includes(brandQ)) return false;
         const matchesCategory = selectedCategory === 'All' ||
-          (categoryMap[selectedCategory]?.some(cat =>
-            vehicle.model.includes(cat) || vehicle.marque.includes(cat)
-          ) ?? false);
+          vehicle.category?.name === selectedCategory;
+        if (!matchesCategory) return false;
         const matchesSearch = !searchQuery ||
           vehicle.marque.toLowerCase().includes(searchQuery.toLowerCase()) ||
           vehicle.model.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+        return matchesSearch;
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  }, [vehicles, selectedCategory, searchQuery]);
+  }, [vehicles, selectedCategory, searchQuery, query.marque]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 

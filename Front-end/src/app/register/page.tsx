@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { motion } from "framer-motion";
 import { HeroSection } from "@/components/auth/HeroSection";
 import { SocialButton, GoogleIcon } from "@/components/auth/SocialButton";
@@ -61,6 +62,7 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn, signUp, verifyEmail, error, status } = useAuth();
+  const { t } = useI18n();
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -134,9 +136,9 @@ function RegisterForm() {
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
     const nextErrors = {
-      name: mode === "signup" ? (NAME_RE.test(trimmedName) ? null : "Name must be at least 2 letters.") : null,
-      email: EMAIL_RE.test(trimmedEmail) ? null : "Enter a valid email address.",
-      password: PASSWORD_RE.test(password) ? null : "Password must be 8+ chars and include letters + numbers.",
+      name: mode === "signup" ? (NAME_RE.test(trimmedName) ? null : t("register.name_error")) : null,
+      email: EMAIL_RE.test(trimmedEmail) ? null : t("register.email_error"),
+      password: PASSWORD_RE.test(password) ? null : t("register.password_error"),
     };
 
     setFieldErrors(nextErrors);
@@ -157,7 +159,7 @@ function RegisterForm() {
         }
       }
     } catch (err) {
-      const msg = (err as any)?.message || (mode === "login" ? "Sign in failed" : "Sign up failed");
+      const msg = (err as any)?.message || (mode === "login" ? t("register.login_failed") : t("register.signup_failed"));
       setFormError(msg);
     } finally {
       setSubmitting(false);
@@ -193,7 +195,7 @@ function RegisterForm() {
 
   async function handleVerifyCode() {
     const fullCode = code.join("");
-    if (fullCode.length !== CODE_DIGITS) { setCodeError("Enter the full code."); return; }
+    if (fullCode.length !== CODE_DIGITS) { setCodeError(t("register.code_error")); return; }
     if (userId === null) return;
     setCodeSubmitting(true);
     setCodeError(null);
@@ -202,7 +204,7 @@ function RegisterForm() {
       localStorage.removeItem("pendingVehicleRedirect");
       router.replace(redirectTo || "/vehicles");
     } catch (err) {
-      setCodeError((err as any)?.message || "Invalid code");
+      setCodeError((err as any)?.message || t("register.invalid_code"));
       setCode(Array(CODE_DIGITS).fill(""));
       inputRefs.current[0]?.focus();
     } finally {
@@ -295,7 +297,7 @@ function RegisterForm() {
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="text-[28px] md:text-[32px] lg:text-[40px] font-extrabold text-[#395886] dark:text-[#D5DEEF] leading-[1.05] text-center tracking-tight"
                   >
-                    Vérifiez <span className="text-[#F39C12]">votre e-mail</span>
+                    {t("register.verify_title")} <span className="text-[#F39C12]">{t("register.verify_title_highlight")}</span>
                   </motion.h2>
                   <motion.p
                     initial={{ opacity: 0 }}
@@ -303,7 +305,7 @@ function RegisterForm() {
                     transition={{ duration: 0.5, delay: 0.15 }}
                     className="mt-[6px] text-[14px] md:text-[15px] lg:text-[17px] text-[#395886]/70 dark:text-[#94A3B8]/80 text-center font-medium"
                   >
-                    Nous avons envoyé un code à 6 chiffres à <span className="font-black text-[#395886] dark:text-[#D5DEEF]">{email}</span>
+                    {t("register.verify_sent")} <span className="font-black text-[#395886] dark:text-[#D5DEEF]">{email}</span>
                   </motion.p>
 
                   {codeError && (
@@ -358,24 +360,24 @@ function RegisterForm() {
                           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
                           <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                         </svg>
-                        Vérification...
+                        {t("register.verifying")}
                       </span>
-                    ) : "Vérifier le code"}
+                    ) : t("register.verify_code")}
                   </motion.button>
 
                   <div className="mt-[18px] flex items-center justify-between text-[13px] font-semibold">
                     <button type="button" onClick={backToForm} className="text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200 cursor-pointer">
-                      Retour
+                      {t("register.back")}
                     </button>
                     <button type="button" onClick={handleResend} disabled={resending} className="text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] disabled:opacity-40 disabled:hover:text-[#638ECB] dark:disabled:hover:text-[#94A3B8] transition-colors duration-200 cursor-pointer">
-                      {resending ? "Envoi..." : "Renvoyer le code"}
+                      {resending ? t("register.resending") : t("register.resend")}
                     </button>
                   </div>
 
                   <div className="mt-[18px] flex flex-wrap items-center justify-center gap-[12px] text-[11px] text-[#395886]/60 dark:text-[#94A3B8]/60">
-                    <a href="." className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">Politique de confidentialité</a>
+                    <a href="/privacy" className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">{t("auth.privacy")}</a>
                     <span className="w-[3px] h-[3px] rounded-full bg-[#D5DEEF] dark:bg-[#475569]" />
-                    <a href="." className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">Conditions d'utilisation</a>
+                    <a href="/terms" className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">{t("auth.terms")}</a>
                   </div>
                 </div>
               </motion.div>
@@ -397,7 +399,7 @@ function RegisterForm() {
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="text-[28px] md:text-[32px] lg:text-[40px] font-extrabold text-[#395886] dark:text-[#D5DEEF] leading-[1.05] text-center tracking-tight"
                   >
-                    {mode === "login" ? <>Bon retour <span className="text-[#F39C12]">parmi nous</span></> : <>Créer un <span className="text-[#F39C12]">compte</span></>}
+                    {mode === "login" ? <>{t("auth.login_title")} <span className="text-[#F39C12]">{t("auth.login_title_highlight")}</span></> : <>{t("auth.signup_title")} <span className="text-[#F39C12]">{t("auth.signup_title_highlight")}</span></>}
                   </motion.h2>
 
                   <motion.p
@@ -406,7 +408,7 @@ function RegisterForm() {
                     transition={{ duration: 0.5, delay: 0.15 }}
                     className="mt-[6px] text-[14px] md:text-[15px] lg:text-[17px] text-[#395886]/70 dark:text-[#94A3B8]/80 text-center font-medium"
                   >
-                    {mode === "login" ? "Connectez-vous pour continuer" : "Inscrivez-vous pour réserver facilement"}
+                    {mode === "login" ? t("auth.login_subtitle") : t("auth.signup_subtitle")}
                   </motion.p>
 
                   {displayError && (
@@ -432,21 +434,21 @@ function RegisterForm() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.35 }}
                       >
-                        <div className="sr-only"><label>Nom</label></div>
-                        <InputField label="Nom" type="text" value={name} onChange={(next) => { setName(next); setFieldErrors((prev) => ({ ...prev, name: null })); }} autoComplete="name" placeholder="" leftIcon={<div className="font-extrabold">@</div>} />
+                        <div className="sr-only"><label>{t("auth.name")}</label></div>
+                        <InputField label={t("auth.name")} type="text" value={name} onChange={(next) => { setName(next); setFieldErrors((prev) => ({ ...prev, name: null })); }} autoComplete="name" placeholder="" leftIcon={<div className="font-extrabold">@</div>} />
                         {fieldErrors.name && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.name}</motion.span>}
                       </motion.div>
                     )}
 
                     <div>
-                      <InputField label="Adresse e-mail" type="email" value={email} onChange={(next) => { setEmail(next); setFieldErrors((prev) => ({ ...prev, email: null })); }} autoComplete="email" placeholder="" leftIcon={<MailIcon />} />
+                      <InputField label={t("auth.email")} type="email" value={email} onChange={(next) => { setEmail(next); setFieldErrors((prev) => ({ ...prev, email: null })); }} autoComplete="email" placeholder="" leftIcon={<MailIcon />} />
                       {fieldErrors.email && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.email}</motion.span>}
                     </div>
 
                     <div>
                       <div className="flex items-end justify-between">
-                        <div className="text-[13px] font-bold text-[#395886] dark:text-[#94A3B8] mb-1 tracking-tight">Mot de passe</div>
-                        {mode === "login" && <a href="." className="text-[12px] font-semibold text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">Mot de passe oublié ?</a>}
+                        <div className="text-[13px] font-bold text-[#395886] dark:text-[#94A3B8] mb-1 tracking-tight">{t("auth.password")}</div>
+                        {mode === "login" && <a href="/forgot-password" className="text-[12px] font-semibold text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">{t("auth.forgot_password")}</a>}
                       </div>
                       <div className="mt-[2px]">
                         <div className="relative group">
@@ -469,7 +471,7 @@ function RegisterForm() {
                     {mode === "login" && (
                       <label className="flex items-center gap-[10px] mt-[2px] cursor-pointer group">
                         <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="peer w-[16px] h-[16px] accent-[#638ECB] cursor-pointer rounded" />
-                        <span className="text-[13px] text-[#395886] dark:text-[#94A3B8] font-medium group-hover:text-[#638ECB] transition-colors duration-200">Mémoriser cet appareil</span>
+                        <span className="text-[13px] text-[#395886] dark:text-[#94A3B8] font-medium group-hover:text-[#638ECB] transition-colors duration-200">{t("auth.remember")}</span>
                       </label>
                     )}
 
@@ -486,18 +488,18 @@ function RegisterForm() {
                             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
                             <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                           </svg>
-                          {mode === "login" ? "Connexion..." : "Création..."}
+                          {mode === "login" ? t("auth.signing_in") : t("auth.creating")}
                         </span>
-                      ) : mode === "login" ? "Connexion" : "Créer un compte"}
+                      ) : mode === "login" ? t("auth.sign_in") : t("auth.create_account")}
                     </motion.button>
 
                     <div className="flex items-center gap-[12px] mt-[4px]">
                       <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#D5DEEF] to-transparent dark:via-[#475569]" />
-                      <span className="text-[10px] font-extrabold tracking-[0.2em] text-[#395886]/50 dark:text-[#94A3B8]/50">OU CONTINUER AVEC</span>
+                      <span className="text-[10px] font-extrabold tracking-[0.2em] text-[#395886]/50 dark:text-[#94A3B8]/50">{t("auth.or_continue_with")}</span>
                       <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#D5DEEF] to-transparent dark:via-[#475569]" />
                     </div>
 
-                    <SocialButton label="Continuer avec Google" icon={<GoogleIcon />} disabled={submitting} onClick={() => { if (redirectTo) localStorage.setItem("pendingVehicleRedirect", redirectTo); window.location.href = `${API_BASE_URL}/auth/google/redirect`; }} />
+                    <SocialButton label={t("auth.continue_google")} icon={<GoogleIcon />} disabled={submitting} onClick={() => { if (redirectTo) localStorage.setItem("pendingVehicleRedirect", redirectTo); window.location.href = `${API_BASE_URL}/auth/google/redirect`; }} />
 
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -506,16 +508,16 @@ function RegisterForm() {
                       className="mt-[10px] text-center text-[13px] text-[#395886] dark:text-[#94A3B8] font-medium"
                     >
                       {mode === "login" ? (
-                        <>Vous n'avez pas de compte ? <a href="/register" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">inscrivez-vous</a></>
+                        <>{t("auth.no_account")} <a href="/register" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">{t("auth.sign_up_link")}</a></>
                       ) : (
-                        <>Vous avez déjà un compte ? <a href="/login" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">connectez-vous</a></>
+                        <>{t("auth.has_account")} <a href="/login" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">{t("auth.sign_in_link")}</a></>
                       )}
                     </motion.div>
 
                     <div className="mt-[16px] flex flex-wrap items-center justify-center gap-[12px] text-[11px] text-[#395886]/60 dark:text-[#94A3B8]/60">
-                      <a href="." className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">Politique de confidentialité</a>
+                      <a href="/privacy" className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">{t("auth.privacy")}</a>
                       <span className="w-[3px] h-[3px] rounded-full bg-[#D5DEEF] dark:bg-[#475569]" />
-                      <a href="." className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">Conditions d'utilisation</a>
+                      <a href="/terms" className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">{t("auth.terms")}</a>
                     </div>
                   </form>
                 </div>

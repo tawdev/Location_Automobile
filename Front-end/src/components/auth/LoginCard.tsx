@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { InputField } from "./InputField";
 import { SocialButton, GoogleIcon } from "./SocialButton";
 import { API_BASE_URL } from "@/lib/config";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type AuthCardStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -62,6 +63,8 @@ export function LoginCard({
   submitting,
   initialMode = "login",
 }: LoginCardProps) {
+  const { t } = useI18n();
+
   const emailId = useId();
   const passwordId = useId();
 
@@ -106,9 +109,9 @@ export function LoginCard({
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
     const nextErrors = {
-      name: mode === "signup" ? (NAME_RE.test(trimmedName) ? null : "Le nom doit contenir au moins 2 lettres.") : null,
-      email: EMAIL_RE.test(trimmedEmail) ? null : "Entrez une adresse e-mail valide.",
-      password: PASSWORD_RE.test(password) ? null : "Le mot de passe doit comporter 8+ caractères avec des lettres et des chiffres.",
+      name: mode === "signup" ? (NAME_RE.test(trimmedName) ? null : t("auth.name_error")) : null,
+      email: EMAIL_RE.test(trimmedEmail) ? null : t("auth.email_error"),
+      password: PASSWORD_RE.test(password) ? null : t("auth.password_error"),
     };
 
     setFieldErrors(nextErrors);
@@ -127,8 +130,8 @@ export function LoginCard({
         err instanceof Error
           ? err.message
           : mode === "login"
-            ? "Échec de la connexion"
-            : "Échec de l'inscription";
+            ? t("auth.login_failed")
+            : t("auth.signup_failed");
       setFormError(msg);
     }
   }
@@ -153,11 +156,11 @@ export function LoginCard({
         >
           {mode === "login" ? (
             <>
-              Bon retour <span className="text-[#F39C12]">parmi nous</span>
+              {t("auth.login_title")} <span className="text-[#F39C12]">{t("auth.login_title_highlight")}</span>
             </>
           ) : (
             <>
-              Créer un <span className="text-[#F39C12]">compte</span>
+              {t("auth.signup_title")} <span className="text-[#F39C12]">{t("auth.signup_title_highlight")}</span>
             </>
           )}
         </motion.h2>
@@ -168,7 +171,7 @@ export function LoginCard({
           transition={{ duration: 0.5, delay: 0.15 }}
           className="mt-[6px] text-[14px] md:text-[15px] lg:text-[17px] text-[#395886]/70 text-center font-medium"
         >
-          {mode === "login" ? "Connectez-vous pour continuer" : "Inscrivez-vous pour réserver facilement"}
+          {mode === "login" ? t("auth.login_subtitle") : t("auth.signup_subtitle")}
         </motion.p>
 
         {displayError ? (
@@ -195,10 +198,10 @@ export function LoginCard({
               transition={{ duration: 0.35 }}
             >
               <div className="sr-only">
-                <label htmlFor="signup-name">Nom</label>
+                <label htmlFor="signup-name">{t("auth.name")}</label>
               </div>
               <InputField
-                label="Nom"
+                label={t("auth.name")}
                 type="text"
                 value={name}
                 onChange={(next) => {
@@ -219,10 +222,10 @@ export function LoginCard({
 
           <div>
             <div className="sr-only">
-              <label htmlFor={emailId}>Adresse e-mail</label>
+              <label htmlFor={emailId}>{t("auth.email")}</label>
             </div>
             <InputField
-              label="Adresse e-mail"
+              label={t("auth.email")}
               type="email"
               value={email}
               onChange={(next) => {
@@ -242,11 +245,11 @@ export function LoginCard({
 
           <div>
             <div className="flex items-end justify-between">
-              <div className="text-[13px] font-bold text-[#395886] dark:text-[#94A3B8] mb-1 tracking-tight">Mot de passe</div>
+              <div className="text-[13px] font-bold text-[#395886] dark:text-[#94A3B8] mb-1 tracking-tight">{t("auth.password")}</div>
 
               {mode === "login" ? (
                 <a href="/forgot-password" className="text-[12px] font-semibold text-[#638ECB] underline-offset-2 underline hover:text-[#395886] transition-colors duration-200">
-                  Mot de passe oublié ?
+                  {t("auth.forgot_password")}
                 </a>
               ) : (
                 <span />
@@ -299,7 +302,7 @@ export function LoginCard({
                   className="peer w-[16px] h-[16px] accent-[#638ECB] cursor-pointer rounded"
                 />
               </div>
-              <span className="text-[13px] text-[#395886] dark:text-[#94A3B8] font-medium group-hover:text-[#638ECB] transition-colors duration-200">Mémoriser cet appareil</span>
+              <span className="text-[13px] text-[#395886] dark:text-[#94A3B8] font-medium group-hover:text-[#638ECB] transition-colors duration-200">{t("auth.remember")}</span>
             </label>
           ) : null}
 
@@ -316,21 +319,21 @@ export function LoginCard({
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
                   <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                 </svg>
-                {mode === "login" ? "Connexion..." : "Création..."}
+                {mode === "login" ? t("auth.signing_in") : t("auth.creating")}
               </span>
             ) : (
-              mode === "login" ? "Connexion" : "Créer un compte"
+              mode === "login" ? t("auth.sign_in") : t("auth.create_account")
             )}
           </motion.button>
 
           <div className="flex items-center gap-[12px] mt-[4px]">
             <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#D5DEEF] to-transparent dark:via-[#475569]" />
-            <span className="text-[10px] font-extrabold tracking-[0.2em] text-[#395886]/50 dark:text-[#94A3B8]/50">OU CONTINUER AVEC</span>
+            <span className="text-[10px] font-extrabold tracking-[0.2em] text-[#395886]/50 dark:text-[#94A3B8]/50">{t("auth.or_continue_with")}</span>
             <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#D5DEEF] to-transparent dark:via-[#475569]" />
           </div>
 
           <SocialButton
-            label="Continuer avec Google"
+            label={t("auth.continue_google")}
             icon={<GoogleIcon />}
             disabled={isSubmitting}
             onClick={() => {
@@ -349,28 +352,28 @@ export function LoginCard({
           >
             {mode === "login" ? (
               <>
-                Vous n'avez pas de compte ?{" "}
+                {t("auth.no_account")}{" "}
                 <a href={`/register${currentSearch}`} className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">
-                  inscrivez-vous
+                  {t("auth.sign_up_link")}
                 </a>
               </>
             ) : (
               <>
-                Vous avez déjà un compte ?{" "}
+                {t("auth.has_account")}{" "}
                 <a href={`/login${currentSearch}`} className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">
-                  connectez-vous
+                  {t("auth.sign_in_link")}
                 </a>
               </>
             )}
           </motion.div>
 
           <div className="mt-[16px] flex flex-wrap items-center justify-center gap-[12px] text-[11px] text-[#395886]/60 dark:text-[#94A3B8]/60">
-            <a href="." className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">
-              Politique de confidentialité
+            <a href="/privacy" className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">
+              {t("auth.privacy")}
             </a>
             <span className="w-[3px] h-[3px] rounded-full bg-[#D5DEEF] dark:bg-[#475569]" />
-            <a href="." className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">
-              Conditions d'utilisation
+            <a href="/terms" className="hover:text-[#395886] dark:hover:text-[#D5DEEF] underline-offset-2 underline transition-colors duration-200">
+              {t("auth.terms")}
             </a>
           </div>
         </form>

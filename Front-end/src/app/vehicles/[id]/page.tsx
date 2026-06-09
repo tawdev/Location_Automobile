@@ -25,6 +25,8 @@ type Vehicle = {
   fuelType: string;
   category_id: number;
   Occupants: string;
+  air_conditioner?: boolean;
+  gps?: boolean;
   pictures?: { id: number; path: string }[];
   created_at?: string;
 };
@@ -391,7 +393,7 @@ export default function VehicleDetailPage() {
               className="mt-12 border border-[#edf0f4] dark:border-[#1e293b] rounded-[30px] p-10 bg-white dark:bg-[#0f1729]"
             >
               <h2 className="text-[28px] font-extrabold text-[#16386b] dark:text-[#D5DEEF] mb-10">{t("vehicle.specs")}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
                 {/* Fuel */}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
@@ -452,6 +454,36 @@ export default function VehicleDetailPage() {
                     <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.year")}</span>
                   </div>
                   <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.year}</div>
+                </motion.div>
+                {/* Air Conditioner */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.72 }}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.air_conditioner")}</span>
+                  </div>
+                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.air_conditioner ? "✓" : "—"}</div>
+                </motion.div>
+                {/* GPS */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.8 }}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#6b7280">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                    <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.gps")}</span>
+                  </div>
+                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.gps ? "✓" : "—"}</div>
                 </motion.div>
               </div>
             </motion.section>

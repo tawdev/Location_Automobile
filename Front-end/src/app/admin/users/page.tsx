@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { getUsers, getUserStats } from "@/lib/adminUsersApi";
 import { profileImageUrl } from "@/lib/media";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import type { AdminUser, UserStats } from "@/lib/adminUsersApi";
 
 function fmt(n: number) {
@@ -178,11 +179,11 @@ function UserCard({
             </span>
             {user.email_verified_at ? (
               <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#059669] bg-[#059669]/10 dark:bg-[#059669]/15 px-1.5 py-0.5 rounded-md shrink-0">
-                Vérifié
+                {t("admin_users.verified")}
               </span>
             ) : (
               <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#D97706] bg-[#D97706]/10 dark:bg-[#D97706]/15 px-1.5 py-0.5 rounded-md shrink-0">
-                Non vérifié
+                {t("admin_users.unverified")}
               </span>
             )}
           </div>
@@ -196,7 +197,7 @@ function UserCard({
               <svg className="w-3.5 h-3.5 text-[#0284C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>{user.reservations_count ?? 0} réservation{(user.reservations_count ?? 0) !== 1 ? "s" : ""}</span>
+              <span>{user.reservations_count ?? 0} {t("admin_users.reservations")}</span>
             </div>
             <div className="flex items-center gap-1.5 font-semibold text-[#B0C4DE] dark:text-[#64748B]">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -214,6 +215,7 @@ function UserCard({
 }
 
 export default function AdminUsersPage() {
+  const { t } = useI18n();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -227,7 +229,7 @@ export default function AdminUsersPage() {
       setUsers(u);
       setStats(s);
     } catch (e) {
-      setError(e instanceof Error ? e.message : (e as any)?.message || "Échec du chargement");
+      setError(e instanceof Error ? e.message : (e as any)?.message || t("admin_users.load_error"));
     } finally {
       setLoading(false);
     }
@@ -251,10 +253,10 @@ export default function AdminUsersPage() {
       >
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#395886] dark:text-[#D5DEEF] tracking-tight">
-            Utilisateurs
+            {t("admin_users.title")}
           </h1>
           <p className="text-sm font-bold text-[#638ECB] dark:text-[#94A3B8] mt-1">
-            Gérez les clients et consultez leurs statistiques
+            {t("admin_users.subtitle")}
           </p>
         </div>
         <button
@@ -266,7 +268,7 @@ export default function AdminUsersPage() {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          <span>{loading ? "Chargement..." : "Actualiser"}</span>
+          <span>{loading ? t("admin_users.loading") : t("admin_users.refresh")}</span>
         </button>
       </motion.div>
 
@@ -288,22 +290,22 @@ export default function AdminUsersPage() {
           {/* ═══ Stats Cards ═══ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
             <StatCard
-              label="Total clients" value={stats.totalClients}
+              label={t("admin_users.total")} value={stats.totalClients}
               accent="#8B5CF6" delay={0.05}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>}
             />
             <StatCard
-              label="Clients actifs" value={stats.activeClients}
+              label={t("admin_users.active")} value={stats.activeClients}
               accent="#059669" delay={0.1}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
             />
             <StatCard
-              label="Nouveaux ce mois" value={stats.newThisMonth}
+              label={t("admin_users.new_month")} value={stats.newThisMonth}
               accent="#D97706" delay={0.15}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>}
             />
             <StatCard
-              label="Documents fournis" value={stats.withDocuments}
+              label={t("admin_users.documents")} value={stats.withDocuments}
               accent="#0284C7" delay={0.2}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
             />
@@ -319,14 +321,14 @@ export default function AdminUsersPage() {
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF] tracking-tight">
-                  Inscriptions mensuelles
+                  {t("admin_users.monthly")}
                 </h3>
                 <span className="text-[10px] font-bold text-[#B0C4DE] dark:text-[#64748B] uppercase tracking-wider">
                   {regChartData.length} mois
                 </span>
               </div>
               {regChartData.length === 0 ? (
-                <EmptyState message="Aucune donnée d'inscription" />
+                <EmptyState message={t("admin_users.no_data")} />
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={regChartData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }} barCategoryGap="2" barGap="0">
@@ -356,7 +358,7 @@ export default function AdminUsersPage() {
               className="flex items-center justify-between mb-4"
             >
               <h3 className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF] tracking-tight">
-                Tous les clients
+                {t("admin_users.all")}
               </h3>
               <span className="text-[11px] font-bold text-[#B0C4DE] dark:text-[#64748B]">
                 {users.length} utilisateur{users.length !== 1 ? "s" : ""}
@@ -365,7 +367,7 @@ export default function AdminUsersPage() {
 
             {users.length === 0 ? (
               <Card>
-                <EmptyState message="Aucun utilisateur trouvé" />
+                <EmptyState message={t("admin_users.no_users")} />
               </Card>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
