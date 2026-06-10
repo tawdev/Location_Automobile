@@ -305,7 +305,7 @@ export default function SettingsPage() {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-4">
-                      {reservations.map((r, i) => {
+                      {reservations.slice(0, 3).map((r, i) => {
                         const img = r.vehicle?.pictures?.[0]?.path
                           ? vehicleImageUrl(r.vehicle.pictures[0].path)
                           : null;

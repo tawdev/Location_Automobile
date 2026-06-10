@@ -18,39 +18,22 @@ import {
 } from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
-const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
-  En_Attente: {
-    label: "En attente",
-    classes: "bg-amber-50 text-amber-700 border-amber-200",
-  },
-  Confirmée: {
-    label: "Confirmée",
-    classes: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  Annulée: {
-    label: "Annulée",
-    classes: "bg-rose-50 text-rose-600 border-rose-200",
-  },
-  Terminée: {
-    label: "Terminée",
-    classes: "bg-sky-50 text-sky-700 border-sky-200",
-  },
+const STATUS_STYLES: Record<string, string> = {
+  En_Attente: "bg-amber-50 text-amber-700 border-amber-200",
+  Confirmée: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Annulée: "bg-rose-50 text-rose-600 border-rose-200",
+  Terminée: "bg-sky-50 text-sky-700 border-sky-200",
 };
 
 function statusStyle(status: string) {
-  return (
-    STATUS_STYLES[status] ?? {
-      label: status,
-      classes: "bg-zinc-50 text-zinc-600 border-zinc-200",
-    }
-  );
+  return STATUS_STYLES[status] ?? "bg-zinc-50 text-zinc-600 border-zinc-200";
 }
 
 const FINAL_STATUSES = ["Confirmée", "Annulée", "Terminée"];
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, locale?: string) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString("fr-FR", {
+  return d.toLocaleDateString(locale || "fr-FR", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -176,7 +159,17 @@ function DetailModal({
   onClose: () => void;
   onOpenLightbox: (url: string, label: string) => void;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const statusLabel = useCallback((s: string) => {
+    const map: Record<string, string> = {
+      En_Attente: t("admin.status_pending"),
+      Confirmée: t("admin.status_confirmed"),
+      Annulée: t("admin.status_cancelled"),
+      Terminée: t("admin.status_completed"),
+    };
+    return map[s] ?? s;
+  }, [t]);
+
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -226,8 +219,8 @@ function DetailModal({
               <p className="text-xs font-bold text-[#638ECB]">{userName}</p>
             </div>
           </div>
-          <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold border ${ss.classes}`}>
-            {ss.label}
+          <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold border ${ss}`}>
+            {statusLabel(reservation.status)}
           </span>
         </div>
 
@@ -267,11 +260,11 @@ function DetailModal({
           <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.start")}</span>
-              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.start_date)}</span>
+              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.start_date, locale)}</span>
             </div>
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.end")}</span>
-              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.end_date)}</span>
+              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.end_date, locale)}</span>
             </div>
             <div className="col-span-2 pt-2 border-t border-[#D5DEEF]/30">
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.total")}</span>
@@ -303,7 +296,7 @@ function DetailModal({
 }
 
 export default function AdminReservationsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -391,6 +384,16 @@ export default function AdminReservationsPage() {
       setActionType(null);
     }
   }
+
+  const statusLabel = useCallback((s: string) => {
+    const map: Record<string, string> = {
+      En_Attente: t("admin.status_pending"),
+      Confirmée: t("admin.status_confirmed"),
+      Annulée: t("admin.status_cancelled"),
+      Terminée: t("admin.status_completed"),
+    };
+    return map[s] ?? s;
+  }, [t]);
 
   const isBusy = (id: number) => actionId === id;
   const isAccepting = (id: number) => isBusy(id) && actionType === "accept";
@@ -560,18 +563,18 @@ export default function AdminReservationsPage() {
                     <h4 className="font-extrabold text-[#395886] text-base leading-tight truncate">
                       {vehicleName}
                     </h4>
-                    <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${ss.classes}`}>
-                      {ss.label}
+                    <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${ss}`}>
+                      {statusLabel(r.status)}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mt-1 text-xs font-semibold text-[#638ECB]">
                     <span>{userName}</span>
                     <span className="text-[#D5DEEF]">|</span>
-                    <span>{formatDate(r.start_date)}</span>
+                    <span>{formatDate(r.start_date, locale)}</span>
                     <svg className="w-3 h-3 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
-                    <span>{formatDate(r.end_date)}</span>
+                    <span>{formatDate(r.end_date, locale)}</span>
                     <span className="text-[#D5DEEF]">|</span>
                     <span className="text-[#395886] font-bold">{r.TotalPrice} MAD</span>
                   </div>

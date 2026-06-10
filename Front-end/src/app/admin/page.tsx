@@ -10,11 +10,11 @@ import { getDashboardStats } from "@/lib/adminDashboardApi";
 import type { DashboardStats } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
-const STATUS_META: Record<string, { label: string; color: string; lightBg: string }> = {
-  En_Attente: { label: "En attente", color: "#D97706", lightBg: "#FEF3C7" },
-  Confirmée: { label: "Confirmée", color: "#059669", lightBg: "#D1FAE5" },
-  Annulée: { label: "Annulée", color: "#E11D48", lightBg: "#FEE2E2" },
-  Terminée: { label: "Terminée", color: "#0284C7", lightBg: "#E0F2FE" },
+const STATUS_META: Record<string, { color: string; lightBg: string }> = {
+  En_Attente: { color: "#D97706", lightBg: "#FEF3C7" },
+  Confirmée: { color: "#059669", lightBg: "#D1FAE5" },
+  Annulée: { color: "#E11D48", lightBg: "#FEE2E2" },
+  Terminée: { color: "#0284C7", lightBg: "#E0F2FE" },
 };
 
 
@@ -202,6 +202,16 @@ export default function AdminDashboardPage() {
 
   useEffect(() => { void load(); }, [load]);
 
+  const statusLabel = useCallback((status: string) => {
+    const map: Record<string, string> = {
+      En_Attente: t("admin.status_pending"),
+      Confirmée: t("admin.status_confirmed"),
+      Annulée: t("admin.status_cancelled"),
+      Terminée: t("admin.status_completed"),
+    };
+    return map[status] ?? status;
+  }, [t]);
+
   const sortedMonths = stats
     ? [...stats.monthlyRevenue].sort((a, b) => a.month.localeCompare(b.month))
     : [];
@@ -216,7 +226,7 @@ export default function AdminDashboardPage() {
     : [];
 
   const pieData = statusEntries.map(([s, c]) => ({
-    name: STATUS_META[s]?.label ?? s,
+    name: statusLabel(s),
     value: c,
     color: STATUS_META[s]?.color ?? "#6B7280",
   }));
@@ -485,7 +495,7 @@ export default function AdminDashboardPage() {
                             {r.vehicle ? `${r.vehicle.marque} ${r.vehicle.model}` : `#${r.id}`}
                           </span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusBadgeClass(r.status)}`}>
-                            {STATUS_META[r.status]?.label ?? r.status}
+                            {statusLabel(r.status)}
                           </span>
                         </div>
                         <div className="text-[11px] font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-0.5">

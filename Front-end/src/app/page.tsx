@@ -973,6 +973,7 @@ function FooterSection() {
                 title: t("footer.legal"),
                 links: [
                   { label: t("rules.title"), href: "/regles" },
+                  { label: t("footer.privacy"), href: "/privacy" },
                 ],
               },
               {

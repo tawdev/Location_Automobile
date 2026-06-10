@@ -1,0 +1,130 @@
+================================================================================
+  CARFORFAR - TERMS OF USE
+  Document: ToU v2.1 | Last Updated: June 2026
+================================================================================
+
+================================================================================
+  SECTION 1: PURPOSE
+================================================================================
+
+These Terms of Use govern access to and use of the Carforfar platform,
+accessible via the website and mobile application. By using our services,
+you unreservedly accept all of these terms.
+
+================================================================================
+  SECTION 2: ACCEPTANCE OF TERMS
+================================================================================
+
+The user acknowledges having read these Terms and fully accepts them. In
+case of non-acceptance, the user must refrain from using the platform.
+Carforfar reserves the right to modify the Terms at any time, with changes
+taking effect upon publication.
+
+================================================================================
+  SECTION 3: SERVICES OFFERED
+================================================================================
+
+Carforfar offers a service connecting customers wishing to rent a vehicle
+with a fleet of passenger cars. Services include:
+
+  ✓ Online vehicle search and booking
+  ✓ Management of rental documents
+  ✓ Customer support and assistance during the rental period
+  ✓ Additional options (GPS, baby seat, etc.)
+
+================================================================================
+  SECTION 4: REGISTRATION AND USER ACCOUNT
+================================================================================
+
+To access our services, the user must create an account by providing:
+
+  ✓ First and last name
+  ✓ Valid email address
+  ✓ Phone number
+  ✓ Supporting documents (CIN, driver's license)
+
+The user is solely responsible for the confidentiality of their login
+credentials. Any access to their account is presumed to originate from
+the user.
+
+================================================================================
+  SECTION 5: RENTAL CONDITIONS
+================================================================================
+
+-- Minimum Age --
+  The driver must be at least 21 years old.
+
+-- Driver's License --
+  The driver must hold a valid driver's license for at least one year.
+
+-- Documents --
+  A valid ID (CIN) and driver's license must be provided before booking.
+
+-- Deposit --
+  A deposit of 5,000 DH is required upon vehicle delivery.
+
+================================================================================
+  SECTION 6: RESERVATION AND CANCELLATION
+================================================================================
+
+  ✓ The reservation is confirmed after document validation and payment.
+  ✓ Any cancellation made at least 48 hours before pickup is free of charge.
+  ✓ Late cancellations or no-shows may incur fees.
+  ✓ Carforfar reserves the right to cancel a reservation if terms are not
+    respected.
+
+================================================================================
+  SECTION 7: RATES AND PAYMENT
+================================================================================
+
+  ✓ Prices are in Moroccan Dirhams (MAD) and include VAT.
+  ✓ Payment is made online via available payment methods on the platform.
+  ✓ Mileage included is 200 km per day. Any excess will be charged according
+    to applicable rates.
+  ✓ Rates may vary depending on season, rental duration, and vehicle type.
+
+================================================================================
+  SECTION 8: USER OBLIGATIONS
+================================================================================
+
+  ✓ Use the vehicle responsibly
+  ✓ Not sublet the vehicle
+  ✓ Not drive under the influence of alcohol or drugs
+  ✓ Respect the highway code
+  ✓ Return the vehicle on the agreed date and location
+  ✓ Immediately report any accident or damage
+
+================================================================================
+  SECTION 9: LIABILITY
+================================================================================
+
+Carforfar disclaims all liability for damages caused by the user's failure
+to comply with these terms. Basic insurance is included, but certain
+deductibles may apply according to the rental contract terms.
+
+================================================================================
+  SECTION 10: DATA PROTECTION
+================================================================================
+
+Personal data collected is processed in accordance with our Privacy Policy.
+The user has the right to access, rectify, and delete their data.
+
+================================================================================
+  SECTION 11: INTELLECTUAL PROPERTY
+================================================================================
+
+All content on the platform (texts, images, logos, trademarks) is the
+exclusive property of Carforfar. Any reproduction or use without
+authorization is prohibited.
+
+================================================================================
+  SECTION 12: APPLICABLE LAW
+================================================================================
+
+These Terms are governed by Moroccan law. Any dispute relating to their
+interpretation or execution falls under the jurisdiction of the courts of
+Marrakech.
+
+================================================================================
+  END OF DOCUMENT
+================================================================================

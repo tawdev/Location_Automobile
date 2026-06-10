@@ -1,0 +1,128 @@
+================================================================================
+  CARFORFAR - PRIVACY POLICY
+  Document: PP v1.0 | Last Updated: June 2026
+================================================================================
+
+================================================================================
+  SECTION 1: INTRODUCTION
+================================================================================
+
+At Carforfar, we take the protection of your personal data very seriously.
+This privacy policy explains what information we collect, how we use it, and
+what your rights are regarding your data.
+
+By using our platform, you accept the practices described in this policy.
+
+================================================================================
+  SECTION 2: COLLECTED DATA
+================================================================================
+
+As part of our vehicle rental services, we may collect the following information:
+
+-- 2.1 Identification Information --
+  • First and last name
+  • Email address
+  • Phone number
+  • Postal address
+
+-- 2.2 Booking Information --
+  • Rental dates
+  • Booked vehicle
+  • Booking history
+
+-- 2.3 Supporting Documents --
+  • National ID Card (CIN)
+  • Driver's license
+
+-- 2.4 Technical Data --
+  • IP address
+  • Browser type
+  • Operating system
+  • Browsing data on the site
+
+================================================================================
+  SECTION 3: PURPOSES OF COLLECTION
+================================================================================
+
+The collected data is used to:
+
+  ✓ Manage vehicle reservations
+  ✓ Verify customer identity
+  ✓ Ensure rental follow-up
+  ✓ Respond to user requests
+  ✓ Improve our services
+  ✓ Guarantee platform security
+  ✓ Comply with legal obligations
+
+================================================================================
+  SECTION 4: DATA RETENTION
+================================================================================
+
+Personal data is retained only for the duration necessary for the purposes
+for which it was collected or in accordance with applicable legal obligations.
+
+================================================================================
+  SECTION 5: DATA SHARING
+================================================================================
+
+Carforfar does not sell or rent its users' personal data.
+
+Data may only be disclosed to:
+
+  ✓ Authorized employees of the company
+  ✓ Technical service providers necessary for service operation
+  ✓ Competent authorities when required by law
+
+================================================================================
+  SECTION 6: DATA SECURITY
+================================================================================
+
+We implement appropriate technical and organizational measures to protect your
+data against unauthorized access, loss, alteration, or disclosure.
+
+================================================================================
+  SECTION 7: COOKIES
+================================================================================
+
+Our site may use cookies to:
+
+  ✓ Improve user experience
+  ✓ Analyze site traffic
+  ✓ Remember certain browsing preferences
+
+Users can configure their browser to refuse cookies.
+
+================================================================================
+  SECTION 8: USER RIGHTS
+================================================================================
+
+Under applicable regulations, you have the following rights:
+
+  ✓ Right to access your data
+  ✓ Right to rectification
+  ✓ Right to erasure
+  ✓ Right to object to processing
+  ✓ Right to restriction of processing where applicable
+
+Any request may be sent to: contact@carforfar.com
+
+================================================================================
+  SECTION 9: POLICY CHANGES
+================================================================================
+
+Carforfar reserves the right to modify this privacy policy at any time.
+Changes will be published on this page.
+
+================================================================================
+  SECTION 10: CONTACT
+================================================================================
+
+For any questions regarding this privacy policy or the processing of your
+personal data:
+
+  Carforfar
+  contact@carforfar.com
+
+================================================================================
+  END OF DOCUMENT
+================================================================================
