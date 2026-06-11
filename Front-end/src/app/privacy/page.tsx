@@ -386,16 +386,6 @@ export default function PrivacyPage() {
             <p className="text-white/70 text-base font-semibold mt-3 max-w-xl">
               {t("legal.subtitle_privacy")}
             </p>
-            <motion.a
-              href="/downloads/CARFORFAR_Privacy_Policy_Full.pdf"
-              download
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-2 mt-5 bg-white/10 hover:bg-white/20 text-white font-extrabold px-5 py-3 rounded-xl text-xs border border-white/20 shadow-lg uppercase tracking-wider transition-all"
-            >
-              <Download className="w-4 h-4" />
-              Download PDF
-            </motion.a>
           </motion.div>
 
           <motion.div
@@ -454,6 +444,24 @@ export default function PrivacyPage() {
             <Shield className="w-3.5 h-3.5" />
             {t("legal.footer_date")}
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-10 text-center"
+        >
+          <motion.a
+            href="/downloads/CARFORFAR_Privacy_Policy_Full.pdf"
+            download
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="shrink-0 bg-[#395886] hover:bg-[#2b4c7e] dark:bg-white/10 dark:hover:bg-white/20 text-white font-extrabold px-5 py-3.5 rounded-xl text-xs border border-white/20 shadow-lg uppercase tracking-wider transition-all inline-flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download PDF
+          </motion.a>
         </motion.div>
       </div>
 
