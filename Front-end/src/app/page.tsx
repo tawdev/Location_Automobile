@@ -857,23 +857,22 @@ function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 mb-6 leading-tight"
+            className="text-4xl md:text-5xl lg:text-6xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 mb-6 leading-tight flex flex-wrap items-center justify-center gap-x-3"
           >
             {t("home.cta.title1")}
-            <br />
             <span className="relative inline-flex items-center">
               <img
                 src="/logo.png"
                 alt="CARFORFAR"
-                className="h-36 md:h-40 w-auto object-contain dark:hidden"
+                className="h-16 md:h-20 w-auto object-contain dark:hidden"
               />
               <img
                 src="/logo-dark.png"
                 alt="CARFORFAR"
-                className="h-36 md:h-40 w-auto object-contain hidden dark:block"
+                className="h-16 md:h-20 w-auto object-contain hidden dark:block"
               />
               <motion.span
-                className="absolute -bottom-1 left-0 right-0 h-2 bg-[#f39c12]/20 rounded-full"
+                className="absolute -bottom-1 left-0 right-0 h-1 bg-[#f39c12]/20 rounded-full"
                 initial={{ scaleX: 0 }}
                 whileInView={{ scaleX: 1 }}
                 viewport={{ once: true }}
@@ -881,7 +880,7 @@ function CTASection() {
                 style={{ transformOrigin: 'left' }}
               />
             </span>
-            <span> {t("home.cta.title2")}</span>
+            <span>{t("home.cta.title2")}</span>
           </motion.h2>
 
           <motion.p
@@ -1011,7 +1010,7 @@ function FooterSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="border-t border-[#638ECB]/30 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
         >
-          <p className="text-[#D5DEEF]/40 text-xs">&copy; 2024 CARFORFAR. {t("footer.rights")}</p>
+          <p className="text-[#D5DEEF]/40 text-xs">&copy; 2024 <a href="https://cdigital.ma/" target="_blank" rel="noopener noreferrer" className="text-[#D5DEEF]/60 hover:text-[#f39c12] transition-colors duration-200">Cdigital</a>. {t("footer.rights")}</p>
           <div className="flex gap-4">
             {["Instagram", "Facebook", "LinkedIn"].map((s) => (
               <motion.a
