@@ -33,6 +33,9 @@ Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
 // Public settings
 Route::get('settings', [SettingsController::class, 'index']);
 
+// Contact form
+Route::post('contact', [\App\Http\Controllers\Api\ContactController::class, 'send']);
+
 // Public vehicle routes (no auth required)
 Route::get('Vehicles' , [VehicleController::class, 'index']);
 Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);

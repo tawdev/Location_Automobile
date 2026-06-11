@@ -857,23 +857,22 @@ function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 mb-6 leading-tight"
+            className="text-4xl md:text-5xl lg:text-6xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 mb-6 leading-tight flex flex-wrap items-center justify-center gap-x-3"
           >
             {t("home.cta.title1")}
-            <br />
-            <span className="relative inline-flex items-center pb-10">
+            <span className="relative inline-flex items-center">
               <img
                 src="/logo.png"
                 alt="CARFORFAR"
-                className="h-36 md:h-40 w-auto object-contain dark:hidden"
+                className="h-16 md:h-20 w-auto object-contain dark:hidden"
               />
               <img
                 src="/logo-dark.png"
                 alt="CARFORFAR"
-                className="h-36 md:h-40 w-auto object-contain hidden dark:block"
+                className="h-16 md:h-20 w-auto object-contain hidden dark:block"
               />
               <motion.span
-                className="absolute -bottom-1 left-0 right-0 h-2 bg-[#f39c12]/20 rounded-full"
+                className="absolute -bottom-1 left-0 right-0 h-1 bg-[#f39c12]/20 rounded-full"
                 initial={{ scaleX: 0 }}
                 whileInView={{ scaleX: 1 }}
                 viewport={{ once: true }}
@@ -881,7 +880,7 @@ function CTASection() {
                 style={{ transformOrigin: 'left' }}
               />
             </span>
-            <span> {t("home.cta.title2")}</span>
+            <span>{t("home.cta.title2")}</span>
           </motion.h2>
 
           <motion.p
