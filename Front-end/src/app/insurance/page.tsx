@@ -803,20 +803,6 @@ export default function InsurancePage() {
               </p>
             </motion.div>
 
-            {/* Quick Actions (Print / Share) */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="hidden md:flex flex-col gap-2 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 mt-12"
-            >
-              <button 
-                onClick={handlePrint}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-white hover:bg-white/10 text-xs font-bold transition-all"
-              >
-                <Printer className="w-4 h-4" />
-                {currentLang === "en" ? "Print Policy" : currentLang === "fr" ? "Imprimer" : "طباعة"}
-              </button>
-            </motion.div>
           </div>
 
           {/* Quick Info Stats */}
@@ -1106,7 +1092,7 @@ export default function InsurancePage() {
               download
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="shrink-0 bg-white/10 hover:bg-white/20 text-white font-extrabold px-5 py-3.5 rounded-xl text-xs border border-white/20 shadow-lg uppercase tracking-wider transition-all flex items-center gap-2"
+              className="shrink-0 bg-[#395886] hover:bg-[#2b4c7e] dark:bg-white/10 dark:hover:bg-white/20 text-white font-extrabold px-5 py-3.5 rounded-xl text-xs border border-white/20 shadow-lg uppercase tracking-wider transition-all flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
               PDF
