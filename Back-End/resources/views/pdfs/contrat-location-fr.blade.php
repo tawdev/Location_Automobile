@@ -58,10 +58,40 @@
         .sig-date { font-size: 8.5px; color: var(--muted); }
         .footer { text-align: center; font-size: 7px; color: var(--muted); margin-top: 8px; border-top: 0.5px solid var(--light); padding-top: 4px; }
         .page-break { page-break-before: always; }
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: blur(2px);
+        }
+        .footer-logo {
+            text-align: center;
+            margin-top: 6px;
+        }
+        .footer-logo img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            opacity: 0.6;
+        }
         @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     </style>
 </head>
 <body>
+<div class="watermark">
+    <img src="{{ $logoBase64 }}" alt="CARFORFAR">
+</div>
 <div class="page-frame">
     <div class="top-bar"></div>
     <div class="bottom-bar"></div>
@@ -72,7 +102,7 @@
 
     <div class="header">
         <div class="header-logo-cell">
-        <img src="{{ asset('/image/logo.png') }}" alt="">
+        <img src="{{ $logoBase64 }}" alt="CARFORFAR">
     </div>
         <div class="header-title-cell">
             <div class="header-title">CONTRAT DE LOCATION DE V&Eacute;HICULE</div>
@@ -84,7 +114,7 @@
             </div>
         </div>
         <div class="header-logo-cell">
-            <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCATmBOYDASIAAhEBAxEB/8QAHQABAQABBQEBAAAAAAAAAAAAAAECBQYHCAkDBP/EAGkQAAIAAwUEAwgIDg0ICQMFAQABAhEhAwQFMUEGB2FxCBJRE1WBkZOU0dIWFxgiMlJWswkUFTM4QkVydaGxsuLwIzU2U1RiZGV0kpXB0yQlKENGhMPhJjQ3RGNzgoWkJ6KjR1eDhsLx/8QAGwEBAAIDAQEAAAAAAAAAAAAAAAEGBAUHAwL/xABAEQEAAQIDAwgGCAYCAgMAAAAAAQIDBAURFFORBhIVFiExUdFBUmFxobETVIGSwdLh8CIjMjRCciUzQ6IkNfH/2gAMAwEAAhEDEQA/AO5XMDUAAAAAYADMTmQCjIagAwJEAvEEqVdoDIDQi7ALkOYJIC6ghQIXQimUBMTEiSAoAAkyhIagJgMgFBFkAK6gMAJELoJTAVDC4h9oCmYXEmgAuQDzDkAnqJiRALMLiGTICgagBMDQOYDQZIgAqCzCyqGgGoBNQKhkxzFADA5CQBk1BQJXMtROhJgVDUB5gCKqDzHECgNgABKo5ANRoJBUAciIqEwAzQzHIAGJDUAAGA1FQgArIk2UZABnmBzATkOIchoAfaNSFAcBpIizKADyEwpAQoIgKsgnUEAtcxnkKyJyAtQBqAdQqMJzDAVHMBgKoTGYATqJkLqAzyA5AAwJBgOQCUhMAs5DUSAAVBAKAGwEyUKiSqBcgOY0ADgAwCzGY1DQELqGADDYY0ATYAAlRmWUw6ASpWwRgUAZAKjUTDAAPmEACCADIAICFY1HACURQAHICXYADI5FADIcQKyAEKNAA1AAAZgAgCagCjIcQGYWQYYAMACPISZRMCFDDAIaggAalGgAAIAEMyAVgPIAGQuYQBTDY1EgAYeRAKUg5ABMUmJgNQBxABqgACsgggAfaGGADAAAMheYBhIhQDJxKNQAYYAUkQrC4gAOAmBCqiBAKKAAOI0EwAWRCgAAJAQZFnUAEGKiYBkRQADoRsvECFZJFyADNhgAM0AwDEyF0AagZMmoFYAkAGpNC5gCalI8wDBWRAUlRUoAaggBqReZNQ8wKEQvABMnMTKuIEKgwAAqOIATRCgC"/>        </div>
+            <img src="{{ $logoBase64 }}" alt="CARFORFAR"/>        </div>
     </div>
 
     <div class="section-header">
@@ -274,6 +304,10 @@
         &copy; {{ date('Y') }} CARFORFAR &mdash; Location de voitures &agrave; Marrakech &nbsp;|&nbsp;
         Contrat g&eacute;n&eacute;r&eacute; le {{ \Carbon\Carbon::now()->format('d/m/Y \à H:i') }} &nbsp;|&nbsp;
         contact@carforfar.com
+    </div>
+
+    <div class="footer-logo">
+        <img src="{{ $logoBase64 }}" alt="CARFORFAR">
     </div>
 
 </div>

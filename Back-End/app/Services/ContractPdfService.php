@@ -43,9 +43,15 @@ class ContractPdfService
             default => 'pdfs.contrat-location-fr',
         };
 
+        $logoPath = public_path('image/Logo.png');
+        $logoBase64 = file_exists($logoPath)
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath))
+            : '';
+
         $pdf = Pdf::loadView($view, [
             'reservation' => $reservation,
             'settings' => $settings,
+            'logoBase64' => $logoBase64,
         ]);
 
         $this->registerArabicFonts($pdf);
@@ -97,9 +103,15 @@ class ContractPdfService
 
         $reservation->loadMissing(['user', 'vehicle', 'extras']);
 
+        $logoPath = public_path('image/Logo.png');
+        $logoBase64 = file_exists($logoPath)
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath))
+            : '';
+
         $pdf = Pdf::loadView($view, [
             'reservation' => $reservation,
             'settings' => $settings,
+            'logoBase64' => $logoBase64,
         ]);
 
         $this->registerArabicFonts($pdf);

@@ -28,6 +28,8 @@ class ReservationConfirmed extends Mailable
     {
         return new Envelope(
             subject: 'Réservation Confirmée - Contrat de Location',
+            replyTo: config('mail.from.address'),
+            tags: ['reservation-confirmed'],
         );
     }
 
@@ -35,6 +37,7 @@ class ReservationConfirmed extends Mailable
     {
         return new Content(
             view: 'emails.reservation-confirmed',
+            text: 'emails.reservation-confirmed-text',
         );
     }
 
