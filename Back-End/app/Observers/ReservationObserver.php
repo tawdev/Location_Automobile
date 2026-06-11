@@ -18,7 +18,11 @@ class ReservationObserver
                 Mail::to($reservation->user->email)->send(new ReservationConfirmed($reservation));
                 Log::info('Observer: Confirmation email sent to ' . $reservation->user->email);
             } catch (\Throwable $e) {
-                Log::error('Observer: Failed to send confirmation email: ' . $e->getMessage());
+                Log::error('Observer: Failed to send confirmation email: ' . $e->getMessage(), [
+                    'reservation_id' => $reservation->id,
+                    'user_email' => $reservation->user->email ?? 'unknown',
+                    'trace' => $e->getTraceAsString(),
+                ]);
             }
         }
     }
