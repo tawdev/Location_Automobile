@@ -38,6 +38,23 @@ export async function updateProfilePassword(data: {
   return res.data;
 }
 
+export async function updateProfileDetails(data: {
+  phone?: string;
+  address?: string;
+  cin_passport?: string;
+  date_of_birth?: string;
+  driver_license_number?: string;
+  license_issue_date?: string;
+  license_expiry_date?: string;
+}): Promise<User> {
+  const res = await apiRequest<{ status?: string; message?: string; data: User }>({
+    method: "PUT",
+    path: "/profile/details",
+    body: data,
+  });
+  return res.data;
+}
+
 export async function addCin(cinRecto: File, cinVerso: File): Promise<void> {
   const body = new FormData();
   body.set("cin_recto", cinRecto);

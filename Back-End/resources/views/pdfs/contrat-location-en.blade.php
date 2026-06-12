@@ -116,21 +116,21 @@
             <img src="{{ $logoBase64 }}" alt="CARFORFAR"/>        </div>
     </div>
 
-    @php $client = $reservation->client; @endphp
+    @php $u = $reservation->user; @endphp
     <div class="section-header">
         <div class="section-num">1</div>
         <div class="section-title">IDENTIFICATION OF THE TENANT</div>
     </div>
     <table class="info">
-        <tr><td class="lbl">Full name</td><td class="val">{{ $reservation->user->name }}</td></tr>
-        <tr><td class="lbl">Date of birth</td><td class="val">{{ $client ? \Carbon\Carbon::parse($client->date_of_birth)->format('d/m/Y') : '' }}</td></tr>
-        <tr><td class="lbl">ID / Passport N&deg;</td><td class="val">{{ $client->cin ?? '' }}</td></tr>
-        <tr><td class="lbl">Address</td><td class="val">{{ $client->address ?? '' }}</td></tr>
-        <tr><td class="lbl">Phone</td><td class="val">{{ $client->phone ?? '' }}</td></tr>
-        <tr><td class="lbl">Email</td><td class="val">{{ $reservation->user->email }}</td></tr>
-        <tr><td class="lbl">Driving license N&deg;</td><td class="val">{{ $client->driver_license_number ?? '' }}</td></tr>
-        <tr><td class="lbl">Issue date</td><td class="val">{{ $client && $client->license_issue_date ? \Carbon\Carbon::parse($client->license_issue_date)->format('d/m/Y') : '' }}</td></tr>
-        <tr><td class="lbl">Expiry date</td><td class="val">{{ $client && $client->license_expiry_date ? \Carbon\Carbon::parse($client->license_expiry_date)->format('d/m/Y') : '' }}</td></tr>
+        <tr><td class="lbl">Full name</td><td class="val">{{ $u->name }}</td></tr>
+        <tr><td class="lbl">Date of birth</td><td class="val">{{ $u->date_of_birth ? \Carbon\Carbon::parse($u->date_of_birth)->format('d/m/Y') : '' }}</td></tr>
+        <tr><td class="lbl">ID / Passport N&deg;</td><td class="val">{{ $u->cin_passport ?? '' }}</td></tr>
+        <tr><td class="lbl">Address</td><td class="val">{{ $u->address ?? '' }}</td></tr>
+        <tr><td class="lbl">Phone</td><td class="val">{{ $u->phone ?? '' }}</td></tr>
+        <tr><td class="lbl">Email</td><td class="val">{{ $u->email }}</td></tr>
+        <tr><td class="lbl">Driving license N&deg;</td><td class="val">{{ $u->driver_license_number ?? '' }}</td></tr>
+        <tr><td class="lbl">Issue date</td><td class="val">{{ $u->license_issue_date ? \Carbon\Carbon::parse($u->license_issue_date)->format('d/m/Y') : '' }}</td></tr>
+        <tr><td class="lbl">Expiry date</td><td class="val">{{ $u->license_expiry_date ? \Carbon\Carbon::parse($u->license_expiry_date)->format('d/m/Y') : '' }}</td></tr>
     </table>
 
     <div class="section-header">
@@ -192,7 +192,7 @@
         <div class="section-num">6</div>
         <div class="section-title">VEHICLE CONDITION AT DEPARTURE</div>
     </div>
-    @if($reservation->departureConditions && $reservation->departureConditions->count() > 0)
+    @if(false)
         @foreach($reservation->departureConditions as $cond)
             <div class="checkbox-row"><span class="chk">&#9746;</span> {{ $cond->name }}</div>
         @endforeach

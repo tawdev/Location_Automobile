@@ -4,6 +4,13 @@ export type User = {
   id: number;
   name: string;
   email: string;
+  phone?: string | null;
+  address?: string | null;
+  cin_passport?: string | null;
+  date_of_birth?: string | null;
+  driver_license_number?: string | null;
+  license_issue_date?: string | null;
+  license_expiry_date?: string | null;
   role_id: RoleId;
 
   // profile images/documents (stored as filenames/paths)
@@ -93,6 +100,7 @@ export type Reservation = {
   vehicle_id: number;
   status: ReservationStatus;
   TotalPrice: number;
+  contract_pdf?: string | null;
 
   // New fields
   client_id?: number | null;

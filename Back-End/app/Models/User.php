@@ -16,7 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    protected $fillable = ['name', 'email', 'password', 'role_id', 'cin_recto', 'cin_verso', 'permi_recto', 'permi_verso', 'profile_pic', 'google_id', 'google_avatar', 'scCinRecto', 'scCinVerso', 'scPermiRecto', 'scPermiVerso', 'verification_code'];
+    protected $fillable = ['name', 'email', 'phone', 'address', 'cin_passport', 'date_of_birth', 'driver_license_number', 'license_issue_date', 'license_expiry_date', 'password', 'role_id', 'cin_recto', 'cin_verso', 'permi_recto', 'permi_verso', 'profile_pic', 'google_id', 'google_avatar', 'scCinRecto', 'scCinVerso', 'scPermiRecto', 'scPermiVerso', 'verification_code'];
     protected $hidden = ['password', 'remember_token'];
 
     /** @use HasFactory<UserFactory> */

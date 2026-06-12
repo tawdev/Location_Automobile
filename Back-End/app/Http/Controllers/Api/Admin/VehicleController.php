@@ -14,8 +14,6 @@ use App\Models\DepartureCondition;
 class VehicleController extends Controller
 {
     public function __construct(
-
-
         protected VehicleService $vehicleService,
         protected ReservationService $reservitionService
     ) {

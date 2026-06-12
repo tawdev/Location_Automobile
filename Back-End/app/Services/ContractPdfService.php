@@ -75,7 +75,7 @@ class ContractPdfService
 
     public function generateAll(Reservation $reservation): array
     {
-        $reservation->loadMissing(['user', 'vehicle', 'extras', 'client', 'departureConditions']);
+        $reservation->loadMissing(['user', 'vehicle', 'extras']);
 
         return [
             'fr' => $this->generateSingle($reservation, 'fr'),

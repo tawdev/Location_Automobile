@@ -3,10 +3,10 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useAuth } from "@/lib/authContext";
 import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
-import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword } from "@/lib/profileApi";
+import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword, updateProfileDetails } from "@/lib/profileApi";
 import type { ApiError } from "@/lib/apiClient";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, Sparkles, Eye, EyeOff, Smartphone, MapPin, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function UploadZone({
@@ -65,6 +65,13 @@ export default function ProfileForm() {
   const initial = useMemo(() => ({
     name: user?.name ?? "",
     email: user?.email ?? "",
+    phone: user?.phone ?? "",
+    address: user?.address ?? "",
+    cin_passport: user?.cin_passport ?? "",
+    date_of_birth: user?.date_of_birth ?? "",
+    driver_license_number: user?.driver_license_number ?? "",
+    license_issue_date: user?.license_issue_date ?? "",
+    license_expiry_date: user?.license_expiry_date ?? "",
     profile_pic: user?.profile_pic ?? null,
     cin_recto: user?.cin_recto ?? null,
     cin_verso: user?.cin_verso ?? null,
@@ -74,15 +81,29 @@ export default function ProfileForm() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [cinPassport, setCinPassport] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [driverLicenseNumber, setDriverLicenseNumber] = useState("");
+  const [licenseIssueDate, setLicenseIssueDate] = useState("");
+  const [licenseExpiryDate, setLicenseExpiryDate] = useState("");
   const initialized = useRef(false);
 
   useEffect(() => {
     if (!initialized.current && initial.name) {
       setName(initial.name);
       setEmail(initial.email);
+      setPhone(initial.phone);
+      setAddress(initial.address);
+      setCinPassport(initial.cin_passport);
+      setDateOfBirth(initial.date_of_birth);
+      setDriverLicenseNumber(initial.driver_license_number);
+      setLicenseIssueDate(initial.license_issue_date);
+      setLicenseExpiryDate(initial.license_expiry_date);
       initialized.current = true;
     }
-  }, [initial.name, initial.email]);
+  }, [initial.name, initial.email, initial.phone, initial.address]);
 
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
 
@@ -116,6 +137,15 @@ export default function ProfileForm() {
     setBasicSuccess(null);
     try {
       await updateProfileName(name.trim());
+      await updateProfileDetails({
+        phone: phone.trim() || undefined,
+        address: address.trim() || undefined,
+        cin_passport: cinPassport.trim() || undefined,
+        date_of_birth: dateOfBirth || undefined,
+        driver_license_number: driverLicenseNumber.trim() || undefined,
+        license_issue_date: licenseIssueDate || undefined,
+        license_expiry_date: licenseExpiryDate || undefined,
+      });
       if (profilePicFile) {
         await updateProfilePicture(profilePicFile);
       }
@@ -281,6 +311,94 @@ export default function ProfileForm() {
                       />
                     </div>
                     <p className="text-[11px] font-semibold text-[#638ECB]/50 mt-1.5">{t("profile.email_contact")}</p>
+
+                    <div>
+                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+                        <Smartphone className="w-3 h-3" /> {t("profile.phone_label")}
+                      </label>
+                      <input
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
+                        type="tel"
+                        placeholder={t("profile.phone_placeholder")}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+                        <MapPin className="w-3 h-3" /> {t("profile.address_label")}
+                      </label>
+                      <input
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
+                        type="text"
+                        placeholder={t("profile.address_placeholder")}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+                        <IdCard className="w-3 h-3" /> {t("profile.cin_passport_label")}
+                      </label>
+                      <input
+                        value={cinPassport}
+                        onChange={(e) => setCinPassport(e.target.value)}
+                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
+                        type="text"
+                        placeholder={t("profile.cin_passport_placeholder")}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+                        <Calendar className="w-3 h-3" /> {t("profile.date_of_birth_label")}
+                      </label>
+                      <input
+                        value={dateOfBirth}
+                        onChange={(e) => setDateOfBirth(e.target.value)}
+                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
+                        type="date"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+                        <IdCard className="w-3 h-3" /> {t("profile.driver_license_label")}
+                      </label>
+                      <input
+                        value={driverLicenseNumber}
+                        onChange={(e) => setDriverLicenseNumber(e.target.value)}
+                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
+                        type="text"
+                        placeholder={t("profile.driver_license_placeholder")}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+                        <Calendar className="w-3 h-3" /> {t("profile.license_issue_date_label")}
+                      </label>
+                      <input
+                        value={licenseIssueDate}
+                        onChange={(e) => setLicenseIssueDate(e.target.value)}
+                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
+                        type="date"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-extrabold text-[#638ECB] uppercase tracking-[0.12em] flex items-center gap-1.5 mb-1.5">
+                        <Calendar className="w-3 h-3" /> {t("profile.license_expiry_date_label")}
+                      </label>
+                      <input
+                        value={licenseExpiryDate}
+                        onChange={(e) => setLicenseExpiryDate(e.target.value)}
+                        className="w-full border-2 border-[#D5DEEF]/60 rounded-xl px-4 py-3 text-sm font-bold text-[#395886] placeholder:text-[#638ECB]/40 focus:outline-none focus:border-[#638ECB]/50 focus:ring-4 focus:ring-[#638ECB]/10 bg-white/80 transition-all"
+                        type="date"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

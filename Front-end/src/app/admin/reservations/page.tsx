@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   acceptAdminReservation,
   getAdminReservations,
   refuseAdminReservation,
   filterAdminReservations,
+  uploadContractScans,
 } from "@/lib/adminReservationsApi";
 import type { Reservation } from "@/lib/types";
-import { vehicleImageUrl } from "@/lib/media";
+import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import {
   Select,
   SelectContent,
@@ -123,6 +124,22 @@ function EyeIcon() {
   );
 }
 
+function FileIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
+function UploadIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
+    </svg>
+  );
+}
+
 function RefreshIcon() {
   return (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,13 +170,19 @@ function DetailModal({
   open,
   onClose,
   onOpenLightbox,
+  onRefresh,
 }: {
   reservation: Reservation | null;
   open: boolean;
   onClose: () => void;
   onOpenLightbox: (url: string, label: string) => void;
+  onRefresh: () => Promise<void>;
 }) {
   const { t, locale } = useI18n();
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const statusLabel = useCallback((s: string) => {
     const map: Record<string, string> = {
       En_Attente: t("admin.status_pending"),
@@ -169,6 +192,23 @@ function DetailModal({
     };
     return map[s] ?? s;
   }, [t]);
+
+  async function handleUploadScans(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    setUploadError(null);
+    try {
+      await uploadContractScans(reservation!.id, Array.from(files));
+      await onRefresh();
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
@@ -288,6 +328,55 @@ function DetailModal({
                 <DocThumb url={permiVerso} label={t("admin.license_back")} onOpen={onOpenLightbox} />
               </div>
             </div>
+            <div className="mt-4 pt-4 border-t border-[#D5DEEF]/30">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-3">
+                Contrat signé
+              </span>
+              {reservation.contract_pdf ? (
+                <a
+                  href={`${getApiOrigin()}/storage/${reservation.contract_pdf}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-9 px-4 rounded-xl bg-[#395886] hover:bg-[#2c4570] text-white font-bold text-xs transition-all active:scale-95 items-center justify-center gap-2 cursor-pointer no-underline"
+                >
+                  <FileIcon />
+                  <span>Télécharger le contrat</span>
+                </a>
+              ) : (
+                <div>
+                  <p className="text-xs font-semibold text-[#638ECB] mb-2">
+                    Scanner le contrat signé et générer le PDF
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleUploadScans}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    disabled={uploading}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex h-9 px-4 rounded-xl bg-[#395886] hover:bg-[#2c4570] disabled:bg-[#B0C4DE] text-white font-bold text-xs transition-all active:scale-95 items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {uploading ? (
+                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      <UploadIcon />
+                    )}
+                    <span>{uploading ? "Génération..." : "Ajouter le contrat scanné"}</span>
+                  </button>
+                  {uploadError && (
+                    <p className="mt-2 text-xs font-bold text-rose-600">{uploadError}</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -303,6 +392,8 @@ export default function AdminReservationsPage() {
 
   const [actionId, setActionId] = useState<number | null>(null);
   const [actionType, setActionType] = useState<"accept" | "refuse" | null>(null);
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
+  const fileInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
 
   const [lightbox, setLightbox] = useState<{ url: string; label: string } | null>(null);
   const openLightbox = useCallback((url: string, label: string) => setLightbox({ url, label }), []);
@@ -382,6 +473,21 @@ export default function AdminReservationsPage() {
     } finally {
       setActionId(null);
       setActionType(null);
+    }
+  }
+
+  async function handleQuickUpload(id: number, files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setUploadingId(id);
+    setError(null);
+    try {
+      await uploadContractScans(id, Array.from(files));
+      await load();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Upload failed";
+      setError(msg);
+    } finally {
+      setUploadingId(null);
     }
   }
 
@@ -590,6 +696,44 @@ export default function AdminReservationsPage() {
                     <EyeIcon />
                     <span>{t("admin.view_details")}</span>
                   </button>
+                  {r.contract_pdf ? (
+                    <a
+                      href={`${getApiOrigin()}/storage/${r.contract_pdf}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer no-underline"
+                    >
+                      <FileIcon />
+                      <span>Contrat</span>
+                    </a>
+                  ) : (
+                    <>
+                      <input
+                        ref={(el) => { if (el) fileInputRefs.current.set(r.id, el); else fileInputRefs.current.delete(r.id); }}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => { handleQuickUpload(r.id, e.target.files); }}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        disabled={uploadingId === r.id}
+                        onClick={() => fileInputRefs.current.get(r.id)?.click()}
+                        className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        {uploadingId === r.id ? (
+                          <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          <UploadIcon />
+                        )}
+                        <span>Scanner</span>
+                      </button>
+                    </>
+                  )}
                   <button
                     type="button"
                     disabled={isFinal || isAccepting(r.id)}
@@ -650,6 +794,7 @@ export default function AdminReservationsPage() {
         open={!!detailReservation}
         onClose={() => setDetailReservation(null)}
         onOpenLightbox={openLightbox}
+        onRefresh={load}
       />
     </div>
   );

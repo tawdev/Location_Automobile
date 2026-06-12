@@ -116,22 +116,23 @@
             <img src="{{ $logoBase64 }}" alt="CARFORFAR"/>        </div>
     </div>
 
-    @php $startDate = \Carbon\Carbon::parse($reservation->start_date); $endDate = \Carbon\Carbon::parse($reservation->end_date); $days = max(1, $startDate->diffInDays($endDate)); $extrasTotalPerDay = $reservation->extras ? $reservation->extras->sum('price_per_day') : 0; $client = $reservation->client; @endphp
+    @php $startDate = \Carbon\Carbon::parse($reservation->start_date); $endDate = \Carbon\Carbon::parse($reservation->end_date); $days = max(1, $startDate->diffInDays($endDate)); $extrasTotalPerDay = $reservation->extras ? $reservation->extras->sum('price_per_day') : 0; $client = null; @endphp
 
     <div class="section-header">
         <div class="section-num">1</div>
         <div class="section-title">{!! arabic('تعريف المستأجر') !!}</div>
     </div>
+    @php $u = $reservation->user; @endphp
     <table class="info">
-        <tr><td class="val">{{ $reservation->user->name }}</td><td class="lbl">{!! arabic('الاسم الكامل') !!}</td></tr>
-        <tr><td class="val">{{ $client ? \Carbon\Carbon::parse($client->date_of_birth)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الازدياد') !!}</td></tr>
-        <tr><td class="val">{{ $client->cin ?? '' }}</td><td class="lbl">{!! arabic('رقم البطاقة / جواز السفر') !!}</td></tr>
-        <tr><td class="val">{{ $client->address ?? '' }}</td><td class="lbl">{!! arabic('العنوان') !!}</td></tr>
-        <tr><td class="val">{{ $client->phone ?? '' }}</td><td class="lbl">{!! arabic('الهاتف') !!}</td></tr>
-        <tr><td class="val">{{ $reservation->user->email }}</td><td class="lbl">{!! arabic('البريد الإلكتروني') !!}</td></tr>
-        <tr><td class="val">{{ $client->driver_license_number ?? '' }}</td><td class="lbl">{!! arabic('رقم رخصة السياقة') !!}</td></tr>
-        <tr><td class="val">{{ $client && $client->license_issue_date ? \Carbon\Carbon::parse($client->license_issue_date)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الإصدار') !!}</td></tr>
-        <tr><td class="val">{{ $client && $client->license_expiry_date ? \Carbon\Carbon::parse($client->license_expiry_date)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الانتهاء') !!}</td></tr>
+        <tr><td class="val">{{ $u->name }}</td><td class="lbl">{!! arabic('الاسم الكامل') !!}</td></tr>
+        <tr><td class="val">{{ $u->date_of_birth ? \Carbon\Carbon::parse($u->date_of_birth)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الازدياد') !!}</td></tr>
+        <tr><td class="val">{{ $u->cin_passport ?? '' }}</td><td class="lbl">{!! arabic('رقم البطاقة / جواز السفر') !!}</td></tr>
+        <tr><td class="val">{{ $u->address ?? '' }}</td><td class="lbl">{!! arabic('العنوان') !!}</td></tr>
+        <tr><td class="val">{{ $u->phone ?? '' }}</td><td class="lbl">{!! arabic('الهاتف') !!}</td></tr>
+        <tr><td class="val">{{ $u->email }}</td><td class="lbl">{!! arabic('البريد الإلكتروني') !!}</td></tr>
+        <tr><td class="val">{{ $u->driver_license_number ?? '' }}</td><td class="lbl">{!! arabic('رقم رخصة السياقة') !!}</td></tr>
+        <tr><td class="val">{{ $u->license_issue_date ? \Carbon\Carbon::parse($u->license_issue_date)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الإصدار') !!}</td></tr>
+        <tr><td class="val">{{ $u->license_expiry_date ? \Carbon\Carbon::parse($u->license_expiry_date)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الانتهاء') !!}</td></tr>
     </table>
 
     <div class="section-header">
@@ -191,7 +192,7 @@
         <div class="section-num">6</div>
         <div class="section-title">{!! arabic('حالة السيارة عند الانطلاق') !!}</div>
     </div>
-    @if($reservation->departureConditions && $reservation->departureConditions->count() > 0)
+    @if(false)
         @foreach($reservation->departureConditions as $cond)
             <div class="checkbox-row"><span class="chk">&#9746;</span> {{ $cond->name }}</div>
         @endforeach

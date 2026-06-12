@@ -63,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile/name',[ProfileController::class,'updateUserName']);
     Route::put('/profile/picture',[ProfileController::class,'updateUserProfilePicture']);
     Route::put('/profile/email',[ProfileController::class,'updateUserEmail']);
+    Route::put('/profile/details',[ProfileController::class,'updateUserDetails']);
     Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
     Route::get('extras', [ExtraController::class, 'index']);
 
@@ -78,6 +79,8 @@ Route::patch('/Reservations/{id}/confirme',[VehicleController::class,'confirmeRe
 Route::get('/Reservations',[VehicleController::class,'displayReservition']);
 Route::patch('/Reservations/{id}/annuler',[ReservationController::class, 'annulleReservation']);
 Route::post('/Reservations/{id}/finalize',[ReservationController::class, 'finalize']);
+Route::get('/Reservations/{id}/contract', [ReservationController::class, 'downloadContract']);
+Route::post('/Reservations/{id}/contract/scans', [ReservationController::class, 'uploadContractScans']);
 Route::get('Reservation/filter',[ReservationController::class,'filterAdminReservation']);
 
 Route::post('/vehicle' , [VehicleController::class , 'store']);
