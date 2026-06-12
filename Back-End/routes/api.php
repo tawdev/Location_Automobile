@@ -66,7 +66,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
     Route::get('extras', [ExtraController::class, 'index']);
 
-
+    // Client info
+    Route::get('/client', [\App\Http\Controllers\Api\ClientController::class, 'show']);
+    Route::post('/client', [\App\Http\Controllers\Api\ClientController::class, 'store']);
 });
 
 
@@ -94,6 +96,10 @@ Route::get ('/location/live/{deviceId}',    [LocationController::class, 'live'])
 Route::get ('/location/history/{deviceId}', [LocationController::class, 'history']);
 
 Route::apiResource('admin/extras', ExtraController::class)->parameters(['extras' => 'extra']);
+
+Route::apiResource('admin/departure-conditions', \App\Http\Controllers\Api\Admin\DepartureConditionController::class)->parameters(['departure_conditions' => 'departure_condition']);
+Route::post('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Admin\VehicleController::class, 'syncConditions']);
+Route::get('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Admin\VehicleController::class, 'getConditions']);
 
 Route::put('admin/settings', [SettingsController::class, 'update']);
 

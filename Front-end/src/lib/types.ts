@@ -94,10 +94,56 @@ export type Reservation = {
   status: ReservationStatus;
   TotalPrice: number;
 
+  // New fields
+  client_id?: number | null;
+  lieu_depart?: string | null;
+  lieu_retour?: string | null;
+  date_heure_depart?: string | null;
+  date_heure_retour?: string | null;
+  caution_montant?: number | null;
+  caution_mode?: string | null;
+  observations?: string | null;
+
+  // Second conductor
+  driver2_nom_prenom?: string | null;
+  driver2_date_naissance?: string | null;
+  driver2_cin_passport?: string | null;
+  driver2_adresse?: string | null;
+  driver2_telephone?: string | null;
+  driver2_numero_permi?: string | null;
+  driver2_date_delivrance?: string | null;
+  driver2_date_expiration?: string | null;
+
+  // Old second conductor fields kept for compatibility
+  driver2_name?: string | null;
+
   // Backend /with('user','vehicle') may also return nested objects
   vehicle?: Vehicle;
   user?: User;
   extras?: Extra[];
+  client?: ClientInfo;
+  departure_conditions?: DepartureCondition[];
+};
+
+export type ClientInfo = {
+  id: number;
+  user_id: number;
+  nom_prenom: string;
+  date_naissance: string;
+  cin_passport: string;
+  adresse: string;
+  telephone: string;
+  numero_permi: string;
+  date_delivrance: string;
+  date_expiration: string;
+};
+
+export type DepartureCondition = {
+  id: number;
+  name: string;
+  pivot?: {
+    checked: boolean;
+  };
 };
 
 export type Extra = {

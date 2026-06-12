@@ -11,6 +11,8 @@ import {
   getAdminVehicles as getAdminVehiclesAll,
 } from "@/lib/adminVehiclesApi";
 import { getAdminCategories } from "@/lib/adminCategoriesApi";
+import { getAdminDepartureConditions, syncVehicleConditions } from "@/lib/departureConditionsApi";
+import type { DepartureCondition } from "@/lib/departureConditionsApi";
 import { vehicleImageUrl } from "@/lib/media";
 import { Modal } from "@/components/admin/Modal";
 import { CategoriesManagerModal } from "@/components/admin/CategoriesManagerModal";
@@ -241,7 +243,7 @@ interface VehicleCreateEditModalProps {
   initial?: Vehicle | null;
   categories: Category[];
   onClose: () => void;
-  onSubmit: (payload: AdminVehiclePayload, images: File[], deletedImageIds?: number[]) => Promise<void>;
+  onSubmit: (payload: AdminVehiclePayload, images: File[], deletedImageIds?: number[], conditionIds?: number[]) => Promise<void>;
   submitting: boolean;
   error: string | null;
 }
@@ -276,6 +278,11 @@ function VehicleCreateEditModal({
   const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Departure conditions
+  const [allConditions, setAllConditions] = useState<DepartureCondition[]>([]);
+  const [selectedConditionIds, setSelectedConditionIds] = useState<number[]>([]);
+  const [conditionsLoading, setConditionsLoading] = useState(false);
+
   const sortedCategories = useMemo(() => categories.slice().sort((a, b) => a.id - b.id), [categories]);
 
   useEffect(() => {
@@ -283,6 +290,16 @@ function VehicleCreateEditModal({
     setMarque(initial?.marque ?? "");
     setModel(initial?.model ?? "");
     setYear(initial?.year ?? new Date().getFullYear());
+    // Load departure conditions
+    setConditionsLoading(true);
+    getAdminDepartureConditions().then((conds) => {
+      setAllConditions(conds);
+      if (initial && (initial as any).departure_conditions) {
+        setSelectedConditionIds((initial as any).departure_conditions.map((c: any) => c.id));
+      } else {
+        setSelectedConditionIds([]);
+      }
+    }).catch(() => {}).finally(() => setConditionsLoading(false));
     setRegistration(initial?.registration ?? "");
     setKm(initial?.km ?? 0);
     setPricePerDay(initial?.pricePerDay ?? 0);
@@ -361,6 +378,7 @@ function VehicleCreateEditModal({
     if (submitting) return;
 
     const allFiles = [...imagesFiles];
+    const condIds = selectedConditionIds;
 
     if (mode === "edit" && initial?.pictures) {
       const kept = initial.pictures.filter((pic) => !deletedImageIds.includes(pic.id));
@@ -395,7 +413,8 @@ function VehicleCreateEditModal({
         order: order,
       },
       allFiles,
-      deletedImageIds.length > 0 ? deletedImageIds : undefined
+      deletedImageIds.length > 0 ? deletedImageIds : undefined,
+      condIds
     );
   };
 
@@ -673,6 +692,46 @@ function VehicleCreateEditModal({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Departure Conditions */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
+              État du véhicule au départ - Éléments applicables
+            </label>
+            {conditionsLoading ? (
+              <div className="text-xs font-bold text-[#638ECB]">Chargement...</div>
+            ) : allConditions.length === 0 ? (
+              <div className="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                Aucune condition disponible. Créez d'abord des conditions dans la section "Conditions de départ".
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {allConditions.map((cond) => {
+                  const selected = selectedConditionIds.includes(cond.id);
+                  return (
+                    <button
+                      key={cond.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedConditionIds((prev) =>
+                          prev.includes(cond.id)
+                            ? prev.filter((id) => id !== cond.id)
+                            : [...prev, cond.id]
+                        );
+                      }}
+                      className={`px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all cursor-pointer ${
+                        selected
+                          ? "border-[#395886] bg-[#F0F3FA] text-[#395886]"
+                          : "border-[#D5DEEF] text-[#638ECB] hover:border-[#638ECB]"
+                      }`}
+                    >
+                      {selected ? "✓ " : ""}{cond.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Buttons */}
@@ -998,11 +1057,14 @@ export default function AdminVehiclesPage() {
     }
   }
 
-  async function onCreateSubmit(payload: AdminVehiclePayload, images: File[]) {
+  async function onCreateSubmit(payload: AdminVehiclePayload, images: File[], deletedImageIds?: number[], conditionIds?: number[]) {
     setCreateSubmitting(true);
     setCreateError(null);
     try {
-      await createAdminVehicle({ ...payload, images: images.length ? images : undefined });
+      const newVehicle = await createAdminVehicle({ ...payload, images: images.length ? images : undefined });
+      if (conditionIds && conditionIds.length > 0 && newVehicle?.id) {
+        await syncVehicleConditions(newVehicle.id, conditionIds);
+      }
       setCreateOpen(false);
       await loadVehicles();
       applyFilters();
@@ -1022,7 +1084,7 @@ export default function AdminVehiclesPage() {
     setEditVehicle(found);
   }
 
-  async function onEditSubmit(payload: AdminVehiclePayload, images: File[], deletedImageIds?: number[]) {
+  async function onEditSubmit(payload: AdminVehiclePayload, images: File[], deletedImageIds?: number[], conditionIds?: number[]) {
     if (!editVehicle) return;
 
     setEditSubmitting(true);
@@ -1033,6 +1095,9 @@ export default function AdminVehiclesPage() {
         images: images.length ? images : undefined,
         deletedImages: deletedImageIds,
       });
+      if (conditionIds !== undefined) {
+        await syncVehicleConditions(editVehicle.id, conditionIds);
+      }
       setEditOpen(false);
       await loadVehicles();
       applyFilters();
