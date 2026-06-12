@@ -156,6 +156,7 @@ function UserCard({
 }: {
   user: AdminUser; index: number;
 }) {
+  const { t } = useI18n();
   const createdDate = user.created_at
     ? new Date(user.created_at).toLocaleDateString("fr-FR", {
         month: "short", day: "numeric", year: "numeric",

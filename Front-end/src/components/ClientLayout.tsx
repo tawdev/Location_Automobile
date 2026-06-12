@@ -242,8 +242,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <div>
                       <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.support")}</p>
                       <div className="flex flex-col gap-1.5">
-                        {[t("footer.help_center"), t("footer.contact_us"), t("footer.faq"), t("footer.cancellation")].map((l) => (
-                          <a key={l} href="#" className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
+                        {[{ label: t("footer.help_center"), href: "#" }, { label: t("footer.contact_us"), href: "/contact" }, { label: t("footer.faq"), href: "/faq" }, { label: t("footer.cancellation"), href: "#" }].map((l) => (
+                          <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                         ))}
                       </div>
                     </div>
@@ -303,11 +303,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               </div>
               <div>
                 <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.support")}</h4>
-                <div className="flex flex-col gap-2.5">
-                  {[t("footer.help_center"), t("footer.contact_us"), t("footer.faq"), t("footer.cancellation")].map((l) => (
-                    <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
-                  ))}
-                </div>
+                  <div className="flex flex-col gap-2.5">
+                    {[{ label: t("footer.help_center"), href: "#" }, { label: t("footer.contact_us"), href: "/contact" }, { label: t("footer.faq"), href: "/faq" }, { label: t("footer.cancellation"), href: "#" }].map((l) => (
+                      <a key={l.label} href={l.href} className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
+                    ))}
+                  </div>
               </div>
               <div>
                 <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.legal")}</h4>
