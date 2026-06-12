@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRequest;
+use App\Services\ContractScanService;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Reservation;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReservationController extends Controller
 {
     public function __construct(
-        protected ReservationService $reservitionService
+        protected ReservationService $reservitionService,
+        protected ContractScanService $contractScanService
     ) {}
 
     public function index()
@@ -164,6 +167,50 @@ class ReservationController extends Controller
             'message' => 'Réservation finalisée avec succès.',
             'data' => $data,
         ]);
+    }
+
+    public function uploadContractScans(Request $request, $id)
+    {
+        $request->validate([
+            'images' => 'required|array|min:1',
+            'images.*' => 'required|image|mimes:jpg,jpeg,png|max:10240',
+        ]);
+
+        $reservation = Reservation::findOrFail($id);
+
+        $relativePath = $this->contractScanService->generateFromImages(
+            $reservation,
+            $request->file('images')
+        );
+
+        $reservation->update(['contract_pdf' => $relativePath]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Contrat scanné créé avec succès.',
+            'data' => $reservation->fresh()->load(['user', 'vehicle', 'vehicle.pictures']),
+        ]);
+    }
+
+    public function downloadContract($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        if (!$reservation->contract_pdf) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Aucun contrat trouvé pour cette réservation.'
+            ], 404);
+        }
+
+        if (!Storage::disk('public')->exists($reservation->contract_pdf)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Le fichier du contrat n\'existe plus.'
+            ], 404);
+        }
+
+        return Storage::disk('public')->download($reservation->contract_pdf);
     }
 
 }

@@ -93,6 +93,7 @@ export type Reservation = {
   vehicle_id: number;
   status: ReservationStatus;
   TotalPrice: number;
+  contract_pdf?: string | null;
 
   // Backend /with('user','vehicle') may also return nested objects
   vehicle?: Vehicle;

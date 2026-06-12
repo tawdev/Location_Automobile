@@ -141,8 +141,10 @@
     <table class="info">
         <tr><td class="val">{{ $reservation->driver2_name ?? '' }}<span class="fill"></span></td><td class="lbl">{!! arabic('الاسم الكامل') !!}</td></tr>
         <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('رقم بطاقة التعريف') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('رقم الرخصة') !!}</td></tr>
+        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('رقم رخصة السياقة') !!}</td></tr>
         <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('الهاتف') !!}</td></tr>
+        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ الإصدار') !!}</td></tr>
+        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ الانتهاء') !!}</td></tr>
     </table>
 
     <div class="section-header">

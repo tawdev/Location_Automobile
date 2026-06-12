@@ -139,8 +139,10 @@
     <table class="info">
         <tr><td class="lbl">Full name</td><td class="val">{{ $reservation->driver2_name ?? '' }}<span class="fill"></span></td></tr>
         <tr><td class="lbl">ID N&deg;</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">License N&deg;</td><td class="val"><span class="fill"></span></td></tr>
+        <tr><td class="lbl">Driving license N&deg;</td><td class="val"><span class="fill"></span></td></tr>
         <tr><td class="lbl">Phone</td><td class="val"><span class="fill"></span></td></tr>
+        <tr><td class="lbl">Issue date</td><td class="val"><span class="fill"></span></td></tr>
+        <tr><td class="lbl">Expiry date</td><td class="val"><span class="fill"></span></td></tr>
     </table>
 
     <div class="section-header">

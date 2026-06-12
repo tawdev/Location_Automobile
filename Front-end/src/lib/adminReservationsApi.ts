@@ -1,4 +1,6 @@
 import { apiRequest } from "./apiClient";
+import { getAuthToken } from "./tokenStorage";
+import { API_BASE_URL } from "./config";
 import type { Reservation } from "./types";
 
 type AdminReservationsResponse = {
@@ -57,4 +59,34 @@ export async function filterAdminReservations(filters: {
     query: filters,
   });
   return ensureReservations(res.data);
+}
+
+export async function uploadContractScans(
+  reservationId: number,
+  files: File[]
+): Promise<Reservation> {
+  const formData = new FormData();
+  files.forEach((f) => formData.append("images[]", f));
+
+  const token = getAuthToken();
+
+  const res = await fetch(
+    `${API_BASE_URL}/Reservations/${reservationId}/contract/scans`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: "Upload failed" }));
+    throw new Error(err.message || "Upload failed");
+  }
+
+  const json = await res.json();
+  return json.data as Reservation;
 }
