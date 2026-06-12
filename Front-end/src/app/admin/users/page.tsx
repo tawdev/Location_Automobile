@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { getUsers, getUserStats } from "@/lib/adminUsersApi";
@@ -221,12 +221,14 @@ export default function AdminUsersPage() {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (search?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const [u, s] = await Promise.all([getUsers(), getUserStats()]);
+      const [u, s] = await Promise.all([getUsers(search), getUserStats()]);
       setUsers(u);
       setStats(s);
     } catch (e) {
@@ -236,7 +238,13 @@ export default function AdminUsersPage() {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      void load(searchQuery || undefined);
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [searchQuery, load]);
 
   const regChartData = stats?.monthlyRegistrations.map((r) => ({
     month: new Date(r.month + "-01").toLocaleDateString("fr-FR", { month: "short" }),
@@ -356,14 +364,28 @@ export default function AdminUsersPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 0.3 }}
-              className="flex items-center justify-between mb-4"
+              className="flex items-center justify-between gap-4 mb-4 flex-wrap"
             >
               <h3 className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF] tracking-tight">
                 {t("admin_users.all")}
               </h3>
-              <span className="text-[11px] font-bold text-[#B0C4DE] dark:text-[#64748B]">
-                {users.length} utilisateur{users.length !== 1 ? "s" : ""}
-              </span>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#B0C4DE] dark:text-[#64748B] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Rechercher un utilisateur..."
+                    className="w-56 pl-9 pr-3 py-2 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 text-xs font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#B0C4DE] dark:placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]/40 transition-all"
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-[#B0C4DE] dark:text-[#64748B] whitespace-nowrap">
+                  {users.length} utilisateur{users.length !== 1 ? "s" : ""}
+                </span>
+              </div>
             </motion.div>
 
             {users.length === 0 ? (

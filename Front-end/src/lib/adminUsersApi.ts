@@ -29,10 +29,11 @@ type PaginatedResponse<T> = {
   total: number;
 };
 
-export async function getUsers(): Promise<AdminUser[]> {
+export async function getUsers(search?: string): Promise<AdminUser[]> {
   const res = await apiRequest<{ status: string; data: PaginatedResponse<AdminUser> }>({
     method: "GET",
     path: "/admin/users",
+    query: search ? { search } : undefined,
   });
   return res.data.data;
 }

@@ -84,6 +84,17 @@ class ReservationService
         }
     }
 
+    $licenseIssueDate = auth()->user()->license_issue_date;
+    if ($licenseIssueDate) {
+        $now = new DateTime();
+        $interval = $licenseIssueDate->diff($now);
+        if ($interval->y < 2) {
+            return 'license_too_recent';
+        }
+    } else {
+        return 'license_too_recent';
+    }
+
     $days = $days > 0 ? $days : 3;
 
     $extraPricePerDay = 0;
