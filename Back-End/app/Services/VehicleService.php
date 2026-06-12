@@ -13,12 +13,12 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures', 'category')->orderBy('order', 'asc')->get();
+        return Vehicle::with('pictures', 'category', 'departureConditions')->orderBy('order', 'asc')->get();
     }
 
     public function getById($id)
     {
-        return Vehicle::with('pictures', 'category')->find($id);
+        return Vehicle::with('pictures', 'category', 'departureConditions')->find($id);
     }
 
     public function CreateVehicle($request)
@@ -145,7 +145,7 @@ class VehicleService
             });
         });
 
-        $Vehicles = $query->with('pictures', 'category')->orderBy('order', 'asc')->get();
+        $Vehicles = $query->with('pictures', 'category', 'departureConditions')->orderBy('order', 'asc')->get();
         
         return $Vehicles;
 

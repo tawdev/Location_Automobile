@@ -10,6 +10,7 @@ use App\Services\VehicleService;
 use Illuminate\Http\Request;
 use App\Http\Requests\FilterVehiclesRequest;
 use App\Models\Location;
+use App\Models\DepartureCondition;
 class VehicleController extends Controller
 {
     public function __construct(
@@ -174,6 +175,29 @@ class VehicleController extends Controller
         return response()->json([
             'status' => 'success',
             'data'   => $vehicles,
+        ]);
+    }
+
+    public function syncConditions(Request $request, Vehicle $vehicle)
+    {
+        $request->validate([
+            'condition_ids' => 'present|array',
+            'condition_ids.*' => 'exists:departure_conditions,id',
+        ]);
+
+        $vehicle->departureConditions()->sync($request->condition_ids);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Conditions synchronisées avec succès',
+        ]);
+    }
+
+    public function getConditions(Vehicle $vehicle)
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $vehicle->departureConditions,
         ]);
     }
 }
