@@ -101,7 +101,7 @@ class ContractPdfService
             default => 'pdfs.contrat-location-fr',
         };
 
-        $reservation->loadMissing(['user', 'vehicle', 'extras']);
+        $reservation->loadMissing(['user', 'vehicle', 'extras', 'client', 'departureConditions']);
 
         $logoPath = public_path('image/Logo.png');
         $logoBase64 = file_exists($logoPath)

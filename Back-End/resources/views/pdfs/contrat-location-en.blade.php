@@ -116,20 +116,21 @@
             <img src="{{ $logoBase64 }}" alt="CARFORFAR"/>        </div>
     </div>
 
+    @php $u = $reservation->user; @endphp
     <div class="section-header">
         <div class="section-num">1</div>
         <div class="section-title">IDENTIFICATION OF THE TENANT</div>
     </div>
     <table class="info">
-        <tr><td class="lbl">Full name</td><td class="val">{{ $reservation->user->name }}</td></tr>
-        <tr><td class="lbl">Date of birth</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">ID / Passport N&deg;</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Address</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Phone</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Email</td><td class="val">{{ $reservation->user->email }}</td></tr>
-        <tr><td class="lbl">Driving license N&deg;</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Issue date</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Expiry date</td><td class="val"><span class="fill"></span></td></tr>
+        <tr><td class="lbl">Full name</td><td class="val">{{ $u->name }}</td></tr>
+        <tr><td class="lbl">Date of birth</td><td class="val">{{ $u->date_of_birth ? \Carbon\Carbon::parse($u->date_of_birth)->format('d/m/Y') : '' }}</td></tr>
+        <tr><td class="lbl">ID / Passport N&deg;</td><td class="val">{{ $u->cin_passport ?? '' }}</td></tr>
+        <tr><td class="lbl">Address</td><td class="val">{{ $u->address ?? '' }}</td></tr>
+        <tr><td class="lbl">Phone</td><td class="val">{{ $u->phone ?? '' }}</td></tr>
+        <tr><td class="lbl">Email</td><td class="val">{{ $u->email }}</td></tr>
+        <tr><td class="lbl">Driving license N&deg;</td><td class="val">{{ $u->driver_license_number ?? '' }}</td></tr>
+        <tr><td class="lbl">Issue date</td><td class="val">{{ $u->license_issue_date ? \Carbon\Carbon::parse($u->license_issue_date)->format('d/m/Y') : '' }}</td></tr>
+        <tr><td class="lbl">Expiry date</td><td class="val">{{ $u->license_expiry_date ? \Carbon\Carbon::parse($u->license_expiry_date)->format('d/m/Y') : '' }}</td></tr>
     </table>
 
     <div class="section-header">
@@ -137,12 +138,10 @@
         <div class="section-title">ADDITIONAL DRIVER (OPTIONAL)</div>
     </div>
     <table class="info">
-        <tr><td class="lbl">Full name</td><td class="val">{{ $reservation->driver2_name ?? '' }}<span class="fill"></span></td></tr>
-        <tr><td class="lbl">ID N&deg;</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Driving license N&deg;</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Phone</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Issue date</td><td class="val"><span class="fill"></span></td></tr>
-        <tr><td class="lbl">Expiry date</td><td class="val"><span class="fill"></span></td></tr>
+        <tr><td class="lbl">Full name</td><td class="val">{{ $reservation->driver2_name ?? '' }}</td></tr>
+        <tr><td class="lbl">ID N&deg;</td><td class="val">{{ $reservation->driver2_cin ?? '' }}</td></tr>
+        <tr><td class="lbl">License N&deg;</td><td class="val">{{ $reservation->driver2_license ?? '' }}</td></tr>
+        <tr><td class="lbl">Phone</td><td class="val">{{ $reservation->driver2_phone ?? '' }}</td></tr>
     </table>
 
     <div class="section-header">
@@ -165,10 +164,12 @@
         <div class="section-title">RENTAL PERIOD</div>
     </div>
     <table class="info">
-        <tr><td class="lbl">Start date and time</td><td class="val">{{ $startDate->format('d/m/Y') }}</td></tr>
-        <tr><td class="lbl">Return date and time</td><td class="val">{{ $endDate->format('d/m/Y') }}</td></tr>
-        <tr><td class="lbl">Pick-up location</td><td class="val">Marrakech</td></tr>
-        <tr><td class="lbl">Return location</td><td class="val">Marrakech</td></tr>
+        <tr><td class="lbl">Start date</td><td class="val">{{ $startDate->format('d/m/Y') }}</td></tr>
+        <tr><td class="lbl">Start time</td><td class="val">{{ $reservation->start_time ? \Carbon\Carbon::parse($reservation->start_time)->format('H:i') : '______' }}</td></tr>
+        <tr><td class="lbl">Return date</td><td class="val">{{ $endDate->format('d/m/Y') }}</td></tr>
+        <tr><td class="lbl">Return time</td><td class="val">{{ $reservation->end_time ? \Carbon\Carbon::parse($reservation->end_time)->format('H:i') : '______' }}</td></tr>
+        <tr><td class="lbl">Pick-up location</td><td class="val">{{ $reservation->departure_location ?? 'Marrakech' }}</td></tr>
+        <tr><td class="lbl">Return location</td><td class="val">{{ $reservation->return_location ?? 'Marrakech' }}</td></tr>
     </table>
 
     <div class="section-header">
@@ -176,20 +177,32 @@
         <div class="section-title">DEPOSIT</div>
     </div>
     <table class="info">
-        <tr><td class="lbl">Deposit amount</td><td class="val"><span class="fill"></span> DH</td></tr>
+        <tr><td class="lbl">Deposit amount</td><td class="val">{{ $reservation->caution_amount ? number_format($reservation->caution_amount, 2) : '______' }} DH</td></tr>
     </table>
     <div class="mode-label">Guarantee method :</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> Bank card&nbsp;&nbsp; <span class="chk">&#9744;</span> Cash&nbsp;&nbsp; <span class="chk">&#9744;</span> Check&nbsp;&nbsp; <span class="chk">&#9744;</span> Other</div>
+    @php $cm = $reservation->caution_mode; @endphp
+    <div class="checkbox-row">
+        <span class="chk">{{ $cm === 'carte_bancaire' ? '&#9746;' : '&#9744;' }}</span> Bank card&nbsp;&nbsp;
+        <span class="chk">{{ $cm === 'especes' ? '&#9746;' : '&#9744;' }}</span> Cash&nbsp;&nbsp;
+        <span class="chk">{{ $cm === 'passport' ? '&#9746;' : '&#9744;' }}</span> Passport&nbsp;&nbsp;
+        <span class="chk">{{ $cm === 'autre' ? '&#9746;' : '&#9744;' }}</span> Other
+    </div>
 
     <div class="section-header">
         <div class="section-num">6</div>
         <div class="section-title">VEHICLE CONDITION AT DEPARTURE</div>
     </div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> Clean vehicle&nbsp;&nbsp; <span class="chk">&#9744;</span> Tires in good condition</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> Spare wheel present&nbsp;&nbsp; <span class="chk">&#9744;</span> Safety vest present</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> Warning triangle present&nbsp;&nbsp; <span class="chk">&#9744;</span> Documents present</div>
+    @if(false)
+        @foreach($reservation->departureConditions as $cond)
+            <div class="checkbox-row"><span class="chk">&#9746;</span> {{ $cond->name }}</div>
+        @endforeach
+    @else
+        <div class="checkbox-row"><span class="chk">&#9744;</span> Clean vehicle&nbsp;&nbsp; <span class="chk">&#9744;</span> Tires in good condition</div>
+        <div class="checkbox-row"><span class="chk">&#9744;</span> Spare wheel present&nbsp;&nbsp; <span class="chk">&#9744;</span> Safety vest present</div>
+        <div class="checkbox-row"><span class="chk">&#9744;</span> Warning triangle present&nbsp;&nbsp; <span class="chk">&#9744;</span> Documents present</div>
+    @endif
     <div class="obs-label">Observations :</div>
-    <div class="obs-box"></div>
+    <div class="obs-box">{{ $reservation->observations ?? '' }}</div>
 
     <div class="section-header">
         <div class="section-num">7</div>

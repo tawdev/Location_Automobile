@@ -6,10 +6,10 @@ import BackButton from "@/components/BackButton";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/authContext";
 import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
-import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword } from "@/lib/profileApi";
+import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword, updateProfileDetails } from "@/lib/profileApi";
 import type { ApiError } from "@/lib/apiClient";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle } from "lucide-react";
+import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle, Smartphone, MapPin, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function UploadZone({
@@ -197,6 +197,13 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
   const initial = useMemo(() => ({
     name: user?.name ?? "",
     email: user?.email ?? "",
+    phone: user?.phone ?? "",
+    address: user?.address ?? "",
+    cin_passport: user?.cin_passport ?? "",
+    date_of_birth: user?.date_of_birth ?? "",
+    driver_license_number: user?.driver_license_number ?? "",
+    license_issue_date: user?.license_issue_date ?? "",
+    license_expiry_date: user?.license_expiry_date ?? "",
     profile_pic: user?.profile_pic ?? null,
     cin_recto: user?.cin_recto ?? null,
     cin_verso: user?.cin_verso ?? null,
@@ -206,15 +213,29 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [cinPassport, setCinPassport] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [driverLicenseNumber, setDriverLicenseNumber] = useState("");
+  const [licenseIssueDate, setLicenseIssueDate] = useState("");
+  const [licenseExpiryDate, setLicenseExpiryDate] = useState("");
   const initialized = useRef(false);
 
   useEffect(() => {
     if (!initialized.current && initial.name) {
       setName(initial.name);
       setEmail(initial.email);
+      setPhone(initial.phone);
+      setAddress(initial.address);
+      setCinPassport(initial.cin_passport);
+      setDateOfBirth(initial.date_of_birth);
+      setDriverLicenseNumber(initial.driver_license_number);
+      setLicenseIssueDate(initial.license_issue_date);
+      setLicenseExpiryDate(initial.license_expiry_date);
       initialized.current = true;
     }
-  }, [initial.name, initial.email]);
+  }, [initial.name, initial.email, initial.phone, initial.address, initial.cin_passport, initial.date_of_birth, initial.driver_license_number, initial.license_issue_date, initial.license_expiry_date]);
 
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
 
@@ -248,6 +269,15 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
     setBasicSuccess(null);
     try {
       await updateProfileName(name.trim());
+      await updateProfileDetails({
+        phone: phone.trim() || undefined,
+        address: address.trim() || undefined,
+        cin_passport: cinPassport.trim() || undefined,
+        date_of_birth: dateOfBirth || undefined,
+        driver_license_number: driverLicenseNumber.trim() || undefined,
+        license_issue_date: licenseIssueDate || undefined,
+        license_expiry_date: licenseExpiryDate || undefined,
+      });
       if (profilePicFile) {
         await updateProfilePicture(profilePicFile);
       }
@@ -415,6 +445,59 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                       type="email"
                     />
                     <p className="text-[11px] font-semibold text-[#638ECB]/50 dark:text-[#94A3B8]/50 -mt-3">{t("profile.email_change_hint")}</p>
+                    <InputField
+                      icon={Smartphone}
+                      label={t("profile.phone_label")}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder={t("profile.phone_placeholder")}
+                      type="tel"
+                    />
+                    <InputField
+                      icon={MapPin}
+                      label={t("profile.address_label")}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder={t("profile.address_placeholder")}
+                      type="text"
+                    />
+                    <InputField
+                      icon={IdCard}
+                      label={t("profile.cin_passport_label")}
+                      value={cinPassport}
+                      onChange={(e) => setCinPassport(e.target.value)}
+                      placeholder={t("profile.cin_passport_placeholder")}
+                      type="text"
+                    />
+                    <InputField
+                      icon={Calendar}
+                      label={t("profile.date_of_birth_label")}
+                      value={dateOfBirth}
+                      onChange={(e) => setDateOfBirth(e.target.value)}
+                      type="date"
+                    />
+                    <InputField
+                      icon={IdCard}
+                      label={t("profile.driver_license_label")}
+                      value={driverLicenseNumber}
+                      onChange={(e) => setDriverLicenseNumber(e.target.value)}
+                      placeholder={t("profile.driver_license_placeholder")}
+                      type="text"
+                    />
+                    <InputField
+                      icon={Calendar}
+                      label={t("profile.license_issue_date_label")}
+                      value={licenseIssueDate}
+                      onChange={(e) => setLicenseIssueDate(e.target.value)}
+                      type="date"
+                    />
+                    <InputField
+                      icon={Calendar}
+                      label={t("profile.license_expiry_date_label")}
+                      value={licenseExpiryDate}
+                      onChange={(e) => setLicenseExpiryDate(e.target.value)}
+                      type="date"
+                    />
                   </div>
                 </div>
 

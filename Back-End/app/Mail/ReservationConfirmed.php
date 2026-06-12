@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ReservationConfirmed extends Mailable
 {
@@ -43,23 +44,31 @@ class ReservationConfirmed extends Mailable
 
     public function attachments(): array
     {
-        if (!$this->pdfPaths) {
-            $this->pdfPaths = app(ContractPdfService::class)->generateAll($this->reservation);
+        try {
+            if (!$this->pdfPaths) {
+                $this->pdfPaths = app(ContractPdfService::class)->generateAll($this->reservation);
+            }
+
+            $locales = [
+                'fr' => 'FR',
+                'en' => 'EN',
+                'ar' => 'AR',
+            ];
+
+            $attachments = [];
+            foreach ($locales as $code => $label) {
+                $attachments[] = Attachment::fromPath($this->pdfPaths[$code])
+                    ->as('contrat-location-' . $label . '-' . $this->reservation->id . '.pdf')
+                    ->withMime('application/pdf');
+            }
+
+            return $attachments;
+        } catch (\Throwable $e) {
+            Log::error('Failed to generate contract PDF for email: ' . $e->getMessage(), [
+                'reservation_id' => $this->reservation->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return [];
         }
-
-        $locales = [
-            'fr' => 'FR',
-            'en' => 'EN',
-            'ar' => 'AR',
-        ];
-
-        $attachments = [];
-        foreach ($locales as $code => $label) {
-            $attachments[] = Attachment::fromPath($this->pdfPaths[$code])
-                ->as('contrat-location-' . $label . '-' . $this->reservation->id . '.pdf')
-                ->withMime('application/pdf');
-        }
-
-        return $attachments;
     }
 }

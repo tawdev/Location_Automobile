@@ -107,6 +107,30 @@ class ProfileController extends Controller
 
     }
 
+   public function updateUserDetails(Request $request)
+   {
+       $request->validate([
+           'phone'                => 'nullable|string|max:20',
+           'address'              => 'nullable|string|max:500',
+           'cin_passport'         => 'nullable|string|max:50',
+           'date_of_birth'        => 'nullable|date',
+           'driver_license_number'=> 'nullable|string|max:50',
+           'license_issue_date'   => 'nullable|date',
+           'license_expiry_date'  => 'nullable|date',
+       ]);
+
+       $data = $this->profileService->updateDetails(
+           $request->only('phone', 'address', 'cin_passport', 'date_of_birth', 'driver_license_number', 'license_issue_date', 'license_expiry_date')
+       );
+
+       return response()->json([
+           'status'  => 'success',
+           'message' => 'Profil mis à jour avec succès',
+           'data'    => $data,
+       ]);
+   }
+
+
    public function updateUserProfilePicture(Request $request)
 {
     $request->validate([

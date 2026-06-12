@@ -116,22 +116,23 @@
             <img src="{{ $logoBase64 }}" alt="CARFORFAR"/>        </div>
     </div>
 
-    @php $startDate = \Carbon\Carbon::parse($reservation->start_date); $endDate = \Carbon\Carbon::parse($reservation->end_date); $days = max(1, $startDate->diffInDays($endDate)); $extrasTotalPerDay = $reservation->extras ? $reservation->extras->sum('price_per_day') : 0; @endphp
+    @php $startDate = \Carbon\Carbon::parse($reservation->start_date); $endDate = \Carbon\Carbon::parse($reservation->end_date); $days = max(1, $startDate->diffInDays($endDate)); $extrasTotalPerDay = $reservation->extras ? $reservation->extras->sum('price_per_day') : 0; $client = null; @endphp
 
     <div class="section-header">
         <div class="section-num">1</div>
         <div class="section-title">{!! arabic('تعريف المستأجر') !!}</div>
     </div>
+    @php $u = $reservation->user; @endphp
     <table class="info">
-        <tr><td class="val">{{ $reservation->user->name }}</td><td class="lbl">{!! arabic('الاسم الكامل') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ الازدياد') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('رقم البطاقة / جواز السفر') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('العنوان') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('الهاتف') !!}</td></tr>
-        <tr><td class="val">{{ $reservation->user->email }}</td><td class="lbl">{!! arabic('البريد الإلكتروني') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('رقم رخصة السياقة') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ الإصدار') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ الانتهاء') !!}</td></tr>
+        <tr><td class="val">{{ $u->name }}</td><td class="lbl">{!! arabic('الاسم الكامل') !!}</td></tr>
+        <tr><td class="val">{{ $u->date_of_birth ? \Carbon\Carbon::parse($u->date_of_birth)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الازدياد') !!}</td></tr>
+        <tr><td class="val">{{ $u->cin_passport ?? '' }}</td><td class="lbl">{!! arabic('رقم البطاقة / جواز السفر') !!}</td></tr>
+        <tr><td class="val">{{ $u->address ?? '' }}</td><td class="lbl">{!! arabic('العنوان') !!}</td></tr>
+        <tr><td class="val">{{ $u->phone ?? '' }}</td><td class="lbl">{!! arabic('الهاتف') !!}</td></tr>
+        <tr><td class="val">{{ $u->email }}</td><td class="lbl">{!! arabic('البريد الإلكتروني') !!}</td></tr>
+        <tr><td class="val">{{ $u->driver_license_number ?? '' }}</td><td class="lbl">{!! arabic('رقم رخصة السياقة') !!}</td></tr>
+        <tr><td class="val">{{ $u->license_issue_date ? \Carbon\Carbon::parse($u->license_issue_date)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الإصدار') !!}</td></tr>
+        <tr><td class="val">{{ $u->license_expiry_date ? \Carbon\Carbon::parse($u->license_expiry_date)->format('d/m/Y') : '' }}</td><td class="lbl">{!! arabic('تاريخ الانتهاء') !!}</td></tr>
     </table>
 
     <div class="section-header">
@@ -139,12 +140,10 @@
         <div class="section-title">{!! arabic('السائق الإضافي (اختياري)') !!}</div>
     </div>
     <table class="info">
-        <tr><td class="val">{{ $reservation->driver2_name ?? '' }}<span class="fill"></span></td><td class="lbl">{!! arabic('الاسم الكامل') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('رقم بطاقة التعريف') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('رقم رخصة السياقة') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('الهاتف') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ الإصدار') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ الانتهاء') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->driver2_name ?? '' }}</td><td class="lbl">{!! arabic('الاسم الكامل') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->driver2_cin ?? '' }}</td><td class="lbl">{!! arabic('رقم بطاقة التعريف') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->driver2_license ?? '' }}</td><td class="lbl">{!! arabic('رقم الرخصة') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->driver2_phone ?? '' }}</td><td class="lbl">{!! arabic('الهاتف') !!}</td></tr>
     </table>
 
     <div class="section-header">
@@ -165,10 +164,12 @@
         <div class="section-title">{!! arabic('مدة التأجير') !!}</div>
     </div>
     <table class="info">
-        <tr><td class="val">{{ $startDate->format('d/m/Y') }}</td><td class="lbl">{!! arabic('تاريخ ووقت الانطلاق') !!}</td></tr>
-        <tr><td class="val">{{ $endDate->format('d/m/Y') }}</td><td class="lbl">{!! arabic('تاريخ ووقت الإرجاع') !!}</td></tr>
-        <tr><td class="val">{!! arabic('مراكش') !!}</td><td class="lbl">{!! arabic('مكان الانطلاق') !!}</td></tr>
-        <tr><td class="val">{!! arabic('مراكش') !!}</td><td class="lbl">{!! arabic('مكان الإرجاع') !!}</td></tr>
+        <tr><td class="val">{{ $startDate->format('d/m/Y') }}</td><td class="lbl">{!! arabic('تاريخ الانطلاق') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->start_time ? \Carbon\Carbon::parse($reservation->start_time)->format('H:i') : '______' }}</td><td class="lbl">{!! arabic('وقت الانطلاق') !!}</td></tr>
+        <tr><td class="val">{{ $endDate->format('d/m/Y') }}</td><td class="lbl">{!! arabic('تاريخ الإرجاع') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->end_time ? \Carbon\Carbon::parse($reservation->end_time)->format('H:i') : '______' }}</td><td class="lbl">{!! arabic('وقت الإرجاع') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->departure_location ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الانطلاق') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->return_location ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الإرجاع') !!}</td></tr>
     </table>
 
     <div class="section-header">
@@ -176,20 +177,32 @@
         <div class="section-title">{!! arabic('وديعة الضمان') !!}</div>
     </div>
     <table class="info">
-        <tr><td class="val"><span class="fill"></span> {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('مبلغ الوديعة') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->caution_amount ? number_format($reservation->caution_amount, 2) : '______' }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('مبلغ الوديعة') !!}</td></tr>
     </table>
     <div class="mode-label">{!! arabic('طريقة الضمان :') !!}</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('بطاقة بنكية') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('نقداً') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('شيك') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('أخرى') !!}</div>
+    @php $cm = $reservation->caution_mode; @endphp
+    <div class="checkbox-row">
+        <span class="chk">{{ $cm === 'carte_bancaire' ? '&#9746;' : '&#9744;' }}</span> {!! arabic('بطاقة بنكية') !!}&nbsp;&nbsp;
+        <span class="chk">{{ $cm === 'especes' ? '&#9746;' : '&#9744;' }}</span> {!! arabic('نقداً') !!}&nbsp;&nbsp;
+        <span class="chk">{{ $cm === 'passport' ? '&#9746;' : '&#9744;' }}</span> {!! arabic('جواز السفر') !!}&nbsp;&nbsp;
+        <span class="chk">{{ $cm === 'autre' ? '&#9746;' : '&#9744;' }}</span> {!! arabic('أخرى') !!}
+    </div>
 
     <div class="section-header">
         <div class="section-num">6</div>
         <div class="section-title">{!! arabic('حالة السيارة عند الانطلاق') !!}</div>
     </div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('السيارة نظيفة') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('الإطارات سليمة') !!}</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('العجلة الاحتياطية موجودة') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('سترة الأمان موجودة') !!}</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('مثلث التحذير موجود') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('الوثائق موجودة') !!}</div>
+    @if(false)
+        @foreach($reservation->departureConditions as $cond)
+            <div class="checkbox-row"><span class="chk">&#9746;</span> {{ $cond->name }}</div>
+        @endforeach
+    @else
+        <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('السيارة نظيفة') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('الإطارات سليمة') !!}</div>
+        <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('العجلة الاحتياطية موجودة') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('سترة الأمان موجودة') !!}</div>
+        <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('مثلث التحذير موجود') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('الوثائق موجودة') !!}</div>
+    @endif
     <div class="obs-label">{!! arabic('ملاحظات :') !!}</div>
-    <div class="obs-box"></div>
+    <div class="obs-box">{{ $reservation->observations ?? '' }}</div>
 
     <div class="section-header">
         <div class="section-num">7</div>

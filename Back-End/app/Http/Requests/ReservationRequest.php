@@ -18,6 +18,36 @@ class ReservationRequest extends FormRequest
             'end_date' => 'required|date|after:start_date',
             'extra_ids' => 'sometimes|array',
             'extra_ids.*' => 'exists:extras,id',
+
+            // Client info
+            'nom_prenom' => 'sometimes|required|string|max:255',
+            'date_naissance' => 'sometimes|required|date',
+            'cin_passport' => 'sometimes|required|string|max:255',
+            'adresse' => 'sometimes|required|string',
+            'telephone' => 'sometimes|required|string|max:255',
+            'numero_permi' => 'sometimes|required|string|max:255',
+            'date_delivrance' => 'sometimes|required|date',
+            'date_expiration' => 'sometimes|required|date',
+
+            // Second driver
+            'driver2_nom_prenom' => 'sometimes|nullable|string|max:255',
+            'driver2_date_naissance' => 'sometimes|nullable|date',
+            'driver2_cin_passport' => 'sometimes|nullable|string|max:255',
+            'driver2_adresse' => 'sometimes|nullable|string',
+            'driver2_telephone' => 'sometimes|nullable|string|max:255',
+            'driver2_numero_permi' => 'sometimes|nullable|string|max:255',
+            'driver2_date_delivrance' => 'sometimes|nullable|date',
+            'driver2_date_expiration' => 'sometimes|nullable|date',
+
+            // Caution
+            'caution_montant' => 'sometimes|nullable|numeric|min:0',
+            'caution_mode' => 'sometimes|nullable|string|in:carte_bancaire,especes,passport,autre',
+
+            // Location
+            'lieu_depart' => 'sometimes|nullable|string|max:255',
+            'lieu_retour' => 'sometimes|nullable|string|max:255',
+            'date_heure_depart' => 'sometimes|nullable|date',
+            'date_heure_retour' => 'sometimes|nullable|date|after:date_heure_depart',
         ];
     }
 

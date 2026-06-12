@@ -95,14 +95,48 @@ class ReservationService
     $total = $days * ($vehicle->pricePerDay + $extraPricePerDay);
     $kmIncluded = $days * 200;
 
-    $Reservation = Reservation::create(
-        array_merge($data, [
-            'user_id'    => auth()->id(),
-            'vehicle_id' => $id,
-            'TotalPrice' => $total,
-            'km_included' => $kmIncluded,
-        ])
-    );
+    // Handle client info - create/update client record
+    $clientData = [];
+    if (!empty($data['nom_prenom'])) {
+        $clientData = [
+            'user_id' => auth()->id(),
+            'nom_prenom' => $data['nom_prenom'],
+            'date_naissance' => $data['date_naissance'],
+            'cin_passport' => $data['cin_passport'],
+            'adresse' => $data['adresse'],
+            'telephone' => $data['telephone'],
+            'numero_permi' => $data['numero_permi'],
+            'date_delivrance' => $data['date_delivrance'],
+            'date_expiration' => $data['date_expiration'],
+        ];
+    }
+
+    // Build reservation data
+    $reservationData = array_merge($data, [
+        'user_id'    => auth()->id(),
+        'vehicle_id' => $id,
+        'TotalPrice' => $total,
+        'km_included' => $kmIncluded,
+    ]);
+
+    // If client data provided, create/update client and associate
+    if (!empty($clientData)) {
+        $client = \App\Models\Client::updateOrCreate(
+            ['user_id' => auth()->id()],
+            $clientData
+        );
+        $reservationData['client_id'] = $client->id;
+    }
+
+    // Remove fields that are not in the reservations table
+    unset($reservationData['extra_ids']);
+    unset($reservationData['driver2_name']);
+    unset($reservationData['driver2_cin_recto']);
+    unset($reservationData['driver2_cin_verso']);
+    unset($reservationData['driver2_permi_recto']);
+    unset($reservationData['driver2_permi_verso']);
+
+    $Reservation = Reservation::create($reservationData);
 
     if (!empty($extraIds)) {
         $Reservation->extras()->sync($extraIds);
