@@ -14,15 +14,14 @@ class ContactFormMail extends Mailable
 
     public string $name;
     public string $email;
-    public string $subject;
-    public string $message;
+    public string $contactMessage;
 
-    public function __construct(string $name, string $email, string $subject, string $message)
+    public function __construct(string $name, string $email, string $subject, string $contactMessage)
     {
         $this->name = $name;
         $this->email = $email;
         $this->subject = $subject;
-        $this->message = $message;
+        $this->contactMessage = $contactMessage;
     }
 
     public function envelope(): Envelope
@@ -41,7 +40,7 @@ class ContactFormMail extends Mailable
                 'name' => $this->name,
                 'email' => $this->email,
                 'subject' => $this->subject,
-                'message' => $this->message,
+                'contactMessage' => $this->contactMessage,
             ]
         );
     }

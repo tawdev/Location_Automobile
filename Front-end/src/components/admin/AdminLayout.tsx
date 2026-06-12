@@ -83,6 +83,14 @@ function ExtrasIcon() {
   );
 }
 
+function MessageIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  );
+}
+
 function ConditionsIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,6 +168,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       { label: t("admin.reservations"), href: "/admin/reservations", icon: <CalendarIcon /> },
       { label: t("admin.extras"), href: "/admin/extras", icon: <ExtrasIcon /> },
       { label: "Conditions de départ", href: "/admin/departure-conditions", icon: <ConditionsIcon /> },
+      { label: t("admin.messages"), href: "/admin/messages", icon: <MessageIcon /> },
       { label: "Paramètres", href: "/admin/settings", icon: <SettingsIcon /> },
       { label: t("admin.profile"), href: "/admin/profile", icon: <UserIcon /> },
       { label: t("admin.map"), href: "/admin/vehicles/map", icon: <MapIcon /> },

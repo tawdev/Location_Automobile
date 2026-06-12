@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Mail\ContactFormMail;
+use App\Models\ContactMessage;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -18,7 +20,16 @@ class ContactController extends Controller
             'message' => 'required|string|max:5000',
         ]);
 
-        Mail::to(config('mail.from.address'))
+        $message = ContactMessage::create([
+            'name'    => $data['name'],
+            'email'   => $data['email'],
+            'subject' => $data['subject'],
+            'message' => $data['message'],
+        ]);
+
+        $adminEmail = Setting::where('key', 'email')->value('value') ?? config('mail.from.address');
+
+        Mail::to($adminEmail)
             ->send(new ContactFormMail(
                 $data['name'],
                 $data['email'],
@@ -26,6 +37,9 @@ class ContactController extends Controller
                 $data['message'],
             ));
 
-        return response()->json(['message' => 'Message sent successfully']);
+        return response()->json([
+            'message' => 'Message sent successfully',
+            'data'    => $message,
+        ]);
     }
 }
