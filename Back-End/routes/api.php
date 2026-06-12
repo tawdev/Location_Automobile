@@ -106,6 +106,12 @@ Route::get('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Adm
 
 Route::put('admin/settings', [SettingsController::class, 'update']);
 
+Route::get('admin/messages', [\App\Http\Controllers\Api\Admin\MessageController::class, 'index']);
+Route::get('admin/messages/unread-count', [\App\Http\Controllers\Api\Admin\MessageController::class, 'unreadCount']);
+Route::get('admin/messages/{message}', [\App\Http\Controllers\Api\Admin\MessageController::class, 'show']);
+Route::post('admin/messages/{message}/reply', [\App\Http\Controllers\Api\Admin\MessageController::class, 'reply']);
+Route::delete('admin/messages/{message}', [\App\Http\Controllers\Api\Admin\MessageController::class, 'destroy']);
+
 Route::get('/admin/users', [UserController::class, 'index']);
 Route::get('/admin/users/stats', [UserController::class, 'stats']);
 Route::get('/admin/users/{id}', [UserController::class, 'show']);
