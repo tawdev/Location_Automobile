@@ -6,6 +6,7 @@ import { createAdminCategory, type AdminCategoryPayload } from "@/lib/adminCateg
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function AdminCategoryNewPage() {
+  
   const router = useRouter();
   const { t } = useI18n();
 
