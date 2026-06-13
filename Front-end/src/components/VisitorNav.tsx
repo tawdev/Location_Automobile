@@ -77,7 +77,7 @@ export default function VisitorNav({ solid }: { solid?: boolean }) {
 
   const NAV_LINKS = [
     { label: t("nav.home"), href: "/" },
-    { label: t("nav.vehicules"), href: "/vehicles" },
+    { label: t("nav.vehicules"), href: "/vehicules" },
     { label: t("nav.about"), href: "/a-propos" },
   ];
 

@@ -11,6 +11,7 @@ import { vehicleImageUrl } from "@/lib/media";
 import { Search } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { RequireClient } from "@/components/RequireClient";
 
 const NEW_COUNT = 10;
 
@@ -156,9 +157,15 @@ export default function VehiclesPage() {
     const pu = params.get("pickup_date");
     const rt = params.get("return_date");
     const mq = params.get("marque");
+    const md = params.get("model");
+    const minP = params.get("min_price");
+    const maxP = params.get("max_price");
     if (pu) setPickupDateState(pu);
     if (rt) setReturnDate(rt);
     if (mq) setQuery((q) => ({ ...q, marque: mq }));
+    if (md) setQuery((q) => ({ ...q, model: md }));
+    if (minP) setQuery((q) => ({ ...q, min_price: Number(minP) }));
+    if (maxP) setQuery((q) => ({ ...q, max_price: Number(maxP) }));
   }, []);
 
   // Auto-filter when both dates are selected
@@ -222,6 +229,7 @@ export default function VehiclesPage() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
+    <RequireClient>
     <ClientOnly>
       <div className="bg-[#f6f6f8] dark:bg-[#070b14] overflow-hidden transition-colors duration-500">
         <Head>
@@ -778,5 +786,6 @@ export default function VehiclesPage() {
 
       </div>
     </ClientOnly>
+    </RequireClient>
   );
 }
