@@ -52,8 +52,7 @@ function AdminVehicleEditForm({
       pricePerDay >= 0 &&
       fuelType.trim() &&
       categoryId > 0 &&
-      occupants.trim() &&
-      imagesFiles.length > 0
+      occupants.trim()
   );
 
   return (
@@ -77,7 +76,7 @@ function AdminVehicleEditForm({
             air_conditioner: airConditioner,
             gps: gps,
             order: order,
-            images: undefined,
+            images: imagesFiles.length > 0 ? imagesFiles : undefined,
           },
           imagesFiles
         );
@@ -232,16 +231,15 @@ function AdminVehicleEditForm({
         </label>
 
         <div className="flex flex-col gap-2">
-          <span className="font-bold">Nouvelles images (remplacer)</span>
+          <span className="font-bold">Images (optionnel - laisser vide pour conserver les actuelles)</span>
           <input
             className="bg-white"
             type="file"
             accept="image/*"
             multiple
             onChange={(e) => setImagesFiles(e.target.files ? Array.from(e.target.files) : [])}
-            required
           />
-          <span className="text-xs font-bold">Téléchargez au moins 1 image.</span>
+          <span className="text-xs font-bold">Ne sélectionnez des images que si vous souhaitez les remplacer.</span>
         </div>
       </div>
 
@@ -304,7 +302,10 @@ export default function AdminVehicleEditPage() {
     setError(null);
 
     try {
-      await updateAdminVehicle(vehicleId, { ...payload, images });
+      await updateAdminVehicle(vehicleId, {
+        ...payload,
+        images: images.length > 0 ? images : undefined,
+      });
       router.push("/admin/vehicles");
     } catch (e) {
       const msg = e instanceof Error ? e.message : t("admin.vehicle_update_error");
