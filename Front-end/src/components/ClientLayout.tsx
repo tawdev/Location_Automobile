@@ -95,7 +95,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   const VISITOR_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
-    { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
+    { label: t("nav.vehicules"), href: "/vehicules", icon: Car },
     { label: t("nav.rules"), href: "/regles", icon: Info },
     { label: t("nav.about"), href: "/a-propos", icon: Info },
   ];

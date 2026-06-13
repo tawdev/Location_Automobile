@@ -97,14 +97,20 @@ function HeroSection() {
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [brand, setBrand] = useState("");
+  const [model, setModel] = useState("");
+  const [minPrice, setMinPrice] = useState<number | undefined>();
+  const [maxPrice, setMaxPrice] = useState<number | undefined>();
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (pickupDate) params.set("pickup_date", pickupDate);
     if (returnDate) params.set("return_date", returnDate);
     if (brand.trim()) params.set("marque", brand.trim());
+    if (model.trim()) params.set("model", model.trim());
+    if (minPrice !== undefined) params.set("min_price", String(minPrice));
+    if (maxPrice !== undefined) params.set("max_price", String(maxPrice));
     const qs = params.toString();
-    router.push(qs ? `/vehicles?${qs}` : "/vehicles");
+    router.push(qs ? `/vehicules?${qs}` : "/vehicules");
   };
 
   useEffect(() => {
@@ -188,10 +194,11 @@ function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.55 }}
-            className="mb-8 max-w-2xl"
+            className="mb-8 w-full max-w-4xl"
           >
             <div className="bg-white/10 dark:bg-[#0f1729]/40 backdrop-blur-xl border border-white/20 dark:border-[#1e293b]/50 rounded-2xl p-4 md:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
-              <div className="flex flex-col sm:flex-row gap-3 items-end">
+              {/* Row 1: Pickup · Return · Brand · Model */}
+              <div className="flex flex-col sm:flex-row gap-3 items-end mb-3">
                 <div className="flex-1 w-full">
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
                     {t("vehicles.pickup_date")}
@@ -233,11 +240,50 @@ function HeroSection() {
                     className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
                   />
                 </div>
+                <div className="flex-1 w-full">
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                    {t("vehicles.model")}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={t("vehicles.model_placeholder")}
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
+                  />
+                </div>
+              </div>
+              {/* Row 2: Min price · Max price · Search button */}
+              <div className="flex flex-col sm:flex-row gap-3 items-end">
+                <div className="w-full sm:w-36">
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                    {t("vehicles.min_price")}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="0 DH"
+                    value={minPrice ?? ""}
+                    onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
+                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
+                  />
+                </div>
+                <div className="w-full sm:w-36">
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                    {t("vehicles.max_price")}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="1000 DH"
+                    value={maxPrice ?? ""}
+                    onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
+                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
+                  />
+                </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={handleSearch}
-                  className="h-11 px-6 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center gap-2 transition-all duration-300 whitespace-nowrap shrink-0"
+                  className="h-11 px-8 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center gap-2 transition-all duration-300 whitespace-nowrap shrink-0"
                 >
                   <Search className="w-4 h-4" />
                   {t("vehicles.filter_button")}
