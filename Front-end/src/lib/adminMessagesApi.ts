@@ -24,11 +24,13 @@ export async function fetchMessages(params?: {
   status?: string;
   per_page?: number;
   page?: number;
+  search?: string;
 }): Promise<PaginatedMessages> {
   const searchParams = new URLSearchParams();
   if (params?.status) searchParams.set("status", params.status);
   if (params?.per_page) searchParams.set("per_page", String(params.per_page));
   if (params?.page) searchParams.set("page", String(params.page));
+  if (params?.search) searchParams.set("search", params.search);
 
   const qs = searchParams.toString();
   const path = qs ? `/admin/messages?${qs}` : "/admin/messages";

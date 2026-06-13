@@ -8,8 +8,8 @@ import { profileImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import type { AdminUser, UserStats } from "@/lib/adminUsersApi";
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("fr-FR").format(n);
+function fmt(n: number, locale: string = "fr-FR") {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-DZ" : locale === "en" ? "en-US" : "fr-FR").format(n);
 }
 
 function useCountUp(end: number, duration = 1.2) {
@@ -27,14 +27,14 @@ function useCountUp(end: number, duration = 1.2) {
   return val;
 }
 
-function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
-  return <>{fmt(useCountUp(value))}{suffix}</>;
+function CountUp({ value, locale, suffix = "" }: { value: number; locale?: string; suffix?: string }) {
+  return <>{fmt(useCountUp(value), locale)}{suffix}</>;
 }
 
 function StatCard({
-  label, value, icon, accent, delay,
+  label, value, icon, accent, delay, locale,
 }: {
-  label: string; value: number; icon: React.ReactNode; accent: string; delay: number;
+  label: string; value: number; icon: React.ReactNode; accent: string; delay: number; locale?: string;
 }) {
   return (
     <motion.div
@@ -56,7 +56,7 @@ function StatCard({
             {label}
           </div>
           <div className="text-2xl font-black text-[#395886] dark:text-[#D5DEEF] mt-0.5 tabular-nums tracking-tight">
-            <CountUp value={value} />
+            <CountUp value={value} locale={locale} />
           </div>
         </div>
       </div>
@@ -109,12 +109,12 @@ function Skeleton() {
   );
 }
 
-function MonthTooltip({ active, payload, label }: any) {
+function MonthTooltip({ active, payload, label, t, locale }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl bg-white/90 dark:bg-[#0f1729]/90 backdrop-blur-md border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 px-3.5 py-2.5 shadow-lg text-xs font-bold text-[#395886] dark:text-[#D5DEEF]">
       <p className="text-[#638ECB] dark:text-[#94A3B8] mb-0.5">{label}</p>
-      <p>{payload[0].value} inscriptions</p>
+      <p>{fmt(payload[0].value, locale)} {t("admin_users.inscriptions")}</p>
     </div>
   );
 }
@@ -152,13 +152,14 @@ function UserAvatar({ user }: { user: AdminUser }) {
 }
 
 function UserCard({
-  user, index,
+  user, index, locale,
 }: {
-  user: AdminUser; index: number;
+  user: AdminUser; index: number; locale?: string;
 }) {
   const { t } = useI18n();
+  const dateLocale = locale === "ar" ? "ar-DZ" : locale === "en" ? "en-US" : "fr-FR";
   const createdDate = user.created_at
-    ? new Date(user.created_at).toLocaleDateString("fr-FR", {
+    ? new Date(user.created_at).toLocaleDateString(dateLocale, {
         month: "short", day: "numeric", year: "numeric",
       })
     : "—";
@@ -216,7 +217,7 @@ function UserCard({
 }
 
 export default function AdminUsersPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -246,8 +247,9 @@ export default function AdminUsersPage() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchQuery, load]);
 
+  const chartLocale = locale === "ar" ? "ar-DZ" : locale === "en" ? "en-US" : "fr-FR";
   const regChartData = stats?.monthlyRegistrations.map((r) => ({
-    month: new Date(r.month + "-01").toLocaleDateString("fr-FR", { month: "short" }),
+    month: new Date(r.month + "-01").toLocaleDateString(chartLocale, { month: "short" }),
     inscriptions: r.count,
   })) ?? [];
 
@@ -300,22 +302,22 @@ export default function AdminUsersPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
             <StatCard
               label={t("admin_users.total")} value={stats.totalClients}
-              accent="#8B5CF6" delay={0.05}
+              accent="#8B5CF6" delay={0.05} locale={locale}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>}
             />
             <StatCard
               label={t("admin_users.active")} value={stats.activeClients}
-              accent="#059669" delay={0.1}
+              accent="#059669" delay={0.1} locale={locale}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
             />
             <StatCard
               label={t("admin_users.new_month")} value={stats.newThisMonth}
-              accent="#D97706" delay={0.15}
+              accent="#D97706" delay={0.15} locale={locale}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>}
             />
             <StatCard
               label={t("admin_users.documents")} value={stats.withDocuments}
-              accent="#0284C7" delay={0.2}
+              accent="#0284C7" delay={0.2} locale={locale}
               icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
             />
           </div>
@@ -333,7 +335,7 @@ export default function AdminUsersPage() {
                   {t("admin_users.monthly")}
                 </h3>
                 <span className="text-[10px] font-bold text-[#B0C4DE] dark:text-[#64748B] uppercase tracking-wider">
-                  {regChartData.length} mois
+                  {regChartData.length} {t("admin_users.months")}
                 </span>
               </div>
               {regChartData.length === 0 ? (
@@ -350,7 +352,7 @@ export default function AdminUsersPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#D5DEEF" strokeOpacity={0.2} vertical={false} />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fontWeight: 700, fill: "#B0C4DE" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fontWeight: 700, fill: "#B0C4DE" }} axisLine={false} tickLine={false} allowDecimals={false} width={28} />
-                    <Tooltip content={<MonthTooltip />} cursor={{ fill: "#F0F3FA", fillOpacity: 0.4 }} />
+                    <Tooltip content={<MonthTooltip t={t} locale={locale} />} cursor={{ fill: "#F0F3FA", fillOpacity: 0.4 }} />
                     <Bar dataKey="inscriptions" radius={[2, 2, 0, 0]} maxBarSize={64} fill="url(#regBar)" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -378,12 +380,12 @@ export default function AdminUsersPage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Rechercher un utilisateur..."
+                    placeholder={t("admin_users.search_placeholder")}
                     className="w-56 pl-9 pr-3 py-2 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 text-xs font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#B0C4DE] dark:placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]/40 transition-all"
                   />
                 </div>
                 <span className="text-[11px] font-bold text-[#B0C4DE] dark:text-[#64748B] whitespace-nowrap">
-                  {users.length} utilisateur{users.length !== 1 ? "s" : ""}
+                  {t("admin_users.count", { count: String(users.length) }).replace("{s}", users.length !== 1 ? "s" : "")}
                 </span>
               </div>
             </motion.div>
@@ -395,7 +397,7 @@ export default function AdminUsersPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {users.map((user, i) => (
-                  <UserCard key={user.id} user={user} index={i} />
+                  <UserCard key={user.id} user={user} index={i} locale={locale} />
                 ))}
               </div>
             )}

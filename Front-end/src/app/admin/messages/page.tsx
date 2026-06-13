@@ -10,27 +10,27 @@ import {
 import type { ApiError } from "@/lib/apiClient";
 import {
   Mail, ChevronLeft, ChevronRight, Trash2, Reply, Send, Loader2,
-  CheckCircle, Clock, MessageSquare, X, Eye, EyeOff, AlertCircle,
+  CheckCircle, Clock, MessageSquare, X, Eye, EyeOff, AlertCircle, Search,
 } from "lucide-react";
 
-function StatusBadge({ readAt, adminReply }: { readAt: string | null; adminReply: string | null }) {
+function StatusBadge({ readAt, adminReply, t }: { readAt: string | null; adminReply: string | null; t: (key: string) => string }) {
   if (adminReply) {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
-        <CheckCircle className="w-3 h-3" /> Replied
+        <CheckCircle className="w-3 h-3" /> {t("admin.replied")}
       </span>
     );
   }
   if (readAt) {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
-        <Eye className="w-3 h-3" /> Read
+        <Eye className="w-3 h-3" /> {t("admin.read")}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">
-      <Clock className="w-3 h-3" /> Unread
+      <Clock className="w-3 h-3" /> {t("admin.unread")}
     </span>
   );
 }
@@ -43,6 +43,8 @@ export default function AdminMessagesPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [selected, setSelected] = useState<ContactMessage | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -54,10 +56,21 @@ export default function AdminMessagesPage() {
 
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const loadMessages = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchMessages({ status: statusFilter || undefined, page });
+      const res = await fetchMessages({
+        status: statusFilter || undefined,
+        page,
+        search: debouncedSearch || undefined,
+      });
       setMessages(res.data);
       setPagination({
         current_page: res.current_page,
@@ -70,7 +83,7 @@ export default function AdminMessagesPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, page]);
+  }, [statusFilter, page, debouncedSearch]);
 
   useEffect(() => {
     loadMessages();
@@ -78,7 +91,7 @@ export default function AdminMessagesPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, debouncedSearch]);
 
   async function openDetail(msg: ContactMessage) {
     setDetailLoading(true);
@@ -110,7 +123,7 @@ export default function AdminMessagesPage() {
       setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
       setTimeout(() => setReplySuccess(false), 3000);
     } catch (err) {
-      setReplyError((err as ApiError)?.message ?? "Failed to send reply");
+      setReplyError((err as ApiError)?.message ?? t("admin.reply_failed"));
     } finally {
       setReplySubmitting(false);
     }
@@ -128,10 +141,10 @@ export default function AdminMessagesPage() {
   }
 
   const filters = [
-    { label: "All", value: "" },
-    { label: "Unread", value: "unread" },
-    { label: "Read", value: "read" },
-    { label: "Replied", value: "replied" },
+    { label: t("admin.all"), value: "" },
+    { label: t("admin.unread"), value: "unread" },
+    { label: t("admin.read"), value: "read" },
+    { label: t("admin.replied"), value: "replied" },
   ];
 
   return (
@@ -143,30 +156,43 @@ export default function AdminMessagesPage() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#395886] to-[#2b4c7e] flex items-center justify-center shadow-lg">
               <MessageSquare className="w-5 h-5 text-white" />
             </div>
-            Messages
+            {t("admin.messages")}
           </h1>
           <p className="text-sm font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1">
-            {pagination ? `${pagination.total} total` : "Manage contact messages"}
+            {pagination ? `${pagination.total} ${t("admin.total")}` : t("admin.messages_description")}
           </p>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 flex-wrap">
-        {filters.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            onClick={() => setStatusFilter(f.value)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              statusFilter === f.value
-                ? "bg-[#395886] text-white shadow-md"
-                : "bg-white dark:bg-[#0f1729] text-[#638ECB] dark:text-[#94A3B8] border border-[#D5DEEF] dark:border-[#1e293b] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+      {/* Filters & Search */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex gap-2 flex-wrap">
+          {filters.map((f) => (
+            <button
+              key={f.value}
+              type="button"
+              onClick={() => setStatusFilter(f.value)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                statusFilter === f.value
+                  ? "bg-[#395886] text-white shadow-md"
+                  : "bg-white dark:bg-[#0f1729] text-[#638ECB] dark:text-[#94A3B8] border border-[#D5DEEF] dark:border-[#1e293b] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#638ECB] dark:text-[#94A3B8] pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("admin.messages_search_placeholder")}
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white dark:bg-[#0f1729] text-xs font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/60 dark:placeholder:text-[#94A3B8]/60 focus:outline-none focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886] transition-all shadow-sm"
+          />
+        </div>
       </div>
 
       {/* List */}
@@ -178,7 +204,7 @@ export default function AdminMessagesPage() {
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Mail className="w-12 h-12 text-[#D5DEEF] dark:text-[#1e293b] mb-4" />
-            <p className="text-sm font-bold text-[#638ECB] dark:text-[#94A3B8]">No messages found</p>
+            <p className="text-sm font-bold text-[#638ECB] dark:text-[#94A3B8]">{t("admin.messages_no_results")}</p>
           </div>
         ) : (
           <div className="divide-y divide-[#D5DEEF]/40 dark:divide-[#1e293b]/70">
@@ -219,7 +245,7 @@ export default function AdminMessagesPage() {
                     {msg.subject}
                   </p>
                 </div>
-                <StatusBadge readAt={msg.read_at} adminReply={msg.admin_reply} />
+                <StatusBadge readAt={msg.read_at} adminReply={msg.admin_reply} t={t} />
               </button>
             ))}
           </div>
@@ -234,10 +260,10 @@ export default function AdminMessagesPage() {
               onClick={() => setPage((p) => p - 1)}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-[#638ECB] hover:text-[#395886] disabled:opacity-30 transition-colors cursor-pointer"
             >
-              <ChevronLeft className="w-4 h-4" /> Prev
+              <ChevronLeft className="w-4 h-4" /> {t("admin.prev")}
             </button>
             <span className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8]">
-              Page {pagination.current_page} / {pagination.last_page}
+              {t("admin.page_of").replace("{current}", String(pagination.current_page)).replace("{total}", String(pagination.last_page))}
             </span>
             <button
               type="button"
@@ -245,7 +271,7 @@ export default function AdminMessagesPage() {
               onClick={() => setPage((p) => p + 1)}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-[#638ECB] hover:text-[#395886] disabled:opacity-30 transition-colors cursor-pointer"
             >
-              Next <ChevronRight className="w-4 h-4" />
+              {t("admin.next")} <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}
@@ -284,7 +310,7 @@ export default function AdminMessagesPage() {
                         <StatusBadge readAt={selected.read_at} adminReply={selected.admin_reply} />
                       </div>
                       <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8]">
-                        From <span className="font-bold">{selected.name}</span> &lt;{selected.email}&gt;
+                        {t("admin.from")} <span className="font-bold">{selected.name}</span> &lt;{selected.email}&gt;
                         &middot; {new Date(selected.created_at).toLocaleString()}
                       </p>
                     </div>
@@ -312,7 +338,7 @@ export default function AdminMessagesPage() {
                           <Reply className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
                         </div>
                         <span className="text-xs font-extrabold text-green-700 dark:text-green-400 uppercase tracking-wider">
-                          Your Reply
+                          {t("admin.your_reply")}
                         </span>
                       </div>
                       <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/40 rounded-xl px-5 py-4 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] leading-relaxed whitespace-pre-wrap">
@@ -329,14 +355,14 @@ export default function AdminMessagesPage() {
                           <Reply className="w-3.5 h-3.5 text-[#395886] dark:text-[#f39c12]" />
                         </div>
                         <span className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-wider">
-                          Reply
+                          {t("admin.reply")}
                         </span>
                       </div>
                       <textarea
                         rows={4}
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Write your reply..."
+                        placeholder={t("admin.write_reply")}
                         className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886]/50 transition-all resize-none"
                       />
                       {replyError && (
@@ -348,7 +374,7 @@ export default function AdminMessagesPage() {
                       {replySuccess && (
                         <div className="flex items-center gap-2 mt-3 px-4 py-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-xs font-bold text-green-600 dark:text-green-400">
                           <CheckCircle className="w-4 h-4 shrink-0" />
-                          Reply sent successfully
+                          {t("admin.reply_sent")}
                         </div>
                       )}
                       <div className="flex items-center justify-between mt-4">
@@ -357,7 +383,7 @@ export default function AdminMessagesPage() {
                           onClick={() => setDeleteConfirm(selected.id)}
                           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors cursor-pointer"
                         >
-                          <Trash2 className="w-3.5 h-3.5" /> Delete
+                          <Trash2 className="w-3.5 h-3.5" /> {t("admin.delete")}
                         </button>
                         <button
                           type="submit"
@@ -369,7 +395,7 @@ export default function AdminMessagesPage() {
                           ) : (
                             <Send className="w-3.5 h-3.5" />
                           )}
-                          Send Reply
+                          {t("admin.send_reply")}
                         </button>
                       </div>
                     </form>
@@ -383,10 +409,10 @@ export default function AdminMessagesPage() {
                         onClick={() => setDeleteConfirm(selected.id)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors cursor-pointer"
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                        <Trash2 className="w-3.5 h-3.5" /> {t("admin.delete")}
                       </button>
                       <span className="text-[11px] font-semibold text-[#638ECB] dark:text-[#94A3B8]">
-                        Replied on {new Date(selected.updated_at).toLocaleString()}
+                        {t("admin.replied_on").replace("{date}", new Date(selected.updated_at).toLocaleString())}
                       </span>
                     </div>
                   )}
@@ -417,9 +443,9 @@ export default function AdminMessagesPage() {
               <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="w-6 h-6 text-rose-600 dark:text-rose-400" />
               </div>
-              <h3 className="text-lg font-black text-[#395886] dark:text-[#D5DEEF] mb-2">Delete this message?</h3>
+              <h3 className="text-lg font-black text-[#395886] dark:text-[#D5DEEF] mb-2">{t("admin.delete_message_confirm")}</h3>
               <p className="text-sm font-semibold text-[#638ECB] dark:text-[#94A3B8] mb-6">
-                This action cannot be undone.
+                {t("admin.delete_message_warning")}
               </p>
               <div className="flex gap-3 justify-center">
                 <button
@@ -427,14 +453,14 @@ export default function AdminMessagesPage() {
                   onClick={() => setDeleteConfirm(null)}
                   className="px-5 py-2.5 rounded-xl border border-[#D5DEEF] dark:border-[#1e293b] text-xs font-bold text-[#638ECB] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] transition-colors cursor-pointer"
                 >
-                  Cancel
+                  {t("admin.cancel")}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDelete(deleteConfirm)}
                   className="px-5 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors cursor-pointer"
                 >
-                  Delete
+                  {t("admin.delete")}
                 </button>
               </div>
             </motion.div>

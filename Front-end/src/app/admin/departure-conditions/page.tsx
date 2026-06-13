@@ -9,7 +9,7 @@ import {
   updateAdminDepartureCondition,
   deleteAdminDepartureCondition,
 } from "@/lib/departureConditionsApi";
-import { Plus, Pencil, Trash2, AlertCircle, CheckCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertCircle, CheckCircle, Search } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function SkeletonRow() {
@@ -32,6 +32,7 @@ export default function AdminDepartureConditionsPage() {
   const [conditions, setConditions] = useState<DepartureCondition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [showForm, setShowForm] = useState(false);
@@ -56,6 +57,10 @@ export default function AdminDepartureConditionsPage() {
   useEffect(() => {
     void loadConditions();
   }, [loadConditions]);
+
+  const filteredConditions = conditions.filter((c) =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   function openCreate() {
     setEditingItem(null);
@@ -136,9 +141,21 @@ export default function AdminDepartureConditionsPage() {
         </div>
       </motion.div>
 
-      <div className="flex items-center gap-2 text-xs font-bold text-[#638ECB] bg-white rounded-2xl border border-[#D5DEEF]/60 px-5 py-3 shadow-sm">
-        <CheckCircle className="w-4 h-4 text-green-600" />
-        {conditions.length} condition(s) définie(s)
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#638ECB] bg-white rounded-2xl border border-[#D5DEEF]/60 px-5 py-3 shadow-sm">
+          <CheckCircle className="w-4 h-4 text-green-600" />
+          {filteredConditions.length} condition(s) définie(s)
+        </div>
+        <div className="relative flex-1 min-w-[200px] max-w-xs ml-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#638ECB]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Rechercher une condition..."
+            className="w-full h-10 pl-9 pr-4 rounded-xl border border-[#D5DEEF] bg-white text-sm font-bold text-[#395886] placeholder:text-[#B0C4DE] focus:outline-none focus:ring-2 focus:ring-[#638ECB]/30 focus:border-[#638ECB] transition-all"
+          />
+        </div>
       </div>
 
       <AnimatePresence>
@@ -161,7 +178,7 @@ export default function AdminDepartureConditionsPage() {
             <SkeletonRow key={i} />
           ))}
         </div>
-      ) : conditions.length === 0 ? (
+      ) : filteredConditions.length === 0 && conditions.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -184,10 +201,25 @@ export default function AdminDepartureConditionsPage() {
             </button>
           </div>
         </motion.div>
+      ) : filteredConditions.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-3xl border border-[#D5DEEF]/60 bg-white p-12 text-center shadow-sm"
+        >
+          <div className="relative flex flex-col items-center max-w-md mx-auto">
+            <h3 className="text-lg font-black text-[#395886] mb-2">
+              Aucun résultat
+            </h3>
+            <p className="text-sm font-bold text-[#638ECB] mb-6 max-w-xs">
+              Aucune condition ne correspond à votre recherche.
+            </p>
+          </div>
+        </motion.div>
       ) : (
         <div className="flex flex-col gap-3">
           <AnimatePresence mode="popLayout">
-            {conditions.map((item) => (
+            {filteredConditions.map((item) => (
               <motion.div
                 key={item.id}
                 layout

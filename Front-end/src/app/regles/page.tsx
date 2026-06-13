@@ -2,13 +2,13 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Info, Gauge, Shield, Ban, Clock, FileText, ChevronRight, Sparkles } from "lucide-react";
+import { Info, Gauge, Shield, IdCard, Clock, FileText, ChevronRight, Sparkles } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
-const RULES_KEYS = ["km", "insurance", "age", "duration", "documents"] as const;
+const RULES_KEYS = ["km", "insurance", "license", "duration", "documents"] as const;
 
-const ICONS = [Gauge, Shield, Ban, Clock, FileText] as const;
+const ICONS = [Gauge, Shield, IdCard, Clock, FileText] as const;
 
 const GRADIENTS = [
   "from-blue-500 to-cyan-500",

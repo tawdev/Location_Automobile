@@ -163,13 +163,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const navItems: NavItem[] = useMemo(
     () => [
       { label: t("admin.dashboard"), href: "/admin", icon: <DashboardIcon /> },
-      { label: "Utilisateurs", href: "/admin/users", icon: <UsersIcon /> },
+      { label: t("admin_users.title"), href: "/admin/users", icon: <UsersIcon /> },
       { label: t("admin.vehicles"), href: "/admin/vehicles", icon: <FleetIcon /> },
       { label: t("admin.reservations"), href: "/admin/reservations", icon: <CalendarIcon /> },
       { label: t("admin.extras"), href: "/admin/extras", icon: <ExtrasIcon /> },
-      { label: "Conditions de départ", href: "/admin/departure-conditions", icon: <ConditionsIcon /> },
+      { label: t("admin.departure_conditions"), href: "/admin/departure-conditions", icon: <ConditionsIcon /> },
       { label: t("admin.messages"), href: "/admin/messages", icon: <MessageIcon /> },
-      { label: "Paramètres", href: "/admin/settings", icon: <SettingsIcon /> },
+      { label: t("admin.settings"), href: "/admin/settings", icon: <SettingsIcon /> },
       { label: t("admin.profile"), href: "/admin/profile", icon: <UserIcon /> },
       { label: t("admin.map"), href: "/admin/vehicles/map", icon: <MapIcon /> },
     ],
@@ -196,24 +196,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={`admin-layout min-h-screen bg-[#F0F3FA] text-[#395886] flex ${dark ? "dark" : ""}`}>
       {/* Sidebar */}
-      <aside className="w-[240px] h-screen sticky top-0 bg-white dark:bg-[#0f1729] border-r border-[#D5DEEF] dark:border-[#1e293b] flex flex-col justify-between p-5 shrink-0 hidden md:flex z-30">
-        {/* Logo */}
-        <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-2.5">
-            <img
-              src="/logo.png"
-              alt="CARFORFAR logo"
-              className="h-28 w-auto object-contain dark:hidden"
-            />
-            <img
-              src="/logo-dark.png"
-              alt="CARFORFAR logo"
-              className="h-28 w-auto object-contain hidden dark:block"
-            />
-            <div className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</div>
-          </div>
+      <aside className="w-[240px] h-screen sticky top-0 bg-white dark:bg-[#0f1729] border-r border-[#D5DEEF] dark:border-[#1e293b] flex flex-col shrink-0 hidden md:flex z-30">
+        {/* Header */}
+        <div className="flex flex-col items-center pt-4 pb-2 px-5">
+          <div className="text-base font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</div>
+        </div>
 
-          {/* Nav */}
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto px-5 pb-2">
           <div className="flex flex-col gap-1">
             {navItems.map((item) => (
               <SidebarLink
@@ -228,7 +218,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Bottom */}
-        <div className="flex flex-col gap-3 border-t border-[#D5DEEF] dark:border-[#1e293b] pt-4">
+        <div className="flex flex-col gap-3 border-t border-[#D5DEEF] dark:border-[#1e293b] pt-4 px-5 pb-3">
           <button
             type="button"
             onClick={() => router.push("/admin/profile")}
@@ -255,7 +245,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <LanguageSwitcher upward />
           </div>
 
-          {/* Dark/Light toggle (admin only) */}
           <button
             type="button"
             onClick={toggleDark}
