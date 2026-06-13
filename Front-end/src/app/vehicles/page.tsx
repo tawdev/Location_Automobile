@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from "
 import { useRouter } from "next/navigation";
 import Head from "next/head";
 import { motion, useReducedMotion } from "framer-motion";
-import { RequireClient } from "@/components/RequireClient";
+import { ClientOnly } from "@/components/ClientOnly";
 import { filterVehicles, listVehicles, fetchCategories } from "@/lib/vehiclesApi";
 import type { Vehicle, Category } from "@/lib/types";
 import { vehicleImageUrl } from "@/lib/media";
@@ -150,6 +150,17 @@ export default function VehiclesPage() {
     fetchCategories().then(setCategories);
   }, []);
 
+  // Read URL search params on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pu = params.get("pickup_date");
+    const rt = params.get("return_date");
+    const mq = params.get("marque");
+    if (pu) setPickupDateState(pu);
+    if (rt) setReturnDate(rt);
+    if (mq) setQuery((q) => ({ ...q, marque: mq }));
+  }, []);
+
   // Auto-filter when both dates are selected
   useEffect(() => {
     if (pickupDate && returnDate) {
@@ -211,7 +222,7 @@ export default function VehiclesPage() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <RequireClient>
+    <ClientOnly>
       <div className="bg-[#f6f6f8] dark:bg-[#070b14] overflow-hidden transition-colors duration-500">
         <Head>
           <link rel="preload" href="/CarBackGround.png" as="image" />
@@ -766,6 +777,6 @@ export default function VehiclesPage() {
 
 
       </div>
-    </RequireClient>
+    </ClientOnly>
   );
 }

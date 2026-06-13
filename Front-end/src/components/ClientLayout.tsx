@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House } from "lucide-react";
+import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House, LogIn, UserPlus } from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -91,8 +91,16 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
 
   const isAdmin = status === "authenticated" && user?.role_id === 1;
+  const isAuthenticated = status === "authenticated";
 
-  const NAV_ITEMS = [
+  const VISITOR_NAV = [
+    { label: t("nav.home"), href: "/", icon: House },
+    { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
+    { label: t("nav.rules"), href: "/regles", icon: Info },
+    { label: t("nav.about"), href: "/a-propos", icon: Info },
+  ];
+
+  const AUTH_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
     { label: t("nav.history"), href: "/MyReservations", icon: Clock },
@@ -100,6 +108,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     { label: t("nav.profile"), href: "/profile", icon: User },
     { label: t("nav.settings"), href: "/settings", icon: Settings },
   ];
+
+  const NAV_ITEMS = isAuthenticated ? AUTH_NAV : VISITOR_NAV;
 
   useEffect(() => {
     if (isAdmin) router.replace("/admin/vehicles");
@@ -162,18 +172,44 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             >
               {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </motion.button>
-            <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
-            <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={async () => {
-                try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
-              }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
-            >
-              <LogOut className="w-4 h-4" />
-              {t("nav.logout")}
-            </motion.button>
+            {isAuthenticated ? (
+              <>
+                <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={async () => {
+                    try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
+                >
+                  <LogOut className="w-4 h-4" />
+                  {t("nav.logout")}
+                </motion.button>
+              </>
+            ) : (
+              <>
+                <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => router.push("/login")}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-[#395886] dark:text-white hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  {t("nav.login")}
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => router.push("/register")}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg shadow-[#395886]/20 hover:shadow-xl transition-all"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  {t("nav.signup")}
+                </motion.button>
+              </>
+            )}
           </nav>
 
           {/* Mobile Hamburger */}
@@ -234,8 +270,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <div>
                       <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.company")}</p>
                       <div className="flex flex-col gap-1.5">
-                        {[t("footer.about"), t("footer.careers"), t("footer.press"), t("footer.blog")].map((l) => (
-                          <a key={l} href="#" className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
+                        {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "#" }, { label: t("footer.press"), href: "#" }, { label: t("footer.blog"), href: "#" }].map((l) => (
+                          <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                         ))}
                       </div>
                     </div>
@@ -263,15 +299,34 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   <LanguageSwitcher />
                 </div>
                 <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
-                <button
-                  onClick={async () => {
-                    try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
-                  }}
-                  className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
-                >
-                  <LogOut className="w-4 h-4" />
-                  {t("nav.logout")}
-                </button>
+                {isAuthenticated ? (
+                  <button
+                    onClick={async () => {
+                      try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
+                    }}
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {t("nav.logout")}
+                  </button>
+                ) : (
+                  <div className="flex flex-col gap-2 px-4 py-2">
+                    <button
+                      onClick={() => router.push("/login")}
+                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-white border border-[#D5DEEF] dark:border-[#1e293b] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      {t("nav.login")}
+                    </button>
+                    <button
+                      onClick={() => router.push("/register")}
+                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg transition-all"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      {t("nav.signup")}
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -296,8 +351,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <div>
                 <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.company")}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {[t("footer.about"), t("footer.careers"), t("footer.press"), t("footer.blog")].map((l) => (
-                    <a key={l} href="#" className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l}</a>
+                  {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "#" }, { label: t("footer.press"), href: "#" }, { label: t("footer.blog"), href: "#" }].map((l) => (
+                    <a key={l.label} href={l.href} className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                   ))}
                 </div>
               </div>

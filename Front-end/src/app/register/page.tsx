@@ -9,6 +9,7 @@ import { HeroSection } from "@/components/auth/HeroSection";
 import { SocialButton, GoogleIcon } from "@/components/auth/SocialButton";
 import { InputField } from "@/components/auth/InputField";
 import { API_BASE_URL } from "@/lib/config";
+import VisitorNav from "@/components/VisitorNav";
 
 const CODE_DIGITS = 6;
 
@@ -50,54 +51,12 @@ function EyeOffIcon() {
   );
 }
 
-function MoonIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
-function SunIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="5" />
-      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-    </svg>
-  );
-}
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn, signUp, verifyEmail, error, status } = useAuth();
   const { t } = useI18n();
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = stored === "dark" || (!stored && prefersDark);
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
-  }, []);
-
-  const toggleDark = () => {
-    const html = document.documentElement;
-    const next = !dark;
-
-    html.classList.add("theme-transition");
-    html.classList.toggle("dark", next);
-
-    setDark(next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        html.classList.remove("theme-transition");
-      });
-    });
-  };
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const NAME_RE = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}$/;
@@ -245,6 +204,7 @@ function RegisterForm() {
 
   return (
     <div className="relative min-h-screen w-full text-[#395886] dark:text-[#D5DEEF] overflow-hidden">
+      <VisitorNav solid />
       {/* Light mode background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden"
@@ -261,26 +221,6 @@ function RegisterForm() {
       <div className="absolute inset-0 bg-gradient-to-r from-[#F0F3FA]/0 via-[#F0F3FA]/5 to-[#F0F3FA]/10 dark:hidden" aria-hidden="true" />
       {/* Dark mode gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0f1729]/0 via-[#0f1729]/10 to-[#0f1729]/20 hidden dark:block" aria-hidden="true" />
-
-      {/* Dark mode toggle button */}
-      <motion.button
-        type="button"
-        onClick={toggleDark}
-        aria-label="Toggle dark mode"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.85, rotate: 30 }}
-        className="absolute top-6 right-6 z-50 w-10 h-10 rounded-xl border border-[#D5DEEF]/40 bg-white/60 dark:bg-[#1e293b]/50 backdrop-blur-md text-[#395886] hover:bg-white/90 dark:border-[#475569]/50 dark:text-[#D5DEEF] dark:hover:bg-[#1e293b]/70 flex items-center justify-center shadow-sm transition-all duration-300 cursor-pointer"
-      >
-        <motion.div
-          key={dark ? "sun" : "moon"}
-          initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-          animate={{ rotate: 0, opacity: 1, scale: 1 }}
-          exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          {dark ? <SunIcon /> : <MoonIcon />}
-        </motion.div>
-      </motion.button>
 
       <div className="relative flex min-h-screen flex-col lg:flex-row">
         <div className="w-full lg:flex-[1.1]">
