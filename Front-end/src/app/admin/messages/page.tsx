@@ -307,7 +307,7 @@ export default function AdminMessagesPage() {
                         <h2 className="text-lg font-black text-[#395886] dark:text-[#D5DEEF] truncate">
                           {selected.subject}
                         </h2>
-                        <StatusBadge readAt={selected.read_at} adminReply={selected.admin_reply} />
+                        <StatusBadge readAt={selected.read_at} adminReply={selected.admin_reply} t={t} />
                       </div>
                       <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8]">
                         {t("admin.from")} <span className="font-bold">{selected.name}</span> &lt;{selected.email}&gt;
