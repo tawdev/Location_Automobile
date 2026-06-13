@@ -48,6 +48,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'license_issue_date' => 'date',
+            'license_expiry_date' => 'date',
+            'date_of_birth' => 'date',
         ];
     }
 }

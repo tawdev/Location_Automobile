@@ -21,7 +21,7 @@ export default function AdminSettingsPage() {
         setPhone(s.phone ?? "");
         setEmail(s.email ?? "");
       })
-      .catch(() => setMessage({ type: "error", text: "Échec du chargement des paramètres." }))
+      .catch(() => setMessage({ type: "error", text: t("admin.settings_load_error") }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -31,10 +31,10 @@ export default function AdminSettingsPage() {
     setMessage(null);
     try {
       await updateSettings({ address, phone, email });
-      setMessage({ type: "success", text: "Paramètres mis à jour avec succès." });
+      setMessage({ type: "success", text: t("admin.settings_save_success") });
       setDirty(false);
     } catch {
-      setMessage({ type: "error", text: "Erreur lors de la sauvegarde." });
+      setMessage({ type: "error", text: t("admin.settings_save_error") });
     } finally {
       setSaving(false);
     }
@@ -52,10 +52,10 @@ export default function AdminSettingsPage() {
     <div className="max-w-2xl">
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-black text-[#395886] dark:text-[#D5DEEF] tracking-tight">
-          Paramètres du site
+          {t("admin.settings_title")}
         </h1>
         <p className="text-sm font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1">
-          Gérez les informations de contact affichées sur le site.
+          {t("admin.settings_description")}
         </p>
       </div>
 
@@ -73,7 +73,7 @@ export default function AdminSettingsPage() {
 
       <form onSubmit={handleSave} className="bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/60 dark:border-[#1e293b]/60 p-6 sm:p-8 shadow-sm flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-wider">Adresse</label>
+          <label className="text-xs font-bold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-wider">{t("admin.address")}</label>
           <input
             type="text"
             className="rounded-xl border border-[#D5DEEF] dark:border-[#475569] bg-[#F0F3FA]/30 dark:bg-[#1e293b]/70 px-3.5 py-2.5 text-sm font-semibold text-slate-800 dark:text-[#D5DEEF] focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
@@ -84,7 +84,7 @@ export default function AdminSettingsPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-wider">Téléphone</label>
+          <label className="text-xs font-bold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-wider">{t("admin.phone")}</label>
           <input
             type="text"
             className="rounded-xl border border-[#D5DEEF] dark:border-[#475569] bg-[#F0F3FA]/30 dark:bg-[#1e293b]/70 px-3.5 py-2.5 text-sm font-semibold text-slate-800 dark:text-[#D5DEEF] focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
@@ -111,7 +111,7 @@ export default function AdminSettingsPage() {
             disabled={saving || !dirty}
             className="px-6 py-3 rounded-xl bg-[#395886] text-white font-bold text-sm transition-all hover:bg-[#395886]/90 hover:shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            {saving ? "Enregistrement..." : "Enregistrer"}
+            {saving ? t("admin.saving") : t("admin.save")}
           </button>
         </div>
       </form>

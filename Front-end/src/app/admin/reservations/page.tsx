@@ -403,6 +403,7 @@ export default function AdminReservationsPage() {
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   function buildFilters() {
     const filters: Record<string, string> = {};
@@ -440,9 +441,13 @@ export default function AdminReservationsPage() {
   }
 
   useEffect(() => {
-    void load();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      void load();
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [search, status]);
 
   async function handleAccept(id: number) {
     setActionId(id);
@@ -569,17 +574,6 @@ export default function AdminReservationsPage() {
 
 
           <div className="flex gap-2 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => void load()}
-              disabled={loading}
-              className="flex-1 sm:flex-none h-10 px-5 rounded-xl bg-[#395886] text-white font-bold text-xs hover:bg-[#2c4570] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-              </svg>
-              <span>{t("admin.search")}</span>
-            </button>
             {hasFilters && (
               <button
                 type="button"

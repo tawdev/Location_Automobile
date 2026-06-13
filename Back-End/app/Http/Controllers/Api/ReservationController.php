@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRequest;
+use App\Mail\NewReservationMail;
+use App\Models\Setting;
 use App\Services\ContractScanService;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Reservation;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -57,6 +60,12 @@ class ReservationController extends Controller
                 'message'=>'Veuillez ajouter votre permis de conduire (recto et verso) dans votre profil avant de réserver.'
             ], 400);
         }
+        if($data === 'license_too_recent'){
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Vous devez avoir votre permis de conduire depuis au moins 2 ans pour pouvoir réserver un véhicule.'
+            ], 400);
+        }
         if(!$data){
              return response()->json([
         'status'=>'failed',
@@ -69,6 +78,14 @@ class ReservationController extends Controller
                 'message'=>'Reservation est deja existe'
             ],400);
         }
+        try {
+            $reservation = $data->load(['user', 'vehicle']);
+            $adminEmail = Setting::where('key', 'email')->value('value') ?? config('mail.from.address');
+            Mail::to($adminEmail)->send(new NewReservationMail($reservation));
+        } catch (\Throwable $e) {
+            // Email notification failure does not block reservation
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Reservation créée avec succès',

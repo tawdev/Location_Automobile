@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -15,11 +15,19 @@ import {
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useAuth } from "@/lib/authContext";
 import { API_BASE_URL } from "@/lib/config";
 
 export default function ContactPage() {
   const { t, locale } = useI18n();
+  const { user } = useAuth();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({ ...prev, name: user.name, email: user.email }));
+    }
+  }, [user]);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -176,8 +184,9 @@ export default function ContactPage() {
                       type="text"
                       required
                       value={form.name}
+                      readOnly={!!user}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#f39c12]/30 focus:border-[#f39c12]/50 transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#f39c12]/30 focus:border-[#f39c12]/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       placeholder={t("contact.form_name_placeholder")}
                     />
                   </div>
@@ -189,8 +198,9 @@ export default function ContactPage() {
                       type="email"
                       required
                       value={form.email}
+                      readOnly={!!user}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#f39c12]/30 focus:border-[#f39c12]/50 transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#f39c12]/30 focus:border-[#f39c12]/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       placeholder={t("contact.form_email_placeholder")}
                     />
                   </div>
