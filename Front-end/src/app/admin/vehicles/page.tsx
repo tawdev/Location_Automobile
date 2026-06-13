@@ -380,23 +380,6 @@ function VehicleCreateEditModal({
     const allFiles = [...imagesFiles];
     const condIds = selectedConditionIds;
 
-    if (mode === "edit" && initial?.pictures) {
-      const kept = initial.pictures.filter((pic) => !deletedImageIds.includes(pic.id));
-      for (const pic of kept) {
-        try {
-          const proxyUrl = `/api/storage/${pic.path.replace(/^\//, "")}`;
-          const res = await fetch(proxyUrl);
-          if (res.ok) {
-            const blob = await res.blob();
-            const ext = pic.path.split(".").pop() || "jpg";
-            allFiles.push(new File([blob], `pic-${pic.id}.${ext}`, { type: blob.type || "image/jpeg" }));
-          }
-        } catch {
-          // skip — file might not exist on disk
-        }
-      }
-    }
-
     await onSubmit(
       {
         marque: marque.trim(),

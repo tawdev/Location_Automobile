@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { RequireClient } from "@/components/RequireClient";
+import { ClientOnly } from "@/components/ClientOnly";
 import { vehicleImageUrl } from "@/lib/media";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { makeReservation } from "@/lib/reservationsApi";
@@ -69,12 +69,10 @@ export default function VehicleDetailPage() {
     async function fetchVehicle() {
       setLoading(true);
       setError(null);
-      const token = getAuthToken();
-      if (!token) { setLoading(false); return; }
 
       try {
         const res = await fetch(`${API_BASE_URL}/Vehicles/${id}`, {
-          headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+          headers: { Accept: "application/json" },
         });
         if (!res.ok) throw new Error(t("vehicle.error.not_found"));
         const json = await res.json();
@@ -97,6 +95,7 @@ export default function VehicleDetailPage() {
 
     async function fetchReservedDates() {
       const token = getAuthToken();
+      if (!token) return;
       try {
         const res = await fetch(`${API_BASE_URL}/Vehicles/${vehicleId}/reserved-dates`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
@@ -144,23 +143,29 @@ export default function VehicleDetailPage() {
       setReserveError(t("vehicle.error.select_dates"));
       return;
     }
+    const token = getAuthToken();
+    if (!token) {
+      localStorage.setItem("pendingVehicleRedirect", `/vehicles/${id}`);
+      router.push("/register");
+      return;
+    }
     setReserveError(null);
     setShowReservationModal(true);
   }
 
   if (loading) {
     return (
-      <RequireClient>
+      <ClientOnly>
         <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
           <div className="w-10 h-10 border-4 border-[#16386b] border-t-transparent rounded-full animate-spin" />
         </div>
-      </RequireClient>
+      </ClientOnly>
     );
   }
 
   if (error || !vehicle) {
     return (
-      <RequireClient>
+      <ClientOnly>
         <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600 text-lg">{error || t("vehicle.error.not_found")}</p>
@@ -169,12 +174,12 @@ export default function VehicleDetailPage() {
             </button>
           </div>
         </div>
-      </RequireClient>
+      </ClientOnly>
     );
   }
 
   return (
-    <RequireClient>
+    <ClientOnly>
       <div className="bg-[#F0F3FA] dark:bg-[#070b14] min-h-screen">
         <main className="pt-14 pb-24 bg-[#F0F3FA] dark:bg-[#070b14]">
           <div className="max-w-[1180px] mx-auto px-7">
@@ -539,6 +544,6 @@ export default function VehicleDetailPage() {
           }}
         />
       )}
-    </RequireClient>
+    </ClientOnly>
   );
 }
