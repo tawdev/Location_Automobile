@@ -61,7 +61,7 @@ function UserIcon() {
 
 function LogoutIcon() {
   return (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
     </svg>
   );
@@ -113,17 +113,21 @@ function SidebarLink({
   active,
   icon,
   onClick,
+  small,
 }: {
   label: string;
   active: boolean;
   icon: React.ReactNode;
   onClick: () => void;
+  small?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold transition-all duration-200 cursor-pointer ${
+        small ? "text-[11px]" : "text-sm"
+      } ${
         active
           ? "bg-[#395886] text-white shadow-sm"
           : "text-[#638ECB] dark:text-[#94A3B8] hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]"
@@ -212,6 +216,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 active={activeHref === item.href}
                 icon={item.icon}
                 onClick={() => router.push(item.href)}
+                small={item.label === t("admin.departure_conditions")}
               />
             ))}
           </div>
