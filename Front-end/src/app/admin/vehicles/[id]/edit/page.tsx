@@ -2,9 +2,12 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import type { Category, Vehicle } from "@/lib/types";
+import type { Category, Marque, Vehicle } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { getBrandLogo } from "@/lib/brandLogos";
+import Image from "next/image";
 import { getAdminCategories } from "@/lib/adminCategoriesApi";
+import { getPublicMarques } from "@/lib/marquesApi";
 import { getAdminVehicles, updateAdminVehicle, type AdminVehiclePayload } from "@/lib/adminVehiclesApi";
 
 function AdminVehicleEditForm({
@@ -20,6 +23,7 @@ function AdminVehicleEditForm({
   submitting: boolean;
   error: string | null;
 }) {
+  const [marques, setMarques] = useState<Marque[]>([]);
   const [marque, setMarque] = useState(initial.marque);
   const [model, setModel] = useState(initial.model);
   const [year, setYear] = useState<number>(initial.year);
@@ -40,6 +44,10 @@ function AdminVehicleEditForm({
     () => categories.slice().sort((a, b) => a.id - b.id),
     [categories]
   );
+
+  useEffect(() => {
+    getPublicMarques().then(setMarques).catch(() => {});
+  }, []);
 
   const canSubmit = Boolean(
     marque.trim() &&
@@ -90,10 +98,26 @@ function AdminVehicleEditForm({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
           <span className="font-bold">Marque</span>
-          <input className="border-2 border-black p-2" value={marque} onChange={(e) => setMarque(e.target.value)} required />
-        </label>
+          <div className="flex items-center gap-3">
+            <select className="border-2 border-black p-2 flex-1" value={marque} onChange={(e) => setMarque(e.target.value)} required>
+              <option value="">-- Sélectionner une marque --</option>
+              {marques.map((m) => (
+                <option key={m.id} value={m.name}>{m.name}</option>
+              ))}
+            </select>
+            {marque && (() => {
+              const logoSrc = getBrandLogo(marque);
+              if (!logoSrc) return null;
+              return (
+                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center p-1.5 shrink-0">
+                  <Image src={logoSrc} alt={marque} width={28} height={28} className="w-full h-full object-contain" unoptimized />
+                </div>
+              );
+            })()}
+          </div>
+        </div>
 
         <label className="flex flex-col gap-2">
           <span className="font-bold">Modèle</span>
@@ -308,7 +332,7 @@ export default function AdminVehicleEditPage() {
       });
       router.push("/admin/vehicles");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : t("admin.vehicle_update_error");
+      const msg = (e as { message?: string })?.message || t("admin.vehicle_update_error");
       setError(msg);
     } finally {
       setSubmitting(false);

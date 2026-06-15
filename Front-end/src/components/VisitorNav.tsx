@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import AboutDropdown from "@/components/AboutDropdown";
 
 function CarLogo() {
   return (
@@ -78,7 +79,6 @@ export default function VisitorNav({ solid }: { solid?: boolean }) {
   const NAV_LINKS = [
     { label: t("nav.home"), href: "/" },
     { label: t("nav.vehicules"), href: "/vehicules" },
-    { label: t("nav.about"), href: "/a-propos" },
   ];
 
   return (
@@ -114,6 +114,7 @@ export default function VisitorNav({ solid }: { solid?: boolean }) {
               {item.label}
             </motion.button>
           ))}
+          <AboutDropdown variant="visitor" scrolled={scrolled || !!solid} isActive={pathname === "/a-propos" || pathname === "/regles"} />
         </div>
         <div className="flex items-center gap-2">
           <DarkModeToggle dark={dark} onToggle={toggleDark} />

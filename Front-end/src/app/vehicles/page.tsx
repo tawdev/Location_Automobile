@@ -6,8 +6,11 @@ import Head from "next/head";
 import { motion, useReducedMotion } from "framer-motion";
 import { ClientOnly } from "@/components/ClientOnly";
 import { filterVehicles, listVehicles, fetchCategories } from "@/lib/vehiclesApi";
-import type { Vehicle, Category } from "@/lib/types";
-import { vehicleImageUrl } from "@/lib/media";
+import type { Vehicle, Category, Marque } from "@/lib/types";
+import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
+import { getBrandLogo } from "@/lib/brandLogos";
+import { getPublicMarques } from "@/lib/marquesApi";
+import Image from "next/image";
 import { Search } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -98,6 +101,23 @@ export default function VehiclesPage() {
   const { t } = useI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [marques, setMarques] = useState<Marque[]>([]);
+
+  const marqueLogoMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const m of marques) {
+      const key = m.name.toLowerCase().trim();
+      if (m.logo) {
+        map.set(key, `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`);
+      }
+    }
+    return map;
+  }, [marques]);
+
+  const marqueImg = useCallback((name: string): string | null => {
+    const key = name.toLowerCase().trim();
+    return marqueLogoMap.get(key) ?? getBrandLogo(name);
+  }, [marqueLogoMap]);
 
   const loadInitial = useCallback(async () => {
     setLoading(true);
@@ -149,6 +169,7 @@ export default function VehiclesPage() {
 
   useEffect(() => {
     fetchCategories().then(setCategories);
+    getPublicMarques().then(setMarques);
   }, []);
 
   // Read URL search params on mount
@@ -708,14 +729,41 @@ export default function VehiclesPage() {
                     </LazyVehicleImage>
 
                     <motion.div
-                      className="p-6 relative z-10 flex flex-col flex-1"
+                      className="p-6 relative z-10 flex flex-col flex-1 overflow-hidden"
                       initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: idx * 0.06 + 0.15 }}
                     >
-                      <div className="flex items-start justify-between">
+                      {/* Brand watermark background */}
+                      {marqueImg(v.marque) && (
+                        <Image
+                          src={marqueImg(v.marque)!}
+                          alt=""
+                          width={220}
+                          height={220}
+                          className="absolute -bottom-6 -right-6 w-[180px] h-[180px] opacity-[0.08] -rotate-[15deg] pointer-events-none select-none z-0"
+                          draggable={false}
+                          priority={false}
+                          unoptimized
+                        />
+                      )}
+                      <div className="relative z-10 flex items-center gap-2">
+                        {marqueImg(v.marque) ? (
+                          <div className="w-9 h-9 rounded-full bg-white dark:bg-[#1f4276] flex items-center justify-center p-1.5 shrink-0 shadow-sm">
+                            <Image
+                              src={marqueImg(v.marque)!}
+                              alt={v.marque}
+                              width={32}
+                              height={32}
+                              className="w-full h-full object-contain"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-[20px] font-bold text-[#1f4276] dark:text-[#D5DEEF] shrink-0">{v.marque}</span>
+                        )}
                         <h3 className="text-[24px] font-extrabold text-[#1f4276] dark:text-[#D5DEEF] leading-tight transition-colors duration-300 group-hover:text-[#f39c12]">
-                          {v.marque} {v.model}
+                          {v.model}
                         </h3>
                       </div>
                       <p className="mt-1.5 text-[14px] text-gray-500 dark:text-[#94A3B8]">

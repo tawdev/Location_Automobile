@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { listVehicles } from "@/lib/vehiclesApi";
-import { vehicleImageUrl } from "@/lib/media";
-import type { Vehicle } from "@/lib/types";
+import { getPublicMarques } from "@/lib/marquesApi";
+import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
+import type { Vehicle, Marque } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { getBrandLogo } from "@/lib/brandLogos";
+import Image from "next/image";
 import { Search } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -595,13 +598,31 @@ function VehiclesMarquee() {
   const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [marques, setMarques] = useState<Marque[]>([]);
   const { t } = useI18n();
   const prefersReduced = useReducedMotion();
+
+  const marqueLogoMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const m of marques) {
+      const key = m.name.toLowerCase().trim();
+      if (m.logo) {
+        map.set(key, `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`);
+      }
+    }
+    return map;
+  }, [marques]);
+
+  const marqueImg = useCallback((name: string): string | null => {
+    const key = name.toLowerCase().trim();
+    return marqueLogoMap.get(key) ?? getBrandLogo(name);
+  }, [marqueLogoMap]);
 
   useEffect(() => {
     listVehicles()
       .then((data) => { setVehicles(data); setLoading(false); })
       .catch(() => { setVehicles([]); setLoading(false); });
+    getPublicMarques().then(setMarques);
   }, []);
 
   const duplicated = [...vehicles, ...vehicles];
@@ -778,13 +799,40 @@ function VehiclesMarquee() {
                       </motion.div>
                     </div>
                   </div>
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-3">
+                  <div className="p-5 overflow-hidden relative">
+                    {/* Brand watermark */}
+                    {marqueImg(v.marque) && (
+                      <Image
+                        src={marqueImg(v.marque)!}
+                        alt=""
+                        width={200}
+                        height={200}
+                        className="absolute -bottom-6 -right-6 w-[180px] h-[180px] opacity-[0.08] -rotate-[15deg] pointer-events-none select-none z-0"
+                        draggable={false}
+                        priority={false}
+                        unoptimized
+                      />
+                    )}
+                    <div className="flex items-center gap-2 mb-3 relative z-10">
+                      {marqueImg(v.marque) ? (
+                        <div className="w-9 h-9 rounded-full bg-white dark:bg-[#1f4276] flex items-center justify-center p-1.5 shrink-0 shadow-sm">
+                          <Image
+                            src={marqueImg(v.marque)!}
+                            alt={v.marque}
+                            width={28}
+                            height={28}
+                            className="w-full h-full object-contain"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] shrink-0">{v.marque}</span>
+                      )}
                       <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300 leading-tight">
-                        {v.marque} {v.model}
+                        {v.model}
                       </h3>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 relative z-10">
                       {features.filter((f) => f.show).map((f, idx) => (
                         <motion.div
                           key={idx}
@@ -806,6 +854,103 @@ function VehiclesMarquee() {
 
       <style>{`
         @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function MarquesSection() {
+  const [marques, setMarques] = useState<Marque[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
+  const prefersReduced = useReducedMotion();
+
+  useEffect(() => {
+    getPublicMarques()
+      .then((data) => { setMarques(data); setLoading(false); })
+      .catch(() => { setMarques([]); setLoading(false); });
+  }, []);
+
+  const duplicated = [...marques, ...marques];
+
+  return (
+    <section className="bg-white dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#638ECB]/5 dark:bg-[#638ECB]/[0.03] rounded-full blur-3xl pointer-events-none" />
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="max-w-6xl mx-auto mb-14 relative z-10"
+      >
+        <div className="text-center">
+          <span className="inline-flex items-center gap-2 text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase bg-[#f39c12]/10 px-4 py-2 rounded-full">
+            {t("home.brands.badge")}
+          </span>
+          <h2 className="text-4xl md:text-5xl font-black text-[#395886] dark:text-[#D5DEEF] mt-6 leading-tight">
+            {t("home.brands.title")}
+          </h2>
+          <p className="text-[#638ECB] dark:text-[#94A3B8] text-lg mt-4 max-w-xl mx-auto">
+            {t("home.brands.subtitle")}
+          </p>
+        </div>
+      </motion.div>
+
+      {loading ? (
+        <div className="flex gap-6 justify-center">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="shrink-0 w-40 h-40 rounded-3xl bg-[#F0F3FA] dark:bg-[#1e293b] animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, x: -60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <div
+            className="flex gap-16 w-max pb-4"
+            style={{
+              animation: prefersReduced ? "none" : "marquee-reverse 45s linear infinite",
+              animationPlayState: "running",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.animationPlayState = "paused"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.animationPlayState = "running"; }}
+          >
+            {duplicated.map((marque, i) => (
+              <motion.div
+                key={`${marque.id}-${i}`}
+                whileHover={{ scale: 1.08 }}
+                className="group shrink-0 flex flex-col items-center justify-center gap-3 cursor-default"
+              >
+                {marque.logo ? (
+                  <img
+                    src={vehicleImageUrl(marque.logo)}
+                    alt={marque.name}
+                    className="w-32 h-32 object-contain transition-all duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-32 h-32 flex items-center justify-center">
+                    <span className="text-5xl font-black text-[#638ECB] dark:text-[#D5DEEF]">
+                      {marque.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <span className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] text-center transition-colors duration-300 group-hover:text-[#f39c12]">
+                  {marque.name}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      <style>{`
+        @keyframes marquee-reverse {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
@@ -1278,9 +1423,10 @@ export default function HomePage() {
       <ResumeReservationBanner />
       <VisitorNav />
       <HeroSection />
+      <VehiclesMarquee />
+      <MarquesSection />
       <ServicesSection />
       <HowItWorksSection />
-      <VehiclesMarquee />
       <StatsSection />
       <CTASection />
       <AboutSection />

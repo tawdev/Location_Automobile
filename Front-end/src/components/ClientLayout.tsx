@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House, LogIn, UserPlus } from "lucide-react";
+import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House, LogIn, UserPlus, FileText } from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/authContext";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import AboutDropdown from "@/components/AboutDropdown";
 
 function Logo({ onClick }: { onClick: () => void }) {
   return (
@@ -96,15 +97,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const VISITOR_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicules", icon: Car },
-    { label: t("nav.rules"), href: "/regles", icon: Info },
-    { label: t("nav.about"), href: "/a-propos", icon: Info },
   ];
 
   const AUTH_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
     { label: t("nav.history"), href: "/MyReservations", icon: Clock },
-    { label: t("nav.rules"), href: "/regles", icon: Info },
     { label: t("nav.profile"), href: "/profile", icon: User },
     { label: t("nav.settings"), href: "/settings", icon: Settings },
   ];
@@ -157,6 +155,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 onClick={() => router.push(item.href)}
               />
             ))}
+            <AboutDropdown variant="client" scrolled={scrolled} isActive={pathname === "/a-propos" || pathname === "/regles"} />
             <LanguageSwitcher />
             <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
             <motion.button
@@ -262,6 +261,28 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     {item.label}
                   </button>
                 ))}
+                <button
+                  onClick={() => router.push("/a-propos")}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                    pathname === "/a-propos"
+                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                  }`}
+                >
+                  <Info className="w-4 h-4" />
+                  {t("nav.about")}
+                </button>
+                <button
+                  onClick={() => router.push("/regles")}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                    pathname === "/regles"
+                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  {t("nav.rules")}
+                </button>
                 <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
 
                 {/* Footer links in mobile menu */}
@@ -270,7 +291,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <div>
                       <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.company")}</p>
                       <div className="flex flex-col gap-1.5">
-                        {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "#" }, { label: t("footer.press"), href: "#" }, { label: t("footer.blog"), href: "#" }].map((l) => (
+                  {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "/company/careers" }, { label: t("footer.press"), href: "/company/press" }, { label: t("footer.blog"), href: "/company/blog" }].map((l) => (
                           <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                         ))}
                       </div>
@@ -278,7 +299,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <div>
                       <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.support")}</p>
                       <div className="flex flex-col gap-1.5">
-                        {[{ label: t("footer.help_center"), href: "#" }, { label: t("footer.contact_us"), href: "/contact" }, { label: t("footer.faq"), href: "/faq" }, { label: t("footer.cancellation"), href: "#" }].map((l) => (
+                    {[{ label: t("footer.help_center"), href: "/support/help-center" }, { label: t("footer.contact_us"), href: "/contact" }, { label: t("footer.faq"), href: "/faq" }, { label: t("footer.cancellation"), href: "/support/cancellation" }].map((l) => (
                           <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                         ))}
                       </div>
@@ -351,7 +372,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <div>
                 <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.company")}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "#" }, { label: t("footer.press"), href: "#" }, { label: t("footer.blog"), href: "#" }].map((l) => (
+                        {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "/company/careers" }, { label: t("footer.press"), href: "/company/press" }, { label: t("footer.blog"), href: "/company/blog" }].map((l) => (
                     <a key={l.label} href={l.href} className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                   ))}
                 </div>
