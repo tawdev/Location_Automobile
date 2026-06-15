@@ -103,6 +103,25 @@ export default function VehiculesPage() {
     fetchCategories().then(setCategories);
   }, []);
 
+  // Read URL search params on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pu = params.get("pickup_date");
+    const rt = params.get("return_date");
+    const mq = params.get("marque");
+    const md = params.get("model");
+    const minP = params.get("min_price");
+    const maxP = params.get("max_price");
+    if (pu) setPickupDate(pu);
+    if (rt) setReturnDate(rt);
+    const searchParts: string[] = [];
+    if (mq) searchParts.push(mq);
+    if (md) searchParts.push(md);
+    if (searchParts.length > 0) setSearchText(searchParts.join(" "));
+    if (minP) setMinPrice(Number(minP));
+    if (maxP) setMaxPrice(Number(maxP));
+  }, []);
+
   // Derived filter options
   const brands = useMemo(() => {
     const set = new Set<string>();
@@ -269,7 +288,7 @@ export default function VehiculesPage() {
         <h4 className="text-[11px] uppercase tracking-[0.15em] font-bold text-gray-500 dark:text-[#94A3B8] mb-2.5">
           {t("vehicles.brand")}
         </h4>
-        <div className="space-y-2 max-h-[180px] overflow-y-auto">
+        <div className="space-y-2">
           {brands.map((brand) => (
             <label key={brand} className="flex items-center gap-2.5 cursor-pointer group">
               <input
@@ -437,7 +456,7 @@ export default function VehiculesPage() {
           <div className="flex gap-8">
             {/* Desktop sidebar */}
             <aside className="hidden lg:block w-[280px] shrink-0">
-              <div className="sticky top-28 bg-white dark:bg-[#0f1729]/60 rounded-2xl border border-gray-200 dark:border-[#1e293b]/80 p-5 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <div className="sticky top-28 bg-white dark:bg-[#0f1729]/60 rounded-2xl border border-gray-200 dark:border-[#1e293b]/80 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="text-[13px] font-bold text-gray-700 dark:text-[#D5DEEF] uppercase tracking-[0.12em] flex items-center gap-2">
                     <SlidersHorizontal className="w-4 h-4" />

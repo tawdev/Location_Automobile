@@ -36,6 +36,12 @@ export type Category = {
   name: string;
 };
 
+export type Marque = {
+  id: number;
+  name: string;
+  logo: string | null;
+};
+
 export type Vehicle = {
   id: number;
   marque: string;

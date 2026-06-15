@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House, LogIn, UserPlus } from "lucide-react";
+import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House, LogIn, UserPlus, FileText } from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/authContext";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import AboutDropdown from "@/components/AboutDropdown";
 
 function Logo({ onClick }: { onClick: () => void }) {
   return (
@@ -96,15 +97,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const VISITOR_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicules", icon: Car },
-    { label: t("nav.rules"), href: "/regles", icon: Info },
-    { label: t("nav.about"), href: "/a-propos", icon: Info },
   ];
 
   const AUTH_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
     { label: t("nav.history"), href: "/MyReservations", icon: Clock },
-    { label: t("nav.rules"), href: "/regles", icon: Info },
     { label: t("nav.profile"), href: "/profile", icon: User },
     { label: t("nav.settings"), href: "/settings", icon: Settings },
   ];
@@ -157,6 +155,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 onClick={() => router.push(item.href)}
               />
             ))}
+            <AboutDropdown variant="client" scrolled={scrolled} isActive={pathname === "/a-propos" || pathname === "/regles"} />
             <LanguageSwitcher />
             <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
             <motion.button
@@ -262,6 +261,28 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     {item.label}
                   </button>
                 ))}
+                <button
+                  onClick={() => router.push("/a-propos")}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                    pathname === "/a-propos"
+                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                  }`}
+                >
+                  <Info className="w-4 h-4" />
+                  {t("nav.about")}
+                </button>
+                <button
+                  onClick={() => router.push("/regles")}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                    pathname === "/regles"
+                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  {t("nav.rules")}
+                </button>
                 <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
 
                 {/* Footer links in mobile menu */}

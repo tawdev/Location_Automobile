@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\MarqueController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\ExtraController;
 use App\Http\Controllers\Api\Admin\SettingsController;
@@ -41,6 +42,7 @@ Route::get('Vehicles' , [VehicleController::class, 'index']);
 Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
 Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
 Route::get('Categories/public', [CategoryController::class , 'index']);
+Route::get('Marques/public', [MarqueController::class, 'index']);
 
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::post('/vehicle' , [VehicleController::class , 'store']);
@@ -93,6 +95,13 @@ Route::put('Categories/{id}' , [CategoryController::class , 'update']);
 Route::delete('Categories/{id}', [CategoryController::class , 'destroy']);
 Route::get('Categories/{id}', [CategoryController::class , 'show']);
 Route::post('Categories/search' , [CategoryController::class , 'FilterByName']);
+
+Route::get('Marques', [MarqueController::class, 'index']);
+Route::post('Marque', [MarqueController::class, 'store']);
+Route::post('Marques/bulk', [MarqueController::class, 'bulkStore']);
+Route::get('Marques/{id}', [MarqueController::class, 'show']);
+Route::match(['post', 'put'], 'Marques/{id}', [MarqueController::class, 'update']);
+Route::delete('Marques/{id}', [MarqueController::class, 'destroy']);
 
 Route::get('/admin/vehicles/location',        [VehicleController::class, 'locations']);
 Route::get ('/location/live/{deviceId}',    [LocationController::class, 'live']);

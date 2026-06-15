@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { Category, Vehicle } from "@/lib/types";
+import type { Category, Marque, Vehicle } from "@/lib/types";
+import { getPublicMarques } from "@/lib/marquesApi";
 import {
   deleteAdminVehicle,
   createAdminVehicle,
@@ -259,6 +260,7 @@ function VehicleCreateEditModal({
   submitting,
   error,
 }: VehicleCreateEditModalProps) {
+  const [marques, setMarques] = useState<Marque[]>([]);
   const [marque, setMarque] = useState("");
   const [model, setModel] = useState("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
@@ -284,6 +286,10 @@ function VehicleCreateEditModal({
   const [conditionsLoading, setConditionsLoading] = useState(false);
 
   const sortedCategories = useMemo(() => categories.slice().sort((a, b) => a.id - b.id), [categories]);
+
+  useEffect(() => {
+    getPublicMarques().then(setMarques).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -425,14 +431,17 @@ function VehicleCreateEditModal({
             {/* Input fields with customized slate theme */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Marque</label>
-              <input
-                type="text"
+              <select
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                placeholder="ex. Mercedes"
                 value={marque}
                 onChange={(e) => setMarque(e.target.value)}
-              />
+              >
+                <option value="">-- Sélectionner une marque --</option>
+                {marques.map((m) => (
+                  <option key={m.id} value={m.name}>{m.name}</option>
+                ))}
+              </select>
             </div>
 
             <div className="flex flex-col gap-1">

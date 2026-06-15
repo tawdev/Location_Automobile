@@ -99,6 +99,14 @@ function ConditionsIcon() {
   );
 }
 
+function MarqueIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11a3 3 0 10-3-3m0 0a3 3 0 00-3 3m3-3h0" />
+    </svg>
+  );
+}
+
 function SettingsIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -165,6 +173,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       { label: t("admin.dashboard"), href: "/admin", icon: <DashboardIcon /> },
       { label: t("admin_users.title"), href: "/admin/users", icon: <UsersIcon /> },
       { label: t("admin.vehicles"), href: "/admin/vehicles", icon: <FleetIcon /> },
+      { label: t("admin.marques"), href: "/admin/marques", icon: <MarqueIcon /> },
       { label: t("admin.reservations"), href: "/admin/reservations", icon: <CalendarIcon /> },
       { label: t("admin.extras"), href: "/admin/extras", icon: <ExtrasIcon /> },
       { label: t("admin.departure_conditions"), href: "/admin/departure-conditions", icon: <ConditionsIcon /> },
