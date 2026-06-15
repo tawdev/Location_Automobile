@@ -6,6 +6,7 @@ import { ClientOnly } from "@/components/ClientOnly";
 import { vehicleImageUrl } from "@/lib/media";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { makeReservation } from "@/lib/reservationsApi";
+import { loadReservationProgress } from "@/lib/reservationStorage";
 import BackButton from "@/components/BackButton";
 import ReservationFlowModal from "@/components/ReservationFlowModal";
 import { motion } from "framer-motion";
@@ -61,6 +62,17 @@ export default function VehicleDetailPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [reservationChoice, setReservationChoice] = useState<"one" | "two" | null>(null);
+
+  // Auto-open modal when resuming a saved reservation
+  useEffect(() => {
+    if (!vehicle) return;
+    const saved = loadReservationProgress();
+    if (saved && saved.vehicleId === vehicle.id) {
+      setReserveStartDate(new Date(saved.startDate + "T00:00:00"));
+      setReserveEndDate(new Date(saved.endDate + "T00:00:00"));
+      setShowReservationModal(true);
+    }
+  }, [vehicle]);
 
   useEffect(() => {
     if (!id) return;

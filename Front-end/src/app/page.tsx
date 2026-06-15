@@ -12,6 +12,7 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useSettings } from "@/lib/SettingsContext";
 import VisitorNav from "@/components/VisitorNav";
+import ResumeReservationBanner from "@/components/ResumeReservationBanner";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
@@ -1311,6 +1312,7 @@ export default function HomePage() {
         /* Dark glow for cards */
         .dark .card-glow { box-shadow: 0 0 30px rgba(57,88,134,0.05); }
       `}</style>
+      <ResumeReservationBanner />
       <VisitorNav />
       <HeroSection />
       <ServicesSection />

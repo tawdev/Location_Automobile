@@ -230,7 +230,11 @@ export default function HomeMap() {
       zoomRef.current = zoomContainer;
 
       map.whenReady(() => {
-        setTimeout(() => map.invalidateSize(), 300);
+        setTimeout(() => {
+          if (!cancelled && map.getContainer()) {
+            map.invalidateSize();
+          }
+        }, 300);
       });
 
       mapRef.current = map;
