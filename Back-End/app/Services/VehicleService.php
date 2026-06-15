@@ -48,24 +48,27 @@ class VehicleService
 
     public function UpdateVehicle($Vehicle, array $data, $pictures = null)
     {
-        $deletedImageIds = json_decode(request()->input('deleted_images', '[]'), true);
-
-        if (!empty($deletedImageIds)) {
-            $imagesToDelete = $Vehicle->pictures()->whereIn('id', $deletedImageIds)->get();
-            foreach ($imagesToDelete as $image) {
-                if ($image->path && Storage::disk('public')->exists($image->path)) {
-                    Storage::disk('public')->delete($image->path);
-                }
-                $image->delete();
-            }
-        }
-
         $Vehicle->update($data);
 
         if (!empty($pictures)) {
+            $imagesPaths = [];
+            foreach ($Vehicle->pictures as $image) {
+                $imagesPaths[] = $image->path;
+            }
+
+            DB::transaction(function() use ($Vehicle) {
+                $Vehicle->pictures()->delete();
+            });
+
+            foreach ($imagesPaths as $path) {
+               if($path && Storage::disk('public')->exists($path)) {
+                     Storage::disk('public')->delete($path);
+               };
+            }
+
             foreach ($pictures as $pic) {
                 if ($pic instanceof UploadedFile) {
-                    $path = $pic->store('Vehicles', 'public');
+                    $path = $pic->store('Vehicles' , 'public');
                     $Vehicle->pictures()->create([
                         "path" => $path
                     ]);

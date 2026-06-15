@@ -8,6 +8,7 @@ import { addCin, addPermi } from "@/lib/profileApi";
 import { makeReservation } from "@/lib/reservationsApi";
 import { getExtras } from "@/lib/extrasApi";
 import { getClientInfo, saveClientInfo } from "@/lib/clientApi";
+import { saveReservationProgress, loadReservationProgress, clearReservationProgress } from "@/lib/reservationStorage";
 import type { Extra } from "@/lib/types";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -118,6 +119,25 @@ function InputField({ label, value, onChange, type = "text", placeholder, requir
   );
 }
 
+function toE164(phone: string): string {
+  if (!phone) return "";
+  const digits = phone.replace(/\D/g, "");
+  return digits ? `+${digits}` : "";
+}
+
+function toDateInputValue(date: string): string {
+  if (!date) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+  const d = new Date(date);
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+  return "";
+}
+
 function PhoneInputField({ value, onChange, error, label }: {
   value: string;
   onChange: (v: string) => void;
@@ -132,7 +152,7 @@ function PhoneInputField({ value, onChange, error, label }: {
       <PhoneInput
         international
         defaultCountry="MA"
-        value={value as any}
+        value={toE164(value) as any}
         onChange={(v) => onChange(v ?? "")}
         className={`w-full rounded-lg border bg-white h-10 px-3 text-[13px] text-[#395886] focus-within:outline-none focus-within:ring-2 transition-all ${
           error
@@ -160,8 +180,25 @@ export default function ReservationFlowModal({
   const { user, refreshUser } = useAuth();
   const { t } = useI18n();
 
-  const [savedChoice, setSavedChoice] = useState<Choice>(defaultChoice ?? null);
-  const [step, setStep] = useState<Step>(defaultChoice ? (defaultChoice === "one" ? "oneDriverUpload" : "twoDrivers") : "choose");
+  const [savedChoice, setSavedChoice] = useState<Choice>(() => {
+    if (typeof window !== "undefined") {
+      const saved = loadReservationProgress();
+      if (saved && saved.vehicleId === vehicleId && saved.step !== "done" && saved.step !== "reservationError" && saved.step !== "reserving") {
+        return saved.savedChoice as Choice;
+      }
+    }
+    return defaultChoice ?? null;
+  });
+
+  const [step, setStep] = useState<Step>(() => {
+    if (typeof window !== "undefined") {
+      const saved = loadReservationProgress();
+      if (saved && saved.vehicleId === vehicleId && saved.step !== "done" && saved.step !== "reservationError" && saved.step !== "reserving") {
+        return saved.step as Step;
+      }
+    }
+    return defaultChoice ? (defaultChoice === "one" ? "oneDriverUpload" : "twoDrivers") : "choose";
+  });
   const [error, setError] = useState<string | null>(null);
 
   const userHasCin = !!(user?.cin_recto && user?.cin_verso);
@@ -221,7 +258,84 @@ export default function ReservationFlowModal({
   // Validation errors (real-time)
   const [clientErrors, setClientErrors] = useState<FieldErrors>({});
   const [sdErrors, setSdErrors] = useState<FieldErrors>({});
+  const [cautionError, setCautionError] = useState("");
+  const [cautionModeError, setCautionModeError] = useState("");
+  const [docErrors, setDocErrors] = useState<string[]>([]);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Restore saved state on mount
+  useEffect(() => {
+    const saved = loadReservationProgress();
+    if (saved && saved.vehicleId === vehicleId && saved.step !== "done" && saved.step !== "reservationError" && saved.step !== "reserving") {
+      setSelectedExtraIds(saved.selectedExtraIds || []);
+      setClientNom(saved.clientNom || "");
+      setClientDateNaissance(toDateInputValue(saved.clientDateNaissance || ""));
+      setClientCin(saved.clientCin || "");
+      setClientAdresse(saved.clientAdresse || "");
+      setClientTelephone(toE164(saved.clientTelephone || ""));
+      setClientNumeroPermi(saved.clientNumeroPermi || "");
+      setClientDateDelivrance(toDateInputValue(saved.clientDateDelivrance || ""));
+      setClientDateExpiration(toDateInputValue(saved.clientDateExpiration || ""));
+      setDriver2Name(saved.driver2Name || "");
+      setSdNom(saved.sdNom || "");
+      setSdDateNaissance(toDateInputValue(saved.sdDateNaissance || ""));
+      setSdCin(saved.sdCin || "");
+      setSdAdresse(saved.sdAdresse || "");
+      setSdTelephone(toE164(saved.sdTelephone || ""));
+      setSdNumeroPermi(saved.sdNumeroPermi || "");
+      setSdDateDelivrance(toDateInputValue(saved.sdDateDelivrance || ""));
+      setSdDateExpiration(toDateInputValue(saved.sdDateExpiration || ""));
+      setCautionMontant(saved.cautionMontant || "");
+      setCautionMode(saved.cautionMode || "");
+    }
+  }, []);
+
+  // Save progress whenever step changes (skip initial mount to avoid overwriting restored data)
+  const isFirstMount = useRef(true);
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    if (step === "done") {
+      clearReservationProgress();
+      return;
+    }
+    saveReservationProgress({
+      vehicleId, vehicleName, startDate, endDate,
+      savedChoice, step, selectedExtraIds,
+      clientNom, clientDateNaissance, clientCin, clientAdresse,
+      clientTelephone, clientNumeroPermi, clientDateDelivrance, clientDateExpiration,
+      driver2Name,
+      sdNom, sdDateNaissance, sdCin, sdAdresse,
+      sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
+      cautionMontant, cautionMode,
+    });
+  }, [step]);
+
+  // Save on page close/refresh via beforeunload
+  const latestState = useRef({});
+  latestState.current = {
+    vehicleId, vehicleName, startDate, endDate,
+    savedChoice, step, selectedExtraIds,
+    clientNom, clientDateNaissance, clientCin, clientAdresse,
+    clientTelephone, clientNumeroPermi, clientDateDelivrance, clientDateExpiration,
+    driver2Name,
+    sdNom, sdDateNaissance, sdCin, sdAdresse,
+    sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
+    cautionMontant, cautionMode,
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const s = latestState.current as any;
+      if (s.step !== "done" && s.step !== "reservationError" && s.step !== "reserving") {
+        saveReservationProgress(s);
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
 
   const validateClientField = useCallback((field: string, value: string): string => {
     switch (field) {
@@ -232,6 +346,9 @@ export default function ReservationFlowModal({
       case "dateNaissance":
         if (!value) return "La date de naissance est requise";
         if (new Date(value) >= new Date()) return "Doit être dans le passé";
+        const eighteenYearsAgo = new Date();
+        eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+        if (new Date(value) > eighteenYearsAgo) return "Vous devez avoir au moins 18 ans";
         return "";
       case "cin":
         if (!value.trim()) return "Le N° CIN / Passeport est requis";
@@ -251,6 +368,13 @@ export default function ReservationFlowModal({
         return "";
       case "dateDelivrance":
         if (!value) return "La date de délivrance est requise";
+        if (clientDateNaissance) {
+          const ageAtLicense = new Date(value).getFullYear() - new Date(clientDateNaissance).getFullYear();
+          if (ageAtLicense < 16) return "Vous devez avoir au moins 16 ans pour obtenir un permis";
+        }
+        const twoYearsAgo = new Date();
+        twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+        if (new Date(value) > twoYearsAgo) return "Le permis doit avoir au moins 2 ans";
         return "";
       case "dateExpiration":
         if (!value) return "La date d'expiration est requise";
@@ -259,7 +383,7 @@ export default function ReservationFlowModal({
       default:
         return "";
     }
-  }, [clientDateDelivrance]);
+  }, [clientDateDelivrance, clientDateNaissance]);
 
   const validateSdField = useCallback((field: string, value: string): string => {
     // If all fields are empty, no error — it's optional
@@ -275,6 +399,9 @@ export default function ReservationFlowModal({
       case "dateNaissance":
         if (!value) return "Requis";
         if (new Date(value) >= new Date()) return "Doit être dans le passé";
+        const sdEighteen = new Date();
+        sdEighteen.setFullYear(sdEighteen.getFullYear() - 18);
+        if (new Date(value) > sdEighteen) return "Le second conducteur doit avoir au moins 18 ans";
         return "";
       case "cin":
         if (!value.trim()) return "Requis";
@@ -294,6 +421,13 @@ export default function ReservationFlowModal({
         return "";
       case "dateDelivrance":
         if (!value) return "Requis";
+        if (sdDateNaissance) {
+          const sdAgeAtLicense = new Date(value).getFullYear() - new Date(sdDateNaissance).getFullYear();
+          if (sdAgeAtLicense < 16) return "Le second conducteur doit avoir au moins 16 ans pour obtenir un permis";
+        }
+        const sdTwoYearsAgo = new Date();
+        sdTwoYearsAgo.setFullYear(sdTwoYearsAgo.getFullYear() - 2);
+        if (new Date(value) > sdTwoYearsAgo) return "Le permis du second conducteur doit avoir au moins 2 ans";
         return "";
       case "dateExpiration":
         if (!value) return "Requis";
@@ -349,6 +483,54 @@ export default function ReservationFlowModal({
     });
   }
 
+  // Auto-validate client fields whenever they change (including pre-filled data)
+  useEffect(() => {
+    const fields: [string, string][] = [
+      ["nom", clientNom],
+      ["dateNaissance", clientDateNaissance],
+      ["cin", clientCin],
+      ["adresse", clientAdresse],
+      ["telephone", clientTelephone],
+      ["numeroPermi", clientNumeroPermi],
+      ["dateDelivrance", clientDateDelivrance],
+      ["dateExpiration", clientDateExpiration],
+    ];
+    const errs: FieldErrors = {};
+    for (const [k, v] of fields) {
+      const e = validateClientField(k, v);
+      if (e) errs[k] = e;
+    }
+    setClientErrors(errs);
+  }, [
+    clientNom, clientDateNaissance, clientCin, clientAdresse,
+    clientTelephone, clientNumeroPermi, clientDateDelivrance, clientDateExpiration,
+    validateClientField,
+  ]);
+
+  // Auto-validate second driver fields
+  useEffect(() => {
+    const fields: [string, string][] = [
+      ["nom", sdNom],
+      ["dateNaissance", sdDateNaissance],
+      ["cin", sdCin],
+      ["adresse", sdAdresse],
+      ["telephone", sdTelephone],
+      ["numeroPermi", sdNumeroPermi],
+      ["dateDelivrance", sdDateDelivrance],
+      ["dateExpiration", sdDateExpiration],
+    ];
+    const errs: FieldErrors = {};
+    for (const [k, v] of fields) {
+      const e = validateSdField(k, v);
+      if (e) errs[k] = e;
+    }
+    setSdErrors(errs);
+  }, [
+    sdNom, sdDateNaissance, sdCin, sdAdresse,
+    sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
+    validateSdField,
+  ]);
+
   useEffect(() => {
     getExtras().then(setExtras).catch(() => {});
   }, []);
@@ -359,6 +541,29 @@ export default function ReservationFlowModal({
     }
   }, [step]);
 
+  function userHasProfileData(): boolean {
+    return !!(
+      user?.phone &&
+      user?.address &&
+      user?.cin_passport &&
+      user?.date_of_birth &&
+      user?.driver_license_number &&
+      user?.license_issue_date &&
+      user?.license_expiry_date
+    );
+  }
+
+  function prefillFromProfile() {
+    if (user?.name) setClientNom(user.name);
+    if (user?.phone) setClientTelephone(toE164(user.phone));
+    if (user?.address) setClientAdresse(user.address);
+    if (user?.cin_passport) setClientCin(user.cin_passport);
+    if (user?.date_of_birth) setClientDateNaissance(toDateInputValue(user.date_of_birth));
+    if (user?.driver_license_number) setClientNumeroPermi(user.driver_license_number);
+    if (user?.license_issue_date) setClientDateDelivrance(toDateInputValue(user.license_issue_date));
+    if (user?.license_expiry_date) setClientDateExpiration(toDateInputValue(user.license_expiry_date));
+  }
+
   async function checkClientInfo() {
     setCheckingClient(true);
     try {
@@ -366,18 +571,20 @@ export default function ReservationFlowModal({
       if (client) {
         setExistingClient(true);
         setClientNom(client.nom_prenom);
-        setClientDateNaissance(client.date_naissance);
+        setClientDateNaissance(toDateInputValue(client.date_naissance));
         setClientCin(client.cin_passport);
         setClientAdresse(client.adresse);
-        setClientTelephone(client.telephone);
+        setClientTelephone(toE164(client.telephone));
         setClientNumeroPermi(client.numero_permi);
-        setClientDateDelivrance(client.date_delivrance);
-        setClientDateExpiration(client.date_expiration);
+        setClientDateDelivrance(toDateInputValue(client.date_delivrance));
+        setClientDateExpiration(toDateInputValue(client.date_expiration));
       } else {
-        setExistingClient(false);
+        prefillFromProfile();
+        setExistingClient(userHasProfileData());
       }
     } catch {
-      setExistingClient(false);
+      prefillFromProfile();
+      setExistingClient(userHasProfileData());
     } finally {
       setCheckingClient(false);
     }
@@ -510,16 +717,14 @@ export default function ReservationFlowModal({
     const extra: Record<string, any> = {};
 
     // Client info
-    if (!existingClient) {
-      extra.nom_prenom = clientNom.trim();
-      extra.date_naissance = clientDateNaissance;
-      extra.cin_passport = clientCin.trim();
-      extra.adresse = clientAdresse.trim();
-      extra.telephone = clientTelephone.trim();
-      extra.numero_permi = clientNumeroPermi.trim();
-      extra.date_delivrance = clientDateDelivrance;
-      extra.date_expiration = clientDateExpiration;
-    }
+    extra.nom_prenom = clientNom.trim();
+    extra.date_naissance = clientDateNaissance;
+    extra.cin_passport = clientCin.trim();
+    extra.adresse = clientAdresse.trim();
+    extra.telephone = clientTelephone.trim();
+    extra.numero_permi = clientNumeroPermi.trim();
+    extra.date_delivrance = clientDateDelivrance;
+    extra.date_expiration = clientDateExpiration;
 
     // Second conductor full info
     if (savedChoice === "two") {
@@ -571,8 +776,34 @@ export default function ReservationFlowModal({
       await makeReservation(vehicleId, formData);
       setStep("done");
     } catch (e: any) {
-      setError(e?.message || "Erreur lors de la réservation.");
-      setStep("reservationError");
+      const errors = e?.data?.errors as Record<string, string[]> | undefined;
+      const errorMsg = e?.message || "Erreur lors de la réservation.";
+      const fieldList = errors ? Object.keys(errors) : [];
+
+      // Build a readable message from field errors
+      let displayMsg = errorMsg;
+      if (errors) {
+        const allMsgs: string[] = [];
+        for (const msgs of Object.values(errors)) {
+          if (Array.isArray(msgs)) allMsgs.push(...msgs);
+        }
+        if (allMsgs.length > 0) displayMsg = allMsgs.join(". ");
+      }
+      setError(displayMsg);
+
+      // Route to the correct step based on which field(s) have errors
+      const fieldSet = new Set(fieldList.map((f) => f.toLowerCase()));
+      const msg = errorMsg.toLowerCase();
+
+      if (fieldSet.has("date_naissance") || fieldSet.has("date_delivrance") || fieldSet.has("date_expiration") || msg.includes("2 ans")) {
+        setStep("clientInfo");
+      } else if (fieldSet.has("cin_passport") || msg.includes("cin")) {
+        setStep(savedChoice === "two" ? "twoDrivers" : "oneDriverUpload");
+      } else if (msg.includes("ajouter") && msg.includes("permis")) {
+        setStep(savedChoice === "two" ? "twoDrivers" : "oneDriverUpload");
+      } else {
+        setStep("reservationError");
+      }
     }
   }
 
@@ -623,6 +854,13 @@ export default function ReservationFlowModal({
               <motion.div key="oneDriver" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
                 <p className="text-sm text-[#395886] font-semibold text-center">{t("reserve_modal.documents_required")}</p>
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
+                {docErrors.length > 0 && (
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200">
+                    {docErrors.map((e, i) => (
+                      <p key={i} className="text-[11px] font-semibold text-rose-600">{e}</p>
+                    ))}
+                  </div>
+                )}
                 {!userHasCin && (
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
@@ -630,8 +868,8 @@ export default function ReservationFlowModal({
                       <span className="text-[12px] font-bold text-[#395886]">{t("reserve_modal.cin")}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <FileUpload label={t("reserve_modal.front")} file={cinRecto} setFile={setCinRecto} inputRef={cinRectoRef} />
-                      <FileUpload label={t("reserve_modal.back")} file={cinVerso} setFile={setCinVerso} inputRef={cinVersoRef} />
+                      <FileUpload label={t("reserve_modal.front")} file={cinRecto} setFile={(f) => { setCinRecto(f); setDocErrors([]); }} inputRef={cinRectoRef} />
+                      <FileUpload label={t("reserve_modal.back")} file={cinVerso} setFile={(f) => { setCinVerso(f); setDocErrors([]); }} inputRef={cinVersoRef} />
                     </div>
                   </div>
                 )}
@@ -642,12 +880,26 @@ export default function ReservationFlowModal({
                       <span className="text-[12px] font-bold text-[#395886]">{t("reserve_modal.drivers_license")}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <FileUpload label={t("reserve_modal.front")} file={permiRecto} setFile={setPermiRecto} inputRef={permiRectoRef} />
-                      <FileUpload label={t("reserve_modal.back")} file={permiVerso} setFile={setPermiVerso} inputRef={permiVersoRef} />
+                      <FileUpload label={t("reserve_modal.front")} file={permiRecto} setFile={(f) => { setPermiRecto(f); setDocErrors([]); }} inputRef={permiRectoRef} />
+                      <FileUpload label={t("reserve_modal.back")} file={permiVerso} setFile={(f) => { setPermiVerso(f); setDocErrors([]); }} inputRef={permiVersoRef} />
                     </div>
                   </div>
                 )}
-                <button onClick={handleUploadAndReserve} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity">
+                <button onClick={() => {
+                  setDocErrors([]);
+                  const errs: string[] = [];
+                  if (!userHasCin && (!cinRecto || !cinVerso)) {
+                    errs.push("Veuillez sélectionner votre CIN (recto et verso).");
+                  }
+                  if (!userHasPermi && (!permiRecto || !permiVerso)) {
+                    errs.push("Veuillez sélectionner votre permis (recto et verso).");
+                  }
+                  if (errs.length > 0) {
+                    setDocErrors(errs);
+                    return;
+                  }
+                  handleUploadAndReserve();
+                }} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity">
                   {t("reserve_modal.upload_continue")}
                 </button>
               </motion.div>
@@ -657,6 +909,13 @@ export default function ReservationFlowModal({
               <motion.div key="twoDrivers" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
                 <p className="text-sm text-[#395886] font-semibold text-center">{t("reserve_modal.two_drivers_info")}</p>
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
+                {docErrors.length > 0 && (
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200">
+                    {docErrors.map((e, i) => (
+                      <p key={i} className="text-[11px] font-semibold text-rose-600">{e}</p>
+                    ))}
+                  </div>
+                )}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <User className="w-4 h-4 text-[#395886]" />
@@ -669,8 +928,8 @@ export default function ReservationFlowModal({
                         <div>
                           <span className="text-[10px] font-bold text-[#638ECB] uppercase">{t("reserve_modal.cin")}</span>
                           <div className="grid grid-cols-2 gap-2 mt-1">
-                            <FileUpload label={t("reserve_modal.front")} file={cinRecto} setFile={setCinRecto} inputRef={cinRectoRef} />
-                            <FileUpload label={t("reserve_modal.back")} file={cinVerso} setFile={setCinVerso} inputRef={cinVersoRef} />
+                            <FileUpload label={t("reserve_modal.front")} file={cinRecto} setFile={(f) => { setCinRecto(f); setDocErrors([]); }} inputRef={cinRectoRef} />
+                            <FileUpload label={t("reserve_modal.back")} file={cinVerso} setFile={(f) => { setCinVerso(f); setDocErrors([]); }} inputRef={cinVersoRef} />
                           </div>
                         </div>
                       )}
@@ -678,8 +937,8 @@ export default function ReservationFlowModal({
                         <div>
                           <span className="text-[10px] font-bold text-[#638ECB] uppercase">{t("reserve_modal.drivers_license")}</span>
                           <div className="grid grid-cols-2 gap-2 mt-1">
-                            <FileUpload label={t("reserve_modal.front")} file={permiRecto} setFile={setPermiRecto} inputRef={permiRectoRef} />
-                            <FileUpload label={t("reserve_modal.back")} file={permiVerso} setFile={setPermiVerso} inputRef={permiVersoRef} />
+                            <FileUpload label={t("reserve_modal.front")} file={permiRecto} setFile={(f) => { setPermiRecto(f); setDocErrors([]); }} inputRef={permiRectoRef} />
+                            <FileUpload label={t("reserve_modal.back")} file={permiVerso} setFile={(f) => { setPermiVerso(f); setDocErrors([]); }} inputRef={permiVersoRef} />
                           </div>
                         </div>
                       )}
@@ -693,14 +952,26 @@ export default function ReservationFlowModal({
                   </div>
                   <div className="flex flex-col gap-3 ml-6 border-l-2 border-[#D5DEEF] pl-4">
                     <div>
-                      <label className="text-[10px] font-bold text-[#638ECB] uppercase block mb-1">{t("reserve_modal.full_name")}</label>
+                      <label className="text-[10px] font-bold text-[#638ECB] uppercase block mb-1">
+                        {t("reserve_modal.full_name")}<span className="text-rose-500 ml-0.5">*</span>
+                      </label>
                       <input
                         type="text"
                         value={driver2Name}
-                        onChange={(e) => setDriver2Name(e.target.value)}
-                        className="w-full rounded-lg border border-[#D5DEEF] bg-white h-10 px-3 text-[13px] text-[#395886] focus:outline-none focus:ring-2 focus:ring-[#638ECB]/40"
+                        onChange={(e) => {
+                          setDriver2Name(e.target.value);
+                          setTouched((p) => ({ ...p, driver2_name: true }));
+                        }}
+                        className={`w-full rounded-lg border bg-white h-10 px-3 text-[13px] text-[#395886] focus:outline-none focus:ring-2 transition-all ${
+                          touched["driver2_name"] && !driver2Name.trim()
+                            ? "border-rose-300 focus:ring-rose-300/40"
+                            : "border-[#D5DEEF] focus:ring-[#638ECB]/40"
+                        }`}
                         placeholder="Nom du second conducteur"
                       />
+                      {touched["driver2_name"] && !driver2Name.trim() && (
+                        <p className="text-[10px] font-semibold text-rose-500 mt-0.5">Le nom du second conducteur est requis</p>
+                      )}
                     </div>
                     <div>
                       <span className="text-[10px] font-bold text-[#638ECB] uppercase">{t("reserve_modal.cin")}</span>
@@ -718,7 +989,21 @@ export default function ReservationFlowModal({
                     </div>
                   </div>
                 </div>
-                <button onClick={handleTwoDriversSubmit} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity mt-2">
+                <button onClick={() => {
+                  setDocErrors([]);
+                  const errs: string[] = [];
+                  if (!driver2Name.trim()) errs.push("Le nom du second conducteur est requis.");
+                  if ((!userHasCin || !userHasPermi) && (!cinRecto || !cinVerso)) errs.push("Veuillez sélectionner votre CIN (recto et verso).");
+                  if ((!userHasCin || !userHasPermi) && (!permiRecto || !permiVerso)) errs.push("Veuillez sélectionner votre permis (recto et verso).");
+                  if (!d2CinRecto || !d2CinVerso) errs.push("Veuillez sélectionner le CIN du second conducteur.");
+                  if (!d2PermiRecto || !d2PermiVerso) errs.push("Veuillez sélectionner le permis du second conducteur.");
+                  if (errs.length > 0) {
+                    setDocErrors(errs);
+                    if (!driver2Name.trim()) setTouched((p) => ({ ...p, driver2_name: true }));
+                    return;
+                  }
+                  handleTwoDriversSubmit();
+                }} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity mt-2">
                   {t("reserve_modal.confirm_extras")}
                 </button>
               </motion.div>
@@ -789,17 +1074,17 @@ export default function ReservationFlowModal({
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
-                    <InputField label="Nom et prénom" value={clientNom} onChange={(v) => handleClientChange("nom", v, setClientNom)} placeholder="Ex: Jean Dupont" required error={touched["client_nom"] ? clientErrors["nom"] : ""} />
+                    <InputField label="Nom et prénom" value={clientNom} onChange={(v) => handleClientChange("nom", v, setClientNom)} placeholder="Ex: Jean Dupont" required error={clientErrors["nom"] && (clientNom.trim() || touched["client_nom"]) ? clientErrors["nom"] : ""} />
                   </div>
-                  <InputField label="Date de naissance" type="date" value={clientDateNaissance} onChange={(v) => handleClientChange("dateNaissance", v, setClientDateNaissance)} required error={touched["client_dateNaissance"] ? clientErrors["dateNaissance"] : ""} />
-                  <InputField label="N° CIN / Passeport" value={clientCin} onChange={(v) => handleClientChange("cin", v, setClientCin)} placeholder="Ex: AB123456" required error={touched["client_cin"] ? clientErrors["cin"] : ""} />
+                  <InputField label="Date de naissance" type="date" value={clientDateNaissance} onChange={(v) => handleClientChange("dateNaissance", v, setClientDateNaissance)} required error={clientErrors["dateNaissance"] && (clientDateNaissance || touched["client_dateNaissance"]) ? clientErrors["dateNaissance"] : ""} />
+                  <InputField label="N° CIN / Passeport" value={clientCin} onChange={(v) => handleClientChange("cin", v, setClientCin)} placeholder="Ex: AB123456" required error={clientErrors["cin"] && (clientCin.trim() || touched["client_cin"]) ? clientErrors["cin"] : ""} />
                   <div className="col-span-2">
-                    <InputField label="Adresse" value={clientAdresse} onChange={(v) => handleClientChange("adresse", v, setClientAdresse)} placeholder="Ex: 123 Rue Exemple, Marrakech" required error={touched["client_adresse"] ? clientErrors["adresse"] : ""} />
+                    <InputField label="Adresse" value={clientAdresse} onChange={(v) => handleClientChange("adresse", v, setClientAdresse)} placeholder="Ex: 123 Rue Exemple, Marrakech" required error={clientErrors["adresse"] && (clientAdresse.trim() || touched["client_adresse"]) ? clientErrors["adresse"] : ""} />
                   </div>
-                  <PhoneInputField label="Téléphone" value={clientTelephone} onChange={(v) => handleClientChange("telephone", v, setClientTelephone)} error={touched["client_telephone"] ? clientErrors["telephone"] : ""} />
-                  <InputField label="N° Permis de conduire" value={clientNumeroPermi} onChange={(v) => handleClientChange("numeroPermi", v, setClientNumeroPermi)} placeholder="Ex: P123456" required error={touched["client_numeroPermi"] ? clientErrors["numeroPermi"] : ""} />
-                  <InputField label="Date de délivrance" type="date" value={clientDateDelivrance} onChange={(v) => handleClientChange("dateDelivrance", v, setClientDateDelivrance)} required error={touched["client_dateDelivrance"] ? clientErrors["dateDelivrance"] : ""} />
-                  <InputField label="Date d'expiration" type="date" value={clientDateExpiration} onChange={(v) => handleClientChange("dateExpiration", v, setClientDateExpiration)} required error={touched["client_dateExpiration"] ? clientErrors["dateExpiration"] : ""} />
+                  <PhoneInputField label="Téléphone" value={clientTelephone} onChange={(v) => handleClientChange("telephone", v, setClientTelephone)} error={clientErrors["telephone"] && (clientTelephone.trim() || touched["client_telephone"]) ? clientErrors["telephone"] : ""} />
+                  <InputField label="N° Permis de conduire" value={clientNumeroPermi} onChange={(v) => handleClientChange("numeroPermi", v, setClientNumeroPermi)} placeholder="Ex: P123456" required error={clientErrors["numeroPermi"] && (clientNumeroPermi.trim() || touched["client_numeroPermi"]) ? clientErrors["numeroPermi"] : ""} />
+                  <InputField label="Date de délivrance" type="date" value={clientDateDelivrance} onChange={(v) => handleClientChange("dateDelivrance", v, setClientDateDelivrance)} required error={clientErrors["dateDelivrance"] && (clientDateDelivrance || touched["client_dateDelivrance"]) ? clientErrors["dateDelivrance"] : ""} />
+                  <InputField label="Date d'expiration" type="date" value={clientDateExpiration} onChange={(v) => handleClientChange("dateExpiration", v, setClientDateExpiration)} required error={clientErrors["dateExpiration"] && (clientDateExpiration || touched["client_dateExpiration"]) ? clientErrors["dateExpiration"] : ""} />
                 </div>
                 <div className="flex gap-2 mt-2">
                   <button onClick={() => setStep("extras")} className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all">
@@ -826,17 +1111,17 @@ export default function ReservationFlowModal({
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
-                    <InputField label="Nom et prénom" value={sdNom} onChange={(v) => handleSdChange("nom", v, setSdNom)} placeholder="Ex: Marie Dupont" error={touched["sd_nom"] ? sdErrors["nom"] : ""} />
+                    <InputField label="Nom et prénom" value={sdNom} onChange={(v) => handleSdChange("nom", v, setSdNom)} placeholder="Ex: Marie Dupont" error={sdErrors["nom"] && (sdNom.trim() || touched["sd_nom"]) ? sdErrors["nom"] : ""} />
                   </div>
-                  <InputField label="Date de naissance" type="date" value={sdDateNaissance} onChange={(v) => handleSdChange("dateNaissance", v, setSdDateNaissance)} error={touched["sd_dateNaissance"] ? sdErrors["dateNaissance"] : ""} />
-                  <InputField label="N° CIN / Passeport" value={sdCin} onChange={(v) => handleSdChange("cin", v, setSdCin)} placeholder="Ex: CD789012" error={touched["sd_cin"] ? sdErrors["cin"] : ""} />
+                  <InputField label="Date de naissance" type="date" value={sdDateNaissance} onChange={(v) => handleSdChange("dateNaissance", v, setSdDateNaissance)} error={sdErrors["dateNaissance"] && (sdDateNaissance || touched["sd_dateNaissance"]) ? sdErrors["dateNaissance"] : ""} />
+                  <InputField label="N° CIN / Passeport" value={sdCin} onChange={(v) => handleSdChange("cin", v, setSdCin)} placeholder="Ex: CD789012" error={sdErrors["cin"] && (sdCin.trim() || touched["sd_cin"]) ? sdErrors["cin"] : ""} />
                   <div className="col-span-2">
-                    <InputField label="Adresse" value={sdAdresse} onChange={(v) => handleSdChange("adresse", v, setSdAdresse)} placeholder="Ex: 456 Avenue Exemple" error={touched["sd_adresse"] ? sdErrors["adresse"] : ""} />
+                    <InputField label="Adresse" value={sdAdresse} onChange={(v) => handleSdChange("adresse", v, setSdAdresse)} placeholder="Ex: 456 Avenue Exemple" error={sdErrors["adresse"] && (sdAdresse.trim() || touched["sd_adresse"]) ? sdErrors["adresse"] : ""} />
                   </div>
-                  <PhoneInputField label="Téléphone" value={sdTelephone} onChange={(v) => handleSdChange("telephone", v, setSdTelephone)} error={touched["sd_telephone"] ? sdErrors["telephone"] : ""} />
-                  <InputField label="N° Permis de conduire" value={sdNumeroPermi} onChange={(v) => handleSdChange("numeroPermi", v, setSdNumeroPermi)} placeholder="Ex: P789012" error={touched["sd_numeroPermi"] ? sdErrors["numeroPermi"] : ""} />
-                  <InputField label="Date de délivrance" type="date" value={sdDateDelivrance} onChange={(v) => handleSdChange("dateDelivrance", v, setSdDateDelivrance)} error={touched["sd_dateDelivrance"] ? sdErrors["dateDelivrance"] : ""} />
-                  <InputField label="Date d'expiration" type="date" value={sdDateExpiration} onChange={(v) => handleSdChange("dateExpiration", v, setSdDateExpiration)} error={touched["sd_dateExpiration"] ? sdErrors["dateExpiration"] : ""} />
+                  <PhoneInputField label="Téléphone" value={sdTelephone} onChange={(v) => handleSdChange("telephone", v, setSdTelephone)} error={sdErrors["telephone"] && (sdTelephone.trim() || touched["sd_telephone"]) ? sdErrors["telephone"] : ""} />
+                  <InputField label="N° Permis de conduire" value={sdNumeroPermi} onChange={(v) => handleSdChange("numeroPermi", v, setSdNumeroPermi)} placeholder="Ex: P789012" error={sdErrors["numeroPermi"] && (sdNumeroPermi.trim() || touched["sd_numeroPermi"]) ? sdErrors["numeroPermi"] : ""} />
+                  <InputField label="Date de délivrance" type="date" value={sdDateDelivrance} onChange={(v) => handleSdChange("dateDelivrance", v, setSdDateDelivrance)} error={sdErrors["dateDelivrance"] && (sdDateDelivrance || touched["sd_dateDelivrance"]) ? sdErrors["dateDelivrance"] : ""} />
+                  <InputField label="Date d'expiration" type="date" value={sdDateExpiration} onChange={(v) => handleSdChange("dateExpiration", v, setSdDateExpiration)} error={sdErrors["dateExpiration"] && (sdDateExpiration || touched["sd_dateExpiration"]) ? sdErrors["dateExpiration"] : ""} />
                 </div>
                 <div className="flex gap-2 mt-2">
                   <button onClick={() => setStep("clientInfo")} className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all">
@@ -860,13 +1145,42 @@ export default function ReservationFlowModal({
                   <p className="text-sm text-[#395886] font-semibold">Caution</p>
                 </div>
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
-                <InputField label="Montant de la caution (DH)" type="number" value={cautionMontant} onChange={(v) => { setCautionMontant(v); setTouched((p) => ({ ...p, caution_montant: true })); }} placeholder="Ex: 5000" error={
-                  touched["caution_montant"] && cautionMontant.trim()
-                    ? (isNaN(parseFloat(cautionMontant)) || parseFloat(cautionMontant) <= 0 ? "Doit être un montant valide supérieur à 0" : "")
-                    : ""
-                } />
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-[#638ECB] uppercase tracking-wider">
+                    Montant de la caution (DH)<span className="text-rose-500 ml-0.5">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={cautionMontant}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      const sanitized = raw.replace(/\D/g, "");
+                      setCautionMontant(sanitized);
+                      setTouched((p) => ({ ...p, caution_montant: true }));
+                      if (!sanitized) {
+                        setCautionError("Le montant de la caution est requis");
+                      } else if (parseFloat(sanitized) <= 0) {
+                        setCautionError("Doit être un montant supérieur à 0");
+                      } else {
+                        setCautionError("");
+                      }
+                    }}
+                    className={`w-full rounded-lg border bg-white h-10 px-3 text-[13px] text-[#395886] focus:outline-none focus:ring-2 transition-all ${
+                      cautionError && (cautionMontant || touched["caution_montant"])
+                        ? "border-rose-300 focus:ring-rose-300/40"
+                        : "border-[#D5DEEF] focus:ring-[#638ECB]/40"
+                    }`}
+                    placeholder="Ex: 5000"
+                  />
+                  {cautionError && (cautionMontant || touched["caution_montant"]) && (
+                    <p className="text-[10px] font-semibold text-rose-500 mt-0.5">{cautionError}</p>
+                  )}
+                </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-[#638ECB] uppercase tracking-wider">Mode de garantie</label>
+                  <label className="text-[10px] font-bold text-[#638ECB] uppercase tracking-wider">
+                    Mode de garantie<span className="text-rose-500 ml-0.5">*</span>
+                  </label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { value: "carte_bancaire", label: "Carte bancaire" },
@@ -877,17 +1191,24 @@ export default function ReservationFlowModal({
                       <button
                         key={mode.value}
                         type="button"
-                        onClick={() => setCautionMode(mode.value)}
+                        onClick={() => {
+                          setCautionMode(mode.value);
+                          setCautionModeError("");
+                          setTouched((p) => ({ ...p, caution_mode: true }));
+                        }}
                         className={`p-3 rounded-xl border-2 text-center transition-all text-[13px] font-bold ${
                           cautionMode === mode.value
                             ? "border-[#395886] bg-[#F0F3FA] text-[#395886]"
                             : "border-[#D5DEEF] text-[#638ECB] hover:border-[#638ECB]"
-                        }`}
+                        } ${cautionModeError && touched["caution_mode"] ? "border-rose-300" : ""}`}
                       >
                         {mode.label}
                       </button>
                     ))}
                   </div>
+                  {cautionModeError && touched["caution_mode"] && (
+                    <p className="text-[10px] font-semibold text-rose-500 mt-0.5">{cautionModeError}</p>
+                  )}
                 </div>
                 <div className="flex gap-2 mt-2">
                   <button
@@ -896,7 +1217,24 @@ export default function ReservationFlowModal({
                   >
                     <ChevronLeft className="w-4 h-4" /> Retour
                   </button>
-                  <button onClick={handleProceedToReservation} className="flex-1 h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity">
+                  <button
+                    onClick={() => {
+                      // Validate caution on submit click
+                      if (!cautionMontant) {
+                        setCautionError("Le montant de la caution est requis");
+                        setTouched((p) => ({ ...p, caution_montant: true }));
+                      }
+                      if (!cautionMode) {
+                        setCautionModeError("Veuillez sélectionner un mode de garantie");
+                        setTouched((p) => ({ ...p, caution_mode: true }));
+                      }
+                      if (cautionMontant && cautionMode && !cautionError) {
+                        handleProceedToReservation();
+                      }
+                    }}
+                    disabled={!!cautionError || !cautionMontant || !cautionMode}
+                    className="flex-1 h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
                     Confirmer la réservation
                   </button>
                 </div>
