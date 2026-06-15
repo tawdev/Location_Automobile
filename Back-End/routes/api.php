@@ -42,11 +42,11 @@ Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
 Route::get('filterVehicles' , [VehicleController::class , 'filterVehicles']);
 Route::get('Categories/public', [CategoryController::class , 'index']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/vehicle' , [VehicleController::class , 'store']);
-    Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
-    Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
-});
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::post('/vehicle' , [VehicleController::class , 'store']);
+//     Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
+//     Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
+// });
 
 
 

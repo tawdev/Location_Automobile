@@ -7,11 +7,11 @@ import type { Vehicle } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Search } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useSettings } from "@/lib/SettingsContext";
-import { getAuthToken } from "@/lib/tokenStorage";
-
+import VisitorNav from "@/components/VisitorNav";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
@@ -89,69 +89,23 @@ function CarLogo({ className, dark: forceDark }: { className?: string; dark?: bo
   );
 }
 
-function NavBar({ dark, onToggleDark }: { dark: boolean; onToggleDark: () => void }) {
-  const [scrolled, setScrolled] = useState(false);
-  const router = useRouter();
-  const { t } = useI18n();
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  return (
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
-          scrolled
-            ? "bg-[#F0F3FA]/80 dark:bg-[#0f1729]/90 backdrop-blur-2xl shadow-[0_4px_30px_rgba(57,88,134,0.12)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] border-b border-[#D5DEEF]/30 dark:border-[#1e293b]/80"
-            : "bg-transparent dark:bg-transparent"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-8 h-[72px] flex items-center justify-between">
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="cursor-pointer -ml-2" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <CarLogo dark={!scrolled && !dark} />
-          </motion.div>
-          <div className="flex items-center gap-2">
-            <DarkModeToggle dark={dark} onToggle={onToggleDark} />
-            <LanguageSwitcher />
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => router.push("/login")}
-              className={`text-sm font-semibold tracking-wide transition-all duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:rounded-full after:transition-all after:duration-300 hover:after:w-full ${
-                scrolled
-                  ? "text-[#395886] dark:text-[#94A3B8] after:bg-[#395886] dark:after:bg-[#94A3B8]"
-                  : "text-white/90 hover:text-white after:bg-white"
-              }`}
-            >
-              {t("nav.login")}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => router.push("/register")}
-              className={`text-sm font-bold tracking-wider px-6 py-2.5 rounded-xl transition-all duration-300 ${
-                scrolled
-                  ? "bg-[#395886] dark:bg-[#f39c12] hover:bg-[#2d4670] dark:hover:bg-[#d68910] text-white dark:text-[#0f1729] shadow-[0_4px_14px_rgba(57,88,134,0.3)] dark:shadow-[0_4px_14px_rgba(243,156,18,0.3)] hover:shadow-[0_6px_20px_rgba(57,88,134,0.4)] dark:hover:shadow-[0_6px_20px_rgba(243,156,18,0.4)]"
-                  : "bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm"
-              }`}
-            >
-              {t("nav.signup")}
-            </motion.button>
-          </div>
-        </div>
-      </motion.nav>
-  );
-}
-
 function HeroSection() {
   const router = useRouter();
   const [currentImg, setCurrentImg] = useState(0);
   const { t } = useI18n();
+
+  const [pickupDate, setPickupDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [brand, setBrand] = useState("");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (pickupDate) params.set("pickup_date", pickupDate);
+    if (returnDate) params.set("return_date", returnDate);
+    if (brand.trim()) params.set("marque", brand.trim());
+    const qs = params.toString();
+    router.push(qs ? `/vehicles?${qs}` : "/vehicles");
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentImg((p) => (p + 1) % cars.length), 5000);
@@ -224,15 +178,78 @@ function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-lg md:text-xl text-[#D5DEEF] max-w-xl leading-relaxed mb-10"
+            className="text-lg md:text-xl text-[#D5DEEF] max-w-xl leading-relaxed mb-8"
           >
             {t("home.hero.subtitle")}
           </motion.p>
 
+          {/* Search bar */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.65 }}
+            transition={{ duration: 0.8, delay: 0.55 }}
+            className="mb-8 max-w-2xl"
+          >
+            <div className="bg-white/10 dark:bg-[#0f1729]/40 backdrop-blur-xl border border-white/20 dark:border-[#1e293b]/50 rounded-2xl p-4 md:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
+              <div className="flex flex-col sm:flex-row gap-3 items-end">
+                <div className="flex-1 w-full">
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                    {t("vehicles.pickup_date")}
+                  </label>
+                  <input
+                    type="date"
+                    value={pickupDate}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setPickupDate(val);
+                      if (returnDate && val && returnDate < val) {
+                        setReturnDate("");
+                      }
+                    }}
+                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50 [color-scheme:dark]"
+                  />
+                </div>
+                <div className="flex-1 w-full">
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                    {t("vehicles.return_date")}
+                  </label>
+                  <input
+                    type="date"
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    min={pickupDate || undefined}
+                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50 [color-scheme:dark]"
+                  />
+                </div>
+                <div className="flex-1 w-full">
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                    {t("vehicles.brand")}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={t("vehicles.brand_placeholder")}
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
+                  />
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleSearch}
+                  className="h-11 px-6 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center gap-2 transition-all duration-300 whitespace-nowrap shrink-0"
+                >
+                  <Search className="w-4 h-4" />
+                  {t("vehicles.filter_button")}
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.75 }}
             className="flex flex-wrap gap-4"
           >
             <motion.button
@@ -687,12 +704,7 @@ function VehiclesMarquee() {
                   whileHover={{ scale: 1.03, y: -10 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
-                    if (getAuthToken()) {
-                       router.push(`/vehicles/${v.id}`);
-                    } else {
-                      localStorage.setItem("pendingVehicleRedirect", `/vehicles/${v.id}`);
-                      router.push(`/login?redirect=/vehicles/${v.id}`);
-                    }
+                    router.push(`/vehicles/${v.id}`);
                   }}
                   className="shrink-0 w-[380px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_25px_70px_rgba(57,88,134,0.2)] dark:hover:shadow-[0_25px_70px_rgba(0,0,0,0.55)] transition-all duration-500 group cursor-pointer"
                 >
@@ -1139,57 +1151,8 @@ function AboutSection() {
   );
 }
 
-function DarkModeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
-  return (
-    <motion.button
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
-      onClick={onToggle}
-      className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${
-        dark
-          ? "bg-[#1e293b] text-[#f39c12] border border-[#f39c12]/20 hover:bg-[#1e293b]/80"
-          : "bg-[#D5DEEF] text-[#395886] border border-[#395886]/10 hover:bg-[#b8c7db] shadow-sm"
-      }`}
-      aria-label={dark ? "Activer le mode clair" : "Activer le mode sombre"}
-    >
-      <motion.div
-        key={dark ? "moon" : "sun"}
-        initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-        animate={{ rotate: 0, opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        {dark ? (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" />
-          </svg>
-        ) : (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-          </svg>
-        )}
-      </motion.div>
-    </motion.button>
-  );
-}
 
 export default function HomePage() {
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = stored === "dark" || (!stored && prefersDark);
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
-  }, []);
-
-  const toggleDark = () => {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-  };
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] font-sans overflow-x-hidden transition-colors duration-500">
@@ -1302,7 +1265,7 @@ export default function HomePage() {
         /* Dark glow for cards */
         .dark .card-glow { box-shadow: 0 0 30px rgba(57,88,134,0.05); }
       `}</style>
-      <NavBar dark={dark} onToggleDark={toggleDark} />
+      <VisitorNav />
       <HeroSection />
       <ServicesSection />
       <HowItWorksSection />

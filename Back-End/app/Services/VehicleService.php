@@ -46,7 +46,7 @@ class VehicleService
         return $vehicle;
     }
 
-    public function UpdateVehicle($Vehicle, array $data, $pictures)
+    public function UpdateVehicle($Vehicle, array $data, $pictures = null)
     {
         $Vehicle->update($data);
 
