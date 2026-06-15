@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Marque;
+use App\Models\Vehicle;
 use App\Services\MarqueService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -120,7 +121,12 @@ class MarqueController extends Controller
             $validated['logo'] = $request->file('logo')->store('Marques', 'public');
         }
 
+        $oldName = $marque->name;
         $marque->update($validated);
+
+        if ($oldName !== $marque->name) {
+            Vehicle::where('marque', $oldName)->update(['marque' => $marque->name]);
+        }
 
         return response()->json([
             'status' => 'success',

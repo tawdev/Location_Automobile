@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { ClientOnly } from "@/components/ClientOnly";
 import { listVehicles, fetchCategories } from "@/lib/vehiclesApi";
-import type { Vehicle, Category } from "@/lib/types";
-import { vehicleImageUrl } from "@/lib/media";
+import type { Vehicle, Category, Marque } from "@/lib/types";
+import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { getBrandLogo } from "@/lib/brandLogos";
+import { getPublicMarques } from "@/lib/marquesApi";
+import Image from "next/image";
 
 const NEW_COUNT = 10;
 
@@ -67,6 +70,23 @@ export default function VehiculesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [marques, setMarques] = useState<Marque[]>([]);
+
+  const marqueLogoMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const m of marques) {
+      const key = m.name.toLowerCase().trim();
+      if (m.logo) {
+        map.set(key, `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`);
+      }
+    }
+    return map;
+  }, [marques]);
+
+  const marqueImg = useCallback((name: string): string | null => {
+    const key = name.toLowerCase().trim();
+    return marqueLogoMap.get(key) ?? getBrandLogo(name);
+  }, [marqueLogoMap]);
 
   const [searchText, setSearchText] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -101,6 +121,7 @@ export default function VehiculesPage() {
 
   useEffect(() => {
     fetchCategories().then(setCategories);
+    getPublicMarques().then(setMarques);
   }, []);
 
   // Read URL search params on mount
@@ -261,6 +282,96 @@ export default function VehiculesPage() {
         </div>
       </div>
 
+      {/* Price range */}
+      {(() => {
+        const maxPriceFromData = vehicles.length > 0 ? Math.max(...vehicles.map(v => v.pricePerDay)) : 1000;
+        const sliderMax = Math.max(maxPriceFromData, 100);
+        const rangeMin = minPrice ?? 0;
+        const rangeMax = maxPrice ?? sliderMax;
+        const leftPct = (rangeMin / sliderMax) * 100;
+        const rightPct = 100 - (rangeMax / sliderMax) * 100;
+        return (
+          <div className="max-h-[300px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar py-2">
+            <div className="px-1">
+              <h4 className="text-[17px] font-bold text-gray-700 dark:text-white mb-5 font-display">
+                {t("vehicles.price_range")}
+              </h4>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="relative flex-1">
+                  <input
+                    aria-label={t("vehicles.min_price")}
+                    placeholder="Min"
+                    type="number"
+                    value={rangeMin}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (!isNaN(val) && val >= 0 && val <= rangeMax) {
+                        setMinPrice(val);
+                      }
+                    }}
+                    className="w-full h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-center text-[15px] font-black text-gray-700 dark:text-white outline-none focus:border-[#99cc00] dark:focus:border-[#99cc00] transition-colors"
+                  />
+                </div>
+                <span className="text-gray-300 dark:text-white/20 font-black">—</span>
+                <div className="relative flex-1">
+                  <input
+                    aria-label={t("vehicles.max_price")}
+                    placeholder="Max"
+                    type="number"
+                    value={rangeMax}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (!isNaN(val) && val >= rangeMin && val <= sliderMax) {
+                        setMaxPrice(val);
+                      }
+                    }}
+                    className="w-full h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-center text-[15px] font-black text-gray-700 dark:text-white outline-none focus:border-[#99cc00] dark:focus:border-[#99cc00] transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="relative h-1 w-full bg-gray-200 dark:bg-white/5 rounded-full mb-4">
+                <div
+                  className="absolute h-full bg-[#99cc00] rounded-full"
+                  style={{ left: `${leftPct}%`, right: `${rightPct}%` }}
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={sliderMax}
+                  value={rangeMin}
+                  aria-label={t("vehicles.min_price")}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val <= (maxPrice ?? sliderMax)) setMinPrice(val);
+                  }}
+                  className="dual-range-input z-40"
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={sliderMax}
+                  value={rangeMax}
+                  aria-label={t("vehicles.max_price")}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val >= (minPrice ?? 0)) setMaxPrice(val);
+                  }}
+                  className="dual-range-input z-30"
+                />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -ml-2 h-4 w-4 rounded-full bg-[#99cc00] ring-4 ring-[#99cc00]/20 cursor-pointer shadow-lg shadow-black/20 pointer-events-none z-20"
+                  style={{ left: `${leftPct}%` }}
+                />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -ml-2 h-4 w-4 rounded-full bg-[#99cc00] ring-4 ring-[#99cc00]/20 cursor-pointer shadow-lg shadow-black/20 pointer-events-none z-20"
+                  style={{ left: `${100 - rightPct}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Category */}
       <div>
         <h4 className="text-[11px] uppercase tracking-[0.15em] font-bold text-gray-500 dark:text-[#94A3B8] mb-2.5">
@@ -346,30 +457,6 @@ export default function VehiculesPage() {
               {s} {t("vehicles.seats")}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Price range */}
-      <div>
-        <h4 className="text-[11px] uppercase tracking-[0.15em] font-bold text-gray-500 dark:text-[#94A3B8] mb-2.5">
-          {t("vehicles.price_range")}
-        </h4>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            placeholder={t("vehicles.min_price")}
-            value={minPrice ?? ""}
-            onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
-            className="w-full h-[44px] bg-white dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] placeholder:text-gray-400 dark:placeholder:text-[#64748b]"
-          />
-          <span className="flex items-center text-gray-400 dark:text-[#64748b] text-sm">-</span>
-          <input
-            type="number"
-            placeholder={t("vehicles.max_price")}
-            value={maxPrice ?? ""}
-            onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
-            className="w-full h-[44px] bg-white dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] placeholder:text-gray-400 dark:placeholder:text-[#64748b]"
-          />
         </div>
       </div>
 
@@ -639,14 +726,41 @@ export default function VehiculesPage() {
                         </LazyVehicleImage>
 
                         <motion.div
-                          className="p-5 relative z-10 flex flex-col flex-1"
+                          className="p-5 relative z-10 flex flex-col flex-1 overflow-hidden"
                           initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
                           whileInView={{ opacity: 1 }}
                           transition={{ delay: idx * 0.06 + 0.15 }}
                         >
-                          <div className="flex items-start justify-between">
+                          {/* Brand watermark background */}
+                          {marqueImg(v.marque) && (
+                            <Image
+                              src={marqueImg(v.marque)!}
+                              alt=""
+                              width={220}
+                              height={220}
+                              className="absolute -bottom-6 -right-6 w-[180px] h-[180px] opacity-[0.08] -rotate-[15deg] pointer-events-none select-none z-0"
+                              draggable={true}
+                              priority={true}
+                              unoptimized
+                            />
+                          )}
+                          <div className="flex items-center gap-2 relative z-10">
+                            {marqueImg(v.marque) ? (
+                              <div className="w-9 h-9 rounded-full bg-white dark:bg-[#1f4276] flex items-center justify-center p-1.5 shrink-0 shadow-sm">
+                                <Image
+                                  src={marqueImg(v.marque)!}
+                                  alt={v.marque}
+                                  width={32}
+                                  height={32}
+                                  className="w-full h-full object-contain"
+                                  unoptimized
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-[18px] font-bold text-[#1f4276] dark:text-[#D5DEEF] shrink-0">{v.marque}</span>
+                            )}
                             <h3 className="text-[20px] font-extrabold text-[#1f4276] dark:text-[#D5DEEF] leading-tight transition-colors duration-300 group-hover:text-[#f39c12]">
-                              {v.marque} {v.model}
+                              {v.model}
                             </h3>
                           </div>
                           <p className="mt-1 text-[13px] text-gray-500 dark:text-[#94A3B8]">

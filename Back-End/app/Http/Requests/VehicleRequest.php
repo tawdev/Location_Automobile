@@ -45,7 +45,6 @@ class VehicleRequest extends FormRequest
                 'nullable',
                 'integer',
                 'min:0',
-                Rule::unique('vehicles', 'order')->ignore($vehicleId),
             ],
 
             'images' => 'sometimes|array',

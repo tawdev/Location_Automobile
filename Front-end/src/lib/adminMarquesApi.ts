@@ -4,6 +4,7 @@ import type { Marque } from "./types";
 type MarquesResponse = {
   status: string;
   data: Marque[] | Marque | string;
+  errors?: string[];
 };
 
 function ensureMarques(data: MarquesResponse["data"]): Marque[] {

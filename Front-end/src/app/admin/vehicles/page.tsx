@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { Category, Marque, Vehicle } from "@/lib/types";
+import { getBrandLogo } from "@/lib/brandLogos";
+import Image from "next/image";
 import { getPublicMarques } from "@/lib/marquesApi";
 import {
   deleteAdminVehicle,
@@ -431,17 +433,28 @@ function VehicleCreateEditModal({
             {/* Input fields with customized slate theme */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Marque</label>
-              <select
-                required
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                value={marque}
-                onChange={(e) => setMarque(e.target.value)}
-              >
-                <option value="">-- Sélectionner une marque --</option>
-                {marques.map((m) => (
-                  <option key={m.id} value={m.name}>{m.name}</option>
-                ))}
-              </select>
+              <div className="flex items-center gap-3">
+                <select
+                  required
+                  className="flex-1 rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                  value={marque}
+                  onChange={(e) => setMarque(e.target.value)}
+                >
+                  <option value="">-- Sélectionner une marque --</option>
+                  {marques.map((m) => (
+                    <option key={m.id} value={m.name}>{m.name}</option>
+                  ))}
+                </select>
+                {marque && (() => {
+                  const logoSrc = getBrandLogo(marque);
+                  if (!logoSrc) return null;
+                  return (
+                    <div className="w-9 h-9 rounded-full bg-white border border-[#D5DEEF] flex items-center justify-center p-1.5 shrink-0">
+                      <Image src={logoSrc} alt={marque} width={24} height={24} className="w-full h-full object-contain" unoptimized />
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
 
             <div className="flex flex-col gap-1">
@@ -1042,7 +1055,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de la suppression du véhicule";
+      const msg = (e as { message?: string })?.message || "Échec de la suppression du véhicule";
       setError(msg);
     } finally {
       setDeletingId(null);
@@ -1061,7 +1074,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de la création du véhicule";
+      const msg = (e as { message?: string })?.message || "Échec de la création du véhicule";
       setCreateError(msg);
     } finally {
       setCreateSubmitting(false);
@@ -1094,7 +1107,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Échec de l'enregistrement des modifications.";
+      const msg = (e as { message?: string })?.message || "Échec de l'enregistrement des modifications.";
       setEditError(msg);
     } finally {
       setEditSubmitting(false);

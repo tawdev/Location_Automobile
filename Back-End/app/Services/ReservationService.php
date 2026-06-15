@@ -84,10 +84,11 @@ class ReservationService
         }
     }
 
-    $licenseIssueDate = auth()->user()->license_issue_date;
+    $licenseIssueDate = !empty($data['date_delivrance']) ? $data['date_delivrance'] : auth()->user()->license_issue_date;
     if ($licenseIssueDate) {
         $now = new DateTime();
-        $interval = $licenseIssueDate->diff($now);
+        $issueDate = new DateTime($licenseIssueDate);
+        $interval = $issueDate->diff($now);
         if ($interval->y < 2) {
             return 'license_too_recent';
         }

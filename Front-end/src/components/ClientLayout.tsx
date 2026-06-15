@@ -291,7 +291,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <div>
                       <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.company")}</p>
                       <div className="flex flex-col gap-1.5">
-                        {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "#" }, { label: t("footer.press"), href: "#" }, { label: t("footer.blog"), href: "#" }].map((l) => (
+                  {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "/company/careers" }, { label: t("footer.press"), href: "/company/press" }, { label: t("footer.blog"), href: "/company/blog" }].map((l) => (
                           <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                         ))}
                       </div>
@@ -299,7 +299,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <div>
                       <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.support")}</p>
                       <div className="flex flex-col gap-1.5">
-                        {[{ label: t("footer.help_center"), href: "#" }, { label: t("footer.contact_us"), href: "/contact" }, { label: t("footer.faq"), href: "/faq" }, { label: t("footer.cancellation"), href: "#" }].map((l) => (
+                    {[{ label: t("footer.help_center"), href: "/support/help-center" }, { label: t("footer.contact_us"), href: "/contact" }, { label: t("footer.faq"), href: "/faq" }, { label: t("footer.cancellation"), href: "/support/cancellation" }].map((l) => (
                           <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                         ))}
                       </div>
@@ -372,7 +372,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <div>
                 <h4 className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-4">{t("footer.company")}</h4>
                 <div className="flex flex-col gap-2.5">
-                  {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "#" }, { label: t("footer.press"), href: "#" }, { label: t("footer.blog"), href: "#" }].map((l) => (
+                        {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "/company/careers" }, { label: t("footer.press"), href: "/company/press" }, { label: t("footer.blog"), href: "/company/blog" }].map((l) => (
                     <a key={l.label} href={l.href} className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
                   ))}
                 </div>

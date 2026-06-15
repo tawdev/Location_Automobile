@@ -1,18 +1,21 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { listVehicles } from "@/lib/vehiclesApi";
 import { getPublicMarques } from "@/lib/marquesApi";
-import { vehicleImageUrl } from "@/lib/media";
+import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import type { Vehicle, Marque } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { getBrandLogo } from "@/lib/brandLogos";
+import Image from "next/image";
 import { Search } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useSettings } from "@/lib/SettingsContext";
 import VisitorNav from "@/components/VisitorNav";
+import ResumeReservationBanner from "@/components/ResumeReservationBanner";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
@@ -632,13 +635,31 @@ function VehiclesMarquee() {
   const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [marques, setMarques] = useState<Marque[]>([]);
   const { t } = useI18n();
   const prefersReduced = useReducedMotion();
+
+  const marqueLogoMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const m of marques) {
+      const key = m.name.toLowerCase().trim();
+      if (m.logo) {
+        map.set(key, `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`);
+      }
+    }
+    return map;
+  }, [marques]);
+
+  const marqueImg = useCallback((name: string): string | null => {
+    const key = name.toLowerCase().trim();
+    return marqueLogoMap.get(key) ?? getBrandLogo(name);
+  }, [marqueLogoMap]);
 
   useEffect(() => {
     listVehicles()
       .then((data) => { setVehicles(data); setLoading(false); })
       .catch(() => { setVehicles([]); setLoading(false); });
+    getPublicMarques().then(setMarques);
   }, []);
 
   const duplicated = [...vehicles, ...vehicles];
@@ -815,13 +836,40 @@ function VehiclesMarquee() {
                       </motion.div>
                     </div>
                   </div>
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-3">
+                  <div className="p-5 overflow-hidden relative">
+                    {/* Brand watermark */}
+                    {marqueImg(v.marque) && (
+                      <Image
+                        src={marqueImg(v.marque)!}
+                        alt=""
+                        width={200}
+                        height={200}
+                        className="absolute -bottom-6 -right-6 w-[180px] h-[180px] opacity-[0.08] -rotate-[15deg] pointer-events-none select-none z-0"
+                        draggable={false}
+                        priority={false}
+                        unoptimized
+                      />
+                    )}
+                    <div className="flex items-center gap-2 mb-3 relative z-10">
+                      {marqueImg(v.marque) ? (
+                        <div className="w-9 h-9 rounded-full bg-white dark:bg-[#1f4276] flex items-center justify-center p-1.5 shrink-0 shadow-sm">
+                          <Image
+                            src={marqueImg(v.marque)!}
+                            alt={v.marque}
+                            width={28}
+                            height={28}
+                            className="w-full h-full object-contain"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] shrink-0">{v.marque}</span>
+                      )}
                       <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300 leading-tight">
-                        {v.marque} {v.model}
+                        {v.model}
                       </h3>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 relative z-10">
                       {features.filter((f) => f.show).map((f, idx) => (
                         <motion.div
                           key={idx}
@@ -1409,6 +1457,7 @@ export default function HomePage() {
         /* Dark glow for cards */
         .dark .card-glow { box-shadow: 0 0 30px rgba(57,88,134,0.05); }
       `}</style>
+      <ResumeReservationBanner />
       <VisitorNav />
       <HeroSection />
       <VehiclesMarquee />

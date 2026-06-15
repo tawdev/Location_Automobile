@@ -855,7 +855,6 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin.delete_image": { en: "Delete", fr: "Supprimer", ar: "حذف" },
   "admin.click_add_image": { en: "Click to add an image", fr: "Cliquez pour ajouter une image", ar: "انقر لإضافة صورة" },
   "admin.image_formats": { en: "JPG, PNG, WEBP (max 5MB)", fr: "JPG, PNG, WEBP (max 5 Mo)", ar: "JPG, PNG, WEBP (الحد الأقصى 5 ميجابايت)" },
-  "admin.change_image": { en: "Change image", fr: "Changer l'image", ar: "تغيير الصورة" },
   "admin.images_deleted": { en: "{count} image(s) will be deleted on save.", fr: "{count} image(s) seront supprimées lors de l'enregistrement.", ar: "{count} صورة سيتم حذفها عند الحفظ." },
   "admin.undo_delete": { en: "Undo all", fr: "Tout annuler", ar: "التراجع عن الكل" },
   "admin.view_image": { en: "View image", fr: "Voir l'image", ar: "عرض الصورة" },
