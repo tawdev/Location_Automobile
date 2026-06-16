@@ -704,6 +704,23 @@
         <div class="section-title-fr">ÉTAT DU VÉHICULE AU DÉPART</div>
         <div class="section-title-ar">حالة السيارة عند الانطلاق</div>
     </div>
+    @php $conditions = $reservation->departureConditions ?? null; @endphp
+    @if($conditions && $conditions->count() > 0)
+        @foreach($conditions->chunk(2) as $chunk)
+        <div class="checkbox-row">
+            <div class="checkbox-fr">
+            @foreach($chunk as $cond)
+                <span class="chk">{{ $cond->pivot->checked ? '&#9746;' : '&#9744;' }}</span> {{ $cond->name }}&nbsp;&nbsp;
+            @endforeach
+            </div>
+            <div class="checkbox-ar">
+            @foreach($chunk as $cond)
+                {{ $cond->name }} <span class="chk-ar">{{ $cond->pivot->checked ? '&#9746;' : '&#9744;' }}</span>&nbsp;&nbsp;
+            @endforeach
+            </div>
+        </div>
+        @endforeach
+    @else
     <div class="checkbox-row">
         <div class="checkbox-fr"><span class="chk">&#9744;</span> Véhicule propre &nbsp;&nbsp; <span class="chk">&#9744;</span> Pneus en bon état</div>
         <div class="checkbox-ar">السيارة نظيفة <span class="chk-ar">&#9744;</span> &nbsp;&nbsp; الإطارات سليمة <span class="chk-ar">&#9744;</span></div>
@@ -716,6 +733,7 @@
         <div class="checkbox-fr"><span class="chk">&#9744;</span> Triangle présent &nbsp;&nbsp; <span class="chk">&#9744;</span> Documents présents</div>
         <div class="checkbox-ar">مثلث التحذير موجود <span class="chk-ar">&#9744;</span> &nbsp;&nbsp; الوثائق موجودة <span class="chk-ar">&#9744;</span></div>
     </div>
+    @endif
     <div class="obs-label">
         <div class="fr">Observations :</div>
         <div class="ar">ملاحظات :</div>

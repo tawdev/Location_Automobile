@@ -192,9 +192,14 @@
         <div class="section-num">6</div>
         <div class="section-title">{!! arabic('حالة السيارة عند الانطلاق') !!}</div>
     </div>
-    @if(false)
-        @foreach($reservation->departureConditions as $cond)
-            <div class="checkbox-row"><span class="chk">&#9746;</span> {{ $cond->name }}</div>
+    @php $conditions = $reservation->departureConditions ?? null; @endphp
+    @if($conditions && $conditions->count() > 0)
+        @foreach($conditions->chunk(2) as $chunk)
+        <div class="checkbox-row">
+            @foreach($chunk as $cond)
+                <span class="chk">{{ $cond->pivot->checked ? '&#9746;' : '&#9744;' }}</span> {!! arabic($cond->name) !!}&nbsp;&nbsp;
+            @endforeach
+        </div>
         @endforeach
     @else
         <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('السيارة نظيفة') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('الإطارات سليمة') !!}</div>

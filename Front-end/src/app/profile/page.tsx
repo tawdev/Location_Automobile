@@ -7,9 +7,11 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/authContext";
 import { profileImageUrl, vehicleImageUrl } from "@/lib/media";
 import { addCin, addPermi, updateProfileName, updateProfilePicture, updateProfilePassword, updateProfileDetails } from "@/lib/profileApi";
+import { getMyReservations } from "@/lib/reservationsApi";
 import type { ApiError } from "@/lib/apiClient";
+import type { Reservation } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle, Smartphone, MapPin, Calendar } from "lucide-react";
+import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle, Smartphone, MapPin, Calendar, Car, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function UploadZone({
@@ -191,7 +193,12 @@ const cardVariants = {
 };
 
 export default function ProfilePage({ hideBackButton }: { hideBackButton?: boolean }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(locale, { month: "short", day: "2-digit", year: "numeric" });
+  };
   const { user, refreshUser } = useAuth();
 
   const initial = useMemo(() => ({
@@ -261,6 +268,16 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
   const [docsSubmitting, setDocsSubmitting] = useState(false);
   const [docsError, setDocsError] = useState<string | null>(null);
   const [docsSuccess, setDocsSuccess] = useState<string | null>(null);
+
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [reservationsLoading, setReservationsLoading] = useState(true);
+
+  useEffect(() => {
+    getMyReservations()
+      .then(setReservations)
+      .catch(() => {})
+      .finally(() => setReservationsLoading(false));
+  }, []);
 
   async function onUpdateBasic(e: React.FormEvent) {
     e.preventDefault();
@@ -705,6 +722,76 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
               </div>
             </SectionCard>
           </motion.div>}
+
+          {/* ── My Reservations ── */}
+          <motion.div variants={cardVariants}>
+            <SectionCard>
+              <SectionHeader
+                icon={Calendar}
+                gradient="bg-gradient-to-br from-[#f39c12] to-[#e08e0b]"
+                title={t("profile.my_reservations") || "My Reservations"}
+                subtitle={t("profile.reservations_subtitle") || "Your rental history"}
+              />
+              <div className="px-7 py-6">
+                {reservationsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-[#f39c12] border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : reservations.length === 0 ? (
+                  <p className="text-sm font-bold text-[#638ECB]/50 dark:text-[#94A3B8]/50 text-center py-8">
+                    {t("profile.no_reservations") || "No reservations yet"}
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {reservations.slice(0, 5).map((res) => (
+                      <div
+                        key={res.id}
+                        className="flex items-center gap-4 p-4 rounded-2xl bg-[#F0F3FA]/70 dark:bg-[#1e293b]/40 border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 hover:border-[#f39c12]/30 dark:hover:border-[#f39c12]/20 transition-all"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-[#D5DEEF]/60 dark:bg-[#1e293b]/70 flex items-center justify-center shrink-0">
+                          <Car className="w-6 h-6 text-[#395886] dark:text-[#94A3B8]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF] truncate">
+                            {res.vehicle
+                              ? `${res.vehicle.marque || ""} ${res.vehicle.model || ""}`.trim() || `#${res.id}`
+                              : `#${res.id}`}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Calendar className="w-3 h-3 text-[#638ECB] dark:text-[#94A3B8]" />
+                            <span className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8]">
+                              {formatDate(res.start_date)}
+                            </span>
+                            <ArrowRight className="w-3 h-3 text-[#638ECB]/40 dark:text-[#94A3B8]/40" />
+                            <Calendar className="w-3 h-3 text-[#638ECB] dark:text-[#94A3B8]" />
+                            <span className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8]">
+                              {formatDate(res.end_date)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1.5">
+                            <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full ${
+                              res.status === "Confirmée" || res.status === "confirmed"
+                                ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
+                                : res.status === "En_Attente" || res.status === "pending"
+                                ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
+                                : res.status === "Terminée" || res.status === "completed"
+                                ? "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400"
+                                : "bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400"
+                            }`}>
+                              {res.status}
+                            </span>
+                            <span className="text-[11px] font-extrabold text-[#395886] dark:text-[#D5DEEF]">
+                              {Number(res.TotalPrice).toLocaleString(locale)} DH
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          </motion.div>
         </motion.div>
       </div>
     </RequireAuth>

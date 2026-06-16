@@ -1,11 +1,27 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Car, Clock, User, LogOut, Settings, Menu, X, Info, Moon, Sun, House, LogIn, UserPlus, FileText } from "lucide-react";
+import {
+  Car,
+  Clock,
+  User,
+  LogOut,
+  Settings,
+  Menu,
+  X,
+  Info,
+  Moon,
+  Sun,
+  House,
+  LogIn,
+  UserPlus,
+  FileText,
+  ChevronDown,
+} from "lucide-react";
 import { authLogout } from "@/lib/authApi";
 import { clearAuthToken } from "@/lib/tokenStorage";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/authContext";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -40,7 +56,19 @@ function Logo({ onClick }: { onClick: () => void }) {
   );
 }
 
-function NavLink({ href, icon: Icon, label, active, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; active: boolean; onClick: () => void }) {
+function NavLink({
+  href,
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
     <motion.button
       whileHover={{ scale: 1.04 }}
@@ -67,6 +95,145 @@ function NavLink({ href, icon: Icon, label, active, onClick }: { href: string; i
   );
 }
 
+/**
+ * "My Account" dropdown for the desktop navbar.
+ * Groups Profile, My Reservations, Settings and Logout behind a single
+ * pill-style trigger, using the same glassmorphism panel style as the
+ * mobile menu / AboutDropdown.
+ */
+function AccountDropdown({
+  pathname,
+  router,
+  onLogout,
+  t,
+}: {
+  pathname: string;
+  router: ReturnType<typeof useRouter>;
+  onLogout: () => void;
+  t: (key: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const isActive =
+    pathname.includes("/profile") ||
+    pathname === "/MyReservations" ||
+    pathname === "/settings";
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close on Escape
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const items: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { label: t("nav.profile"), href: "/profile", icon: User },
+    { label: t("nav.history"), href: "/MyReservations", icon: Clock },
+    { label: t("nav.settings"), href: "/settings", icon: Settings },
+  ];
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <motion.button
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all ${
+          isActive
+            ? "text-white"
+            : "text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50"
+        }`}
+      >
+        {isActive && (
+          <motion.div
+            layoutId="nav-pill"
+            className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] shadow-lg shadow-[#395886]/20"
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          />
+        )}
+        <span className="relative z-10 flex items-center gap-2">
+          <User className={`w-4 h-4 ${isActive ? "text-white" : ""}`} />
+          {t("nav.my_account")}
+          <motion.span
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="flex"
+          >
+            <ChevronDown className={`w-3.5 h-3.5 ${isActive ? "text-white" : ""}`} />
+          </motion.span>
+        </span>
+      </motion.button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            role="menu"
+            aria-label={t("nav.my_account")}
+            className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl bg-white/90 dark:bg-[#0f1729]/95 backdrop-blur-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/80 shadow-xl shadow-black/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] p-2 z-50"
+          >
+            {items.map((item) => {
+              const active =
+                item.href === "/profile" ? pathname.includes("/profile") : pathname === item.href;
+              return (
+                <button
+                  key={item.href}
+                  role="menuitem"
+                  onClick={() => {
+                    setOpen(false);
+                    router.push(item.href);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all text-left ${
+                    active
+                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                </button>
+              );
+            })}
+
+            <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-1.5" />
+
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onLogout();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all text-left"
+            >
+              <LogOut className="w-4 h-4" />
+              {t("nav.logout")}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -74,6 +241,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const { t } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -94,6 +262,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const isAdmin = status === "authenticated" && user?.role_id === 1;
   const isAuthenticated = status === "authenticated";
 
+  const handleLogout = async () => {
+    try {
+      await authLogout();
+    } finally {
+      clearAuthToken();
+      router.push("/login");
+    }
+  };
+
   const VISITOR_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicules", icon: Car },
@@ -102,12 +279,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const AUTH_NAV = [
     { label: t("nav.home"), href: "/", icon: House },
     { label: t("nav.vehicules"), href: "/vehicles", icon: Car },
-    { label: t("nav.history"), href: "/MyReservations", icon: Clock },
-    { label: t("nav.profile"), href: "/profile", icon: User },
-    { label: t("nav.settings"), href: "/settings", icon: Settings },
   ];
 
   const NAV_ITEMS = isAuthenticated ? AUTH_NAV : VISITOR_NAV;
+
+  // Sub-items shown inside the "My Account" dropdown / mobile collapsible section
+  const ACCOUNT_ITEMS = [
+    { label: t("nav.profile"), href: "/profile", icon: User },
+    { label: t("nav.history"), href: "/MyReservations", icon: Clock },
+    { label: t("nav.settings"), href: "/settings", icon: Settings },
+  ];
+
+  const accountActive =
+    pathname.includes("/profile") ||
+    pathname === "/MyReservations" ||
+    pathname === "/settings";
 
   useEffect(() => {
     if (isAdmin) router.replace("/admin/vehicles");
@@ -121,6 +307,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     setMobileOpen(false);
+    setMobileAccountOpen(false);
   }, [pathname]);
 
   if (status === "loading" || isAdmin) {
@@ -151,11 +338,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <NavLink
                 key={item.href}
                 {...item}
-                active={item.href === "/profile" ? pathname.includes("/profile") : pathname === item.href}
+                active={pathname === item.href}
                 onClick={() => router.push(item.href)}
               />
             ))}
             <AboutDropdown variant="client" scrolled={scrolled} isActive={pathname === "/a-propos" || pathname === "/regles"} />
+            {isAuthenticated && (
+              <AccountDropdown pathname={pathname} router={router} onLogout={handleLogout} t={t} />
+            )}
             <LanguageSwitcher />
             <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
             <motion.button
@@ -171,22 +361,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             >
               {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </motion.button>
-            {isAuthenticated ? (
-              <>
-                <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
-                <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={async () => {
-                    try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
-                >
-                  <LogOut className="w-4 h-4" />
-                  {t("nav.logout")}
-                </motion.button>
-              </>
-            ) : (
+            {!isAuthenticated && (
               <>
                 <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
                 <motion.button
@@ -252,7 +427,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     key={item.href}
                     onClick={() => router.push(item.href)}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
-                      (item.href === "/profile" ? pathname.includes("/profile") : pathname === item.href)
+                      pathname === item.href
                         ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
                         : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
                     }`}
@@ -261,6 +436,78 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     {item.label}
                   </button>
                 ))}
+
+                {/* My Account collapsible (mobile) */}
+                {isAuthenticated && (
+                  <div className="rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setMobileAccountOpen((o) => !o)}
+                      aria-expanded={mobileAccountOpen}
+                      aria-controls="mobile-account-panel"
+                      className={`w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                        accountActive
+                          ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                          : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                      }`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <User className="w-4 h-4" />
+                        {t("nav.my_account")}
+                      </span>
+                      <motion.span
+                        animate={{ rotate: mobileAccountOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                        className="flex"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </motion.span>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {mobileAccountOpen && (
+                        <motion.div
+                          id="mobile-account-panel"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: "easeOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="flex flex-col gap-1 pt-1 pb-1 pl-4">
+                            {ACCOUNT_ITEMS.map((item) => {
+                              const active =
+                                item.href === "/profile"
+                                  ? pathname.includes("/profile")
+                                  : pathname === item.href;
+                              return (
+                                <button
+                                  key={item.href}
+                                  onClick={() => router.push(item.href)}
+                                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                                    active
+                                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                                  }`}
+                                >
+                                  <item.icon className="w-4 h-4" />
+                                  {item.label}
+                                </button>
+                              );
+                            })}
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all"
+                            >
+                              <LogOut className="w-4 h-4" />
+                              {t("nav.logout")}
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
+
                 <button
                   onClick={() => router.push("/a-propos")}
                   className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
@@ -319,34 +566,26 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 <div className="flex items-center justify-center py-2">
                   <LanguageSwitcher />
                 </div>
-                <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
-                {isAuthenticated ? (
-                  <button
-                    onClick={async () => {
-                      try { await authLogout(); } finally { clearAuthToken(); router.push("/login"); }
-                    }}
-                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition-all"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    {t("nav.logout")}
-                  </button>
-                ) : (
-                  <div className="flex flex-col gap-2 px-4 py-2">
-                    <button
-                      onClick={() => router.push("/login")}
-                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-white border border-[#D5DEEF] dark:border-[#1e293b] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all"
-                    >
-                      <LogIn className="w-4 h-4" />
-                      {t("nav.login")}
-                    </button>
-                    <button
-                      onClick={() => router.push("/register")}
-                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg transition-all"
-                    >
-                      <UserPlus className="w-4 h-4" />
-                      {t("nav.signup")}
-                    </button>
-                  </div>
+                {!isAuthenticated && (
+                  <>
+                    <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
+                    <div className="flex flex-col gap-2 px-4 py-2">
+                      <button
+                        onClick={() => router.push("/login")}
+                        className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-white border border-[#D5DEEF] dark:border-[#1e293b] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all"
+                      >
+                        <LogIn className="w-4 h-4" />
+                        {t("nav.login")}
+                      </button>
+                      <button
+                        onClick={() => router.push("/register")}
+                        className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg transition-all"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        {t("nav.signup")}
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             </motion.div>

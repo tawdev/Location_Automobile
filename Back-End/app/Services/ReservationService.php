@@ -154,6 +154,15 @@ class ReservationService
         $Reservation->extras()->sync($extraIds);
     }
 
+    // Sync all vehicle's departure conditions with checked=true
+    $vehicle->loadMissing('departureConditions');
+    if ($vehicle->departureConditions->isNotEmpty()) {
+        $conditionData = $vehicle->departureConditions->mapWithKeys(function ($cond) {
+            return [$cond->id => ['checked' => true]];
+        })->toArray();
+        $Reservation->departureConditions()->sync($conditionData);
+    }
+
     return $Reservation;
 }
 
