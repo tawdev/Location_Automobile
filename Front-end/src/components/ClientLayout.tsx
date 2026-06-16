@@ -142,7 +142,7 @@ function AccountDropdown({
 
   const items: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { label: t("nav.profile"), href: "/profile", icon: User },
-    { label: t("nav.history"), href: "/MyReservations", icon: Clock },
+    { label: t("nav.reservations"), href: "/MyReservations", icon: Clock },
     { label: t("nav.settings"), href: "/settings", icon: Settings },
   ];
 
@@ -286,7 +286,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   // Sub-items shown inside the "My Account" dropdown / mobile collapsible section
   const ACCOUNT_ITEMS = [
     { label: t("nav.profile"), href: "/profile", icon: User },
-    { label: t("nav.history"), href: "/MyReservations", icon: Clock },
+    { label: t("nav.reservations"), href: "/MyReservations", icon: Clock },
     { label: t("nav.settings"), href: "/settings", icon: Settings },
   ];
 
@@ -452,7 +452,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     >
                       <span className="flex items-center gap-3">
                         <User className="w-4 h-4" />
-                        {t("nav.my_account")}
+My Account
                       </span>
                       <motion.span
                         animate={{ rotate: mobileAccountOpen ? 180 : 0 }}
