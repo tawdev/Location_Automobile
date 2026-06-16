@@ -126,6 +126,10 @@ Route::get('/admin/users/stats', [UserController::class, 'stats']);
 Route::get('/admin/users/{id}', [UserController::class, 'show']);
 Route::delete('/admin/users/{id}', [UserController::class, 'destroy']);
 
+Route::get('/admin/reservations/{reservation}/pictures', [\App\Http\Controllers\Api\Admin\ReservationPictureController::class, 'index']);
+Route::post('/admin/reservations/{reservation}/pictures', [\App\Http\Controllers\Api\Admin\ReservationPictureController::class, 'store']);
+Route::delete('/admin/reservations/pictures/{picture}', [\App\Http\Controllers\Api\Admin\ReservationPictureController::class, 'destroy']);
+
 });
 
 Route::match(['get','post'],'/gps/data', [LocationController::class, 'store']);

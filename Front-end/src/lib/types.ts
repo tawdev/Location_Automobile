@@ -137,6 +137,15 @@ export type Reservation = {
   extras?: Extra[];
   client?: ClientInfo;
   departure_conditions?: DepartureCondition[];
+  pictures?: ReservationPicture[];
+};
+
+export type ReservationPicture = {
+  id: number;
+  reservation_id: number;
+  type: "before" | "after";
+  path: string;
+  created_at: string;
 };
 
 export type ClientInfo = {
