@@ -504,6 +504,8 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin_users.count": { en: "{count} user{s}", fr: "{count} utilisateur{s}", ar: "{count} مستخدم{ s}" },
   "admin_users.months": { en: "months", fr: "mois", ar: "شهر" },
   "admin_users.inscriptions": { en: "registrations", fr: "inscriptions", ar: "تسجيل" },
+  "admin_users.top_users": { en: "Top clients", fr: "Meilleurs clients", ar: "أفضل العملاء" },
+  "admin_users.by_reservations": { en: "by reservations", fr: "par réservations", ar: "حسب الحجوزات" },
 
   // ── Contact ──
   "contact.badge": { en: "Get in Touch", fr: "Prenez Contact", ar: "تواصل معنا" },

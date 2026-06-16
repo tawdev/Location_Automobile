@@ -92,15 +92,13 @@ function Skeleton() {
         <div className="h-4 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-md w-1/4 mb-5" />
         <div className="h-44 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-xl" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-2xl bg-white/70 dark:bg-[#0f1729]/80 border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 p-5">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b]" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-md w-3/4" />
-                <div className="h-3 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-md w-1/2" />
-              </div>
+          <div key={i} className="rounded-3xl bg-white/70 dark:bg-[#0f1729]/80 border border-[#D5DEEF]/70 dark:border-[#1e293b]/70 p-4 animate-pulse flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b] shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-md w-1/4" />
+              <div className="h-3 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-md w-1/3" />
             </div>
           </div>
         ))}
@@ -163,54 +161,52 @@ function UserCard({
         month: "short", day: "numeric", year: "numeric",
       })
     : "—";
+  const moneyLocale = locale === "ar" ? "ar-DZ" : locale === "en" ? "en-US" : "fr-FR";
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.035, ease: [0.22, 1, 0.36, 1] }}
-      className="group rounded-2xl bg-white/70 dark:bg-[#0f1729]/80 backdrop-blur-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 shadow-sm hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all duration-400 p-4 sm:p-5"
+      className="group flex items-center gap-4 rounded-3xl border border-[#D5DEEF]/70 dark:border-[#1e293b]/70 bg-white dark:bg-[#0f1729]/80 hover:border-[#638ECB]/50 hover:shadow-[0_4px_20px_rgba(99,142,203,0.10)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all duration-300 p-4"
     >
-      <div className="flex items-start gap-3.5 sm:gap-4">
-        <UserAvatar user={user} />
+      <UserAvatar user={user} />
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm sm:text-base font-extrabold text-[#395886] dark:text-[#D5DEEF] truncate">
-              {user.name}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-extrabold text-[#395886] dark:text-[#D5DEEF] text-base leading-tight truncate">
+            {user.name}
+          </span>
+          {user.email_verified_at && (
+            <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#059669] bg-[#059669]/10 dark:bg-[#059669]/15 px-1.5 py-0.5 rounded-md shrink-0">
+              {t("admin_users.verified")}
             </span>
-            {user.email_verified_at ? (
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#059669] bg-[#059669]/10 dark:bg-[#059669]/15 px-1.5 py-0.5 rounded-md shrink-0">
-                {t("admin_users.verified")}
-              </span>
-            ) : (
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#D97706] bg-[#D97706]/10 dark:bg-[#D97706]/15 px-1.5 py-0.5 rounded-md shrink-0">
-                {t("admin_users.unverified")}
-              </span>
-            )}
-          </div>
-
-          <div className="text-[12px] sm:text-[13px] font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-0.5 truncate">
-            {user.email}
-          </div>
-
-          <div className="flex items-center gap-4 mt-2.5 flex-wrap text-[11px]">
-            <div className="flex items-center gap-1.5 font-bold text-[#395886] dark:text-[#D5DEEF]">
-              <svg className="w-3.5 h-3.5 text-[#0284C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>{user.reservations_count ?? 0} {t("admin_users.reservations")}</span>
-            </div>
-            <div className="flex items-center gap-1.5 font-semibold text-[#B0C4DE] dark:text-[#64748B]">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{createdDate}</span>
-            </div>
-          </div>
+          )}
         </div>
-
-
+        <div className="flex items-center gap-3 mt-1 text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] flex-wrap">
+          <span>{user.email}</span>
+          <span className="text-[#D5DEEF] dark:text-[#334155]">|</span>
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-[#0284C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {user.reservations_count ?? 0} {t("admin_users.reservations")}
+          </span>
+          <span className="text-[#D5DEEF] dark:text-[#334155]">|</span>
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-[#059669]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {new Intl.NumberFormat(moneyLocale, { style: "currency", currency: "MAD", maximumFractionDigits: 0 }).format(user.total_spent ?? 0)}
+          </span>
+          <span className="text-[#D5DEEF] dark:text-[#334155]">|</span>
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {createdDate}
+          </span>
+        </div>
       </div>
     </motion.div>
   );
@@ -322,8 +318,9 @@ export default function AdminUsersPage() {
             />
           </div>
 
-          {/* ═══ Registrations Chart ═══ */}
-          <div className="mb-5">
+          {/* ═══ Charts: Registrations + Top Users ═══ */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+            {/* ── Monthly Registrations ── */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -341,7 +338,7 @@ export default function AdminUsersPage() {
               {regChartData.length === 0 ? (
                 <EmptyState message={t("admin_users.no_data")} />
               ) : (
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={regChartData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }} barCategoryGap="2" barGap="0">
                     <defs>
                       <linearGradient id="regBar" x1="0" y1="0" x2="0" y2="1">
@@ -356,6 +353,79 @@ export default function AdminUsersPage() {
                     <Bar dataKey="inscriptions" radius={[2, 2, 0, 0]} maxBarSize={64} fill="url(#regBar)" />
                   </BarChart>
                 </ResponsiveContainer>
+              )}
+            </motion.div>
+
+            {/* ── Top Users ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="rounded-2xl bg-white/70 dark:bg-[#0f1729]/80 backdrop-blur-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 shadow-lg shadow-black/5 dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] p-5 sm:p-6 hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all duration-500"
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#f39c12]/15 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-[#f39c12]" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF] tracking-tight">
+                    {t("admin_users.top_users")}
+                  </h3>
+                </div>
+                <span className="text-[10px] font-bold text-[#B0C4DE] dark:text-[#64748B] uppercase tracking-wider">
+                  {t("admin_users.by_reservations")}
+                </span>
+              </div>
+              {stats.topUsers.length === 0 ? (
+                <EmptyState message={t("admin_users.no_data")} />
+              ) : (
+                <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1 scrollbar-thin">
+                  {stats.topUsers.map((u, i) => {
+                    const max = stats.topUsers[0]?.reservations_count || 1;
+                    const pct = Math.max(2, (u.reservations_count / max) * 100);
+                    const medals = ["text-[#f39c12]", "text-[#A0AEC0]", "text-[#CD7F32]"];
+                    const bgBars = [
+                      "from-[#f39c12] to-[#f59e0b]/70",
+                      "from-[#A0AEC0] to-[#A0AEC0]/70",
+                      "from-[#CD7F32] to-[#CD7F32]/70",
+                      "from-[#638ECB] to-[#638ECB]/60",
+                    ];
+                    const barGrad = bgBars[Math.min(i, bgBars.length - 1)];
+                    const moneyLocale = locale === "ar" ? "ar-DZ" : locale === "en" ? "en-US" : "fr-FR";
+                    return (
+                      <div key={u.id} className="flex items-center gap-3 group">
+                        <span className={`w-5 text-center text-xs font-black shrink-0 ${i < 3 ? medals[i] : "text-[#B0C4DE] dark:text-[#64748B]"}`}>
+                          {i < 3 ? ["🥇", "🥈", "🥉"][i] : `#${i + 1}`}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] truncate">
+                              {u.name}
+                            </span>
+                            <div className="flex items-center gap-2 shrink-0 ml-2">
+                              <span className="text-[11px] font-black text-[#395886] dark:text-[#D5DEEF] tabular-nums">
+                                {u.reservations_count}
+                              </span>
+                              <span className="text-[10px] font-bold text-[#059669] tabular-nums">
+                                {new Intl.NumberFormat(moneyLocale, { style: "currency", currency: "MAD", maximumFractionDigits: 0 }).format(u.total_spent ?? 0)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="h-2.5 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: "easeOut" }}
+                              className={`h-full rounded-full bg-gradient-to-r ${barGrad} group-hover:opacity-80 transition-opacity`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </motion.div>
           </div>
@@ -395,7 +465,7 @@ export default function AdminUsersPage() {
                 <EmptyState message={t("admin_users.no_users")} />
               </Card>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div className="flex flex-col gap-3">
                 {users.map((user, i) => (
                   <UserCard key={user.id} user={user} index={i} locale={locale} />
                 ))}

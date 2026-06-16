@@ -11,6 +11,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = User::withCount('reservations')
+            ->withSum(['reservations as total_spent' => function ($q) {
+                $q->whereIn('status', ['Confirmée', 'Terminée']);
+            }], 'TotalPrice')
             ->with('role')
             ->where('role_id', 2);
 
@@ -61,6 +64,16 @@ class UserController extends Controller
             ->orderBy('month')
             ->get();
 
+        $topUsers = User::where('role_id', 2)
+            ->withCount('reservations')
+            ->withSum(['reservations as total_spent' => function ($q) {
+                $q->whereIn('status', ['Confirmée', 'Terminée']);
+            }], 'TotalPrice')
+            ->having('reservations_count', '>', 0)
+            ->orderBy('reservations_count', 'desc')
+            ->take(10)
+            ->get();
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -70,6 +83,7 @@ class UserController extends Controller
                 'withDocuments' => $withDocuments,
                 'verified' => $verified,
                 'monthlyRegistrations' => $monthlyRegistrations,
+                'topUsers' => $topUsers,
             ],
         ]);
     }
@@ -77,6 +91,9 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::withCount('reservations')
+            ->withSum(['reservations as total_spent' => function ($q) {
+                $q->whereIn('status', ['Confirmée', 'Terminée']);
+            }], 'TotalPrice')
             ->with('role')
             ->findOrFail($id);
 
