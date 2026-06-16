@@ -137,6 +137,15 @@ export type Reservation = {
   extras?: Extra[];
   client?: ClientInfo;
   departure_conditions?: DepartureCondition[];
+  pictures?: ReservationPicture[];
+};
+
+export type ReservationPicture = {
+  id: number;
+  reservation_id: number;
+  type: "before" | "after";
+  path: string;
+  created_at: string;
 };
 
 export type ClientInfo = {
@@ -168,4 +177,47 @@ export type Extra = {
   image_url?: string | null;
   created_at?: string;
   updated_at?: string;
+};
+
+export type Blog = {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  featured_image: string | null;
+  author: string | null;
+  published_at: string | null;
+  status: "draft" | "published";
+  created_at: string;
+  updated_at: string;
+};
+
+export type PressRelease = {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  featured_image: string | null;
+  category: string | null;
+  published_at: string | null;
+  status: "draft" | "published";
+  created_at: string;
+  updated_at: string;
+};
+
+export type Career = {
+  id: number;
+  title: string;
+  slug: string;
+  location: string | null;
+  type: string | null;
+  department: string | null;
+  description: string | null;
+  requirements: string | null;
+  salary_range: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 };

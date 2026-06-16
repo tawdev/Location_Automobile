@@ -114,7 +114,7 @@ export default function VisitorNav({ solid }: { solid?: boolean }) {
               {item.label}
             </motion.button>
           ))}
-          <AboutDropdown variant="visitor" scrolled={scrolled || !!solid} isActive={pathname === "/a-propos" || pathname === "/regles"} />
+          <AboutDropdown variant="visitor" scrolled={scrolled || !!solid} isActive={pathname.startsWith("/a-propos") || pathname.startsWith("/regles") || pathname.startsWith("/company/") || pathname.startsWith("/support/") || pathname === "/contact" || pathname === "/faq" || pathname === "/privacy" || pathname === "/terms" || pathname === "/insurance"} />
         </div>
         <div className="flex items-center gap-2">
           <DarkModeToggle dark={dark} onToggle={toggleDark} />

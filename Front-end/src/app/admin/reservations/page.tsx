@@ -7,8 +7,11 @@ import {
   refuseAdminReservation,
   filterAdminReservations,
   uploadContractScans,
+  uploadReservationPicture,
+  deleteReservationPicture,
+  getReservationPictures,
 } from "@/lib/adminReservationsApi";
-import type { Reservation } from "@/lib/types";
+import type { Reservation, ReservationPicture } from "@/lib/types";
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import {
   Select,
@@ -144,6 +147,15 @@ function RefreshIcon() {
   return (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
   );
 }
@@ -330,7 +342,7 @@ function DetailModal({
             </div>
             <div className="mt-4 pt-4 border-t border-[#D5DEEF]/30">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-3">
-                Contrat signé
+                {t("admin.signed_contract")}
               </span>
               {reservation.contract_pdf ? (
                 <a
@@ -340,12 +352,12 @@ function DetailModal({
                   className="inline-flex h-9 px-4 rounded-xl bg-[#395886] hover:bg-[#2c4570] text-white font-bold text-xs transition-all active:scale-95 items-center justify-center gap-2 cursor-pointer no-underline"
                 >
                   <FileIcon />
-                  <span>Télécharger le contrat</span>
+                  <span>{t("admin.download_contract")}</span>
                 </a>
               ) : (
                 <div>
                   <p className="text-xs font-semibold text-[#638ECB] mb-2">
-                    Scanner le contrat signé et générer le PDF
+                    {t("admin.scan_contract_hint")}
                   </p>
                   <input
                     ref={fileInputRef}
@@ -369,7 +381,7 @@ function DetailModal({
                     ) : (
                       <UploadIcon />
                     )}
-                    <span>{uploading ? "Génération..." : "Ajouter le contrat scanné"}</span>
+                    <span>{uploading ? t("admin.generating") : t("admin.add_scanned_contract")}</span>
                   </button>
                   {uploadError && (
                     <p className="mt-2 text-xs font-bold text-rose-600">{uploadError}</p>
@@ -378,6 +390,222 @@ function DetailModal({
               )}
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PicturesModal({
+  reservation,
+  open,
+  onClose,
+  onOpenLightbox,
+  onRefresh,
+}: {
+  reservation: Reservation | null;
+  open: boolean;
+  onClose: () => void;
+  onOpenLightbox: (url: string, label: string) => void;
+  onRefresh: () => Promise<void>;
+}) {
+  const { t, locale } = useI18n();
+  const [pictures, setPictures] = useState<ReservationPicture[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const beforeRef = useRef<HTMLInputElement>(null);
+  const afterRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open && reservation) {
+      setLoading(true);
+      getReservationPictures(reservation.id).then(setPictures).finally(() => setLoading(false));
+    }
+  }, [open, reservation]);
+
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  if (!open || !reservation) return null;
+
+  const canAddBefore = () => reservation!.status === "Confirmée";
+
+  const canAddAfter = () => {
+    if (reservation!.status === "Confirmée") return true;
+    if (reservation!.status === "Terminée" && reservation!.end_date) {
+      const end = new Date(reservation!.end_date);
+      const now = new Date();
+      const diff = (now.getTime() - end.getTime()) / (1000 * 60 * 60 * 24);
+      return diff <= 3;
+    }
+    return false;
+  };
+
+  async function handleUpload(type: "before" | "after", files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      await uploadReservationPicture(reservation!.id, type, files[0]);
+      const pics = await getReservationPictures(reservation!.id);
+      setPictures(pics);
+      await onRefresh();
+    } catch { } finally { setUploading(false); }
+  }
+
+  async function handleDelete(picId: number) {
+    setDeletingId(picId);
+    try {
+      await deleteReservationPicture(picId);
+      setPictures(prev => prev.filter(p => p.id !== picId));
+      await onRefresh();
+    } catch { } finally { setDeletingId(null); }
+  }
+
+  const beforePics = pictures.filter(p => p.type === "before");
+  const afterPics = pictures.filter(p => p.type === "after");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl border border-[#D5DEEF]/80 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-5 pb-0 sticky top-0 bg-white z-10">
+          <h3 className="font-extrabold text-[#395886] text-lg">
+            {t("admin.photos")} — {reservation.vehicle?.marque} {reservation.vehicle?.model}
+          </h3>
+          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] flex items-center justify-center transition-all cursor-pointer">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-5">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <svg className="w-6 h-6 animate-spin text-[#638ECB]" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Before */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#395886] flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 text-[#0284C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {t("admin.before")}
+                   </span>
+                   {canAddBefore() && (
+                     <>
+                       <input ref={beforeRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload("before", e.target.files)} />
+                       <button type="button" disabled={uploading} onClick={() => beforeRef.current?.click()} className="h-7 px-2.5 rounded-lg bg-[#0284C7]/10 hover:bg-[#0284C7]/20 text-[#0284C7] font-bold text-[10px] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1 cursor-pointer">
+                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                         </svg>
+                         {uploading ? "..." : t("admin.add")}
+                      </button>
+                    </>
+                  )}
+                </div>
+                {beforePics.length === 0 ? (
+                  <div className="text-[10px] font-semibold text-[#B0C4DE] italic">{t("admin.no_photos")}</div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2">
+                    {beforePics.map(pic => (
+                      <div key={pic.id} className="group/pic relative aspect-square rounded-xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40">
+                        <img
+                          src={vehicleImageUrl(pic.path)}
+                          alt="Avant"
+                          className="w-full h-full object-cover cursor-pointer"
+                          onClick={() => onOpenLightbox(vehicleImageUrl(pic.path), `${t("admin.before")} — ${new Date(pic.created_at).toLocaleString(locale)}`)}
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1">
+                          <span className="text-[9px] font-bold text-white/90 block truncate">
+                            {new Date(pic.created_at).toLocaleString(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={deletingId === pic.id}
+                          onClick={() => handleDelete(pic.id)}
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover/pic:opacity-100 transition-all cursor-pointer"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* After */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#395886] flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 text-[#D97706]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {t("admin.after")}
+                   </span>
+                   {canAddAfter() && (
+                     <>
+                       <input ref={afterRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload("after", e.target.files)} />
+                       <button type="button" disabled={uploading} onClick={() => afterRef.current?.click()} className="h-7 px-2.5 rounded-lg bg-[#D97706]/10 hover:bg-[#D97706]/20 text-[#D97706] font-bold text-[10px] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1 cursor-pointer">
+                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                         </svg>
+                         {uploading ? "..." : t("admin.add")}
+                      </button>
+                    </>
+                  )}
+                </div>
+                {afterPics.length === 0 ? (
+                  <div className="text-[10px] font-semibold text-[#B0C4DE] italic">{t("admin.no_photos")}</div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2">
+                    {afterPics.map(pic => (
+                      <div key={pic.id} className="group/pic relative aspect-square rounded-xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40">
+                        <img
+                          src={vehicleImageUrl(pic.path)}
+                          alt="Après"
+                          className="w-full h-full object-cover cursor-pointer"
+                          onClick={() => onOpenLightbox(vehicleImageUrl(pic.path), `${t("admin.after")} — ${new Date(pic.created_at).toLocaleString(locale)}`)}
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1">
+                          <span className="text-[9px] font-bold text-white/90 block truncate">
+                            {new Date(pic.created_at).toLocaleString(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={deletingId === pic.id}
+                          onClick={() => handleDelete(pic.id)}
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover/pic:opacity-100 transition-all cursor-pointer"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -400,10 +628,15 @@ export default function AdminReservationsPage() {
   const closeLightbox = useCallback(() => setLightbox(null), []);
 
   const [detailReservation, setDetailReservation] = useState<Reservation | null>(null);
+  const [picturesModalReservation, setPicturesModalReservation] = useState<Reservation | null>(null);
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const [picUploadingId, setPicUploadingId] = useState<number | null>(null);
+  const [deletingPicId, setDeletingPicId] = useState<number | null>(null);
+  const picInputRefs = useRef<Map<string, HTMLInputElement>>(new Map());
 
   function buildFilters() {
     const filters: Record<string, string> = {};
@@ -494,6 +727,50 @@ export default function AdminReservationsPage() {
     } finally {
       setUploadingId(null);
     }
+  }
+
+  async function handlePictureUpload(id: number, type: "before" | "after", files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setPicUploadingId(id);
+    setError(null);
+    try {
+      await uploadReservationPicture(id, type, files[0]);
+      await load();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Upload failed";
+      setError(msg);
+    } finally {
+      setPicUploadingId(null);
+    }
+  }
+
+  async function handlePictureDelete(pictureId: number) {
+    setDeletingPicId(pictureId);
+    setError(null);
+    try {
+      await deleteReservationPicture(pictureId);
+      await load();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Delete failed";
+      setError(msg);
+    } finally {
+      setDeletingPicId(null);
+    }
+  }
+
+  function canAddBefore(r: Reservation) {
+    return r.status === "Confirmée";
+  }
+
+  function canAddAfter(r: Reservation) {
+    if (r.status === "Confirmée") return true;
+    if (r.status === "Terminée" && r.end_date) {
+      const end = new Date(r.end_date);
+      const now = new Date();
+      const diff = (now.getTime() - end.getTime()) / (1000 * 60 * 60 * 24);
+      return diff <= 3;
+    }
+    return false;
   }
 
   const statusLabel = useCallback((s: string) => {
@@ -640,139 +917,151 @@ export default function AdminReservationsPage() {
             return (
               <div
                 key={r.id}
-                className="group flex items-center gap-4 rounded-3xl border border-[#D5DEEF]/70 bg-white hover:border-[#638ECB]/50 hover:shadow-[0_4px_20px_rgba(99,142,203,0.10)] transition-all duration-300 p-4"
+                className="rounded-3xl border border-[#D5DEEF]/70 bg-white hover:border-[#638ECB]/50 hover:shadow-[0_4px_20px_rgba(99,142,203,0.10)] transition-all duration-300"
               >
-                {/* Vehicle image */}
-                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
-                  {vehiclePic ? (
-                    <img
-                      src={vehiclePic}
-                      alt={vehicleName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px]">
-                      {t("admin.no_image")}
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-extrabold text-[#395886] text-base leading-tight truncate">
-                      {vehicleName}
-                    </h4>
-                    <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${ss}`}>
-                      {statusLabel(r.status)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs font-semibold text-[#638ECB]">
-                    <span>{userName}</span>
-                    <span className="text-[#D5DEEF]">|</span>
-                    <span>{formatDate(r.start_date, locale)}</span>
-                    <svg className="w-3 h-3 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                    <span>{formatDate(r.end_date, locale)}</span>
-                    <span className="text-[#D5DEEF]">|</span>
-                    <span className="text-[#395886] font-bold">{r.TotalPrice} MAD</span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setDetailReservation(r)}
-                    className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <EyeIcon />
-                    <span>{t("admin.view_details")}</span>
-                  </button>
-                  {r.contract_pdf ? (
-                    <a
-                      href={`${getApiOrigin()}/storage/${r.contract_pdf}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer no-underline"
-                    >
-                      <FileIcon />
-                      <span>Contrat</span>
-                    </a>
-                  ) : (
-                    <>
-                      <input
-                        ref={(el) => { if (el) fileInputRefs.current.set(r.id, el); else fileInputRefs.current.delete(r.id); }}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(e) => { handleQuickUpload(r.id, e.target.files); }}
-                        className="hidden"
+                {/* Top row: info + actions */}
+                <div className="flex items-center gap-4 p-4">
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
+                    {vehiclePic ? (
+                      <img
+                        src={vehiclePic}
+                        alt={vehicleName}
+                        className="w-full h-full object-cover"
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px]">
+                        {t("admin.no_image")}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-extrabold text-[#395886] text-base leading-tight truncate">
+                        {vehicleName}
+                      </h4>
+                      <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${ss}`}>
+                        {statusLabel(r.status)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-xs font-semibold text-[#638ECB]">
+                      <span>{userName}</span>
+                      <span className="text-[#D5DEEF]">|</span>
+                      <span>{formatDate(r.start_date, locale)}</span>
+                      <svg className="w-3 h-3 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                      <span>{formatDate(r.end_date, locale)}</span>
+                      <span className="text-[#D5DEEF]">|</span>
+                      <span className="text-[#395886] font-bold">{r.TotalPrice} MAD</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setDetailReservation(r)}
+                      className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <EyeIcon />
+                      <span>{t("admin.view_details")}</span>
+                    </button>
+                    {r.contract_pdf ? (
+                      <a
+                        href={`${getApiOrigin()}/storage/${r.contract_pdf}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer no-underline"
+                      >
+                        <FileIcon />
+                        <span>Contrat</span>
+                      </a>
+                    ) : (
+                      <>
+                        <input
+                          ref={(el) => { if (el) fileInputRefs.current.set(r.id, el); else fileInputRefs.current.delete(r.id); }}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => { handleQuickUpload(r.id, e.target.files); }}
+                          className="hidden"
+                        />
+                        <button
+                          type="button"
+                          disabled={uploadingId === r.id}
+                          onClick={() => fileInputRefs.current.get(r.id)?.click()}
+                          className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          {uploadingId === r.id ? (
+                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          ) : (
+                            <UploadIcon />
+                          )}
+                          <span>{t("admin.scan")}</span>
+                        </button>
+                      </>
+                    )}
+                    {r.status !== "En_Attente" && r.status !== "Annulée" && (
                       <button
                         type="button"
-                        disabled={uploadingId === r.id}
-                        onClick={() => fileInputRefs.current.get(r.id)?.click()}
-                        className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                        onClick={() => setPicturesModalReservation(r)}
+                        className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        {uploadingId === r.id ? (
-                          <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        ) : (
-                          <UploadIcon />
-                        )}
-                        <span>Scanner</span>
+                        <CameraIcon />
+                        <span>{t("admin.photos")}</span>
                       </button>
-                    </>
-                  )}
-                  <button
-                    type="button"
-                    disabled={isFinal || isAccepting(r.id)}
-                    onClick={() => handleAccept(r.id)}
-                    className={`h-9 px-4 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 ${
-                      isFinal
-                        ? "bg-zinc-50 text-zinc-400 border border-zinc-200"
-                        : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
-                    }`}
-                  >
-                    {isAccepting(r.id) ? (
-                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    ) : (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
                     )}
-                    {!isAccepting(r.id) && <span>{t("admin.confirm")}</span>}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isFinal || isRefusing(r.id)}
-                    onClick={() => handleRefuse(r.id)}
-                    className={`h-9 px-4 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 ${
-                      isFinal
-                        ? "bg-zinc-50 text-zinc-400 border border-zinc-200"
-                        : "bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100"
-                    }`}
-                  >
-                    {isRefusing(r.id) ? (
-                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    ) : (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    )}
-                    {!isRefusing(r.id) && <span>{t("admin.refuse")}</span>}
-                  </button>
+                    <button
+                      type="button"
+                      disabled={isFinal || isAccepting(r.id)}
+                      onClick={() => handleAccept(r.id)}
+                      className={`h-9 px-4 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 ${
+                        isFinal
+                          ? "bg-zinc-50 text-zinc-400 border border-zinc-200"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                      }`}
+                    >
+                      {isAccepting(r.id) ? (
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      )}
+                      {!isAccepting(r.id) && <span>{t("admin.confirm")}</span>}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isFinal || isRefusing(r.id)}
+                      onClick={() => handleRefuse(r.id)}
+                      className={`h-9 px-4 rounded-xl font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 ${
+                        isFinal
+                          ? "bg-zinc-50 text-zinc-400 border border-zinc-200"
+                          : "bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100"
+                      }`}
+                    >
+                      {isRefusing(r.id) ? (
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                      {!isRefusing(r.id) && <span>{t("admin.refuse")}</span>}
+                    </button>
+                  </div>
                 </div>
+
+
               </div>
             );
           })}
@@ -787,6 +1076,14 @@ export default function AdminReservationsPage() {
         reservation={detailReservation}
         open={!!detailReservation}
         onClose={() => setDetailReservation(null)}
+        onOpenLightbox={openLightbox}
+        onRefresh={load}
+      />
+
+      <PicturesModal
+        reservation={picturesModalReservation}
+        open={!!picturesModalReservation}
+        onClose={() => setPicturesModalReservation(null)}
         onOpenLightbox={openLightbox}
         onRefresh={load}
       />

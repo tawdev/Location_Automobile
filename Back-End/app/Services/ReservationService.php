@@ -32,7 +32,7 @@ class ReservationService
         return $data;
     }
     public function getAllReservition(){
-        $reservations = Reservation::with('user','vehicle', 'vehicle.pictures')->get();
+        $reservations = Reservation::with('user','vehicle', 'vehicle.pictures', 'pictures')->get();
         foreach($reservations as $reservation){
             if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
                 $reservation->update([
@@ -282,7 +282,7 @@ public function finalizeReservation($id, $kmDriven)
 
 
     public function filterAllReservation($request) {
-        $query = Reservation::query()->with('user', 'vehicle', 'vehicle.pictures');
+        $query = Reservation::query()->with('user', 'vehicle', 'vehicle.pictures', 'pictures');
 
         $query->when($request->filled('start_date'), function ($q) use ($request) {
             $q->where('start_date', '>=', $request->start_date);

@@ -3,10 +3,15 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Info, ChevronDown, FileText, Mail, HelpCircle, Shield, FileSignature, Car, Users, BookOpen, Phone, X } from "lucide-react";
+import { BookOpen, ChevronDown, FileText, HelpCircle, Shield, FileSignature, Car, Users, Phone, X, Info } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type StyleVariant = "client" | "visitor";
+
+const topLinks = [
+  { labelKey: "nav.about" as const, href: "/a-propos", icon: Info },
+  { labelKey: "nav.rules" as const, href: "/regles", icon: FileText },
+];
 
 const footerGroups = [
   {
@@ -34,11 +39,6 @@ const footerGroups = [
       { labelKey: "footer.insurance" as const, href: "/insurance", icon: Car },
     ],
   },
-];
-
-const topLinks = [
-  { labelKey: "nav.about" as const, href: "/a-propos", icon: Info },
-  { labelKey: "nav.rules" as const, href: "/regles", icon: FileText },
 ];
 
 export default function AboutDropdown({ variant, scrolled, isActive }: { variant: StyleVariant; scrolled: boolean; isActive: boolean }) {
@@ -94,8 +94,8 @@ export default function AboutDropdown({ variant, scrolled, isActive }: { variant
           />
         )}
         <span className="relative z-10 flex items-center gap-1.5">
-          <Info className="w-4 h-4" />
-          <span>{t("nav.about")}</span>
+          <BookOpen className="w-4 h-4" />
+          <span>{t("nav.resources")}</span>
           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
         </span>
       </motion.button>
