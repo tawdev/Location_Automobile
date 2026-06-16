@@ -874,7 +874,9 @@ function MarquesSection() {
       .catch(() => { setMarques([]); setLoading(false); });
   }, []);
 
-  const duplicated = [...marques, ...marques];
+  const MIN_VISIBLE = 16;
+  const repeatCount = marques.length === 0 ? 0 : Math.max(2, Math.ceil(MIN_VISIBLE / marques.length));
+  const duplicated = Array.from({ length: repeatCount }, () => marques).flat();
 
   return (
     <section className="bg-white dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">

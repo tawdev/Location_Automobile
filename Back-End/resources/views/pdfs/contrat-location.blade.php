@@ -710,12 +710,12 @@
         <div class="checkbox-row">
             <div class="checkbox-fr">
             @foreach($chunk as $cond)
-                <span class="chk">{{ $cond->pivot->checked ? '&#9746;' : '&#9744;' }}</span> {{ $cond->name }}&nbsp;&nbsp;
+                <span class="chk">{!! $cond->pivot->checked ? '&#9746;' : '&#9744;' !!}</span> {{ $cond->name }}&nbsp;&nbsp;
             @endforeach
             </div>
             <div class="checkbox-ar">
             @foreach($chunk as $cond)
-                {{ $cond->name }} <span class="chk-ar">{{ $cond->pivot->checked ? '&#9746;' : '&#9744;' }}</span>&nbsp;&nbsp;
+                {{ $cond->name }} <span class="chk-ar">{!! $cond->pivot->checked ? '&#9746;' : '&#9744;' !!}</span>&nbsp;&nbsp;
             @endforeach
             </div>
         </div>
@@ -732,6 +732,14 @@
     <div class="checkbox-row">
         <div class="checkbox-fr"><span class="chk">&#9744;</span> Triangle présent &nbsp;&nbsp; <span class="chk">&#9744;</span> Documents présents</div>
         <div class="checkbox-ar">مثلث التحذير موجود <span class="chk-ar">&#9744;</span> &nbsp;&nbsp; الوثائق موجودة <span class="chk-ar">&#9744;</span></div>
+    </div>
+    <div class="checkbox-row">
+        <div class="checkbox-fr"><span class="chk">&#9744;</span> Post radio &nbsp;&nbsp; <span class="chk">&#9744;</span> Allume cigare</div>
+        <div class="checkbox-ar">الراديو <span class="chk-ar">&#9744;</span> &nbsp;&nbsp; ولاعة السجائر <span class="chk-ar">&#9744;</span></div>
+    </div>
+    <div class="checkbox-row">
+        <div class="checkbox-fr"><span class="chk">&#9744;</span> Extincteur (poudre)</div>
+        <div class="checkbox-ar">طفاية الحريق (مسحوق) <span class="chk-ar">&#9744;</span></div>
     </div>
     @endif
     <div class="obs-label">

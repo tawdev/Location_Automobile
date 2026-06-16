@@ -184,10 +184,10 @@
     </table>
     <div class="mode-label">Mode de garantie :</div>
     <div class="checkbox-row">
-        <span class="chk">{{ $reservation->caution_mode === 'carte_bancaire' ? '&#9746;' : '&#9744;' }}</span> Carte bancaire&nbsp;&nbsp;
-        <span class="chk">{{ $reservation->caution_mode === 'especes' ? '&#9746;' : '&#9744;' }}</span> Esp&egrave;ces&nbsp;&nbsp;
-        <span class="chk">{{ $reservation->caution_mode === 'passport' ? '&#9746;' : '&#9744;' }}</span> Passeport&nbsp;&nbsp;
-        <span class="chk">{{ $reservation->caution_mode === 'autre' ? '&#9746;' : '&#9744;' }}</span> Autre
+        <span class="chk">{!! $reservation->caution_mode === 'carte_bancaire' ? '&#9746;' : '&#9744;' !!}</span> Carte bancaire&nbsp;&nbsp;
+        <span class="chk">{!! $reservation->caution_mode === 'especes' ? '&#9746;' : '&#9744;' !!}</span> Esp&egrave;ces&nbsp;&nbsp;
+        <span class="chk">{!! $reservation->caution_mode === 'passport' ? '&#9746;' : '&#9744;' !!}</span> Passeport&nbsp;&nbsp;
+        <span class="chk">{!! $reservation->caution_mode === 'autre' ? '&#9746;' : '&#9744;' !!}</span> Autre
     </div>
 
     <div class="section-header">
@@ -199,7 +199,7 @@
         @foreach($conditions->chunk(2) as $chunk)
         <div class="checkbox-row">
             @foreach($chunk as $cond)
-                <span class="chk">{{ $cond->pivot->checked ? '&#9746;' : '&#9744;' }}</span> {{ $cond->name }}&nbsp;&nbsp;
+                <span class="chk">{!! $cond->pivot->checked ? '&#9746;' : '&#9744;' !!}</span> {{ $cond->name }}&nbsp;&nbsp;
             @endforeach
         </div>
         @endforeach
@@ -207,6 +207,8 @@
         <div class="checkbox-row"><span class="chk">&#9744;</span> V&eacute;hicule propre&nbsp;&nbsp; <span class="chk">&#9744;</span> Pneus en bon &eacute;tat</div>
         <div class="checkbox-row"><span class="chk">&#9744;</span> Roue de secours pr&eacute;sente&nbsp;&nbsp; <span class="chk">&#9744;</span> Gilet de s&eacute;curit&eacute; pr&eacute;sent</div>
         <div class="checkbox-row"><span class="chk">&#9744;</span> Triangle pr&eacute;sent&nbsp;&nbsp; <span class="chk">&#9744;</span> Documents pr&eacute;sents</div>
+        <div class="checkbox-row"><span class="chk">&#9744;</span> Post radio&nbsp;&nbsp; <span class="chk">&#9744;</span> Allume cigare</div>
+        <div class="checkbox-row"><span class="chk">&#9744;</span> Extincteur (poudre)</div>
     @endif
     <div class="obs-label">Observations :</div>
     <div class="obs-box">{{ $reservation->observations ?? '' }}</div>
