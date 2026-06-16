@@ -138,73 +138,57 @@ function HeroSection() {
       </AnimatePresence>
       <div className="absolute inset-0 bg-gradient-to-r from-[#395886]/90 via-[#395886]/60 to-[#638ECB]/40 dark:from-[#050a14]/95 dark:via-[#0d1b3e]/90 dark:to-[#1a2744]/80" />
 
-      {/* Animated gradient overlay */}
-      <div className="absolute inset-0 opacity-30" style={{ background: 'linear-gradient(-45deg, #395886, #638ECB, #f39c12, #395886)', backgroundSize: '400% 400%', animation: 'gradient-shift 15s ease infinite' }} />
-
-      {/* Floating shapes */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
-        className="absolute top-20 right-20 w-72 h-72 rounded-full border border-[#f39c12]/20"
-        style={{ animation: 'float 6s ease-in-out infinite' }}
-      />
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ repeat: Infinity, duration: 50, ease: "linear" }}
-        className="absolute bottom-32 left-10 w-48 h-48 rounded-full border border-[#F0F3FA]/10"
-        style={{ animation: 'float 8s ease-in-out infinite' }}
-      />
-      {/* Extra floating particles */}
-      <div className="absolute top-40 left-1/4 w-3 h-3 rounded-full bg-[#f39c12]/30" style={{ animation: 'float 5s ease-in-out infinite' }} />
-      <div className="absolute bottom-40 right-1/4 w-2 h-2 rounded-full bg-white/20" style={{ animation: 'float 7s ease-in-out infinite 1s' }} />
-      <div className="absolute top-1/3 right-1/3 w-4 h-4 rounded-full bg-[#638ECB]/20" style={{ animation: 'float 6s ease-in-out infinite 2s' }} />
-
       {/* Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-8 pt-24 pb-20">
-        <div className="max-w-3xl">
+      <div className="relative z-10 w-full mx-auto px-6 md:px-12 lg:px-20 pt-28 pb-24">
+        <div className="max-w-5xl mx-auto">
+          {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
           >
-            <span className="inline-flex items-center gap-2 bg-[#f39c12]/20 backdrop-blur-sm text-[#f39c12] text-xs font-bold tracking-[0.25em] uppercase px-4 py-2 rounded-full mb-6 border border-[#f39c12]/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f39c12] animate-pulse" />
+            <span className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md text-white/90 text-[11px] font-bold tracking-[0.2em] uppercase px-5 py-2 rounded-full border border-white/15">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f39c12]" />
               {t("home.badge")}
             </span>
           </motion.div>
 
+          {/* Headline */}
           <motion.h1
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.35 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-[-0.04em] text-white mb-6"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-6 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-white"
           >
             {t("home.hero.title1")}
             <br />
-            <span className="text-[#f39c12] relative inline-block after:absolute after:inset-x-0 after:bottom-1 after:h-3 after:bg-[#f39c12]/20 after:blur-sm">{t("home.hero.title2")}</span>
+            <span className="text-[#f39c12]">{t("home.hero.title2")}</span>
           </motion.h1>
 
+          {/* Subtitle */}
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-lg md:text-xl text-[#D5DEEF] max-w-xl leading-relaxed mb-8"
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="mt-5 text-base sm:text-lg md:text-xl text-[#D5DEEF]/90 max-w-xl leading-relaxed"
           >
             {t("home.hero.subtitle")}
           </motion.p>
 
-          {/* Search bar */}
+          {/* Spacer */}
+          <div className="mt-10" />
+
+          {/* Search form */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.55 }}
-            className="mb-8 w-full max-w-4xl"
+            transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <div className="bg-white/10 dark:bg-[#0f1729]/40 backdrop-blur-xl border border-white/20 dark:border-[#1e293b]/50 rounded-2xl p-4 md:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
-              {/* Row 1: Pickup · Return · Brand · Model */}
-              <div className="flex flex-col sm:flex-row gap-3 items-end mb-3">
-                <div className="flex-1 w-full">
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)]">
+              {/* Row 1: Dates + Brand + Model */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.pickup_date")}
                   </label>
                   <input
@@ -217,11 +201,11 @@ function HeroSection() {
                         setReturnDate("");
                       }
                     }}
-                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50 [color-scheme:dark]"
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all [color-scheme:dark]"
                   />
                 </div>
-                <div className="flex-1 w-full">
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.return_date")}
                   </label>
                   <input
@@ -229,11 +213,11 @@ function HeroSection() {
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
                     min={pickupDate || undefined}
-                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50 [color-scheme:dark]"
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all [color-scheme:dark]"
                   />
                 </div>
-                <div className="flex-1 w-full">
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.brand")}
                   </label>
                   <input
@@ -241,11 +225,11 @@ function HeroSection() {
                     placeholder={t("vehicles.brand_placeholder")}
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
-                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
                   />
                 </div>
-                <div className="flex-1 w-full">
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.model")}
                   </label>
                   <input
@@ -253,71 +237,50 @@ function HeroSection() {
                     placeholder={t("vehicles.model_placeholder")}
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
                   />
                 </div>
               </div>
-              {/* Row 2: Min price · Max price · Search button */}
-              <div className="flex flex-col sm:flex-row gap-3 items-end">
-                <div className="w-full sm:w-36">
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
-                    {t("vehicles.min_price")}
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="0 DH"
-                    value={minPrice ?? ""}
-                    onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
-                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
-                  />
-                </div>
-                <div className="w-full sm:w-36">
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/80 mb-1.5">
-                    {t("vehicles.max_price")}
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="1000 DH"
-                    value={maxPrice ?? ""}
-                    onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
-                    className="w-full h-11 bg-white/20 dark:bg-[#1e293b]/50 border border-white/30 dark:border-[#1e293b]/60 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/50"
-                  />
+
+              {/* Row 2: Price range + Search */}
+              <div className="mt-3 flex flex-col sm:flex-row gap-3">
+                <div className="flex gap-3 flex-1">
+                  <div className="w-full sm:w-32">
+                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                      Min
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="0 DH"
+                      value={minPrice ?? ""}
+                      onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
+                      className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
+                    />
+                  </div>
+                  <div className="w-full sm:w-32">
+                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                      Max
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="1000 DH"
+                      value={maxPrice ?? ""}
+                      onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
+                      className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
+                    />
+                  </div>
                 </div>
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleSearch}
-                  className="h-11 px-8 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center gap-2 transition-all duration-300 whitespace-nowrap shrink-0"
+                  className="h-11 px-8 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center justify-center gap-2 transition-all shrink-0 shadow-lg shadow-[#f39c12]/20"
                 >
                   <Search className="w-4 h-4" />
                   {t("vehicles.filter_button")}
                 </motion.button>
               </div>
             </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.75 }}
-            className="flex flex-wrap gap-4"
-          >
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 8px 30px rgba(243,156,18,0.4)" }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => router.push("/register")}
-              className="relative overflow-hidden bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-black text-sm tracking-[0.15em] uppercase px-10 py-4 rounded-2xl transition-all duration-300 shadow-[0_4px_15px_rgba(243,156,18,0.3)] hover:shadow-[0_8px_30px_rgba(243,156,18,0.5)] shimmer-btn"
-            >
-              {t("home.hero.cta")}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => router.push("/login")}
-              className="border-2 border-[#F0F3FA]/30 text-[#F0F3FA] font-bold text-sm tracking-[0.15em] uppercase px-10 py-4 rounded-2xl hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
-            >
-              {t("home.hero.connect")}
-            </motion.button>
           </motion.div>
         </div>
 

@@ -194,7 +194,7 @@
         <div class="section-num">6</div>
         <div class="section-title">&Eacute;TAT DU V&Eacute;HICULE AU D&Eacute;PART</div>
     </div>
-    @php $conditions = null; @endphp
+    @php $conditions = $reservation->departureConditions ?? null; @endphp
     @if($conditions && $conditions->count() > 0)
         @foreach($conditions->chunk(2) as $chunk)
         <div class="checkbox-row">

@@ -17,7 +17,6 @@ class DepartureCondition extends Model
     public function reservations(): BelongsToMany
     {
         return $this->belongsToMany(Reservation::class, 'departure_condition_reservation')
-            ->withPivot('checked')
-            ->withTimestamps();
+            ->withPivot('checked');
     }
 }
