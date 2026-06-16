@@ -342,7 +342,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 onClick={() => router.push(item.href)}
               />
             ))}
-            <AboutDropdown variant="client" scrolled={scrolled} isActive={pathname === "/a-propos" || pathname === "/regles"} />
+            <AboutDropdown variant="client" scrolled={scrolled} isActive={pathname.startsWith("/a-propos") || pathname.startsWith("/regles") || pathname.startsWith("/company/") || pathname.startsWith("/support/") || pathname === "/contact" || pathname === "/faq" || pathname === "/privacy" || pathname === "/terms" || pathname === "/insurance"} />
             {isAuthenticated && (
               <AccountDropdown pathname={pathname} router={router} onLogout={handleLogout} t={t} />
             )}
