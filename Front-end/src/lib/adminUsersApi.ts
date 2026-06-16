@@ -9,6 +9,7 @@ export type AdminUser = {
   email_verified_at?: string | null;
   created_at?: string;
   reservations_count?: number;
+  total_spent?: number;
   role?: { id: number; name: string } | null;
 };
 
@@ -19,6 +20,7 @@ export type UserStats = {
   withDocuments: number;
   verified: number;
   monthlyRegistrations: { month: string; count: number }[];
+  topUsers: { id: number; name: string; email: string; reservations_count: number; total_spent: number }[];
 };
 
 type PaginatedResponse<T> = {
