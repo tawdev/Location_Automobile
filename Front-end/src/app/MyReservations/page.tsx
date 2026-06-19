@@ -1,14 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { LogOut, AlertTriangle, X, CheckCircle, Loader2 } from "lucide-react";
-import { authLogout } from "@/lib/authApi";
-import { clearAuthToken, getAuthToken } from "@/lib/tokenStorage";
-import { RequireAuth } from "@/components/RequireAuth";
+import { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { AlertTriangle, CheckCircle, Search, Car, Calendar, DollarSign, Clock, ArrowRight } from "lucide-react";
+import { getAuthToken } from "@/lib/tokenStorage";
+import BackButton from "@/components/BackButton";
+import { RequireClient } from "@/components/RequireClient";
+import { API_BASE_URL } from "@/lib/config";
+import { vehicleImageUrl } from "@/lib/media";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
-// ── Types ──────────────────────────────────────────────────────────────────
+const ConfirmDialog = dynamic(() => import("./modals").then(m => m.ConfirmDialog), { ssr: false });
+const DetailDialog = dynamic(() => import("./modals").then(m => m.DetailDialog), { ssr: false });
+
+const Particles = dynamic(() => Promise.resolve({ default: ParticlesComponent }), { ssr: false });
+
 interface Reservation {
   id: number;
   reference?: string;
@@ -31,20 +40,81 @@ interface Reservation {
   };
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
-
-function getToken(): string | null {
-  return getAuthToken();
+interface RawItem {
+  id: number;
+  status?: string;
+  TotalPrice?: number;
+  total_price?: number;
+  start_date?: string;
+  pickup_date?: string;
+  end_date?: string;
+  dropoff_date?: string;
+  vehicle?: {
+    id: number;
+    marque?: string;
+    brand?: string;
+    model?: string;
+    fuelType?: string;
+    fuel_type?: string;
+    Occupants?: string;
+    occupants?: string;
+    year?: number;
+    pictures?: { path?: string }[];
+  };
 }
 
-function statusLabel(s: string) {
-  if (!s) return "À VENIR";
+const PER_PAGE = 4;
+
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=128&q=75&fm=webp";
+
+const STAT_BARS = [0.3, 0.6, 0.45, 0.8, 0.55, 1, 0.7] as const;
+
+const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; glow: string; border: string }> = {
+  en_attente:  { bg: "bg-amber-50 dark:bg-amber-950/40", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-400", glow: "hover:shadow-amber-900/5 dark:hover:shadow-amber-400/5", border: "border-l-amber-400" },
+  confirmée:   { bg: "bg-blue-50 dark:bg-blue-950/40", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-400", glow: "hover:shadow-blue-900/5 dark:hover:shadow-blue-400/5", border: "border-l-blue-500" },
+  terminée:    { bg: "bg-emerald-50 dark:bg-emerald-950/40", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-400", glow: "hover:shadow-emerald-900/5 dark:hover:shadow-emerald-400/5", border: "border-l-emerald-500" },
+  annulée:     { bg: "bg-rose-50 dark:bg-rose-950/40", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-400", glow: "hover:shadow-rose-900/5 dark:hover:shadow-rose-400/5", border: "border-l-rose-500" },
+};
+
+function getStatusConfig(s: string) {
+  return STATUS_CONFIG[s.toLowerCase()] ?? STATUS_CONFIG.en_attente;
+}
+
+interface Particle { id: number; x: number; y: number; size: number; duration: number; delay: number; }
+const PARTICLE_DATA: Particle[] = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: Math.random() * 4 + 2,
+  duration: Math.random() * 6 + 4,
+  delay: Math.random() * 4,
+}));
+
+function ParticlesComponent() {
+  const prefersReducedMotion = useReducedMotion();
+  if (prefersReducedMotion) return null;
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {PARTICLE_DATA.map((d) => (
+        <motion.div
+          key={d.id}
+          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          style={{ left: `${d.x}%`, top: `${d.y}%`, width: d.size, height: d.size }}
+          animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: d.duration, repeat: Infinity, delay: d.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function statusLabel(s: string, t: (key: string) => string) {
+  if (!s) return t("reservations.upcoming").toUpperCase();
   const map: Record<string, string> = {
-    "en_attente": "En Attente",
-    "confirmée": "Confirmée",
-    "terminée": "Terminée",
-    "annulée": "Annulée",
+    "en_attente": t("reservations.status.pending"),
+    "confirmée": t("reservations.status.confirmed"),
+    "terminée": t("reservations.status.completed"),
+    "annulée": t("reservations.status.cancelled"),
   };
   return map[s.toLowerCase()] ?? s.toUpperCase();
 }
@@ -63,83 +133,143 @@ function canCancel(pickupDateStr: string) {
   return diffHours >= 48;
 }
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, locale: string) {
   if (!dateStr) return "—";
   const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString(locale, {
     month: "short",
     day: "2-digit",
     year: "numeric",
   });
 }
 
-function formatTime(dateStr: string) {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-}
-
-function vehicleName(r: Reservation) {
+function vehicleName(r: Reservation, fallback = "Vehicle") {
   if (r.vehicle?.name) return r.vehicle.name;
   if (r.vehicle?.brand && r.vehicle?.model)
     return `${r.vehicle.brand} ${r.vehicle.model}`;
-  return "Vehicle";
+  return fallback;
 }
 
 function vehicleImage(r: Reservation) {
-  return r.vehicle?.image_url ?? r.vehicle?.image ?? "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80";
+  return r.vehicle?.image_url ?? r.vehicle?.image ?? FALLBACK_IMG;
 }
 
 function refCode(r: Reservation) {
   return r.reference ?? `#CFF-${String(r.id).padStart(4, "0")}`;
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: string }) {
-  const label = statusLabel(status);
-  const s = status.toLowerCase();
-  const isActive = s === "en_attente" || s === "confirmée";
-
+const StatusBadge = memo(function StatusBadge({ status }: { status: string }) {
+  const { t } = useI18n();
+  const c = getStatusConfig(status);
   return (
-    <span
-      className={`absolute top-4 right-4 text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-md ${
-        isActive ? "bg-[#2B4C7E] text-white" : "bg-white/90 text-gray-700"
-      }`}
-    >
-      {label}
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider ${c.bg} ${c.text} shadow-sm`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${c.dot} animate-pulse`} />
+      {statusLabel(status, t)}
     </span>
   );
-}
+});
 
-function InfoCol({
-  label,
-  date,
-  time,
-  location,
-}: {
-  label: string;
-  date: string;
-  time: string;
-  location?: string;
-}) {
+const ShimmerButton = memo(function ShimmerButton({ children, ...props }: React.ComponentProps<typeof motion.button> & { children: React.ReactNode }) {
+  const prefersReducedMotion = useReducedMotion();
   return (
-    <div className="flex-1 flex flex-col gap-1">
-      <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold tracking-widest uppercase">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        {label}
-      </div>
-      <div className="text-sm font-bold text-gray-900 mt-1">{date}</div>
-      <div className="text-xs text-gray-500">{time}</div>
-      {location && <div className="text-xs text-gray-500">{location}</div>}
-    </div>
+    <motion.button
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+      {...props}
+      className={`relative overflow-hidden group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${props.className || ""}`}
+    >
+      <span className="absolute inset-0 bg-[linear-gradient(110deg,transparent,transparent,rgba(255,255,255,0.15),transparent,transparent)] dark:bg-[linear-gradient(110deg,transparent,transparent,rgba(255,255,255,0.08),transparent,transparent)] bg-[length:200%_100%] group-hover:animate-[shimmer_2.5s_infinite]" />
+      <span className="relative z-10 flex items-center gap-2">{children}</span>
+    </motion.button>
   );
-}
+});
 
-function ReservationCard({
+const StatCard = memo(function StatCard({ icon, label, value, gradient, delay, maxValue }: { icon: React.ReactNode; label: string; value: number; gradient: string; delay: number; maxValue?: number }) {
+  const prefersReducedMotion = useReducedMotion();
+  const barHeight = maxValue && maxValue > 0 ? Math.max((value / maxValue) * 100, 8) : 0;
+  return (
+    <motion.div
+      initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
+      className="relative group"
+    >
+      <div className="absolute inset-0 bg-white/40 dark:bg-[#0f1729]/40 rounded-2xl blur-xl" />
+      <div className="relative rounded-2xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 backdrop-blur-xl p-5 shadow-lg shadow-black/5 dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all duration-500">
+        <div className="flex items-end justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${gradient} shadow-lg shadow-black/10 shrink-0`}>
+              {icon}
+            </div>
+            <span className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.12em] leading-tight">{label}</span>
+          </div>
+          <div className="flex items-end gap-[3px] h-10">
+            {STAT_BARS.map((h, i) => (
+              <motion.div
+                key={i}
+                initial={prefersReducedMotion ? { height: `${h * 40}px` } : { height: 0 }}
+                animate={{ height: `${h * 40}px` }}
+                transition={{ duration: 0.6, delay: delay + 0.3 + i * 0.05, ease: "easeOut" }}
+                className="w-[3px] rounded-full bg-[#D5DEEF]/50 dark:bg-[#1e293b]/70"
+              />
+            ))}
+            <motion.div
+              initial={prefersReducedMotion ? { height: `${barHeight * 0.4}px` } : { height: 0 }}
+              animate={{ height: `${barHeight * 0.4}px` }}
+              transition={{ duration: 0.8, delay: delay + 0.6, ease: "easeOut" }}
+              className={`w-[5px] rounded-full bg-gradient-to-t ${gradient} shadow-sm`}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-baseline justify-between">
+          <div className="text-[28px] font-black text-[#395886] dark:text-[#D5DEEF] tabular-nums leading-none">{value}</div>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+            value > 0
+              ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
+              : "text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1e293b]/60"
+          }`}>
+            {value > 0 && (
+              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 14l5-5 5 5H7z"/></svg>
+            )}
+            {value > 0 ? "Active" : "Idle"}
+          </div>
+        </div>
+
+        {maxValue && maxValue > 0 && (
+          <div className="mt-3 h-1.5 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b]/60 overflow-hidden">
+            <motion.div
+              initial={prefersReducedMotion ? { width: `${(value / maxValue) * 100}%` } : { width: 0 }}
+              animate={{ width: `${(value / maxValue) * 100}%` }}
+              transition={{ duration: 1, delay: delay + 0.5, ease: "easeOut" }}
+              className={`h-full rounded-full bg-gradient-to-r ${gradient}`}
+            />
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+});
+
+const CardImage = memo(function CardImage({ src, alt, cancelled }: { src: string; alt: string; cancelled: boolean }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      width={64}
+      height={64}
+      className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${cancelled ? "grayscale opacity-60" : ""}`}
+      onError={() => setImgSrc(FALLBACK_IMG)}
+      sizes="64px"
+      quality={75}
+      loading="lazy"
+      unoptimized
+    />
+  );
+});
+
+const ReservationCard = memo(function ReservationCard({
   res,
   onBookAgain,
   onCancel,
@@ -150,148 +280,235 @@ function ReservationCard({
   onCancel: (id: number) => void;
   onShowDetails: (res: Reservation) => void;
 }) {
+  const { t, locale } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
   const cancelled = isCancelled(res.status);
   const s = res.status.toLowerCase();
   const completed = s === "terminée";
   const upcoming = !cancelled && !completed;
   const cancellable = upcoming && canCancel(res.pickup_date);
+  const config = getStatusConfig(res.status);
 
   return (
-    <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-      {/* Image */}
-      <div className="relative h-48 w-full">
-        <img
-          src={vehicleImage(res)}
-          alt={vehicleName(res)}
-          className={`w-full h-full object-cover ${cancelled ? "grayscale opacity-60" : ""}`}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80";
-          }}
-        />
-        <StatusBadge status={res.status} />
-      </div>
+    <motion.div
+      initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className={`group relative rounded-2xl border border-[#D5DEEF]/50 dark:border-[#1e293b]/70 bg-white dark:bg-[#0f1729]/90 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-xl dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-500 ${config.glow} overflow-hidden`}
+    >
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${config.border.replace("border-l-", "bg-")} rounded-r-md`} />
+      <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${config.border === "border-l-emerald-500" ? "from-emerald-500/5" : config.border === "border-l-rose-500" ? "from-rose-500/5" : config.border === "border-l-amber-400" ? "from-amber-400/5" : "from-slate-400/5"} to-transparent pointer-events-none blur-2xl`} />
 
-      {/* Body */}
-      <div className="p-6 flex flex-col flex-1">
-        {/* Title row */}
-        <div className="flex justify-between items-start mb-1">
-          <h3 className={`text-xl font-bold ${cancelled ? "text-gray-400" : "text-[#2B4C7E]"}`}>
-            {vehicleName(res)}
-          </h3>
-          <span className={`text-xl font-bold ${cancelled ? "text-gray-400" : "text-[#2B4C7E]"}`}>
-            {cancelled ? "€0.00" : `€${Number(res.total_price).toLocaleString()}`}
-          </span>
-        </div>
-
-        {/* Ref */}
-        <div className="text-xs text-gray-400 mb-6">
-          Ref: {refCode(res)}
-        </div>
-
-        {/* Dates */}
-        <div className="flex gap-8 mb-8 flex-1">
-          <InfoCol
-            label="PICK-UP"
-            date={formatDate(res.pickup_date)}
-            time={formatTime(res.pickup_date)}
-            location={res.pickup_location}
-          />
-          <InfoCol
-            label="DROP-OFF"
-            date={formatDate(res.dropoff_date)}
-            time={formatTime(res.dropoff_date)}
-            location={res.dropoff_location}
-          />
-        </div>
-
-        {/* Buttons / Cancelled state */}
-        {cancelled ? (
-          <div className="text-xs text-gray-400 text-center py-3">
-            Reservation cancelled on {formatDate(res.pickup_date)}
+      <div className="p-5 pl-7 flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
+        <div className="flex items-center gap-4 min-w-0 flex-1">
+          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#F0F3FA] dark:bg-[#1e293b]/60 shrink-0 ring-2 ring-[#D5DEEF]/30 dark:ring-[#1e293b]/80 group-hover:ring-[#638ECB]/30 dark:group-hover:ring-[#638ECB]/20 transition-all">
+            <CardImage
+              src={vehicleImage(res)}
+              alt={vehicleName(res, t("vehicle.default_name"))}
+              cancelled={cancelled}
+            />
           </div>
-        ) : upcoming ? (
-          cancellable ? (
-            <div className="flex gap-4">
-              <button 
-                onClick={() => onShowDetails(res)}
-                className="flex-1 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
-              >
-                DETAILS
-              </button>
-              <button 
-                onClick={() => onCancel(res.id)}
-                className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
-              >
-                ANNULER
-              </button>
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <h3 className={`text-base font-extrabold truncate ${cancelled ? "text-gray-500 dark:text-[#64748b]" : "text-[#395886] dark:text-[#D5DEEF]"}`}>
+                {vehicleName(res, t("vehicle.default_name"))}
+              </h3>
+              <span className="text-[11px] font-bold text-[#638ECB]/60 dark:text-[#94A3B8]/60 bg-[#F0F3FA] dark:bg-[#1e293b]/60 px-2 py-0.5 rounded-md shrink-0">
+                {refCode(res)}
+              </span>
             </div>
-          ) : (
-            <button 
-              onClick={() => onShowDetails(res)}
-              className="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
-            >
-              DETAILS
-            </button>
-          )
-        ) : (
-          <div className="flex gap-4">
-            <button
-              onClick={() => onBookAgain(res.vehicle?.id ?? res.id)}
-              className="flex-1 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors"
-            >
-              BOOK AGAIN
-            </button>
-            <button className="flex-1 bg-[#E2E8F0] hover:bg-[#CBD5E1] text-[#475569] font-bold text-sm tracking-widest py-3.5 rounded-xl transition-colors">
-              RECEIPT
-            </button>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886] dark:text-[#D5DEEF]">
+                <Calendar className="w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8]" />
+                <span>{formatDate(res.pickup_date, locale)}</span>
+                <ArrowRight className="w-3 h-3 text-[#638ECB]/40 dark:text-[#94A3B8]/40" />
+                <span>{formatDate(res.dropoff_date, locale)}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886] dark:text-[#D5DEEF]">
+                <DollarSign className="w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8]" />
+                {cancelled ? "0,00 DH" : `${Number(res.total_price).toLocaleString(locale)} DH`}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <StatusBadge status={res.status} />
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {cancelled ? (
+            <span className="text-xs font-bold text-gray-500 dark:text-[#64748b] italic">{t("reservations.status.cancelled")}</span>
+          ) : upcoming ? (
+            <>
+                <ShimmerButton
+                  onClick={() => onShowDetails(res)}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all"
+              >
+                {t("reservations.details_button")}
+              </ShimmerButton>
+              {cancellable && (
+                <motion.button
+                  whileHover={prefersReducedMotion ? {} : { scale: 1.04 }}
+                  whileTap={prefersReducedMotion ? {} : { scale: 0.96 }}
+                  onClick={() => onCancel(res.id)}
+                  className="px-5 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-extrabold border border-rose-200 dark:border-rose-800/50 hover:bg-rose-100 dark:hover:bg-rose-950/60 hover:border-rose-300 dark:hover:border-rose-700/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/60 transition-all cursor-pointer"
+                >
+                  {t("reservations.cancel_button")}
+                </motion.button>
+              )}
+            </>
+          ) : (
+            <>
+              <ShimmerButton
+                onClick={() => onBookAgain(res.vehicle?.id ?? res.id)}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all"
+              >
+                {t("reservations.rebook_button")}
+              </ShimmerButton>
+              <motion.button
+                whileHover={prefersReducedMotion ? {} : { scale: 1.04 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.96 }}
+                className="px-5 py-2.5 rounded-xl bg-white dark:bg-[#1e293b]/60 text-[#475569] dark:text-[#94A3B8] text-xs font-extrabold border border-[#D5DEEF] dark:border-[#1e293b]/80 hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 transition-all cursor-pointer"
+              >
+                {t("reservations.receipt_button")}
+              </motion.button>
+            </>
+          )}
+        </div>
       </div>
+    </motion.div>
+  );
+});
+
+const FilterDropdown = memo(function FilterDropdown({ filter, onChange }: { filter: string; onChange: (v: string) => void }) {
+  const { t } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
+  const [open, setOpen] = useState(false);
+
+  const labels = useMemo<Record<string, string>>(() => ({
+    all:        t("reservations.total"),
+    en_attente: t("reservations.status.pending"),
+    confirmée:  t("reservations.status.confirmed"),
+    terminée:   t("reservations.status.completed"),
+    annulée:    t("reservations.status.cancelled"),
+  }), [t]);
+
+  return (
+    <div className="relative">
+      <motion.button
+        whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+        onClick={() => setOpen(!open)}
+        aria-label={labels[filter]}
+        aria-expanded={open}
+        className="flex items-center gap-2.5 bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-sm border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 rounded-xl px-5 py-2.5 text-sm font-bold text-[#395886] dark:text-[#D5DEEF] hover:bg-white dark:hover:bg-[#0f1729]/90 hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 transition-all shadow-sm"
+      >
+        <Clock className="w-4 h-4 text-[#638ECB] dark:text-[#94A3B8]" />
+        <span>{labels[filter]}</span>
+        <svg className={`w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8] transition-transform duration-200 ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </motion.button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute right-0 top-full mt-2 bg-white/90 dark:bg-[#0f1729]/90 backdrop-blur-xl border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 rounded-xl shadow-xl shadow-black/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] p-1.5 flex flex-col gap-0.5 z-20 min-w-[180px]"
+            role="menu"
+          >
+            {(["all", "en_attente", "confirmée", "terminée", "annulée"] as const).map((opt) => (
+              <button
+                key={opt}
+                role="menuitem"
+                onClick={() => { onChange(opt); setOpen(false); }}
+                className={`text-left px-4 py-2.5 rounded-lg text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 focus-visible:ring-inset ${
+                  filter === opt
+                    ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] shadow-md"
+                    : "text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/60"
+                }`}
+              >
+                {labels[opt]}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-}
+});
 
-// ── Main Page ──────────────────────────────────────────────────────────────
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+};
+
 export default function BookingHistoryPage() {
   const router = useRouter();
-  const pathname = usePathname();
-  
+  const { t } = useI18n();
+
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [allReservations, setAllReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
-  const [showFilter, setShowFilter] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const PER_PAGE = 4;
+  const [search, setSearch] = useState("");
+  const [displayCount, setDisplayCount] = useState(PER_PAGE);
 
-  // ── Modal state ──
   const [modal, setModal] = useState<{ type: "confirm" | "error" | "success"; message: string; resId?: number } | null>(null);
+  const modalRef = useRef(modal);
+  useEffect(() => { modalRef.current = modal; }, [modal]);
   const [cancelling, setCancelling] = useState(false);
   const [detailReservation, setDetailReservation] = useState<Reservation | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const detailDialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  async function fetchReservations(pageNum = 1) {
-    setLoading(true);
-    setError(null);
-    const token = getToken();
+  useEffect(() => {
+    if (!modal && !detailReservation) return;
+    previousFocusRef.current = document.activeElement as HTMLElement;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (modal) setModal(null);
+        if (detailReservation) setDetailReservation(null);
+      }
+    };
+    const el = dialogRef.current ?? detailDialogRef.current;
+    if (el) {
+      el.focus();
+      document.body.style.overflow = "hidden";
+    }
+    window.addEventListener("keydown", handler);
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+      previousFocusRef.current?.focus();
+    };
+  }, [modal, detailReservation]);
+
+  const fetchReservations = useCallback(async () => {
+    const token = getAuthToken();
     if (!token) {
-      setError("Not authenticated. Please log in.");
+      setError(t("reservations.auth_error"));
       setLoading(false);
       return;
     }
 
     try {
       const statusMap: Record<string, string | undefined> = {
-        all: undefined,
-        upcoming: "Confirmée",
-        completed: "Terminée",
-        cancelled: "Annulée",
+        all:        undefined,
+        en_attente: "en_attente",
+        confirmée:  "Confirmée",
+        terminée:   "Terminée",
+        annulée:    "Annulée",
       };
       const statusParam = statusMap[filter];
       const url = statusParam
-        ? `${API_BASE}/MyReservation/filter?status=${encodeURIComponent(statusParam)}&page=${pageNum}`
-        : `${API_BASE}/MyReservations?page=${pageNum}`;
+        ? `${API_BASE_URL}/MyReservation/filter?status=${encodeURIComponent(statusParam)}`
+        : `${API_BASE_URL}/MyReservations`;
 
       const res = await fetch(url, {
         headers: {
@@ -303,19 +520,19 @@ export default function BookingHistoryPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
-      const items: any[] = Array.isArray(json)
+      const items: RawItem[] = Array.isArray(json)
         ? json
         : json.data ?? json.reservations ?? [];
 
-      const mappedItems: Reservation[] = items.map((item: any) => ({
+      const mappedItems: Reservation[] = items.map((item: RawItem) => ({
         id: item.id,
         reference: `#CFF-${String(item.id).padStart(4, "0")}`,
         status: item.status ?? "upcoming",
         total_price: item.TotalPrice ?? item.total_price ?? 0,
-        pickup_date: item.start_date ?? item.pickup_date,
-        dropoff_date: item.end_date ?? item.dropoff_date,
-        pickup_location: "Office / Pick-up",
-        dropoff_location: "Office / Drop-off",
+        pickup_date: item.start_date ?? item.pickup_date ?? "",
+        dropoff_date: item.end_date ?? item.dropoff_date ?? "",
+        pickup_location: t("reservations.agency_pickup"),
+        dropoff_location: t("reservations.agency_return"),
         vehicle: item.vehicle ? {
           id: item.vehicle.id,
           brand: item.vehicle.marque ?? item.vehicle.brand,
@@ -323,52 +540,51 @@ export default function BookingHistoryPage() {
           fuelType: item.vehicle.fuelType ?? item.vehicle.fuel_type,
           Occupants: item.vehicle.Occupants ?? item.vehicle.occupants,
           year: item.vehicle.year,
-          image_url: item.vehicle.pictures?.[0]?.path 
-            ? `http://localhost:8000/storage/${item.vehicle.pictures[0].path}` 
+          image_url: item.vehicle.pictures?.[0]?.path
+            ? vehicleImageUrl(item.vehicle.pictures[0].path)
             : undefined
         } : undefined
       }));
 
-      if (pageNum === 1) {
-        setReservations(mappedItems);
-      } else {
-        setReservations((prev) => [...prev, ...mappedItems]);
+      setReservations(mappedItems);
+      setDisplayCount(PER_PAGE);
+      if (filter === "all") {
+        setAllReservations(mappedItems);
       }
-
-      setHasMore(mappedItems.length >= PER_PAGE && items.length > 0);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load reservations.");
+      setError((e as { message?: string })?.message || "Échec du chargement des réservations.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [filter, t]);
 
   useEffect(() => {
-    setPage(1);
-    fetchReservations(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+    const id = setTimeout(() => {
+      setLoading(true);
+      setError(null);
+      fetchReservations();
+    }, 0);
+    return () => clearTimeout(id);
+  }, [fetchReservations]);
 
-  function loadMore() {
-    const next = page + 1;
-    setPage(next);
-    fetchReservations(next);
-  }
+  const handleShowMore = useCallback(() => {
+    setDisplayCount((prev) => prev + PER_PAGE);
+  }, []);
 
-  function handleBookAgain(vehicleId: number) {
-    router.push(`/vehicles`);
-  }
+  const handleBookAgain = useCallback((_vehicleId: number) => {
+    router.push(`/vehicules`);
+  }, [router]);
 
-  function handleCancelReservation(reservationId: number) {
-    setModal({ type: "confirm", message: "Are you sure you want to cancel this reservation?", resId: reservationId });
-  }
+  const handleCancelReservation = useCallback((reservationId: number) => {
+    setModal({ type: "confirm", message: t("reservations.cancel_confirm"), resId: reservationId });
+  }, [t]);
 
-  function handleShowDetails(res: Reservation) {
+  const handleShowDetails = useCallback((res: Reservation) => {
     setDetailReservation(res);
-  }
+  }, []);
 
-  async function confirmCancel() {
-    const resId = modal?.resId;
+  const confirmCancel = useCallback(async () => {
+    const resId = modalRef.current?.resId;
     if (!resId) return;
     setModal(null);
     setCancelling(true);
@@ -377,7 +593,7 @@ export default function BookingHistoryPage() {
     if (!token) { setCancelling(false); return; }
 
     try {
-      const res = await fetch(`${API_BASE}/MyReservations/${resId}/annuler`, {
+      const res = await fetch(`${API_BASE_URL}/MyReservations/${resId}/annuler`, {
         method: "PATCH",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -387,501 +603,219 @@ export default function BookingHistoryPage() {
 
       const json = await res.json();
       if (!res.ok) {
-        setModal({ type: "error", message: json.message || "Failed to cancel reservation" });
+        setModal({ type: "error", message: json.message || t("reservations.cancel_error") });
         return;
       }
 
-      setModal({ type: "success", message: "Reservation cancelled successfully" });
-      fetchReservations(page);
-    } catch (err) {
-      setModal({ type: "error", message: "An error occurred while cancelling your reservation." });
+      setModal({ type: "success", message: t("reservations.cancel_success") });
+      fetchReservations();
+    } catch (_err) {
+      setModal({ type: "error", message: t("reservations.error_default") });
     } finally {
       setCancelling(false);
     }
-  }
+  }, [t, fetchReservations]);
+
+  const stats = useMemo(() => {
+    const total = allReservations.length;
+    const upcoming = allReservations.filter((r) => {
+      const s = r.status.toLowerCase();
+      return s === "confirmée" || s === "en_attente";
+    }).length;
+    const completed = allReservations.filter((r) => r.status.toLowerCase() === "terminée").length;
+    const cancelled = allReservations.filter((r) => r.status.toLowerCase() === "annulée").length;
+    return { total, upcoming, completed, cancelled };
+  }, [allReservations]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return reservations;
+    const q = search.toLowerCase();
+    return reservations.filter((r) => {
+      return vehicleName(r, t("vehicle.default_name")).toLowerCase().includes(q)
+        || r.vehicle?.brand?.toLowerCase().includes(q)
+        || r.vehicle?.model?.toLowerCase().includes(q);
+    });
+  }, [reservations, search, t]);
+
+  const visibleItems = useMemo(() => {
+    return filtered.slice(0, displayCount);
+  }, [filtered, displayCount]);
+
+  const searchId = "reservation-search-input";
+
+  const prefersReducedMotion = useReducedMotion();
 
   return (
-    <RequireAuth>
-      <div className="min-h-screen bg-[#F4F7FB] flex flex-col font-sans">
-      {/* ── Header ── */}
-      <header className="bg-[#EBF1FA] px-10 h-20 flex items-center justify-between border-b border-[#D5DEEF]/50">
-        {/* Logo */}
-        <div
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={() => router.push("/vehicles")}
-        >
-          <div className="flex flex-col items-center">
-             <div className="relative w-16 h-8 flex items-center justify-center">
-               <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                 <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                 <path d="M10 16L30 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                 <circle cx="12" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                 <circle cx="28" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                 <path d="M18 10L25 10L27 16" stroke="#2B4C7E" strokeWidth="2" fill="none" />
-               </svg>
-             </div>
-             <span className="text-[#2B4C7E] font-black italic tracking-widest text-sm leading-none mt-[-4px]">
-               CARFORFAR
-             </span>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex items-center gap-8">
-          <button
-            onClick={() => router.push("/vehicles")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname === "/vehicles" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
-          >
-            Vehicles
-          </button>
-
-          <button
-            onClick={() => router.push("/MyReservations")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname === "/MyReservations" ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
-          >
-            History
-          </button>
-
-          <button
-            onClick={() => router.push("/profile")}
-            className={`text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ${pathname.includes("/profile") ? "border-b-2 border-[#2B4C7E] pb-1" : ""}`}
-          >
-            Profile
-          </button>
-
-          <button
-            onClick={async () => {
-              try {
-                await authLogout();
-              } finally {
-                clearAuthToken();
-                router.push("/login");
-              }
-            }}
-            className="flex items-center gap-1.5 text-[#2B4C7E] text-sm font-semibold tracking-wide hover:opacity-80 transition-opacity ml-4"
-          >
-            Logout
-            <LogOut className="w-4 h-4" />
-          </button>
-        </nav>
-      </header>
-
-      {/* ── Content ── */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-12">
-        {/* Title Row */}
-        <div className="flex justify-between items-start mb-10">
-          <div>
-            <h1 className="text-4xl font-black text-[#2B4C7E] tracking-tight mb-2">
-              Booking History
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Review your past and upcoming reservations with CARFORFAR.
-            </p>
-          </div>
-          
-          {/* Filter Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowFilter(!showFilter)}
-              className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+    <RequireClient>
+      <main className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
+        {/* Premium Header */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
+          <Particles />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" aria-hidden="true" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" aria-hidden="true" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" aria-hidden="true" />
+          <div className="relative max-w-7xl mx-auto px-6 py-14">
+            <BackButton />
+            <motion.div
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="4" y1="6" x2="20" y2="6"/>
-                <line x1="8" y1="12" x2="16" y2="12"/>
-                <line x1="11" y1="18" x2="13" y2="18"/>
-              </svg>
-              Filter
-            </button>
-            
-            {showFilter && (
-              <div className="absolute right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-lg p-2 flex flex-col gap-1 z-10 min-w-[140px]">
-                {(["all", "upcoming", "completed", "cancelled"] as const).map((opt) => {
-                  const labels: Record<string, string> = { all: "Toutes", upcoming: "À Venir", completed: "Terminée", cancelled: "Annulée" };
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => { setFilter(opt); setShowFilter(false); }}
-                      className={`text-left px-4 py-2 rounded-lg text-sm font-semibold ${
-                        filter === opt ? "bg-[#2B4C7E] text-white" : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {labels[opt]}
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
+                  <Car className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-white/60 text-sm font-bold uppercase tracking-[0.2em]">{t("reservations.dashboard")}</span>
               </div>
-            )}
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                {t("reservations.title")}
+              </h1>
+              <p className="text-white/70 text-base font-semibold mt-2 max-w-xl">
+                {t("reservations.subtitle")}
+              </p>
+            </motion.div>
           </div>
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-[#F0F3FA]/20 to-[#F0F3FA] dark:via-[#070b14]/20 dark:to-[#070b14] pointer-events-none" />
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 border border-red-200 rounded-xl p-4 mb-8 text-sm font-medium">
-            {error}
-          </div>
-        )}
+        <div className="max-w-7xl mx-auto px-6 mt-8 relative z-10 pb-16">
+          <motion.div variants={prefersReducedMotion ? {} : containerVariants} initial={prefersReducedMotion ? false : "hidden"} animate={prefersReducedMotion ? false : "visible"}>
+            {/* Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <StatCard icon={<Car className="w-5 h-5 text-white" />} label={t("reservations.total")} value={stats.total} gradient="bg-gradient-to-br from-[#638ECB] to-[#395886]" delay={0} maxValue={stats.total} />
+              <StatCard icon={<Calendar className="w-5 h-5 text-white" />} label={t("reservations.upcoming")} value={stats.upcoming} gradient="bg-gradient-to-br from-amber-400 to-amber-600" delay={0.1} maxValue={stats.total} />
+              <StatCard icon={<CheckCircle className="w-5 h-5 text-white" />} label={t("reservations.completed")} value={stats.completed} gradient="bg-gradient-to-br from-emerald-400 to-emerald-600" delay={0.2} maxValue={stats.total} />
+              <StatCard icon={<AlertTriangle className="w-5 h-5 text-white" />} label={t("reservations.cancelled")} value={stats.cancelled} gradient="bg-gradient-to-br from-rose-400 to-rose-600" delay={0.3} maxValue={stats.total} />
+            </div>
 
-        {/* Grid or Empty State */}
-        {reservations.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-8">
-            {reservations.map((res, i) => (
-              <ReservationCard
-                key={res.id || i}
-                res={res}
-                onBookAgain={handleBookAgain}
-                onCancel={handleCancelReservation}
-                onShowDetails={handleShowDetails}
-              />
-            ))}
-          </div>
-        ) : !loading && !error ? (
-          <div className="text-center py-20 text-gray-400 bg-white border border-gray-100 rounded-2xl shadow-sm">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto mb-4 opacity-50">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-            </svg>
-            <p className="text-lg font-medium text-gray-500">No reservations found.</p>
-            <p className="text-sm mt-1">Book a vehicle to see your history here.</p>
-          </div>
-        ) : null}
+            {/* Toolbar */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+              <div className="relative flex-1 max-w-md">
+                <label htmlFor={searchId} className="sr-only">{t("reservations.search_placeholder")}</label>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="w-4 h-4 text-[#638ECB] dark:text-[#94A3B8]" />
+                </div>
+                <input
+                  id={searchId}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t("reservations.search_placeholder")}
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#D5DEEF]/60 dark:border-[#1e293b]/70 bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-sm text-sm text-[#395886] dark:text-[#D5DEEF] font-semibold placeholder:text-[#638ECB]/50 dark:placeholder:text-[#64748b]/50 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-[#638ECB]/20 dark:focus:ring-[#638ECB]/10 focus-visible:ring-[#638ECB]/40 focus:border-[#638ECB]/40 dark:focus:border-[#638ECB]/30 focus:bg-white dark:focus:bg-[#0f1729]/90 transition-all shadow-sm"
+                />
+              </div>
+              <FilterDropdown filter={filter} onChange={setFilter} />
+            </div>
+          </motion.div>
 
-        {loading && (
-          <div className="text-center py-10 text-gray-500">Loading...</div>
-        )}
-
-        {/* Load More */}
-        {!loading && hasMore && (
-          <div className="mt-12 text-center">
-            <button
-              onClick={loadMore}
-              className="border-2 border-[#2B4C7E]/20 text-[#2B4C7E] font-bold text-sm tracking-widest px-8 py-3 rounded-xl hover:bg-[#2B4C7E]/5 transition-colors"
+          {error && (
+            <motion.div
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-rose-50/80 dark:bg-rose-950/40 backdrop-blur-sm text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40 rounded-xl p-4 mb-8 text-sm font-bold"
+              role="alert"
             >
-              LOAD MORE HISTORY
-            </button>
-          </div>
-        )}
+              {error}
+            </motion.div>
+          )}
+
+          {/* Reservation List */}
+          {filtered.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              <AnimatePresence mode="popLayout">
+                {visibleItems.map((res) => (
+                  <ReservationCard
+                    key={res.id}
+                    res={res}
+                    onBookAgain={handleBookAgain}
+                    onCancel={handleCancelReservation}
+                    onShowDetails={handleShowDetails}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : !loading && !error ? (
+            <motion.div
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-24 bg-white/50 dark:bg-[#0f1729]/50 backdrop-blur-sm border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 rounded-3xl shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-[#F0F3FA] dark:bg-[#1e293b]/60 flex items-center justify-center mx-auto mb-5">
+                <Car className="w-8 h-8 text-[#638ECB] dark:text-[#94A3B8]" />
+              </div>
+              <h2 className="text-xl font-black text-[#395886] dark:text-[#D5DEEF]">
+                {search ? t("reservations.no_results") : t("reservations.no_reservations")}
+              </h2>
+              <p className="text-sm font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1.5">
+                {search ? t("reservations.no_results_search") : t("reservations.no_reservations_cta")}
+              </p>
+            </motion.div>
+          ) : null}
+
+          {/* Loading */}
+          {loading && (
+            <div className="flex items-center justify-center py-20" role="status" aria-label={t("reservations.loading")}>
+              <div className="relative">
+                <div className="w-10 h-10 border-3 border-[#D5DEEF] dark:border-[#1e293b] rounded-full" />
+                <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] dark:border-t-[#f39c12] rounded-full animate-spin" />
+              </div>
+              <span className="ml-4 text-sm font-extrabold text-[#638ECB] dark:text-[#94A3B8]">{t("reservations.loading")}</span>
+            </div>
+          )}
+
+          {/* Show More */}
+          {!loading && visibleItems.length < filtered.length && (
+            <motion.div
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-10 flex items-center justify-center"
+            >
+              <motion.button
+                whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+                onClick={handleShowMore}
+                className="px-10 py-3.5 rounded-xl bg-white dark:bg-[#0f1729]/80 border-2 border-[#D5DEEF]/60 dark:border-[#1e293b]/70 text-[#395886] dark:text-[#D5DEEF] font-extrabold text-sm hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/60 hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 transition-all shadow-sm hover:shadow-md flex items-center gap-2.5"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+                {t("reservations.show_more")}
+                <span className="text-[11px] font-bold text-[#638ECB] dark:text-[#94A3B8]">
+                  ({filtered.length - visibleItems.length} {t("reservations.remaining")})
+                </span>
+              </motion.button>
+            </motion.div>
+          )}
+        </div>
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="bg-[#E5E7EB] py-12 px-10 mt-auto">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-8">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col items-start cursor-pointer w-fit" onClick={() => router.push("/vehicles")}>
-               <div className="relative w-16 h-8 flex items-center justify-center">
-                 <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                   <path d="M5 16C5 16 10 6 20 6C30 6 35 16 35 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                   <path d="M10 16L30 16" stroke="#2B4C7E" strokeWidth="2" strokeLinecap="round" />
-                   <circle cx="12" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                   <circle cx="28" cy="18" r="3" fill="none" stroke="#2B4C7E" strokeWidth="2" />
-                   <path d="M18 10L25 10L27 16" stroke="#2B4C7E" strokeWidth="2" fill="none" />
-                 </svg>
-               </div>
-               <span className="text-[#2B4C7E] font-black italic tracking-widest text-sm leading-none mt-[-4px]">
-                 CARFORFAR
-               </span>
-            </div>
-            
-            <p className="text-gray-500 text-sm max-w-sm">
-              Premium automotive concierge and luxury car rental service in the heart of Morocco.
-            </p>
-
-            <div className="grid grid-cols-2 max-w-lg gap-y-3">
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors">Terms of Service</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors">Privacy Policy</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors">Marrakech Travel Guide</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors">Luxury Concierge</a>
-              <a href="#" className="text-gray-600 text-sm font-medium hover:text-[#2B4C7E] transition-colors">Contact Us</a>
-            </div>
-          </div>
-          
-          <div className="pt-8 text-xs text-gray-500 font-medium">
-            © 2024 Luxe Marrakech Car Rental. Licensed by Moroccan Tourism Authority.
-          </div>
-        </div>
-      </footer>
-    </div>
-
-      {/* ── Modal ── */}
+      {/* Modals */}
       <AnimatePresence>
         {modal && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {/* Backdrop */}
-            <motion.div
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setModal(null)}
-            />
-
-            {/* Card */}
-            <motion.div
-              className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-4"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: "spring", duration: 0.4 }}
-            >
-              <button
-                onClick={() => setModal(null)}
-                className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              {modal.type === "confirm" && (
-                <>
-                  <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
-                    <AlertTriangle className="w-7 h-7 text-red-500" />
-                  </div>
-                  <p className="text-sm text-gray-800 font-medium text-center">{modal.message}</p>
-                  <div className="flex gap-3 w-full">
-                    <button
-                      onClick={() => setModal(null)}
-                      className="flex-1 border border-gray-200 text-gray-600 font-semibold text-sm py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
-                    >
-                      Keep Booking
-                    </button>
-                    <button
-                      onClick={confirmCancel}
-                      disabled={cancelling}
-                      className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white font-semibold text-sm py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2"
-                    >
-                      {cancelling ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> Cancelling...</>
-                      ) : (
-                        "Yes, Cancel"
-                      )}
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {modal.type === "error" && (
-                <>
-                  <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
-                    <AlertTriangle className="w-7 h-7 text-red-500" />
-                  </div>
-                  <p className="text-sm text-gray-800 font-medium text-center">{modal.message}</p>
-                  <button
-                    onClick={() => setModal(null)}
-                    className="w-full bg-[#2B4C7E] hover:bg-[#1d3560] text-white font-semibold text-sm py-2.5 rounded-xl transition-colors"
-                  >
-                    OK
-                  </button>
-                </>
-              )}
-
-              {modal.type === "success" && (
-                <>
-                  <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center">
-                    <CheckCircle className="w-7 h-7 text-green-500" />
-                  </div>
-                  <p className="text-sm text-gray-800 font-medium text-center">{modal.message}</p>
-                  <button
-                    onClick={() => setModal(null)}
-                    className="w-full bg-[#2B4C7E] hover:bg-[#1d3560] text-white font-semibold text-sm py-2.5 rounded-xl transition-colors"
-                  >
-                    OK
-                  </button>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
+          <ConfirmDialog
+            modal={modal}
+            onClose={() => setModal(null)}
+            onConfirm={confirmCancel}
+            cancelling={cancelling}
+            dialogRef={dialogRef}
+          />
         )}
       </AnimatePresence>
-      {/* ── Detail Modal ── */}
+
+      {/* Detail Modal */}
       <AnimatePresence>
         {detailReservation && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDetailReservation(null)}
-            />
-
-            <motion.div
-              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden"
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              transition={{ type: "spring", duration: 0.4 }}
-            >
-              {/* Top bar */}
-              <div className="bg-[#dde4ef] px-6 py-4 flex items-center">
-                <button
-                  onClick={() => setDetailReservation(null)}
-                  className="w-7 h-7 flex items-center justify-center rounded-md text-[#1e3a5f] hover:bg-white/40 transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="px-8 py-8">
-                {/* Car image + info row */}
-                <div className="flex flex-col md:flex-row gap-8 mb-10">
-                  {/* Image */}
-                  <div className="w-full md:w-[340px] flex-shrink-0 rounded-xl overflow-hidden bg-[#1a1e2e]" style={{ minHeight: 200 }}>
-                    <img
-                      src={vehicleImage(detailReservation)}
-                      alt={vehicleName(detailReservation)}
-                      className="w-full h-full object-cover"
-                      style={{ minHeight: 200 }}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=700&q=80";
-                      }}
-                    />
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    {/* Ref + badge */}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-gray-500 font-medium">REF: {refCode(detailReservation).replace("#", "")}</span>
-                      <span className="flex items-center gap-1.5 text-sm font-medium text-[#1e3a5f] border border-[#1e3a5f]/30 bg-[#eef1f8] rounded-full px-3 py-1">
-                        <span className="w-2 h-2 rounded-full bg-[#1e3a5f] inline-block" />
-                        {statusLabel(detailReservation.status)}
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <div className="mb-4">
-                      <h2 className="playfair text-3xl font-bold text-[#1e3a5f] leading-tight">{vehicleName(detailReservation)}</h2>
-                      <p className="text-gray-400 text-sm mt-1">{detailReservation.vehicle?.brand} {detailReservation.vehicle?.model}</p>
-                    </div>
-
-                    {/* Total amount card */}
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-5 py-4 flex items-center justify-between mt-auto">
-                      <span className="text-base font-semibold text-gray-700">Total Amount</span>
-                      <span className="text-2xl font-bold text-[#1e3a5f]">€{Number(detailReservation.total_price).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Pick-up / Drop-off row */}
-                <div className="border border-gray-100 rounded-xl overflow-hidden flex flex-col md:flex-row mb-8">
-                  {/* Pick-up */}
-                  <div className="flex-1 px-6 py-5 border-b md:border-b-0 md:border-r border-gray-100">
-                    <div className="flex items-center gap-2 mb-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#1e3a5f]" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.92-1.05-2.74-7.2-1.5-.4v5.55l-2.5-.67V9.5l-1.5-.4-1 3.73 2.72 4.44z"/>
-                      </svg>
-                      <span className="text-[#1e3a5f] font-semibold text-base">Pick-up</span>
-                    </div>
-                    <div className="border-l-2 border-gray-200 pl-4">
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Date &amp; Time</p>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {formatDate(detailReservation.pickup_date)} &bull; {formatTime(detailReservation.pickup_date)}
-                      </p>
-                      {detailReservation.pickup_location && (
-                        <p className="text-xs text-gray-500 mt-1">{detailReservation.pickup_location}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Drop-off */}
-                  <div className="flex-1 px-6 py-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#1e3a5f]" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.5 19h19v2h-19zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49L21 11.49c.81-.21 1.28-1.04 1.07-1.85z"/>
-                      </svg>
-                      <span className="text-[#1e3a5f] font-semibold text-base">Drop-off</span>
-                    </div>
-                    <div className="border-l-2 border-gray-200 pl-4">
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Date &amp; Time</p>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {formatDate(detailReservation.dropoff_date)} &bull; {formatTime(detailReservation.dropoff_date)}
-                      </p>
-                      {detailReservation.dropoff_location && (
-                        <p className="text-xs text-gray-500 mt-1">{detailReservation.dropoff_location}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Vehicle Specifications */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Vehicle Specifications</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {/* Fuel */}
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-5 flex flex-col items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#1e3a5f]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h2l1 2h12l1-2h2M5 10V6a2 2 0 012-2h6a2 2 0 012 2v4M3 10v9a1 1 0 001 1h14a1 1 0 001-1v-9"/>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 4h1a2 2 0 012 2v3"/>
-                      </svg>
-                      <p className="text-xs text-gray-400 font-medium">Fuel Type</p>
-                      <p className="text-sm font-bold text-gray-800 text-center">{detailReservation.vehicle?.fuelType ?? "—"}</p>
-                    </div>
-
-                    {/* Gearbox */}
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-5 flex flex-col items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#1e3a5f]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      </svg>
-                      <p className="text-xs text-gray-400 font-medium">Gearbox</p>
-                      <p className="text-sm font-bold text-gray-800 text-center">Automatic</p>
-                    </div>
-
-                    {/* Seats */}
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-5 flex flex-col items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#1e3a5f]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM7 14a5 5 0 0110 0v1H7v-1z"/>
-                      </svg>
-                      <p className="text-xs text-gray-400 font-medium">Seats</p>
-                      <p className="text-sm font-bold text-gray-800 text-center">{detailReservation.vehicle?.Occupants ?? "—"}</p>
-                    </div>
-
-                    {/* Year */}
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-5 flex flex-col items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#1e3a5f]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                      </svg>
-                      <p className="text-xs text-gray-400 font-medium">Year</p>
-                      <p className="text-sm font-bold text-gray-800 text-center">{detailReservation.vehicle?.year ?? "—"}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => {
-                      setDetailReservation(null);
-                      handleCancelReservation(detailReservation.id);
-                    }}
-                    className="px-6 py-3 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel Reservation
-                  </button>
-                  <button
-                    onClick={() => setDetailReservation(null)}
-                    className="px-6 py-3 rounded-xl bg-[#1e3a5f] text-white text-sm font-semibold hover:bg-[#16304f] transition-colors"
-                  >
-                    Back to History
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+          <DetailDialog
+            res={detailReservation}
+            onClose={() => setDetailReservation(null)}
+            onCancel={() => {
+              setDetailReservation(null);
+              handleCancelReservation(detailReservation.id);
+            }}
+            dialogRef={detailDialogRef}
+          />
         )}
       </AnimatePresence>
-    </RequireAuth>
+    </RequireClient>
   );
 }

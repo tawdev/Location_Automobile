@@ -9,11 +9,11 @@ use App\Services\ReservationService;
 use App\Services\VehicleService;
 use Illuminate\Http\Request;
 use App\Http\Requests\FilterVehiclesRequest;
+use App\Models\Location;
+use App\Models\DepartureCondition;
 class VehicleController extends Controller
 {
     public function __construct(
-
-
         protected VehicleService $vehicleService,
         protected ReservationService $reservitionService
     ) {
@@ -141,5 +141,61 @@ class VehicleController extends Controller
             'status' => 'success',
             'data' => $Vehicles
         ], 200);
+    }
+
+    public function locations(Request $request)
+    {
+        $query = Vehicle::with('latestLocation', 'pictures');
+
+        if ($request->filled('marque')) {
+            $query->where('marque', 'LIKE', '%' . $request->input('marque') . '%');
+        }
+
+        $vehicles = $query->get()->map(function ($v) {
+            $loc = $v->latestLocation;
+            return [
+                'id'        => $v->id,
+                'marque'    => $v->marque,
+                'model'     => $v->model,
+                'registration' => $v->registration,
+                'device_id' => $v->device_id,
+                'picture'   => $v->pictures->first()?->path,
+                'location'  => $loc ? [
+                    'latitude'  => (float) $loc->latitude,
+                    'longitude' => (float) $loc->longitude,
+                    'speed'     => $loc->speed,
+                    'heading'   => $loc->heading,
+                    'updated_at'=> $loc->created_at,
+                ] : null,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $vehicles,
+        ]);
+    }
+
+    public function syncConditions(Request $request, Vehicle $vehicle)
+    {
+        $request->validate([
+            'condition_ids' => 'present|array',
+            'condition_ids.*' => 'exists:departure_conditions,id',
+        ]);
+
+        $vehicle->departureConditions()->sync($request->condition_ids);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Conditions synchronisées avec succès',
+        ]);
+    }
+
+    public function getConditions(Vehicle $vehicle)
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $vehicle->departureConditions,
+        ]);
     }
 }

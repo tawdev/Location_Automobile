@@ -13,12 +13,12 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures')->latest()->get();
+        return Vehicle::with('pictures', 'category', 'departureConditions')->orderBy('order', 'asc')->get();
     }
 
     public function getById($id)
     {
-        return Vehicle::with('pictures')->find($id);
+        return Vehicle::with('pictures', 'category', 'departureConditions')->find($id);
     }
 
     public function CreateVehicle($request)
@@ -46,31 +46,34 @@ class VehicleService
         return $vehicle;
     }
 
-    public function UpdateVehicle($Vehicle, array $data, $pictures)
+    public function UpdateVehicle($Vehicle, array $data, $pictures = null)
     {
-        $imagesPaths = [];
-        $images = $Vehicle->pictures();
-        foreach ($images as $image) {
-            $imagesPaths[] = $image->path;
-        }
-
-        DB::transaction(function() use ($Vehicle) {
-            $Vehicle->pictures()->delete();
-        });
-
-        foreach ($imagesPaths as $path) {
-           if($path && Storage::disk('public')->exists($path)) {
-                 Storage::disk('public')->delete($path);
-           };
-        }
-
         $Vehicle->update($data);
 
-        foreach($pictures as $pic) {
-            $path = $pic->store('Vehicles' , 'public');
-            $Vehicle->pictures()->create([
-                "path" => $path
-            ]);
+        if (!empty($pictures)) {
+            $imagesPaths = [];
+            foreach ($Vehicle->pictures as $image) {
+                $imagesPaths[] = $image->path;
+            }
+
+            DB::transaction(function() use ($Vehicle) {
+                $Vehicle->pictures()->delete();
+            });
+
+            foreach ($imagesPaths as $path) {
+               if($path && Storage::disk('public')->exists($path)) {
+                     Storage::disk('public')->delete($path);
+               };
+            }
+
+            foreach ($pictures as $pic) {
+                if ($pic instanceof UploadedFile) {
+                    $path = $pic->store('Vehicles' , 'public');
+                    $Vehicle->pictures()->create([
+                        "path" => $path
+                    ]);
+                }
+            }
         }
 
         return $Vehicle;
@@ -136,7 +139,16 @@ class VehicleService
         $query->when($request->filled('max_price'), function ($q) use ($request) {
             $q->where('pricePerDay', '<=', $request->max_price);
         });
-        $Vehicles = $query->get();
+
+        $query->when($request->filled('pickup_date') && $request->filled('return_date'), function ($q) use ($request) {
+            $q->whereDoesntHave('reservations', function ($q) use ($request) {
+                $q->whereIn('status', ['En_Attente', 'Confirmée'])
+                  ->where('start_date', '<=', $request->return_date)
+                  ->where('end_date', '>=', $request->pickup_date);
+            });
+        });
+
+        $Vehicles = $query->with('pictures', 'category', 'departureConditions')->orderBy('order', 'asc')->get();
         
         return $Vehicles;
 

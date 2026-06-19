@@ -3,8 +3,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Logo } from "./Logo";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export function HeroSection() {
+  const { t } = useI18n();
   return (
     <motion.section
       initial={{ opacity: 0, y: 8 }}
@@ -20,12 +22,12 @@ export function HeroSection() {
         <div className="mt-[126px] lg:mt-[160px]">
           <h1
             style={{ fontFamily: "var(--font-geist-sans)" }}
-            className="font-sans text-[42px] lg:text-[50px] leading-[1.02] font-black tracking-[-0.4px] ml-[22px] lg:ml-[80px] text-[#F0F3FA] drop-shadow-[0_2px_10px_rgba(0,0,0,0.20)]"
+            className="font-sans text-[42px] lg:text-[50px] leading-[1.02] font-black tracking-[-0.4px] ml-[22px] lg:ml-[80px] text-[#F0F3FA] drop-shadow-[0_2px_10px_rgba(0,0,0,0.20)] dark:drop-shadow-[0_2px_10px_rgba(0,0,0,0.50)]"
           >
-            Your Journey,
+            {t("auth.hero_highlight")}
             <br />
-            <span className="text-[#F0F3FA]">Our </span>
-            <span className="text-[#F39C12]">Priority.</span>
+            <span className="text-[#F0F3FA]">{t("auth.hero_our")}</span>
+            <span className="text-[#F39C12]">{t("auth.hero_priority")}</span>
           </h1>
         </div>
       </div>

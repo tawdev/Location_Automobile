@@ -1,10 +1,14 @@
 import { apiRequest } from "./apiClient";
-import type { Vehicle } from "./types";
+import type { Vehicle, Category } from "./types";
 
 type VehiclesResponse = {
   status: string;
-  data: Vehicle[];
+  data: Vehicle[] | string;
 };
+
+function asVehicles(data: VehiclesResponse["data"]): Vehicle[] {
+  return Array.isArray(data) ? data : [];
+}
 
 export async function listVehicles(): Promise<Vehicle[]> {
   const res = await apiRequest<VehiclesResponse>({
@@ -12,7 +16,11 @@ export async function listVehicles(): Promise<Vehicle[]> {
     path: "/Vehicles",
     query: undefined,
   });
-  return res.data;
+
+  if (Array.isArray(res.data)) return res.data;
+
+  // backend sometimes returns a string message when no vehicles exist
+  throw new Error(res.data);
 }
 
 // Optional: backend has /filterVehicles but Postman didn't include a full contract.
@@ -24,7 +32,25 @@ type FilterParams = {
   fuelType?: string;
   min_price?: number;
   max_price?: number;
+  pickup_date?: string;
+  return_date?: string;
 };
+
+type CategoriesResponse = {
+  status: string;
+  data: Category[] | string;
+};
+
+export async function fetchCategories(): Promise<Category[]> {
+  const res = await apiRequest<CategoriesResponse>({
+    method: "GET",
+    path: "/Categories/public",
+    query: undefined,
+    auth: false,
+  });
+  if (Array.isArray(res.data)) return res.data;
+  return [];
+}
 
 export async function filterVehicles(params: FilterParams): Promise<Vehicle[]> {
   const res = await apiRequest<VehiclesResponse>({
@@ -32,5 +58,8 @@ export async function filterVehicles(params: FilterParams): Promise<Vehicle[]> {
     path: "/filterVehicles",
     query: params,
   });
-  return res.data;
+
+  if (Array.isArray(res.data)) return res.data;
+
+  throw new Error(res.data);
 }

@@ -13,6 +13,10 @@ body:
     \    \"end_date\":\"2026-05-23\"\r
 
     }"
+url: "{{url}}/Reservations/vehicle/1"
+method: POST
+headers:
+  Accept: application/json
 auth:
   type: bearer
   credentials:

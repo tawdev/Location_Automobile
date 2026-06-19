@@ -53,13 +53,19 @@ class ProfileController extends Controller
         'confirme_password'=> 'required|string|min:8',
         ]);
 
-        $data=$this->profileService->updatePassword(
+        $data = $this->profileService->updatePassword(
             $request->only('old_password','new_password','confirme_password')
-            );
+        );
 
-        if (!$data) {
+        if ($data === 'wrong_old_password') {
             return response()->json([
-                'message' => 'Ancien mot de passe incorrect ou Les mots de passe ne correspondent pas'
+                'message' => 'Ancien mot de passe incorrect'
+            ], 422);
+        }
+
+        if ($data === 'passwords_mismatch') {
+            return response()->json([
+                'message' => 'Les mots de passe ne correspondent pas'
             ], 422);
         }
 
@@ -100,6 +106,30 @@ class ProfileController extends Controller
         ]);
 
     }
+
+   public function updateUserDetails(Request $request)
+   {
+       $request->validate([
+           'phone'                => 'nullable|string|max:20',
+           'address'              => 'nullable|string|max:500',
+           'cin_passport'         => 'nullable|string|max:50',
+           'date_of_birth'        => 'nullable|date',
+           'driver_license_number'=> 'nullable|string|max:50',
+           'license_issue_date'   => 'nullable|date',
+           'license_expiry_date'  => 'nullable|date',
+       ]);
+
+       $data = $this->profileService->updateDetails(
+           $request->only('phone', 'address', 'cin_passport', 'date_of_birth', 'driver_license_number', 'license_issue_date', 'license_expiry_date')
+       );
+
+       return response()->json([
+           'status'  => 'success',
+           'message' => 'Profil mis à jour avec succès',
+           'data'    => $data,
+       ]);
+   }
+
 
    public function updateUserProfilePicture(Request $request)
 {

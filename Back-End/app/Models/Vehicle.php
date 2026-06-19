@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 class Vehicle extends Model
 {
 
-    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'Occupants'];
+    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'Occupants', 'device_id', 'air_conditioner', 'gps', 'order'];
     /** @use HasFactory<VehicleFactory> */
     use HasFactory;
 
@@ -39,5 +40,16 @@ class Vehicle extends Model
     public function pictures(): HasMany
     {
         return $this->hasMany(Picture::class);
+    }
+
+    public function latestLocation()
+    {
+        return $this->hasOne(Location::class, 'device_id', 'device_id')
+            ->latestOfMany();
+    }
+
+    public function departureConditions(): BelongsToMany
+    {
+        return $this->belongsToMany(DepartureCondition::class, 'departure_condition_vehicle');
     }
 }

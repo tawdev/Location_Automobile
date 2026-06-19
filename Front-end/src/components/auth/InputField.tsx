@@ -25,11 +25,11 @@ export function InputField({
 }: InputFieldProps) {
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-[12px] font-semibold text-[#395886]">{label}</div>
+      <div className="text-[13px] font-bold text-[#395886] dark:text-[#94A3B8] tracking-tight">{label}</div>
 
-      <div className="relative">
+      <div className="relative group">
         {leftIcon ? (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#638ECB]">{leftIcon}</div>
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#638ECB]/60 dark:text-[#94A3B8]/60 group-focus-within:text-[#638ECB] transition-colors duration-300">{leftIcon}</div>
         ) : null}
 
         <input
@@ -39,13 +39,14 @@ export function InputField({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className={[
-            "w-full rounded-[8px] border border-[#D5DEEF] bg-white/70",
-            "h-[40px] px-3",
-            leftIcon ? "pl-10" : "",
-            rightAction ? "pr-10" : "",
-            "text-[13px] text-[#395886] placeholder:text-[#638ECB]/70",
-            "focus:outline-none focus:ring-2 focus:ring-[#638ECB]/40 focus:border-[#638ECB]",
-            "transition-colors",
+            "w-full rounded-[12px] border border-[#D5DEEF]/60 dark:border-[#475569]/50 bg-white/[0.12] dark:bg-[#1e293b]/20",
+            "h-[46px] px-3",
+            leftIcon ? "pl-[42px]" : "",
+            rightAction ? "pr-[42px]" : "",
+            "text-[14px] text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 dark:placeholder:text-[#64748b]/50",
+            "focus:outline-none focus:ring-[3px] focus:ring-[#638ECB]/20 focus:border-[#638ECB] dark:focus:ring-[#638ECB]/15 dark:focus:border-[#638ECB]",
+            "hover:border-[#638ECB]/30 dark:hover:border-[#638ECB]/30",
+            "transition-all duration-300 ease-out",
           ].join(" ")}
         />
 

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { User } from "./types";
-import { authLogin, authLogout, authRegister, authUser } from "./authApi";
+import { authLogin, authLogout, authRegister, authUser, authVerifyEmail } from "./authApi";
 import { clearAuthToken, getAuthToken, setAuthToken } from "./tokenStorage";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -13,8 +13,9 @@ type AuthContextValue = {
   user: User | null;
   error: string | null;
 
-  signUp: (payload: { name: string; email: string; password: string }) => Promise<void>;
-  signIn: (payload: { email: string; password: string }) => Promise<void>;
+  signUp: (payload: { name: string; email: string; password: string }) => Promise<{ user_id: number; message: string }>;
+  signIn: (payload: { email: string; password: string }) => Promise<User>;
+  verifyEmail: (payload: { user_id: number; code: string }) => Promise<User>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 };
@@ -69,20 +70,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [pathname, status]);
 
+  useEffect(() => {
+    function onTokenExpired() {
+      setUser(null);
+      setStatus("unauthenticated");
+    }
+    window.addEventListener("auth:token-expired", onTokenExpired);
+    return () => window.removeEventListener("auth:token-expired", onTokenExpired);
+  }, []);
+
   async function signIn(payload: { email: string; password: string }) {
     setError(null);
     const res = await authLogin(payload);
     setAuthToken(res.token);
     setUser(res.user);
     setStatus("authenticated");
+    return res.user;
   }
 
   async function signUp(payload: { name: string; email: string; password: string }) {
     setError(null);
-    const res = await authRegister(payload);
-    setAuthToken(res.token);
-    setUser(res.user);
-    setStatus("authenticated");
+    try {
+      const res = await authRegister(payload);
+      return res;
+    } catch (e) {
+      const msg = (e as any)?.message || "Échec de l'inscription";
+      setError(msg);
+      throw e;
+    }
+  }
+
+  async function verifyEmail(payload: { user_id: number; code: string }) {
+    setError(null);
+    try {
+      const res = await authVerifyEmail(payload);
+      setAuthToken(res.token);
+      setUser(res.user);
+      setStatus("authenticated");
+      return res.user;
+    } catch (e) {
+      const msg = (e as any)?.message || "Échec de la vérification";
+      setError(msg);
+      throw e;
+    }
   }
 
   async function signOut() {
@@ -104,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error,
     signUp,
     signIn,
+    verifyEmail,
     signOut,
     refreshUser,
   };

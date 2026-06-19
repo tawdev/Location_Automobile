@@ -17,7 +17,6 @@ class ProfileService
         $user = auth()->user();
 
         if (isset($data['profile_pic'])) {
-            // Supprimer l'ancienne image si elle existe
             if ($user->profile_pic) {
                 $oldPath = public_path('image/' . $user->profile_pic);
                 if (file_exists($oldPath)) {
@@ -34,20 +33,16 @@ class ProfileService
         return $user;
     }
 
-    public function updatePassword(array $data)
+    public function updatePassword(array $data): User|string
     {
         $user = auth()->user();
 
-        if (empty($data['new_password']) || empty($data['old_password']) || empty($data['confirme_password'])) {
-            return false;
-        }
-
         if (!Hash::check($data['old_password'], $user->password)) {
-            return false;
+            return 'wrong_old_password';
         }
 
         if ($data['new_password'] !== $data['confirme_password']) {
-            return false;
+            return 'passwords_mismatch';
         }
 
         $user->update([
@@ -87,6 +82,26 @@ class ProfileService
 
 
 
+
+
+    public function updateDetails(array $data)
+    {
+        $user = auth()->user();
+        $updates = [];
+
+        foreach (['phone', 'address', 'cin_passport', 'date_of_birth', 'driver_license_number', 'license_issue_date', 'license_expiry_date'] as $field) {
+            if (array_key_exists($field, $data)) {
+                $updates[$field] = $data[$field];
+            }
+        }
+
+        if (empty($updates)) {
+            return $user;
+        }
+
+        $user->update($updates);
+        return $user;
+    }
 
 
     public function updateUserCIN($data, $user)
