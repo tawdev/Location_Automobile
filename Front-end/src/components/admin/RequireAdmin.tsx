@@ -18,7 +18,7 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
     if (status === "unauthenticated") {
       router.replace("/login");
     } else if (status === "authenticated" && !isAdmin) {
-      router.replace("/vehicles");
+      router.replace("/vehicules");
     }
   }, [isAdmin, router, status]);
 
@@ -48,7 +48,7 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
           </div>
           <button
             type="button"
-            onClick={() => router.push("/vehicles")}
+            onClick={() => router.push("/vehicules")}
             className="mt-4 font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100"
           >
             {t("vehicle.back")}

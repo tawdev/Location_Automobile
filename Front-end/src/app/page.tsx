@@ -12,9 +12,8 @@ import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useSettings } from "@/lib/SettingsContext";
-import VisitorNav from "@/components/VisitorNav";
+import Header from "@/components/Header";
 import ResumeReservationBanner from "@/components/ResumeReservationBanner";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
@@ -735,7 +734,7 @@ function VehiclesMarquee() {
                   whileHover={{ scale: 1.03, y: -10 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
-                    router.push(`/vehicles/${v.id}`);
+                    router.push(`/vehicules/${v.id}`);
                   }}
                   className="shrink-0 w-[380px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_25px_70px_rgba(57,88,134,0.2)] dark:hover:shadow-[0_25px_70px_rgba(0,0,0,0.55)] transition-all duration-500 group cursor-pointer"
                 >
@@ -1131,10 +1130,10 @@ function FooterSection() {
               {
                 title: t("footer.company"),
                 links: [
-                  { label: t("home.services.premium"), href: "/vehicles" },
+                  { label: t("home.services.premium"), href: "/vehicules" },
                   { label: t("home.services.concierge"), href: "/settings" },
                   { label: t("home.services.insurance"), href: "/regles" },
-                  { label: t("home.services.delivery"), href: "/vehicles" },
+                  { label: t("home.services.delivery"), href: "/vehicules" },
                 ],
               },
               {
@@ -1422,8 +1421,8 @@ export default function HomePage() {
         /* Dark glow for cards */
         .dark .card-glow { box-shadow: 0 0 30px rgba(57,88,134,0.05); }
       `}</style>
+      <Header />
       <ResumeReservationBanner />
-      <VisitorNav />
       <HeroSection />
       <VehiclesMarquee />
       <MarquesSection />

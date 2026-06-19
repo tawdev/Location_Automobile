@@ -74,6 +74,22 @@ export default function VehicleDetailPage() {
     }
   }, [vehicle]);
 
+  // Restore dates saved before auth redirect
+  useEffect(() => {
+    if (!vehicle) return;
+    try {
+      const raw = localStorage.getItem("pendingReservationDates");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.startDate && parsed.endDate) {
+          setReserveStartDate(new Date(parsed.startDate));
+          setReserveEndDate(new Date(parsed.endDate));
+        }
+        localStorage.removeItem("pendingReservationDates");
+      }
+    } catch { /* ignore corrupt data */ }
+  }, [vehicle]);
+
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -157,7 +173,11 @@ export default function VehicleDetailPage() {
     }
     const token = getAuthToken();
     if (!token) {
-      localStorage.setItem("pendingVehicleRedirect", `/vehicles/${id}`);
+      localStorage.setItem("pendingReservationDates", JSON.stringify({
+        startDate: reserveStartDate.toISOString(),
+        endDate: reserveEndDate.toISOString(),
+      }));
+      localStorage.setItem("pendingVehicleRedirect", `/vehicules/${id}`);
       router.push("/register");
       return;
     }
@@ -181,7 +201,7 @@ export default function VehicleDetailPage() {
         <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600 text-lg">{error || t("vehicle.error.not_found")}</p>
-            <button onClick={() => router.push("/vehicles")} className="mt-4 text-[#16386b] hover:underline">
+            <button onClick={() => router.push("/vehicules")} className="mt-4 text-[#16386b] hover:underline">
               {t("vehicle.back")}
             </button>
           </div>
@@ -528,7 +548,7 @@ export default function VehicleDetailPage() {
                 {t("vehicle.view_reservations")}
               </button>
               <button
-                onClick={() => router.push("/vehicles")}
+                onClick={() => router.push("/vehicules")}
                 className="w-full h-14 rounded-[16px] border border-[#d9dee6] dark:border-[#1e293b] text-gray-700 dark:text-[#94A3B8] font-bold text-[16px] hover:bg-gray-50 dark:hover:bg-[#0f1729] transition"
               >
                 {t("vehicle.continue_browsing")}

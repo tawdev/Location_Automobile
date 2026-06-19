@@ -31,12 +31,12 @@ function CallbackInner() {
         const user = res.data;
         const pendingRedirect = localStorage.getItem("pendingVehicleRedirect");
         localStorage.removeItem("pendingVehicleRedirect");
-        window.location.href = pendingRedirect || (user.role_id === 1 ? "/admin" : "/vehicles");
+        window.location.href = pendingRedirect || (user.role_id === 1 ? "/admin" : "/vehicules");
       })
       .catch(() => {
         const pendingRedirect = localStorage.getItem("pendingVehicleRedirect");
         localStorage.removeItem("pendingVehicleRedirect");
-        window.location.href = pendingRedirect || "/vehicles";
+        window.location.href = pendingRedirect || "/vehicules";
       });
   }, [searchParams]);
 

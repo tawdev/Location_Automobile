@@ -296,7 +296,7 @@ export default function SettingsPage() {
                       <p className="text-base font-black text-[#395886] dark:text-[#D5DEEF]">{t("settings.no_active")}</p>
                       <p className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 mt-1 mb-5">{t("settings.no_active_cta")}</p>
                       <ShimmerButton
-                        onClick={() => router.push("/vehicles")}
+                        onClick={() => router.push("/vehicules")}
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl transition-all"
                       >
                         <Car className="w-3.5 h-3.5" />

@@ -10,7 +10,7 @@ export default function BackButton() {
     <motion.button
       onClick={() => {
         if (window.history.length <= 1) {
-          router.push("/vehicles");
+          router.push("/vehicules");
         } else {
           router.back();
         }
