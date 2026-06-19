@@ -40,6 +40,10 @@ Route::get('settings', [SettingsController::class, 'index']);
 // Contact form
 Route::post('contact', [\App\Http\Controllers\Api\ContactController::class, 'send']);
 
+// Public blog
+Route::get('blogs', [\App\Http\Controllers\Api\BlogController::class, 'index']);
+Route::get('blogs/{slug}', [\App\Http\Controllers\Api\BlogController::class, 'show']);
+
 // Public vehicle routes (no auth required)
 Route::get('Vehicles' , [VehicleController::class, 'index']);
 Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);
