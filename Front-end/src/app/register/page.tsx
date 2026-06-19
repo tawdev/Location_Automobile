@@ -9,7 +9,7 @@ import { HeroSection } from "@/components/auth/HeroSection";
 import { SocialButton, GoogleIcon } from "@/components/auth/SocialButton";
 import { InputField } from "@/components/auth/InputField";
 import { API_BASE_URL } from "@/lib/config";
-import VisitorNav from "@/components/VisitorNav";
+import Header from "@/components/Header";
 
 const CODE_DIGITS = 6;
 
@@ -92,7 +92,7 @@ function RegisterForm() {
   useEffect(() => {
     if (status === "authenticated") {
       localStorage.removeItem("pendingVehicleRedirect");
-      router.replace(redirectTo || "/vehicles");
+      router.replace(redirectTo || "/vehicules");
     }
   }, [status, router, redirectTo]);
 
@@ -171,7 +171,7 @@ function RegisterForm() {
     try {
       await verifyEmail({ user_id: userId, code: fullCode });
       localStorage.removeItem("pendingVehicleRedirect");
-      router.replace(redirectTo || "/vehicles");
+      router.replace(redirectTo || "/vehicules");
     } catch (err) {
       setCodeError((err as any)?.message || t("register.invalid_code"));
       setCode(Array(CODE_DIGITS).fill(""));
@@ -204,7 +204,7 @@ function RegisterForm() {
 
   return (
     <div className="relative min-h-screen w-full text-[#395886] dark:text-[#D5DEEF] overflow-hidden">
-      <VisitorNav solid />
+      <Header solid />
       {/* Light mode background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden"

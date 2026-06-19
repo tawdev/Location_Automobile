@@ -43,7 +43,7 @@ export default function SignupPage() {
   useEffect(() => {
     if (status === "authenticated") {
       localStorage.removeItem("pendingVehicleRedirect");
-      router.replace(redirectTo || "/vehicles");
+      router.replace(redirectTo || "/vehicules");
     }
   }, [status, router, redirectTo]);
 
@@ -126,7 +126,7 @@ export default function SignupPage() {
     try {
       await verifyEmail({ user_id: userId, code: fullCode });
       localStorage.removeItem("pendingVehicleRedirect");
-      router.replace(redirectTo || "/vehicles");
+      router.replace(redirectTo || "/vehicules");
     } catch (err) {
       setCodeError((err as any)?.message || "Code invalide");
       setCode(Array(CODE_DIGITS).fill(""));
@@ -292,7 +292,7 @@ export default function SignupPage() {
 
           <button
             type="button"
-            onClick={() => router.push("/vehicles")}
+            onClick={() => router.push("/vehicules")}
             className="underline font-bold cursor-pointer"
           >
             Parcourir les véhicules

@@ -572,7 +572,7 @@ export default function BookingHistoryPage() {
   }, []);
 
   const handleBookAgain = useCallback((_vehicleId: number) => {
-    router.push(`/vehicles`);
+    router.push(`/vehicules`);
   }, [router]);
 
   const handleCancelReservation = useCallback((reservationId: number) => {
