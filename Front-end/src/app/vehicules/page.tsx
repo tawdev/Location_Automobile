@@ -264,10 +264,10 @@ export default function VehiculesPage() {
 
   // Sidebar filter content (reused in both desktop sidebar and mobile drawer)
   const filterPanel = (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Search */}
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.15em] font-bold text-gray-500 dark:text-[#94A3B8] mb-2">
+        <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
           {t("vehicles.search_label")}
         </label>
         <div className="h-[44px] bg-white dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl flex items-center px-4">
@@ -284,7 +284,7 @@ export default function VehiculesPage() {
 
       {/* Dates */}
       <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-2.5">
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
           {t("vehicles.dates")}
         </h4>
         <div className="space-y-2">
@@ -317,12 +317,12 @@ export default function VehiculesPage() {
         const leftPct = (rangeMin / sliderMax) * 100;
         const rightPct = 100 - (rangeMax / sliderMax) * 100;
         return (
-          <div className="max-h-[300px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar py-2">
-            <div className="px-1">
-              <h4 className="text-[17px] font-bold text-gray-700 dark:text-white mb-5 font-display">
+          <div>
+            <div>
+              <h4 className="text-[14px] font-bold text-gray-700 dark:text-white mb-3">
                 {t("vehicles.price_range")}
               </h4>
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex items-center gap-2 mb-3">
                 <div className="relative flex-1">
                   <input
                     aria-label={t("vehicles.min_price")}
@@ -335,10 +335,10 @@ export default function VehiculesPage() {
                         setMinPrice(val);
                       }
                     }}
-                    className="w-full h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-center text-[15px] font-black text-gray-700 dark:text-white outline-none focus:border-[#99cc00] dark:focus:border-[#99cc00] transition-colors"
+                    className="w-full h-[38px] rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-center text-[13px] font-bold text-gray-700 dark:text-white outline-none focus:border-[#99cc00] dark:focus:border-[#99cc00] transition-colors"
                   />
                 </div>
-                <span className="text-gray-300 dark:text-white/20 font-black">—</span>
+                <span className="text-gray-300 dark:text-white/20 font-bold">—</span>
                 <div className="relative flex-1">
                   <input
                     aria-label={t("vehicles.max_price")}
@@ -351,11 +351,11 @@ export default function VehiculesPage() {
                         setMaxPrice(val);
                       }
                     }}
-                    className="w-full h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-center text-[15px] font-black text-gray-700 dark:text-white outline-none focus:border-[#99cc00] dark:focus:border-[#99cc00] transition-colors"
+                    className="w-full h-[38px] rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-center text-[13px] font-bold text-gray-700 dark:text-white outline-none focus:border-[#99cc00] dark:focus:border-[#99cc00] transition-colors"
                   />
                 </div>
               </div>
-              <div className="relative h-1 w-full bg-gray-200 dark:bg-white/5 rounded-full mb-4">
+              <div className="relative h-1 w-full bg-gray-200 dark:bg-white/5 rounded-full mb-2">
                 <div
                   className="absolute h-full bg-[#99cc00] rounded-full"
                   style={{ left: `${leftPct}%`, right: `${rightPct}%` }}
@@ -370,7 +370,7 @@ export default function VehiculesPage() {
                     const val = Number(e.target.value);
                     if (val <= (maxPrice ?? sliderMax)) setMinPrice(val);
                   }}
-                  className="dual-range-input z-40"
+                  className="dual-range-input z-30"
                 />
                 <input
                   type="range"
@@ -382,15 +382,7 @@ export default function VehiculesPage() {
                     const val = Number(e.target.value);
                     if (val >= (minPrice ?? 0)) setMaxPrice(val);
                   }}
-                  className="dual-range-input z-30"
-                />
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -ml-2 h-4 w-4 rounded-full bg-[#99cc00] ring-4 ring-[#99cc00]/20 cursor-pointer shadow-lg shadow-black/20 pointer-events-none z-20"
-                  style={{ left: `${leftPct}%` }}
-                />
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -ml-2 h-4 w-4 rounded-full bg-[#99cc00] ring-4 ring-[#99cc00]/20 cursor-pointer shadow-lg shadow-black/20 pointer-events-none z-20"
-                  style={{ left: `${100 - rightPct}%` }}
+                  className="dual-range-input z-40"
                 />
               </div>
             </div>
@@ -400,90 +392,70 @@ export default function VehiculesPage() {
 
       {/* Category */}
       <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-2.5">
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
           {t("vehicles.category")}
         </h4>
-        <div className="space-y-2">
+        <select
+          value={selectedCategories[0] || ""}
+          onChange={(e) => setSelectedCategories(e.target.value ? [e.target.value] : [])}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">All categories</option>
           {categories.map((cat) => (
-            <label key={cat.id} className="flex items-center gap-2.5 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={selectedCategories.includes(cat.name)}
-                onChange={() => toggleCategory(cat.name)}
-                className="w-4 h-4 rounded border-gray-300 dark:border-[#475569] text-[#1f4276] dark:text-[#f39c12] focus:ring-[#1f4276] dark:focus:ring-[#f39c12]"
-              />
-              <span className="text-[13px] text-gray-500 dark:text-[#CBD5E1] group-hover:text-[#1f4276] dark:group-hover:text-[#f39c12] transition-colors">
-                {cat.name}
-              </span>
-            </label>
+            <option key={cat.id} value={cat.name}>{cat.name}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       {/* Brand */}
       <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-2.5">
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
           {t("vehicles.brand")}
         </h4>
-        <div className="space-y-2">
+        <select
+          value={selectedBrands[0] || ""}
+          onChange={(e) => setSelectedBrands(e.target.value ? [e.target.value] : [])}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">All brands</option>
           {brands.map((brand) => (
-            <label key={brand} className="flex items-center gap-2.5 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={selectedBrands.includes(brand)}
-                onChange={() => toggleBrand(brand)}
-                className="w-4 h-4 rounded border-gray-300 dark:border-[#475569] text-[#1f4276] dark:text-[#f39c12] focus:ring-[#1f4276] dark:focus:ring-[#f39c12]"
-              />
-              <span className="text-[14px] text-gray-600 dark:text-[#CBD5E1] group-hover:text-[#1f4276] dark:group-hover:text-[#f39c12] transition-colors">
-                {brand}
-              </span>
-            </label>
+            <option key={brand} value={brand}>{brand}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       {/* Fuel type */}
       <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-2.5">
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
           {t("vehicles.fuel_type")}
         </h4>
-        <div className="space-y-2">
+        <select
+          value={selectedFuelTypes[0] || ""}
+          onChange={(e) => setSelectedFuelTypes(e.target.value ? [e.target.value] : [])}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">All fuel types</option>
           {fuelTypes.map((type) => (
-            <label key={type} className="flex items-center gap-2.5 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={selectedFuelTypes.includes(type)}
-                onChange={() => toggleFuelType(type)}
-                className="w-4 h-4 rounded border-gray-300 dark:border-[#475569] text-[#1f4276] dark:text-[#f39c12] focus:ring-[#1f4276] dark:focus:ring-[#f39c12]"
-              />
-              <span className="text-[14px] text-gray-600 dark:text-[#CBD5E1] group-hover:text-[#1f4276] dark:group-hover:text-[#f39c12] transition-colors">
-                {type}
-              </span>
-            </label>
+            <option key={type} value={type}>{type}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       {/* Seats */}
       <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-2.5">
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
           {t("vehicles.seats_label")}
         </h4>
-        <div className="flex flex-wrap gap-2">
+        <select
+          value={selectedSeats[0] || ""}
+          onChange={(e) => setSelectedSeats(e.target.value ? [e.target.value] : [])}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">All seats</option>
           {seatsOptions.map((s) => (
-            <button
-              key={s}
-              onClick={() => toggleSeats(s)}
-              className={`px-3.5 py-1.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${
-                selectedSeats.includes(s)
-                  ? "bg-[#1f4276] dark:bg-[#f39c12] text-white dark:text-[#0f1729]"
-                  : "bg-gray-50 dark:bg-[#1e293b]/60 text-gray-500 dark:text-[#94A3B8] hover:bg-gray-100 dark:hover:bg-[#1e293b]"
-              }`}
-            >
-              {s} {t("vehicles.seats")}
-            </button>
+            <option key={s} value={s}>{s} {t("vehicles.seats")}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       {/* Clear */}
@@ -543,8 +515,8 @@ export default function VehiculesPage() {
           <div className="flex gap-8">
             {/* Desktop sidebar */}
             <aside className="hidden lg:block w-[320px] shrink-0">
-              <div className="sticky top-28 bg-white dark:bg-[#0f1729]/60 rounded-2xl border border-gray-200/80 dark:border-[#1e293b]/80 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-sm">
-                <div className="flex items-center justify-between mb-5">
+              <div className="sticky top-28 bg-white dark:bg-[#0f1729]/60 rounded-2xl border border-gray-200/80 dark:border-[#1e293b]/80 p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-sm">
+                <div className="flex items-center justify-between mb-3">
                   <h3 className="text-[11px] font-bold text-gray-500 dark:text-[#D5DEEF] uppercase tracking-[0.15em] flex items-center gap-2">
                     <SlidersHorizontal className="w-4 h-4" />
                     {t("vehicles.filters")}
