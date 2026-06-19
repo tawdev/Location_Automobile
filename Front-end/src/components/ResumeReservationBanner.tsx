@@ -23,7 +23,7 @@ export default function ResumeReservationBanner() {
   function handleComplete() {
     setVisible(false);
     setTimeout(() => {
-      router.push(`/vehicles/${saved!.vehicleId}`);
+      router.push(`/vehicules/${saved!.vehicleId}`);
     }, 200);
   }
 
