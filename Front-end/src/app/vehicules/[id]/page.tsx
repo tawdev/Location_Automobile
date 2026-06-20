@@ -228,7 +228,7 @@ export default function VehicleDetailPage() {
     <ClientOnly>
       <div className="bg-[#F0F3FA] dark:bg-[#070b14] min-h-screen">
         <main className="pt-14 pb-24 bg-[#F0F3FA] dark:bg-[#070b14]">
-          <div className="max-w-[1180px] mx-auto px-7">
+          <div className="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
 
             <BackButton />
 
@@ -237,7 +237,7 @@ export default function VehicleDetailPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-[60px] leading-none font-extrabold tracking-[-0.03em] text-[#16386b] dark:text-[#D5DEEF] mb-4"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-[60px] leading-none font-extrabold tracking-[-0.03em] text-[#16386b] dark:text-[#D5DEEF] mb-4"
             >
               {vehicle.marque} {vehicle.model}
             </motion.h1>
@@ -270,7 +270,7 @@ export default function VehicleDetailPage() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
-                  className="w-full h-[560px] rounded-[34px] overflow-hidden bg-cover bg-center"
+                  className="w-full h-[280px] sm:h-[400px] lg:h-[560px] rounded-[34px] overflow-hidden bg-cover bg-center"
                   style={{
                     backgroundImage: images[activeImage]
                       ? `linear-gradient(180deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.15) 100%), url(${images[activeImage]})`
@@ -286,7 +286,7 @@ export default function VehicleDetailPage() {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.35 }}
-                    className="flex gap-5 mt-6"
+                    className="flex gap-3 sm:gap-5 mt-6 flex-wrap"
                   >
                     {images.map((url, i) => (
                       <motion.div
@@ -294,7 +294,7 @@ export default function VehicleDetailPage() {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => setActiveImage(i)}
-                        className={`w-[148px] h-[102px] rounded-[18px] overflow-hidden cursor-pointer transition-opacity ${
+                        className={`w-[120px] sm:w-[148px] h-[80px] sm:h-[102px] rounded-[18px] overflow-hidden cursor-pointer transition-opacity ${
                           i === activeImage
                             ? "border-[3px] border-[#16386b] p-[2px]"
                             : "opacity-70 hover:opacity-100"
@@ -315,15 +315,15 @@ export default function VehicleDetailPage() {
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.25 }}
-                className="bg-white dark:bg-[#0f1729] rounded-[30px] p-8 border border-[#eef0f4] dark:border-[#1e293b] shadow-[0_10px_35px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.03)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.2)]"
+                className="bg-white dark:bg-[#0f1729] rounded-[30px] p-5 sm:p-6 lg:p-8 border border-[#eef0f4] dark:border-[#1e293b] shadow-[0_10px_35px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.03)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.2)]"
               >
                 {/* Price */}
                 <div className="flex items-center justify-between mb-7">
                   <div className="flex items-end gap-2">
-                    <h2 className="text-[36px] leading-none font-extrabold tracking-[-0.04em] text-[#d08a1b]">
+                    <h2 className="text-2xl sm:text-[36px] leading-none font-extrabold tracking-[-0.04em] text-[#d08a1b]">
                       {vehicle.pricePerDay} DH
                     </h2>
-                    <span className="text-gray-500 dark:text-[#94A3B8] text-[18px] mb-1">{t("vehicle.per_day")}</span>
+                    <span className="text-gray-500 dark:text-[#94A3B8] text-[14px] sm:text-[18px] mb-1">{t("vehicle.per_day")}</span>
                   </div>
                   <div className="flex items-center gap-2 bg-[#e8f8ec] dark:bg-emerald-950/30 border border-[#cfeeda] dark:border-emerald-800/50 text-[#1f8f4d] dark:text-emerald-300 px-4 py-2 rounded-full text-[14px] font-bold">
                     <div className="w-2 h-2 rounded-full bg-[#20b15a]" />
@@ -442,8 +442,8 @@ export default function VehicleDetailPage() {
                 {/* Total */}
                 {days > 0 && (
                   <div className="flex items-center justify-between mb-7">
-                    <span className="text-[#16386b] dark:text-[#D5DEEF] text-[22px] font-bold">{t("vehicle.total_estimate")}</span>
-                    <h3 className="text-[36px] font-extrabold tracking-[-0.03em] text-[#d08a1b] dark:text-[#f0b24a]">{total.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</h3>
+                    <span className="text-[#16386b] dark:text-[#D5DEEF] text-[16px] sm:text-[22px] font-bold">{t("vehicle.total_estimate")}</span>
+                    <h3 className="text-2xl sm:text-[36px] font-extrabold tracking-[-0.03em] text-[#d08a1b] dark:text-[#f0b24a]">{total.toLocaleString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US")} DH</h3>
                   </div>
                 )}
 
@@ -451,7 +451,7 @@ export default function VehicleDetailPage() {
                 <button
                   onClick={handleReserve}
                   disabled={reserving}
-                  className="w-full h-[68px] rounded-[18px] bg-[#16386b] hover:bg-[#102b54] transition text-white text-[20px] font-bold disabled:opacity-50"
+                  className="w-full h-[56px] sm:h-[68px] rounded-[18px] bg-[#16386b] hover:bg-[#102b54] transition text-white text-[16px] sm:text-[20px] font-bold disabled:opacity-50"
                 >
                   {reserving ? t("vehicle.reserving") : t("vehicle.reserve")}
                 </button>
@@ -463,10 +463,10 @@ export default function VehicleDetailPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
-              className="mt-12 border border-[#edf0f4] dark:border-[#1e293b] rounded-[30px] p-10 bg-white dark:bg-[#0f1729]"
+              className="mt-12 border border-[#edf0f4] dark:border-[#1e293b] rounded-[30px] p-5 sm:p-6 lg:p-10 bg-white dark:bg-[#0f1729]"
             >
-              <h2 className="text-[28px] font-extrabold text-[#16386b] dark:text-[#D5DEEF] mb-10">{t("vehicle.specs")}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+              <h2 className="text-[22px] sm:text-[28px] font-extrabold text-[#16386b] dark:text-[#D5DEEF] mb-6 sm:mb-10">{t("vehicle.specs")}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
                 {/* Fuel */}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
@@ -480,7 +480,7 @@ export default function VehicleDetailPage() {
                     </svg>
                     <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.fuel")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.fuelType}</div>
+                  <div className="text-2xl sm:text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.fuelType}</div>
                 </motion.div>
                 {/* Gearbox */}
                 <motion.div
@@ -496,7 +496,7 @@ export default function VehicleDetailPage() {
                     </svg>
                     <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.gearbox")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{t("vehicle.automatic")}</div>
+                  <div className="text-2xl sm:text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{t("vehicle.automatic")}</div>
                 </motion.div>
                 {/* Seats */}
                 <motion.div
@@ -511,7 +511,7 @@ export default function VehicleDetailPage() {
                     </svg>
                     <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.seats")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.Occupants}</div>
+                  <div className="text-2xl sm:text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.Occupants}</div>
                 </motion.div>
                 {/* Year */}
                 <motion.div
@@ -526,7 +526,7 @@ export default function VehicleDetailPage() {
                     </svg>
                     <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.year")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.year}</div>
+                  <div className="text-2xl sm:text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.year}</div>
                 </motion.div>
                 {/* Air Conditioner */}
                 <motion.div
@@ -541,7 +541,7 @@ export default function VehicleDetailPage() {
                     </svg>
                     <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.air_conditioner")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.air_conditioner ? "✓" : "—"}</div>
+                  <div className="text-2xl sm:text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.air_conditioner ? "✓" : "—"}</div>
                 </motion.div>
                 {/* GPS */}
                 <motion.div
@@ -556,7 +556,7 @@ export default function VehicleDetailPage() {
                     </svg>
                     <span className="uppercase tracking-[0.08em] text-[12px] font-bold text-gray-500 dark:text-[#94A3B8]">{t("vehicle.gps")}</span>
                   </div>
-                  <div className="text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.gps ? "✓" : "—"}</div>
+                  <div className="text-2xl sm:text-[30px] font-extrabold text-gray-900 dark:text-[#D5DEEF] leading-none">{vehicle.gps ? "✓" : "—"}</div>
                 </motion.div>
               </div>
             </motion.section>
@@ -566,7 +566,7 @@ export default function VehicleDetailPage() {
 
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#0f1729] border border-[#d9dee6] dark:border-[#1e293b] rounded-[30px] max-w-md w-full p-10 shadow-2xl flex flex-col items-center gap-5">
+          <div className="bg-white dark:bg-[#0f1729] border border-[#d9dee6] dark:border-[#1e293b] rounded-[30px] max-w-md w-full p-6 sm:p-10 shadow-2xl flex flex-col items-center gap-5">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
