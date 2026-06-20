@@ -573,8 +573,21 @@ export default function Header({ solid }: { solid?: boolean }) {
                 </div>
 
                 <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
-                <div className="flex items-center justify-center py-2">
+                <div className="flex items-center justify-center gap-4 py-2">
                   <LanguageSwitcher />
+                  <div className="w-px h-6 bg-[#D5DEEF]/40 dark:bg-[#1e293b]/60" />
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={toggleDark}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                      dark
+                        ? "bg-[#1e293b] text-[#f39c12] border border-[#f39c12]/20"
+                        : "bg-[#F0F3FA] text-[#395886] border border-[#D5DEEF]/40"
+                    }`}
+                    aria-label={dark ? t("theme.light") : t("theme.dark")}
+                  >
+                    {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                  </motion.button>
                 </div>
                 {!isAuthenticated && (
                   <>
