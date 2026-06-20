@@ -625,6 +625,45 @@ function VehiclesMarquee() {
   }, []);
 
   const duplicated = [...vehicles, ...vehicles];
+  const cardWidth = 380 + 24;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const translateXRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    if (prefersReduced || vehicles.length === 0 || !scrollRef.current) return;
+    const el = scrollRef.current;
+    let lastTime = performance.now();
+    const speed = (vehicles.length * cardWidth) / 60;
+
+    const animate = (now: number) => {
+      const delta = now - lastTime;
+      lastTime = now;
+      if (!isHovering) {
+        translateXRef.current -= speed * (delta / 1000);
+        const resetPoint = -(vehicles.length * cardWidth);
+        if (translateXRef.current <= resetPoint) {
+          translateXRef.current += vehicles.length * cardWidth;
+        }
+        el.style.transform = `translateX(${translateXRef.current}px)`;
+      }
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [isHovering, prefersReduced, vehicles.length, cardWidth]);
+
+  const scrollBy = (dir: -1 | 1) => {
+    if (!scrollRef.current) return;
+    translateXRef.current += dir * cardWidth;
+    if (translateXRef.current > 0) translateXRef.current = -(vehicles.length * cardWidth);
+    const resetPoint = -(vehicles.length * cardWidth);
+    if (translateXRef.current <= resetPoint) translateXRef.current = 0;
+    scrollRef.current.style.transform = `translateX(${translateXRef.current}px)`;
+  };
 
   return (
     <section className="bg-white dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
@@ -668,195 +707,214 @@ function VehiclesMarquee() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
         >
           <div
-            className="flex gap-6 w-max pb-4"
+            className="overflow-hidden rounded-3xl"
             style={{
-              animation: prefersReduced ? "none" : "marquee 60s linear infinite",
-              animationPlayState: "running",
+              maskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.animationPlayState = "paused"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.animationPlayState = "running"; }}
           >
-            {duplicated.map((v, i) => {
-              const imgSrc = v.pictures?.[0]
-                ? vehicleImageUrl(v.pictures[0].path)
-                : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80";
+            <div ref={scrollRef} className="flex gap-6 pb-4" style={{ transform: 'translateX(0px)', willChange: 'transform', transition: isHovering ? 'transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none' }}>
+              {duplicated.map((v, i) => {
+                const imgSrc = v.pictures?.[0]
+                  ? vehicleImageUrl(v.pictures[0].path)
+                  : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80";
 
-              const features: { show: boolean; icon: React.ReactNode; label: string }[] = [
-                {
-                  show: v.air_conditioner === true,
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v8" />
-                      <path d="M4 14h16" /><rect x="4" y="11" width="16" height="3" rx="1" />
-                    </svg>
-                  ),
-                  label: "Climatisation",
-                },
-                {
-                  show: v.gps === true,
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="10" r="3" /><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z" />
-                    </svg>
-                  ),
-                  label: "GPS",
-                },
-                {
-                  show: true,
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                  ),
-                  label: `${v.Occupants} places`,
-                },
-                {
-                  show: true,
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
-                    </svg>
-                  ),
-                  label: `${v.km.toLocaleString()} km`,
-                },
-              ];
+                const features: { show: boolean; icon: React.ReactNode; label: string }[] = [
+                  {
+                    show: v.air_conditioner === true,
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v8" />
+                        <path d="M4 14h16" /><rect x="4" y="11" width="16" height="3" rx="1" />
+                      </svg>
+                    ),
+                    label: "Climatisation",
+                  },
+                  {
+                    show: v.gps === true,
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="10" r="3" /><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z" />
+                      </svg>
+                    ),
+                    label: "GPS",
+                  },
+                  {
+                    show: true,
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                    ),
+                    label: `${v.Occupants} places`,
+                  },
+                  {
+                    show: true,
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+                      </svg>
+                    ),
+                    label: `${v.km.toLocaleString()} km`,
+                  },
+                ];
 
-              return (
-                <motion.button
-                  key={`${v.id}-${i}`}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.05 * (i % vehicles.length) }}
-                  whileHover={{ scale: 1.03, y: -10 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    router.push(`/vehicules/${v.id}`);
-                  }}
-                  className="shrink-0 w-[380px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_25px_70px_rgba(57,88,134,0.2)] dark:hover:shadow-[0_25px_70px_rgba(0,0,0,0.55)] transition-all duration-500 group cursor-pointer"
-                >
-                  <div className="h-64 bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden relative">
-                    <motion.img
-                      src={imgSrc}
-                      alt={`${v.marque} ${v.model}`}
-                      className="w-full h-full object-cover"
-                      initial={{ scale: 1 }}
-                      whileHover={{ scale: 1.12 }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                      <motion.span
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-[11px] font-bold text-white bg-[#395886]/80 dark:bg-[#0f1729]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
-                      >
-                        {v.year}
-                      </motion.span>
-                      <motion.span
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-[11px] font-bold text-white bg-[#f39c12]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
-                      >
-                        {v.fuelType}
-                      </motion.span>
-                      {v.category && (
+                return (
+                  <motion.button
+                    key={`${v.id}-${i}`}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.05 * (i % vehicles.length) }}
+                    whileHover={{ scale: 1.03, y: -10 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      router.push(`/vehicules/${v.id}`);
+                    }}
+                    className="shrink-0 w-[380px] bg-white dark:bg-[#0f1729] rounded-3xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 overflow-hidden text-left shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_25px_70px_rgba(57,88,134,0.2)] dark:hover:shadow-[0_25px_70px_rgba(0,0,0,0.55)] transition-all duration-500 group cursor-pointer"
+                  >
+                    <div className="h-64 bg-[#F0F3FA] dark:bg-[#1e293b] overflow-hidden relative">
+                      <motion.img
+                        src={imgSrc}
+                        alt={`${v.marque} ${v.model}`}
+                        className="w-full h-full object-cover"
+                        initial={{ scale: 1 }}
+                        whileHover={{ scale: 1.12 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                         <motion.span
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.25 }}
-                          className="text-[11px] font-bold text-white bg-[#638ECB]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
+                          transition={{ delay: 0.1 }}
+                          className="text-[11px] font-bold text-white bg-[#395886]/80 dark:bg-[#0f1729]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
                         >
-                          {v.category.name}
+                          {v.year}
                         </motion.span>
-                      )}
-                    </div>
-                    <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-                      <div className="flex items-baseline gap-1 text-white drop-shadow-lg">
                         <motion.span
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 }}
-                          className="text-2xl font-black"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                          className="text-[11px] font-bold text-white bg-[#f39c12]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
                         >
-                          {v.pricePerDay.toLocaleString()}
+                          {v.fuelType}
                         </motion.span>
-                        <span className="text-sm font-semibold opacity-90">DH / jour</span>
+                        {v.category && (
+                          <motion.span
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25 }}
+                            className="text-[11px] font-bold text-white bg-[#638ECB]/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
+                          >
+                            {v.category.name}
+                          </motion.span>
+                        )}
                       </div>
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-white/20 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/30 opacity-0 group-hover:opacity-100 transition-all duration-400"
-                      >
-                        Réserver →
-                      </motion.div>
-                    </div>
-                  </div>
-                  <div className="p-5 overflow-hidden relative">
-                    {/* Brand watermark */}
-                    {marqueImg(v.marque) && (
-                      <Image
-                        src={marqueImg(v.marque)!}
-                        alt=""
-                        width={200}
-                        height={200}
-                        className="absolute -bottom-6 -right-6 w-[180px] h-[180px] opacity-[0.08] -rotate-[15deg] pointer-events-none select-none z-0"
-                        draggable={false}
-                        priority={false}
-                        unoptimized
-                      />
-                    )}
-                    <div className="flex items-center gap-2 mb-3 relative z-10">
-                      {marqueImg(v.marque) ? (
-                        <div className="w-9 h-9 rounded-full bg-white dark:bg-[#1f4276] flex items-center justify-center p-1.5 shrink-0 shadow-sm">
-                          <Image
-                            src={marqueImg(v.marque)!}
-                            alt={v.marque}
-                            width={28}
-                            height={28}
-                            className="w-full h-full object-contain"
-                            unoptimized
-                          />
+                      <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+                        <div className="flex items-baseline gap-1 text-white drop-shadow-lg">
+                          <motion.span
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="text-2xl font-black"
+                          >
+                            {v.pricePerDay.toLocaleString()}
+                          </motion.span>
+                          <span className="text-sm font-semibold opacity-90">DH / jour</span>
                         </div>
-                      ) : (
-                        <span className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] shrink-0">{v.marque}</span>
-                      )}
-                      <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300 leading-tight">
-                        {v.model}
-                      </h3>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 relative z-10">
-                      {features.filter((f) => f.show).map((f, idx) => (
                         <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.15 + idx * 0.05 }}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileHover={{ scale: 1.05 }}
+                          className="bg-white/20 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/30 opacity-0 group-hover:opacity-100 transition-all duration-400"
                         >
-                          <VehicleFeature icon={f.icon} label={f.label} />
+                          Réserver →
                         </motion.div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
-                </motion.button>
-              );
-            })}
+                    <div className="p-5 overflow-hidden relative">
+                      {marqueImg(v.marque) && (
+                        <Image
+                          src={marqueImg(v.marque)!}
+                          alt=""
+                          width={200}
+                          height={200}
+                          className="absolute -bottom-6 -right-6 w-[180px] h-[180px] opacity-[0.08] -rotate-[15deg] pointer-events-none select-none z-0"
+                          draggable={false}
+                          priority={false}
+                          unoptimized
+                        />
+                      )}
+                      <div className="flex items-center gap-2 mb-3 relative z-10">
+                        {marqueImg(v.marque) ? (
+                          <div className="w-9 h-9 rounded-full bg-white dark:bg-[#1f4276] flex items-center justify-center p-1.5 shrink-0 shadow-sm">
+                            <Image
+                              src={marqueImg(v.marque)!}
+                              alt={v.marque}
+                              width={28}
+                              height={28}
+                              className="w-full h-full object-contain"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] shrink-0">{v.marque}</span>
+                        )}
+                        <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors duration-300 leading-tight">
+                          {v.model}
+                        </h3>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 relative z-10">
+                        {features.filter((f) => f.show).map((f, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.15 + idx * 0.05 }}
+                          >
+                            <VehicleFeature icon={f.icon} label={f.label} />
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
           </div>
+
+          {/* Navigation buttons */}
+          {isHovering && (
+            <>
+              <button
+                onClick={() => scrollBy(-1)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 dark:bg-[#0f1729]/90 backdrop-blur-md border border-gray-200 dark:border-[#1e293b] shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-[#1e293b] transition-all duration-200"
+                aria-label="Previous vehicles"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#395886] dark:text-[#D5DEEF]">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <button
+                onClick={() => scrollBy(1)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 dark:bg-[#0f1729]/90 backdrop-blur-md border border-gray-200 dark:border-[#1e293b] shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-[#1e293b] transition-all duration-200"
+                aria-label="Next vehicles"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#395886] dark:text-[#D5DEEF]">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+            </>
+          )}
         </motion.div>
       )}
-
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
   );
 }
