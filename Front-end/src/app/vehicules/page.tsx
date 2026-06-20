@@ -475,7 +475,7 @@ export default function VehiculesPage() {
     <ClientOnly>
       <div className="bg-gray-50/50 dark:bg-[#070b14] transition-colors duration-500">
         {/* Hero */}
-        <section className="relative pt-28 pb-24 px-8 overflow-hidden min-h-[380px] flex items-center">
+        <section className="relative pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[320px] sm:min-h-[380px] flex items-center">
           {/* Background image */}
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -605,7 +605,7 @@ export default function VehiculesPage() {
         </section>
 
         {/* Main layout */}
-        <div className="px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Mobile filter toggle */}
           <div className="flex items-center justify-between mb-6 lg:hidden">
             <p className="text-sm text-gray-500 dark:text-[#94A3B8]">
@@ -622,7 +622,7 @@ export default function VehiculesPage() {
 
           <div className="flex gap-8">
             {/* Desktop sidebar */}
-            <aside className="hidden lg:block w-[320px] shrink-0">
+            <aside className="hidden lg:block w-[280px] xl:w-[320px] shrink-0">
               <div className="sticky top-28 bg-white dark:bg-[#0f1729]/60 rounded-2xl border border-gray-200/80 dark:border-[#1e293b]/80 p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-[11px] font-bold text-gray-500 dark:text-[#D5DEEF] uppercase tracking-[0.15em] flex items-center gap-2">
@@ -676,7 +676,7 @@ export default function VehiculesPage() {
               )}
 
               {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-7">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-7">
                   {[...Array(6)].map((_, i) => (
                     <motion.div
                       key={i}
@@ -685,7 +685,7 @@ export default function VehiculesPage() {
                       transition={{ delay: i * 0.06 }}
                        className="bg-white dark:bg-[#0f1729] rounded-[18px] overflow-hidden border border-gray-100/60 dark:border-[#1e293b]/60"
                     >
-                      <div className="h-[240px] bg-gray-200/60 dark:bg-[#1e293b]/60 animate-pulse" />
+                      <div className="h-[200px] sm:h-[240px] bg-gray-200/60 dark:bg-[#1e293b]/60 animate-pulse" />
                       <div className="p-5 space-y-3">
                         <div className="h-6 bg-gray-200/60 dark:bg-[#1e293b]/60 rounded-lg animate-pulse w-3/4" />
                         <div className="h-4 bg-gray-200/60 dark:bg-[#1e293b]/60 rounded-lg animate-pulse w-1/3" />
@@ -713,7 +713,7 @@ export default function VehiculesPage() {
                   <p className="text-gray-400 dark:text-[#64748b] text-sm mt-2">Essayez de modifier vos filtres</p>
                 </motion.div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-7">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-7">
                   {filteredVehicles.map((v, idx) => {
                     const picturePath = v.pictures?.[0]?.path;
                     const isNew = idx < NEW_COUNT;
@@ -743,7 +743,7 @@ export default function VehiculesPage() {
 
                         <LazyVehicleImage
                           picturePath={picturePath}
-                          className="h-[260px] bg-cover bg-center relative overflow-hidden"
+                          className="h-[200px] sm:h-[240px] lg:h-[260px] bg-cover bg-center relative overflow-hidden"
                         >
                           <motion.div
                             className="absolute inset-0 bg-cover bg-center"
