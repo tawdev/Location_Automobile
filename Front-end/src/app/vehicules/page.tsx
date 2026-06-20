@@ -474,25 +474,133 @@ export default function VehiculesPage() {
   return (
     <ClientOnly>
       <div className="bg-gray-50/50 dark:bg-[#070b14] transition-colors duration-500">
-        {/* Banner */}
-        <section className="relative pt-24 pb-14 px-8 bg-gradient-to-br from-[#1f4276] via-[#2d5a8e] to-[#395886] dark:from-[#050a14] dark:to-[#0d1b3e]">
-          <div className="px-8">
-            <motion.h1
-              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-3xl md:text-5xl font-extrabold text-white"
-            >
-              {t("vehicles.page_title")}
-            </motion.h1>
-            <motion.p
-              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-               className="mt-2 text-white/60 text-base max-w-xl font-medium"
-            >
-              {t("vehicles.featured_subtitle")}
-            </motion.p>
+        {/* Hero */}
+        <section className="relative pt-28 pb-24 px-8 overflow-hidden min-h-[380px] flex items-center">
+          {/* Background image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400&q=80)` }}
+          />
+
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1f4276]/95 via-[#2d5a8e]/80 to-[#395886]/50 dark:from-[#050a14]/98 dark:via-[#0a1628]/95 dark:to-[#0d1b3e]/85" />
+
+          {/* Animated gradient accent overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/[0.03] to-transparent bg-[length:200%_200%] animate-[gradient-shift_12s_ease_infinite] pointer-events-none" />
+
+          {/* Floating glowing orbs */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-400/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-[float-slow_12s_ease-in-out_infinite]" />
+            <div className="absolute top-1/3 -right-32 w-[500px] h-[500px] bg-indigo-400/10 dark:bg-indigo-500/5 rounded-full blur-3xl animate-[float-slow_16s_ease-in-out_infinite_reverse]" />
+            <div className="absolute -bottom-40 left-1/4 w-[600px] h-[600px] bg-cyan-400/[0.08] dark:bg-cyan-500/[0.04] rounded-full blur-3xl animate-[float-slow_20s_ease-in-out_infinite]" />
+            <div className="absolute top-[60%] left-[10%] w-48 h-48 bg-violet-400/15 dark:bg-violet-500/8 rounded-full blur-3xl animate-[float-drift-alt_14s_ease-in-out_infinite]" />
+            <div className="absolute top-[5%] left-[40%] w-36 h-36 bg-amber-400/10 dark:bg-amber-500/5 rounded-full blur-3xl animate-[float-drift-alt_11s_ease-in-out_infinite_reverse]" />
+          </div>
+
+          {/* Pulse rings */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+            <div className="absolute top-[20%] left-[15%] w-32 h-32 border border-white/10 rounded-full animate-[ring-expand_4s_ease-out_infinite]" />
+            <div className="absolute top-[20%] left-[15%] w-32 h-32 border border-white/10 rounded-full animate-[ring-expand_4s_ease-out_infinite_1.5s]" />
+            <div className="absolute top-[65%] right-[20%] w-24 h-24 border border-white/10 rounded-full animate-[ring-expand_5s_ease-out_infinite_0.8s]" />
+            <div className="absolute top-[65%] right-[20%] w-24 h-24 border border-white/10 rounded-full animate-[ring-expand_5s_ease-out_infinite_2.5s]" />
+          </div>
+
+          {/* Twinkling stars */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+            <div className="absolute top-[15%] left-[8%] w-[3px] h-[3px] bg-white/40 rounded-full animate-[twinkle_3s_ease-in-out_infinite_0s]" />
+            <div className="absolute top-[28%] left-[88%] w-[2px] h-[2px] bg-white/30 rounded-full animate-[twinkle_4s_ease-in-out_infinite_1.2s]" />
+            <div className="absolute top-[55%] left-[4%] w-[3px] h-[3px] bg-white/35 rounded-full animate-[twinkle_3.5s_ease-in-out_infinite_0.6s]" />
+            <div className="absolute top-[72%] left-[78%] w-[2px] h-[2px] bg-white/25 rounded-full animate-[twinkle_5s_ease-in-out_infinite_2s]" />
+            <div className="absolute top-[42%] left-[50%] w-[4px] h-[4px] bg-white/20 rounded-full animate-[twinkle_4.5s_ease-in-out_infinite_1.8s]" />
+            <div className="absolute top-[82%] left-[25%] w-[2px] h-[2px] bg-white/30 rounded-full animate-[twinkle_3.2s_ease-in-out_infinite_2.8s]" />
+            <div className="absolute top-[10%] left-[65%] w-[3px] h-[3px] bg-white/25 rounded-full animate-[twinkle_4.2s_ease-in-out_infinite_0.9s]" />
+            <div className="absolute top-[62%] left-[60%] w-[2px] h-[2px] bg-white/20 rounded-full animate-[twinkle_3.8s_ease-in-out_infinite_3.2s]" />
+            <div className="absolute top-[35%] left-[20%] w-[5px] h-[5px] bg-white/15 rounded-full animate-[twinkle_6s_ease-in-out_infinite_4s]" />
+            <div className="absolute top-[50%] left-[75%] w-[3px] h-[3px] bg-white/20 rounded-full animate-[twinkle_3s_ease-in-out_infinite_4.5s]" />
+            <div className="absolute top-[75%] left-[45%] w-[2px] h-[2px] bg-white/35 rounded-full animate-[twinkle_5.5s_ease-in-out_infinite_3.5s]" />
+          </div>
+
+          {/* Floating geometric shapes */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+            <div
+              className="absolute top-[25%] left-[12%] w-6 h-6 border border-white/10 animate-[rotate-slow_20s_linear_infinite] rounded-sm"
+              style={{ clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }}
+            />
+            <div
+              className="absolute top-[70%] left-[85%] w-8 h-8 border border-white/10 animate-[rotate-slow_25s_linear_infinite_reverse]"
+              style={{ clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }}
+            />
+            <div
+              className="absolute top-[40%] left-[55%] w-4 h-4 bg-white/10 animate-[float-drift-alt_18s_ease-in-out_infinite]"
+              style={{ clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)" }}
+            />
+          </div>
+
+          {/* Grid pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.04] dark:opacity-[0.06] pointer-events-none"
+            style={{
+              backgroundImage: `linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)`,
+              backgroundSize: "60px 60px",
+            }}
+          />
+
+          {/* Noise texture */}
+          <div className="absolute inset-0 noise-bg opacity-50 pointer-events-none" />
+
+          {/* Driving car silhouette */}
+          <div className="absolute bottom-3 left-0 right-0 h-8 overflow-hidden pointer-events-none opacity-[0.07] dark:opacity-[0.1]" aria-hidden="true">
+            <svg className="absolute bottom-0 animate-[car-drive_14s_linear_infinite]" width="96" height="32" viewBox="0 0 96 32" fill="white">
+              <path d="M12 24H0v-5l5-7h10l7-7h30l10 7h16l5 5v7H12zm5-5h66v-3H17v3zm5-10l-5 7h66l-5-7H22zM20 26a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM72 26a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+            </svg>
+          </div>
+
+          {/* Bottom accent line */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+          {/* Content */}
+          <div className="relative z-10 w-full">
+            <div className="max-w-2xl">
+              {/* Badge */}
+              <motion.div
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md text-white/80 text-[11px] font-bold tracking-[0.2em] uppercase px-4 py-1.5 rounded-full border border-white/15 mb-5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f39c12] animate-[glow-pulse_2s_ease-in-out_infinite]" />
+                  {t("vehicles.featured_subtitle")}
+                </span>
+              </motion.div>
+
+              {/* Title */}
+              <motion.h1
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] tracking-[-0.02em] text-white"
+              >
+                {t("vehicles.page_title")}
+              </motion.h1>
+
+              {/* Subtitle */}
+              <motion.p
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+                className="mt-4 text-base md:text-lg text-white/70 max-w-xl leading-relaxed"
+              >
+                {t("vehicles.featured_subtitle")}
+              </motion.p>
+
+              {/* Decorative line */}
+              <motion.div
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="origin-left mt-6 h-1 w-20 bg-gradient-to-r from-[#f39c12] to-transparent rounded-full"
+              />
+            </div>
           </div>
         </section>
 
