@@ -46,6 +46,8 @@ export default function VehicleDetailPage() {
   // Reservation
   const [reserveStartDate, setReserveStartDate] = useState<Date>();
   const [reserveEndDate, setReserveEndDate] = useState<Date>();
+  const [reserveStartTime, setReserveStartTime] = useState("10:00");
+  const [reserveEndTime, setReserveEndTime] = useState("10:00");
 
   useEffect(() => {
     if (reserveEndDate && reserveStartDate) {
@@ -70,6 +72,14 @@ export default function VehicleDetailPage() {
     if (saved && saved.vehicleId === vehicle.id) {
       setReserveStartDate(new Date(saved.startDate + "T00:00:00"));
       setReserveEndDate(new Date(saved.endDate + "T00:00:00"));
+      if (saved.startDateTime) {
+        const st = new Date(saved.startDateTime);
+        setReserveStartTime(`${String(st.getHours()).padStart(2, "0")}:${String(st.getMinutes()).padStart(2, "0")}`);
+      }
+      if (saved.endDateTime) {
+        const et = new Date(saved.endDateTime);
+        setReserveEndTime(`${String(et.getHours()).padStart(2, "0")}:${String(et.getMinutes()).padStart(2, "0")}`);
+      }
       setShowReservationModal(true);
     }
   }, [vehicle]);
@@ -84,6 +94,8 @@ export default function VehicleDetailPage() {
         if (parsed.startDate && parsed.endDate) {
           setReserveStartDate(new Date(parsed.startDate));
           setReserveEndDate(new Date(parsed.endDate));
+          if (parsed.startTime) setReserveStartTime(parsed.startTime);
+          if (parsed.endTime) setReserveEndTime(parsed.endTime);
         }
         localStorage.removeItem("pendingReservationDates");
       }
@@ -176,6 +188,8 @@ export default function VehicleDetailPage() {
       localStorage.setItem("pendingReservationDates", JSON.stringify({
         startDate: reserveStartDate.toISOString(),
         endDate: reserveEndDate.toISOString(),
+        startTime: reserveStartTime,
+        endTime: reserveEndTime,
       }));
       localStorage.setItem("pendingVehicleRedirect", `/vehicules/${id}`);
       router.push("/register");
@@ -346,6 +360,17 @@ export default function VehicleDetailPage() {
                       </div>
                     </PopoverContent>
                   </Popover>
+                  <div className="mt-3 flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <input
+                      type="time"
+                      value={reserveStartTime}
+                      onChange={(e) => setReserveStartTime(e.target.value)}
+                      className="flex-1 h-[48px] rounded-[14px] border border-[#d9dee6] dark:border-[#1e293b] px-4 text-[15px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]"
+                    />
+                  </div>
                 </div>
 
                 {/* Dropoff */}
@@ -375,6 +400,17 @@ export default function VehicleDetailPage() {
                       </div>
                     </PopoverContent>
                   </Popover>
+                  <div className="mt-3 flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <input
+                      type="time"
+                      value={reserveEndTime}
+                      onChange={(e) => setReserveEndTime(e.target.value)}
+                      className="flex-1 h-[48px] rounded-[14px] border border-[#d9dee6] dark:border-[#1e293b] px-4 text-[15px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]"
+                    />
+                  </div>
                 </div>
 
                 <div className="h-px bg-[#eceff3] mb-6" />
@@ -564,6 +600,8 @@ export default function VehicleDetailPage() {
           vehicleName={`${vehicle.marque} ${vehicle.model}`}
           startDate={reserveStartDate.toISOString().split("T")[0]}
           endDate={reserveEndDate.toISOString().split("T")[0]}
+          startDateTime={`${reserveStartDate.toISOString().split("T")[0]}T${reserveStartTime}:00`}
+          endDateTime={`${reserveEndDate.toISOString().split("T")[0]}T${reserveEndTime}:00`}
           defaultChoice={reservationChoice}
           onClose={(choice) => {
             if (choice) setReservationChoice(choice);

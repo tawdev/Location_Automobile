@@ -24,6 +24,8 @@ type Props = {
   vehicleName: string;
   startDate: string;
   endDate: string;
+  startDateTime?: string;
+  endDateTime?: string;
   defaultChoice?: Choice;
   onClose: (choice?: Choice) => void;
   onSuccess: () => void;
@@ -172,6 +174,8 @@ export default function ReservationFlowModal({
   vehicleName,
   startDate,
   endDate,
+  startDateTime,
+  endDateTime,
   defaultChoice,
   onClose,
   onSuccess,
@@ -302,7 +306,7 @@ export default function ReservationFlowModal({
       return;
     }
     saveReservationProgress({
-      vehicleId, vehicleName, startDate, endDate,
+      vehicleId, vehicleName, startDate, endDate, startDateTime, endDateTime,
       savedChoice, step, selectedExtraIds,
       clientNom, clientDateNaissance, clientCin, clientAdresse,
       clientTelephone, clientNumeroPermi, clientDateDelivrance, clientDateExpiration,
@@ -316,7 +320,7 @@ export default function ReservationFlowModal({
   // Save on page close/refresh via beforeunload
   const latestState = useRef({});
   latestState.current = {
-    vehicleId, vehicleName, startDate, endDate,
+    vehicleId, vehicleName, startDate, endDate, startDateTime, endDateTime,
     savedChoice, step, selectedExtraIds,
     clientNom, clientDateNaissance, clientCin, clientAdresse,
     clientTelephone, clientNumeroPermi, clientDateDelivrance, clientDateExpiration,
@@ -757,6 +761,8 @@ export default function ReservationFlowModal({
     const formData = new FormData();
     formData.set("start_date", startDate);
     formData.set("end_date", endDate);
+    if (startDateTime) formData.set("date_heure_depart", startDateTime);
+    if (endDateTime) formData.set("date_heure_retour", endDateTime);
 
     if (selectedExtraIds.length > 0) {
       for (const id of selectedExtraIds) {

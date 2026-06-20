@@ -3,6 +3,8 @@ export type SavedReservation = {
   vehicleName: string;
   startDate: string;
   endDate: string;
+  startDateTime?: string;
+  endDateTime?: string;
   savedChoice: "one" | "two" | null;
   step: string;
   selectedExtraIds: number[];
