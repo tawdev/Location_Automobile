@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import HtmlLangSync from "@/components/HtmlLangSync";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   variable: "--font-body",
@@ -34,7 +35,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Providers>
           <HtmlLangSync />
-          {children}
+          <div className="flex-1">{children}</div>
+          <Footer />
         </Providers>
       </body>
     </html>

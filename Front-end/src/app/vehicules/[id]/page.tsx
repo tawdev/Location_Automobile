@@ -11,7 +11,7 @@ import BackButton from "@/components/BackButton";
 import ReservationFlowModal from "@/components/ReservationFlowModal";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
-import ClockPicker from "@/components/ui/clock-picker";
+import TimePickerField from "@/components/TimePickerField";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { API_BASE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -368,20 +368,10 @@ export default function VehicleDetailPage() {
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <Popover>
-                      <PopoverTrigger className="w-[120px] h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-3 text-[15px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF] flex items-center justify-center gap-1.5 font-bold shrink-0 cursor-pointer hover:border-[#16386b]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0 pointer-events-none">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="pointer-events-none">{reserveStartTime}</span>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[280px] p-4 bg-white dark:bg-[#0f1729] z-[200] rounded-2xl border border-[#D5DEEF] dark:border-[#1e293b]" side="top" align="end" sideOffset={8}>
-                        <ClockPicker
-                          value={reserveStartTime}
-                          onChange={setReserveStartTime}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <TimePickerField
+                      value={reserveStartTime}
+                      onChange={setReserveStartTime}
+                    />
                   </div>
                 </div>
 
@@ -413,20 +403,10 @@ export default function VehicleDetailPage() {
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <Popover>
-                      <PopoverTrigger className="w-[120px] h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-3 text-[15px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF] flex items-center justify-center gap-1.5 font-bold shrink-0 cursor-pointer hover:border-[#16386b]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0 pointer-events-none">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="pointer-events-none">{reserveEndTime}</span>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[280px] p-4 bg-white dark:bg-[#0f1729] z-[200] rounded-2xl border border-[#D5DEEF] dark:border-[#1e293b]" side="top" align="end" sideOffset={8}>
-                        <ClockPicker
-                          value={reserveEndTime}
-                          onChange={setReserveEndTime}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <TimePickerField
+                      value={reserveEndTime}
+                      onChange={setReserveEndTime}
+                    />
                   </div>
                 </div>
 
