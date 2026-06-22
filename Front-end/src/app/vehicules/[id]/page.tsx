@@ -183,6 +183,12 @@ export default function VehicleDetailPage() {
       setReserveError(t("vehicle.error.select_dates"));
       return;
     }
+    const start = new Date(`${reserveStartDate.toISOString().split("T")[0]}T${reserveStartTime}:00`);
+    const end = new Date(`${reserveEndDate.toISOString().split("T")[0]}T${reserveEndTime}:00`);
+    if (end <= start) {
+      setReserveError("L'heure de retour doit être après l'heure de départ.");
+      return;
+    }
     const token = getAuthToken();
     if (!token) {
       localStorage.setItem("pendingReservationDates", JSON.stringify({
@@ -336,80 +342,78 @@ export default function VehicleDetailPage() {
                 {/* Pickup */}
                 <div className="mb-6">
                   <label className="block mb-3 text-[14px] font-bold text-gray-700 dark:text-[#D5DEEF]">{t("vehicle.pickup_date")}</label>
-                  <Popover>
-                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {reserveStartDate ? reserveStartDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
-                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
-                        <Calendar
-                          mode="single"
-                          selected={reserveStartDate}
-                          onSelect={(d: Date | undefined) => d && setReserveStartDate(d)}
-                          disabled={[
-                            { before: new Date() },
-                            (date: Date) =>
-                              reservedDates.some(
-                                (r) => r.toDateString() === date.toDateString()
-                              )
-                          ]}
-                        />
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                  <div className="mt-3 flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <input
-                      type="time"
-                      value={reserveStartTime}
-                      onChange={(e) => setReserveStartTime(e.target.value)}
-                      className="flex-1 h-[48px] rounded-[14px] border border-[#d9dee6] dark:border-[#1e293b] px-4 text-[15px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]"
-                    />
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger className="flex-1 h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="truncate">{reserveStartDate ? reserveStartDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}</span>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
+                        <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
+                          <Calendar
+                            mode="single"
+                            selected={reserveStartDate}
+                            onSelect={(d: Date | undefined) => d && setReserveStartDate(d)}
+                            disabled={[
+                              { before: new Date() },
+                              (date: Date) =>
+                                reservedDates.some(
+                                  (r) => r.toDateString() === date.toDateString()
+                                )
+                            ]}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        value={reserveStartTime}
+                        onChange={(e) => setReserveStartTime(e.target.value)}
+                        className="w-[120px] h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-4 text-[16px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF] [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:dark:invert"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Dropoff */}
                 <div className="mb-6">
                   <label className="block mb-3 text-[14px] font-bold text-gray-700 dark:text-[#D5DEEF]">{t("vehicle.dropoff_date")}</label>
-                  <Popover>
-                    <PopoverTrigger className="w-full h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {reserveEndDate ? reserveEndDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
-                      <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
-                        <Calendar
-                          mode="single"
-                          selected={reserveEndDate}
-                          onSelect={(d: Date | undefined) => d && setReserveEndDate(d)}
-                          disabled={[
-                            { before: minDropoffDate },
-                            (date: Date) =>
-                              reservedDates.some(
-                                (r) => r.toDateString() === date.toDateString()
-                              )
-                          ]}
-                        />
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                  <div className="mt-3 flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <input
-                      type="time"
-                      value={reserveEndTime}
-                      onChange={(e) => setReserveEndTime(e.target.value)}
-                      className="flex-1 h-[48px] rounded-[14px] border border-[#d9dee6] dark:border-[#1e293b] px-4 text-[15px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]"
-                    />
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger className="flex-1 h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="truncate">{reserveEndDate ? reserveEndDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}</span>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
+                        <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
+                          <Calendar
+                            mode="single"
+                            selected={reserveEndDate}
+                            onSelect={(d: Date | undefined) => d && setReserveEndDate(d)}
+                            disabled={[
+                              { before: minDropoffDate },
+                              (date: Date) =>
+                                reservedDates.some(
+                                  (r) => r.toDateString() === date.toDateString()
+                                )
+                            ]}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        value={reserveEndTime}
+                        onChange={(e) => setReserveEndTime(e.target.value)}
+                        className="w-[120px] h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-4 text-[16px] outline-none focus:border-[#16386b] transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF] [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:dark:invert"
+                      />
+                    </div>
                   </div>
                 </div>
 

@@ -104,11 +104,13 @@ function AccountDropdown({
   router,
   onLogout,
   t,
+  transparent,
 }: {
   pathname: string;
   router: ReturnType<typeof useRouter>;
   onLogout: () => void;
   t: (key: string) => string;
+  transparent?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -151,9 +153,13 @@ function AccountDropdown({
         aria-haspopup="menu"
         aria-expanded={open}
         className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all ${
-          isActive
-            ? "text-white"
-            : "text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50"
+          transparent
+            ? isActive
+              ? "text-white"
+              : "text-white/70 hover:text-white"
+            : isActive
+              ? "text-white"
+              : "text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50"
         }`}
       >
         {isActive && (
@@ -344,7 +350,7 @@ export default function Header({ solid }: { solid?: boolean }) {
               }
             />
             {isAuthenticated && (
-              <AccountDropdown pathname={pathname} router={router} onLogout={handleLogout} t={t} />
+              <AccountDropdown pathname={pathname} router={router} onLogout={handleLogout} t={t} transparent={isTransparentState} />
             )}
             <LanguageSwitcher />
             <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
