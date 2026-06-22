@@ -105,16 +105,26 @@ export default function ClockPicker({
               const pos = polarToCartesian(CX, CY, MINUTE_R, a);
               const isSelected = m === selMinute;
               return (
-                <circle
+                <g
                   key={`min-${m}`}
-                  cx={pos.x}
-                  cy={pos.y}
-                  r={isSelected ? 10 : 4}
-                  fill={isSelected ? "#16386b" : "currentColor"}
-                  className={isSelected ? "" : "text-[#94A3B8] dark:text-[#475569]"}
-                  style={{ cursor: "pointer", transition: "r 0.15s" }}
+                  style={{ cursor: "pointer" }}
                   onClick={() => handleMinuteClick(m)}
-                />
+                >
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={14}
+                    fill="transparent"
+                  />
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={isSelected ? 10 : 5}
+                    fill={isSelected ? "#16386b" : "currentColor"}
+                    className={isSelected ? "" : "text-[#94A3B8] dark:text-[#475569]"}
+                    style={{ pointerEvents: "none", transition: "r 0.15s" }}
+                  />
+                </g>
               );
             })}
 
@@ -130,6 +140,13 @@ export default function ClockPicker({
                   style={{ cursor: "pointer" }}
                   onClick={() => handleHourClick(h)}
                 >
+                  {/* Invisible hit area for all hours */}
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={22}
+                    fill="transparent"
+                  />
                   {isSelected && (
                     <circle
                       cx={pos.x}
