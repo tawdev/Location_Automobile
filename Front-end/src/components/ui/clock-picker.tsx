@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
 const QUICK_MINUTES = [0, 15, 30, 45];
@@ -21,6 +21,12 @@ export default function ClockPicker({
   const [selHour, setSelHour] = useState(hour12);
   const [selMinute, setSelMinute] = useState(parsedMin);
   const [selAmPm, setSelAmPm] = useState<"AM" | "PM">(ampm);
+  const [minuteInput, setMinuteInput] = useState(String(parsedMin).padStart(2, "0"));
+  const minuteRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMinuteInput(String(selMinute).padStart(2, "0"));
+  }, [selMinute]);
 
   function commitTime(h: number, m: number, ap: "AM" | "PM") {
     const hour24 = h === 12 ? (ap === "AM" ? 0 : 12) : ap === "PM" ? h + 12 : h;
@@ -37,6 +43,25 @@ export default function ClockPicker({
     commitTime(selHour, m, selAmPm);
   }
 
+  function handleMinuteInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\D/g, "").slice(0, 2);
+    setMinuteInput(raw);
+    const num = parseInt(raw, 10);
+    if (!isNaN(num) && num >= 0 && num <= 59) {
+      setSelMinute(num);
+      commitTime(selHour, num, selAmPm);
+    }
+  }
+
+  function handleMinuteInputBlur() {
+    const num = parseInt(minuteInput, 10);
+    if (isNaN(num) || num < 0 || num > 59) {
+      setMinuteInput(String(selMinute).padStart(2, "0"));
+    } else {
+      setMinuteInput(String(num).padStart(2, "0"));
+    }
+  }
+
   function toggleAmPm() {
     const next = selAmPm === "AM" ? "PM" : "AM";
     setSelAmPm(next);
@@ -48,7 +73,17 @@ export default function ClockPicker({
       {/* Selected time display */}
       <div className="text-center">
         <span className="text-[36px] font-extrabold text-[#16386b] dark:text-white tracking-tight">
-          {String(selHour).padStart(2, "0")}:{String(selMinute).padStart(2, "0")}
+          {String(selHour).padStart(2, "0")}:
+          <input
+            ref={minuteRef}
+            value={minuteInput}
+            onChange={handleMinuteInputChange}
+            onBlur={handleMinuteInputBlur}
+            className="w-[48px] bg-transparent outline-none text-center"
+            maxLength={2}
+            type="text"
+            inputMode="numeric"
+          />
         </span>
         <span className="text-[18px] font-bold text-[#16386b] dark:text-white ml-1.5 tracking-wider">
           {selAmPm}
