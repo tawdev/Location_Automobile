@@ -264,7 +264,7 @@ export default function VehicleDetailPage() {
             </motion.div>
 
             {/* GRID */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-10 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-10 items-start">
 
               {/* LEFT */}
               <motion.div
