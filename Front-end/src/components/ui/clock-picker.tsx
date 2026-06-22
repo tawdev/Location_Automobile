@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
-const QUICK_MINUTES = [0, 15, 30, 45];
+const ALL_MINUTES = Array.from({ length: 12 }, (_, i) => i * 5);
 
 export default function ClockPicker({
   value,
@@ -145,7 +145,7 @@ export default function ClockPicker({
           Minutes
         </div>
         <div className="grid grid-cols-4 gap-2">
-          {QUICK_MINUTES.map((m) => (
+          {ALL_MINUTES.map((m) => (
             <button
               key={m}
               type="button"
