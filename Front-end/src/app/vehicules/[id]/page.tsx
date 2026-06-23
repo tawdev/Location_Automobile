@@ -48,7 +48,6 @@ export default function VehicleDetailPage() {
   const [reserveStartDate, setReserveStartDate] = useState<Date>();
   const [reserveEndDate, setReserveEndDate] = useState<Date>();
   const [reserveStartTime, setReserveStartTime] = useState("10:00");
-  const [reserveEndTime, setReserveEndTime] = useState("10:00");
 
   useEffect(() => {
     if (reserveEndDate && reserveStartDate) {
@@ -77,10 +76,6 @@ export default function VehicleDetailPage() {
         const st = new Date(saved.startDateTime);
         setReserveStartTime(`${String(st.getHours()).padStart(2, "0")}:${String(st.getMinutes()).padStart(2, "0")}`);
       }
-      if (saved.endDateTime) {
-        const et = new Date(saved.endDateTime);
-        setReserveEndTime(`${String(et.getHours()).padStart(2, "0")}:${String(et.getMinutes()).padStart(2, "0")}`);
-      }
       setShowReservationModal(true);
     }
   }, [vehicle]);
@@ -96,7 +91,6 @@ export default function VehicleDetailPage() {
           setReserveStartDate(new Date(parsed.startDate));
           setReserveEndDate(new Date(parsed.endDate));
           if (parsed.startTime) setReserveStartTime(parsed.startTime);
-          if (parsed.endTime) setReserveEndTime(parsed.endTime);
         }
         localStorage.removeItem("pendingReservationDates");
       }
@@ -185,18 +179,13 @@ export default function VehicleDetailPage() {
       return;
     }
     const start = new Date(`${reserveStartDate.toISOString().split("T")[0]}T${reserveStartTime}:00`);
-    const end = new Date(`${reserveEndDate.toISOString().split("T")[0]}T${reserveEndTime}:00`);
-    if (end <= start) {
-      setReserveError("L'heure de retour doit être après l'heure de départ.");
-      return;
-    }
+    const end = new Date(`${reserveEndDate.toISOString().split("T")[0]}T12:00:00`);
     const token = getAuthToken();
     if (!token) {
       localStorage.setItem("pendingReservationDates", JSON.stringify({
         startDate: reserveStartDate.toISOString(),
         endDate: reserveEndDate.toISOString(),
         startTime: reserveStartTime,
-        endTime: reserveEndTime,
       }));
       localStorage.setItem("pendingVehicleRedirect", `/vehicules/${id}`);
       router.push("/register");
@@ -403,10 +392,6 @@ export default function VehicleDetailPage() {
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <TimePickerField
-                      value={reserveEndTime}
-                      onChange={setReserveEndTime}
-                    />
                   </div>
                 </div>
 
@@ -598,7 +583,7 @@ export default function VehicleDetailPage() {
           startDate={reserveStartDate.toISOString().split("T")[0]}
           endDate={reserveEndDate.toISOString().split("T")[0]}
           startDateTime={`${reserveStartDate.toISOString().split("T")[0]}T${reserveStartTime}:00`}
-          endDateTime={`${reserveEndDate.toISOString().split("T")[0]}T${reserveEndTime}:00`}
+          endDateTime={`${reserveEndDate.toISOString().split("T")[0]}T12:00:00`}
           defaultChoice={reservationChoice}
           onClose={(choice) => {
             if (choice) setReservationChoice(choice);
