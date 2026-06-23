@@ -95,7 +95,13 @@ class ReservationController extends Controller
 
     public function show($id)
     {
+        $reservation = $this->reservitionService->myReservetion()->filter(fn($r) => $r->id == $id)->first();
 
+        if (!$reservation) {
+            return response()->json(['status' => 'error', 'message' => 'Réservation introuvable.'], 404);
+        }
+
+        return response()->json(['status' => 'success', 'data' => $reservation]);
     }
 
     public function update(Request $request, $id)
@@ -105,7 +111,15 @@ class ReservationController extends Controller
 
     public function destroy($id)
     {
-        //
+        $reservation = Reservation::find($id);
+
+        if (!$reservation) {
+            return response()->json(['status' => 'error', 'message' => 'Réservation introuvable.'], 404);
+        }
+
+        $reservation->update(['status' => 'Annulée']);
+
+        return response()->json(['status' => 'success', 'message' => 'Réservation annulée.']);
     }
 
     public function annulleMyReservation($id)
@@ -157,7 +171,7 @@ class ReservationController extends Controller
     public function getReservedDates($id)
     {
         $dates = Reservation::where('vehicle_id', $id)
-            ->where('status', 'Confirmée')
+            ->whereIn('status', ['Confirmée', 'En_Attente'])
             ->get(['start_date', 'end_date']);
 
         return response()->json([

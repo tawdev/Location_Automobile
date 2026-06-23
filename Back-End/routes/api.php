@@ -22,17 +22,17 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // Auth
-Route::post('auth/register' , [AuthController::class, 'register']);
-Route::post('auth/login' , [AuthController::class, 'login']);
+Route::post('auth/register' , [AuthController::class, 'register'])->middleware('throttle:5,10');
+Route::post('auth/login' , [AuthController::class, 'login'])->middleware('throttle:10,10');
 Route::post('auth/logout' , [AuthController::class , 'logout'])->middleware('auth:sanctum');
 Route::get('auth/user' , [AuthController::class , 'userinfo'])->middleware('auth:sanctum');
-Route::post('auth/verify-email', [AuthController::class, 'verifyEmail']);
-Route::post('auth/resend-code', [AuthController::class, 'resendCode']);
+Route::post('auth/verify-email', [AuthController::class, 'verifyEmail'])->middleware('throttle:10,10');
+Route::post('auth/resend-code', [AuthController::class, 'resendCode'])->middleware('throttle:3,10');
 Route::get('auth/google/redirect', [AuthController::class, 'googleRedirect']);
 Route::get('auth/google/callback', [AuthController::class, 'googleCallback']);
-Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('auth/verify-reset-code', [AuthController::class, 'verifyResetCode']);
-Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,10');
+Route::post('auth/verify-reset-code', [AuthController::class, 'verifyResetCode'])->middleware('throttle:10,10');
+Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,10');
 
 // Public settings
 Route::get('settings', [SettingsController::class, 'index']);

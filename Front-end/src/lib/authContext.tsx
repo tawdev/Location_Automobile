@@ -55,6 +55,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    // Only run once when status is "loading"
+    if (status !== "loading") return;
+
     void (async () => {
       const token = getAuthToken();
       if (!token) {
@@ -63,12 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // If we already consider the user authenticated, don't spam the API.
-      if (status === "authenticated") return;
-
       await refreshUser();
     })();
-  }, [pathname, status]);
+  }, [pathname]);
 
   useEffect(() => {
     function onTokenExpired() {

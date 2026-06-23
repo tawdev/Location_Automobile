@@ -51,27 +51,28 @@ class VehicleService
         $Vehicle->update($data);
 
         if (!empty($pictures)) {
-            $imagesPaths = [];
-            foreach ($Vehicle->pictures as $image) {
-                $imagesPaths[] = $image->path;
-            }
-
-            DB::transaction(function() use ($Vehicle) {
-                $Vehicle->pictures()->delete();
-            });
-
-            foreach ($imagesPaths as $path) {
-               if($path && Storage::disk('public')->exists($path)) {
-                     Storage::disk('public')->delete($path);
-               };
-            }
-
+            $newPaths = [];
             foreach ($pictures as $pic) {
                 if ($pic instanceof UploadedFile) {
-                    $path = $pic->store('Vehicles' , 'public');
-                    $Vehicle->pictures()->create([
-                        "path" => $path
-                    ]);
+                    $newPaths[] = $pic->store('Vehicles', 'public');
+                }
+            }
+
+            // Only delete old records/files after new ones are safely stored
+            if (!empty($newPaths)) {
+                $oldPaths = $Vehicle->pictures->pluck('path')->toArray();
+
+                DB::transaction(function() use ($Vehicle, $newPaths) {
+                    $Vehicle->pictures()->delete();
+                    foreach ($newPaths as $p) {
+                        $Vehicle->pictures()->create(['path' => $p]);
+                    }
+                });
+
+                foreach ($oldPaths as $path) {
+                    if ($path && Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
                 }
             }
         }

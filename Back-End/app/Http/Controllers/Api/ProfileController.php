@@ -50,11 +50,11 @@ class ProfileController extends Controller
         $request->validate([
         'old_password'     => 'required|string|min:8',
         'new_password'     => 'required|string|min:8',
-        'confirme_password'=> 'required|string|min:8',
+        'confirm_password'=> 'required|string|min:8',
         ]);
 
         $data = $this->profileService->updatePassword(
-            $request->only('old_password','new_password','confirme_password')
+            $request->only('old_password','new_password','confirm_password')
         );
 
         if ($data === 'wrong_old_password') {
@@ -83,10 +83,10 @@ class ProfileController extends Controller
         $data=$this->profileService->updateName($request->only('new_name'));
         if(!$data){
             return response()->json([
-                'status'=>'success',
-                'messahe'=>'error',
+                'status'=>'error',
+                'message'=>'Le nom ne peut pas être vide.',
                 'data'=>$data
-            ]);
+            ], 400);
         }
 
         return response()->json([
@@ -101,7 +101,14 @@ class ProfileController extends Controller
             'email'=>'required|email'
         ]);
         $data=$this->profileService->updateEmail($request->only('email'));
+        if ($data === 'email_taken') {
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Cet email est déjà utilisé par un autre compte.'
+            ], 422);
+        }
         return response()->json([
+            'status'=>'success',
             'data'=>$data
         ]);
 

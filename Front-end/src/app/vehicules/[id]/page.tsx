@@ -16,6 +16,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { API_BASE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate } from "@/lib/dateUtils";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { vehicleLD, breadcrumbLD } from "@/lib/json-ld";
+import { SITE_URL, PAGE_TITLES } from "@/lib/seo";
 
 type Vehicle = {
   id: number;
@@ -59,6 +63,17 @@ export default function VehicleDetailPage() {
       }
     }
   }, [reserveStartDate]);
+  const typedLocale = locale as "fr" | "en" | "ar";
+
+  useClientMetadata({
+    title: vehicle
+      ? `${vehicle.marque} ${vehicle.model} – Location ${vehicle.marque} Marrakech | CARFORFAR`
+      : PAGE_TITLES.vehicules[typedLocale] || PAGE_TITLES.vehicules.fr,
+    description: vehicle
+      ? `Louez une ${vehicle.marque} ${vehicle.model} à Marrakech dès ${vehicle.pricePerDay} DH/jour. ${vehicle.marque} ${vehicle.model} ${vehicle.year} – climatisation, GPS, ${vehicle.Occupants} places. Réservation facile.`
+      : undefined,
+  });
+
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState<string | null>(null);
   const [reservedDates, setReservedDates] = useState<Date[]>([]);
@@ -224,6 +239,33 @@ export default function VehicleDetailPage() {
   return (
     <ClientOnly>
       <div className="bg-[#F0F3FA] dark:bg-[#070b14] min-h-screen">
+        {vehicle && (
+          <>
+            <JsonLd
+              id="ld-vehicle"
+              data={vehicleLD({
+                name: `${vehicle.marque} ${vehicle.model}`,
+                description: `${vehicle.marque} ${vehicle.model} ${vehicle.year} – ${vehicle.Occupants} places, ${vehicle.fuelType}. Location à Marrakech dès ${vehicle.pricePerDay} DH/jour.`,
+                image: vehicle.pictures?.[0] ? vehicleImageUrl(vehicle.pictures[0].path) : "",
+                url: `${SITE_URL}/vehicules/${id}`,
+                brand: vehicle.marque,
+                model: vehicle.model,
+                year: vehicle.year,
+                fuelType: vehicle.fuelType,
+                seatingCapacity: parseInt(vehicle.Occupants) || undefined,
+                pricePerDay: vehicle.pricePerDay,
+              })}
+            />
+            <JsonLd
+              id="ld-breadcrumb-vehicle"
+              data={breadcrumbLD([
+                { name: "CARFORFAR", url: SITE_URL },
+                { name: "Véhicules", url: `${SITE_URL}/vehicules` },
+                { name: `${vehicle.marque} ${vehicle.model}`, url: `${SITE_URL}/vehicules/${id}` },
+              ])}
+            />
+          </>
+        )}
         <main className="pt-14 pb-24 bg-[#F0F3FA] dark:bg-[#070b14]">
           <div className="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
 

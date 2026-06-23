@@ -35,7 +35,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     [locale]
   );
 
-  const dir: "ltr" | "rtl" = "ltr";
+  const dir: "ltr" | "rtl" = locale === "ar" ? "rtl" : "ltr";
 
   return (
     <I18nContext.Provider value={{ locale, setLocale, t: tFn, dir }}>

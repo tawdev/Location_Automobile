@@ -15,7 +15,9 @@ class AdminPermission
      */
     public function handle(Request $request, Closure $next): Response
 {
-    if (auth()->user()->role_id !== 1) {
+    $user = auth()->user();
+
+    if (!$user || !$user->role || $user->role->name !== 'Admin') {
         return response()->json([
             'status'  => 'error',
             'message' => 'Accès refusé. Admins seulement.',
