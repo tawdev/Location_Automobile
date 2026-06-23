@@ -17,9 +17,15 @@ import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useAuth } from "@/lib/authContext";
 import { API_BASE_URL } from "@/lib/config";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 export default function ContactPage() {
   const { t, locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({ title: PAGE_TITLES.contact[typedLocale] || PAGE_TITLES.contact.fr });
   const { user } = useAuth();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
 

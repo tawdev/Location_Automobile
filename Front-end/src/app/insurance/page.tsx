@@ -28,6 +28,10 @@ import {
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 type Section = {
   title: string;
@@ -747,6 +751,8 @@ function Particles() {
 
 export default function InsurancePage() {
   const { locale, t } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({ title: PAGE_TITLES.insurance[typedLocale] || PAGE_TITLES.insurance.fr });
   // Safe fallback to 'fr' or 'en' if locale isn't fully defined
   const currentLang = (locale === "ar" || locale === "en" || locale === "fr") ? locale : "fr";
   const content = useMemo(() => CONTENT[currentLang], [currentLang]);

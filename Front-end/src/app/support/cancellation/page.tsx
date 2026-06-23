@@ -3,9 +3,15 @@
 import { motion } from "framer-motion";
 import { XCircle, Clock, CheckCircle, AlertTriangle, CreditCard } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 export default function CancellationPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({ title: PAGE_TITLES.cancellation[typedLocale] || PAGE_TITLES.cancellation.fr });
 
   const policies = [
     {
