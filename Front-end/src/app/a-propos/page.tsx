@@ -5,6 +5,10 @@ import { motion } from "framer-motion";
 import { Shield, Star, HeadphonesIcon, Award, ChevronRight, Sparkles, Target, HeartHandshake } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 const VALUES = [
   {
@@ -66,7 +70,9 @@ function Particles() {
 }
 
 export default function AProposPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({ title: PAGE_TITLES.a_propos[typedLocale] || PAGE_TITLES.a_propos.fr });
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">

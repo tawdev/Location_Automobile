@@ -10,6 +10,11 @@ import {
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { faqPageLD } from "@/lib/faq-ld";
+import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 type FAQItem = {
   q: string;
@@ -33,7 +38,16 @@ function getFaqItems(t: (key: string) => string): FAQItem[] {
 
 export default function FaqPage() {
   const { t, locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({ title: PAGE_TITLES.faq[typedLocale] || PAGE_TITLES.faq.fr });
   const items = useMemo(() => getFaqItems(t), [t]);
+  const faqLD = useMemo(
+    () =>
+      faqPageLD(
+        items.map((item) => ({ question: item.q, answer: item.a }))
+      ),
+    [items]
+  );
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [search, setSearch] = useState("");
 
@@ -53,6 +67,7 @@ export default function FaqPage() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
         <div className="relative max-w-6xl mx-auto px-6 py-14">
+          <JsonLd id="faq-ld" data={faqLD as unknown as Record<string, unknown>} />
           <BackButton />
           <motion.div
             initial={{ opacity: 0, y: 20 }}

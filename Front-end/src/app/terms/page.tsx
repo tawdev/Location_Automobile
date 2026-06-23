@@ -24,6 +24,10 @@ import {
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 type Section = {
   title: string;
@@ -325,7 +329,9 @@ function SectionCard({
 }
 
 export default function TermsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({ title: PAGE_TITLES.terms[typedLocale] || PAGE_TITLES.terms.fr });
   const sections = useMemo(() => getSections(t), [t]);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [showScrollTop, setShowScrollTop] = useState(false);

@@ -5,8 +5,10 @@ export function organizationLD(locale: string = "fr") {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: SITE_NAME,
+    alternateName: "CARFORFAR Marrakech",
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.png`,
+    logo: `${SITE_URL}/CarForFar_logo.png`,
+    image: `${SITE_URL}/CarForFar_logo.png`,
     description:
       locale === "fr"
         ? "Location de voitures de luxe à Marrakech"
@@ -17,18 +19,31 @@ export function organizationLD(locale: string = "fr") {
       "@type": "PostalAddress",
       streetAddress: "Avenue Mohammed VI",
       addressLocality: "Marrakech",
+      addressRegion: "Marrakech-Safi",
+      postalCode: "40000",
       addressCountry: "MA",
     },
-    contactPoint: {
-      "@type": "ContactPoint",
-      telephone: "+212-5XX-XXXXXX",
-      contactType: "customer service",
-      availableLanguage: ["French", "English", "Arabic"],
-    },
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        telephone: "+212-5XX-XXXXXX",
+        contactType: "customer service",
+        availableLanguage: ["French", "English", "Arabic"],
+      },
+      {
+        "@type": "ContactPoint",
+        telephone: "+212-5XX-XXXXXX",
+        contactType: "reservations",
+        availableLanguage: ["French", "English", "Arabic"],
+      },
+    ],
     sameAs: [
       "https://facebook.com/carforfar",
       "https://instagram.com/carforfar",
     ],
+    foundingDate: "2010",
+    foundingLocation: "Marrakech, Morocco",
+    numberOfEmployees: { "@type": "QuantitativeValue", minValue: 10, maxValue: 50 },
   };
 }
 
