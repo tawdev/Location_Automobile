@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ClientOnly } from "@/components/ClientOnly";
 import { vehicleImageUrl } from "@/lib/media";
 import { getAuthToken } from "@/lib/tokenStorage";
 import { makeReservation } from "@/lib/reservationsApi";
@@ -213,32 +212,41 @@ export default function VehicleDetailPage() {
 
   if (loading) {
     return (
-      <ClientOnly>
-        <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-[#16386b] border-t-transparent rounded-full animate-spin" />
-        </div>
-      </ClientOnly>
+      <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center pt-20">
+        <div className="w-10 h-10 border-4 border-[#16386b] border-t-transparent rounded-full animate-spin" />
+      </div>
     );
   }
 
-  if (error || !vehicle) {
+  if (error) {
     return (
-      <ClientOnly>
-        <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600 text-lg">{error || t("vehicle.error.not_found")}</p>
-            <button onClick={() => router.push("/vehicules")} className="mt-4 text-[#16386b] hover:underline">
-              {t("vehicle.back")}
-            </button>
+      <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center pt-20">
+        <div className="text-center">
+          <p className="text-gray-600 text-lg">{error}</p>
+          <button onClick={() => router.push("/vehicules")} className="mt-4 text-[#16386b] hover:underline">
+            {t("vehicle.back")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!vehicle) {
+    return (
+      <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] pt-20">
+        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 dark:bg-[#1e293b] rounded w-1/3" />
+            <div className="h-64 bg-gray-200 dark:bg-[#1e293b] rounded-2xl" />
+            <div className="h-4 bg-gray-200 dark:bg-[#1e293b] rounded w-2/3" />
           </div>
         </div>
-      </ClientOnly>
+      </div>
     );
   }
 
   return (
-    <ClientOnly>
-      <div className="bg-[#F0F3FA] dark:bg-[#070b14] min-h-screen">
+    <><div className="bg-[#F0F3FA] dark:bg-[#070b14] min-h-screen">
         {vehicle && (
           <>
             <JsonLd
@@ -639,6 +647,6 @@ export default function VehicleDetailPage() {
           }}
         />
       )}
-    </ClientOnly>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ClientLayout from "@/components/ClientLayout";
 
 export default function DashboardLayout({
@@ -5,5 +6,9 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <ClientLayout>{children}</ClientLayout>;
+  return (
+    <ClientLayout>
+      <Suspense fallback={null}>{children}</Suspense>
+    </ClientLayout>
+  );
 }

@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { ClientOnly } from "@/components/ClientOnly";
+
 import { listVehicles, fetchCategories } from "@/lib/vehiclesApi";
 import type { Vehicle, Category, Marque } from "@/lib/types";
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
@@ -481,16 +481,15 @@ export default function VehiculesPage() {
   );
 
   return (
-    <ClientOnly>
-      <div className="bg-gray-50/50 dark:bg-[#070b14] transition-colors duration-500">
-        <JsonLd
-          id="ld-breadcrumb-vehicules"
-          data={breadcrumbLD([
-            { name: "CARFORFAR", url: SITE_URL },
-            { name: "Véhicules", url: `${SITE_URL}/vehicules` },
-          ])}
-        />
-        {/* Hero */}
+    <div className="bg-gray-50/50 dark:bg-[#070b14] transition-colors duration-500">
+      <JsonLd
+        id="ld-breadcrumb-vehicules"
+        data={breadcrumbLD([
+          { name: "CARFORFAR", url: SITE_URL },
+          { name: "Véhicules", url: `${SITE_URL}/vehicules` },
+        ])}
+      />
+      {/* Hero */}
         <section className="relative pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[320px] sm:min-h-[380px] flex items-center">
           {/* Background image */}
           <div
@@ -925,6 +924,5 @@ export default function VehiculesPage() {
           </div>
         </div>
       </div>
-    </ClientOnly>
   );
 }
