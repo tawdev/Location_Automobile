@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 const HOURS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const CX = 120;
 const CY = 120;
 const R = 105;
 const S = 240;
+
+function angleFromEvent(svg: SVGSVGElement, e: MouseEvent | React.MouseEvent) {
+  const rect = svg.getBoundingClientRect();
+  const x = e.clientX - rect.left - CX;
+  const y = e.clientY - rect.top - CY;
+  let angle = Math.atan2(x, -y) * (180 / Math.PI);
+  if (angle < 0) angle += 360;
+  return { x, y, angle, dist: Math.sqrt(x * x + y * y) };
+}
 
 export default function ClockPicker({
   value,
@@ -24,35 +33,64 @@ export default function ClockPicker({
   const [selHour, setSelHour] = useState(hour12);
   const [selMinute, setSelMinute] = useState(parsedMin);
   const [selAmPm, setSelAmPm] = useState<"AM" | "PM">(ampm);
+  const [dragging, setDragging] = useState<"hour" | "minute" | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
 
-  function commitTime(h: number, m: number, ap: "AM" | "PM") {
-    const hour24 = h === 12 ? (ap === "AM" ? 0 : 12) : ap === "PM" ? h + 12 : h;
-    onChange(`${String(hour24).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-  }
+  const commitTime = useCallback(
+    (h: number, m: number, ap: "AM" | "PM") => {
+      const hour24 =
+        h === 12 ? (ap === "AM" ? 0 : 12) : ap === "PM" ? h + 12 : h;
+      onChange(
+        `${String(hour24).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+      );
+    },
+    [onChange]
+  );
 
-  function handleClockClick(e: React.MouseEvent<SVGSVGElement>) {
+  const setFromEvent = useCallback(
+    (e: MouseEvent | React.MouseEvent) => {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const { angle, dist } = angleFromEvent(svg, e);
+
+      if (dragging === "hour" || dist < R * 0.42) {
+        const h = Math.round(angle / 30) % 12;
+        setSelHour(h || 12);
+        commitTime(h || 12, selMinute, selAmPm);
+      } else {
+        const m = Math.round(angle / 6) % 60;
+        const snapped = Math.round(m / 5) * 5;
+        setSelMinute(snapped);
+        commitTime(selHour, snapped, selAmPm);
+      }
+    },
+    [dragging, selMinute, selAmPm, selHour, commitTime]
+  );
+
+  function handleMouseDown(e: React.MouseEvent<SVGSVGElement>) {
     const svg = svgRef.current;
     if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const x = e.clientX - rect.left - CX;
-    const y = e.clientY - rect.top - CY;
-    const dist = Math.sqrt(x * x + y * y);
-    let angle = Math.atan2(x, -y) * (180 / Math.PI);
-    if (angle < 0) angle += 360;
-
-    if (dist < R * 0.42) {
-      const h = Math.round(angle / 30) % 12;
-      setSelHour(h || 12);
-      commitTime(h || 12, selMinute, selAmPm);
-    } else {
-      const m = Math.round(angle / 6) % 60;
-      const snapped = Math.round(m / 5) * 5;
-      setSelMinute(snapped);
-      commitTime(selHour, snapped, selAmPm);
-    }
+    const { dist } = angleFromEvent(svg, e);
+    setDragging(dist < R * 0.42 ? "hour" : "minute");
+    setFromEvent(e);
   }
+
+  useEffect(() => {
+    if (!dragging) return;
+    function onMove(e: MouseEvent) {
+      setFromEvent(e);
+    }
+    function onUp() {
+      setDragging(null);
+    }
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+  }, [dragging, setFromEvent]);
 
   function toggleAmPm() {
     const next = selAmPm === "AM" ? "PM" : "AM";
@@ -83,7 +121,8 @@ export default function ClockPicker({
         height={S}
         viewBox={`0 0 ${S} ${S}`}
         className="cursor-pointer"
-        onClick={handleClockClick}
+        onMouseDown={handleMouseDown}
+        style={{ touchAction: "none" }}
       >
         {/* Clock face background */}
         <circle
@@ -161,7 +200,10 @@ export default function ClockPicker({
           strokeWidth="4.5"
           strokeLinecap="round"
           className="dark:stroke-white"
-          style={{ transition: "all 0.25s ease" }}
+          style={{
+            transition: dragging === "hour" ? "none" : "all 0.2s ease",
+            cursor: "grab",
+          }}
         />
 
         {/* Minute hand */}
@@ -174,7 +216,10 @@ export default function ClockPicker({
           strokeWidth="3"
           strokeLinecap="round"
           className="dark:stroke-white"
-          style={{ transition: "all 0.25s ease" }}
+          style={{
+            transition: dragging === "minute" ? "none" : "all 0.2s ease",
+            cursor: "grab",
+          }}
         />
 
         {/* Center cap */}
