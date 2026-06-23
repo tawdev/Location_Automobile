@@ -103,7 +103,7 @@ class DashboardController extends Controller
             ]);
             return response()->json([
                 'status' => 'error',
-                'message' => $th->getMessage(),
+                'message' => 'Une erreur est survenue lors du chargement des statistiques.',
             ], 500);
         }
     }

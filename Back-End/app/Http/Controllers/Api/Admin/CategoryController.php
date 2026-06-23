@@ -22,7 +22,7 @@ class CategoryController extends Controller
             return $this->categoryService->getErrorResponse();
         }
         return response()->json([
-            'status' => 'succès',
+            'status' => 'success',
             'data' => $data
         ]);
 
@@ -40,7 +40,7 @@ class CategoryController extends Controller
         $Category = Category::create($CategoryName);
 
         return response()->json([
-            'message' => 'succès',
+            'message' => 'success',
             'data' => $Category
         ]);
 
@@ -56,7 +56,7 @@ class CategoryController extends Controller
         }
 
         return response()->json([
-            'message' => 'succès',
+            'message' => 'success',
             'data' => $Category
         ]);
     }
@@ -72,7 +72,7 @@ class CategoryController extends Controller
             return $this->categoryService->getErrorResponse();
         }
 
-        $isFound = Category::where('name', $CategoryName['name'])->exists();
+        $isFound = Category::where('name', $CategoryName['name'])->where('id', '!=', $id)->exists();
 
         if ($isFound) {
             return $this->categoryService->getExistingError();
@@ -81,7 +81,7 @@ class CategoryController extends Controller
         $Category->update($CategoryName);
 
         return response()->json([
-            'message' => 'succès',
+            'message' => 'success',
             'data' => $Category
         ]);
 
@@ -95,7 +95,7 @@ class CategoryController extends Controller
         if ($Category) {
             $Category->delete();
             return response()->json([
-                'message' => 'succès',
+                'message' => 'success',
                 'data' => 'Catégorie supprimée avec succès'
             ]);
         }
@@ -118,7 +118,7 @@ class CategoryController extends Controller
         }
 
         return response()->json([
-            'message' => 'succès',
+            'message' => 'success',
             'data' => $Categoryies
         ]);
     }

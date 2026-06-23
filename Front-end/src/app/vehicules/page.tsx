@@ -12,6 +12,10 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getBrandLogo } from "@/lib/brandLogos";
 import { getPublicMarques } from "@/lib/marquesApi";
 import Image from "next/image";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, PAGE_DESCRIPTIONS, SITE_URL } from "@/lib/seo";
 
 const NEW_COUNT = 10;
 
@@ -63,7 +67,12 @@ const LazyVehicleImage = memo(function LazyVehicleImage({
 
 export default function VehiculesPage() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({
+    title: PAGE_TITLES.vehicules[typedLocale] || PAGE_TITLES.vehicules.fr,
+    description: PAGE_DESCRIPTIONS.vehicules[typedLocale] || PAGE_DESCRIPTIONS.vehicules.fr,
+  });
   const prefersReducedMotion = useReducedMotion();
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -474,6 +483,13 @@ export default function VehiculesPage() {
   return (
     <ClientOnly>
       <div className="bg-gray-50/50 dark:bg-[#070b14] transition-colors duration-500">
+        <JsonLd
+          id="ld-breadcrumb-vehicules"
+          data={breadcrumbLD([
+            { name: "CARFORFAR", url: SITE_URL },
+            { name: "Véhicules", url: `${SITE_URL}/vehicules` },
+          ])}
+        />
         {/* Hero */}
         <section className="relative pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[320px] sm:min-h-[380px] flex items-center">
           {/* Background image */}

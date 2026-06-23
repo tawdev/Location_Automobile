@@ -218,7 +218,8 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return redirect()->away(env('FRONTEND_URL') . '/auth/callback?token=' . $token);
+        // Pass token via session/fragment instead of query param to avoid logging
+        return redirect()->away(env('FRONTEND_URL') . '/auth/callback#token=' . $token);
     }
 
     public function forgotPassword(Request $request)
