@@ -43,8 +43,17 @@ export default function TimePickerField({
           className="absolute right-0 z-[300] bg-white dark:bg-[#0f1729] rounded-2xl border border-[#D5DEEF] dark:border-[#1e293b] shadow-xl"
           style={{ bottom: "calc(100% + 8px)" }}
         >
-          <div className="p-4">
-            <ClockPicker value={value} onChange={(v) => { onChange(v); setOpen(false); }} />
+          <div className="p-4 pb-2">
+            <ClockPicker value={value} onChange={onChange} />
+          </div>
+          <div className="flex justify-end px-4 pb-3">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="px-5 py-1.5 rounded-full bg-[#16386b] text-white text-[13px] font-bold hover:bg-[#2b4c7e] transition-colors cursor-pointer"
+            >
+              Done
+            </button>
           </div>
         </div>
       )}
