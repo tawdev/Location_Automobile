@@ -199,6 +199,16 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
     const d = new Date(dateStr);
     return d.toLocaleDateString(locale, { month: "short", day: "2-digit", year: "numeric" });
   };
+
+  const toDateInputValue = (date: string | null | undefined): string => {
+    if (!date) return "";
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "";
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
   const { user, refreshUser } = useAuth();
 
   const initial = useMemo(() => ({
@@ -236,10 +246,10 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
       setPhone(initial.phone);
       setAddress(initial.address);
       setCinPassport(initial.cin_passport);
-      setDateOfBirth(initial.date_of_birth);
+      setDateOfBirth(toDateInputValue(initial.date_of_birth));
       setDriverLicenseNumber(initial.driver_license_number);
-      setLicenseIssueDate(initial.license_issue_date);
-      setLicenseExpiryDate(initial.license_expiry_date);
+      setLicenseIssueDate(toDateInputValue(initial.license_issue_date));
+      setLicenseExpiryDate(toDateInputValue(initial.license_expiry_date));
       initialized.current = true;
     }
   }, [initial.name, initial.email, initial.phone, initial.address, initial.cin_passport, initial.date_of_birth, initial.driver_license_number, initial.license_issue_date, initial.license_expiry_date]);
