@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate, formatDateTime } from "@/lib/dateUtils";
 import {
   fetchMessages, fetchMessage, replyToMessage, deleteMessage,
   type ContactMessage, type PaginatedMessages,
@@ -238,7 +239,7 @@ export default function AdminMessagesPage() {
                       {msg.name}
                     </span>
                     <span className="text-[11px] font-semibold text-[#638ECB] dark:text-[#94A3B8]">
-                      {new Date(msg.created_at).toLocaleDateString()}
+                      {formatDate(msg.created_at)}
                     </span>
                   </div>
                   <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] truncate">
@@ -311,7 +312,7 @@ export default function AdminMessagesPage() {
                       </div>
                       <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8]">
                         {t("admin.from")} <span className="font-bold">{selected.name}</span> &lt;{selected.email}&gt;
-                        &middot; {new Date(selected.created_at).toLocaleString()}
+                        &middot; {formatDateTime(selected.created_at)}
                       </p>
                     </div>
                     <button
@@ -412,7 +413,7 @@ export default function AdminMessagesPage() {
                         <Trash2 className="w-3.5 h-3.5" /> {t("admin.delete")}
                       </button>
                       <span className="text-[11px] font-semibold text-[#638ECB] dark:text-[#94A3B8]">
-                        {t("admin.replied_on").replace("{date}", new Date(selected.updated_at).toLocaleString())}
+                        {t("admin.replied_on").replace("{date}", formatDateTime(selected.updated_at))}
                       </span>
                     </div>
                   )}

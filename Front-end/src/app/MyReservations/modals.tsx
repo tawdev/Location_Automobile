@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { AlertTriangle, X, CheckCircle, Loader2, Calendar, MapPin, Fuel, Gauge, Users } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=128&q=75&fm=webp";
 const FALLBACK_IMG_DETAIL = "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=680&q=80&fm=webp";
@@ -31,14 +32,8 @@ function statusLabel(s: string, t: (key: string) => string) {
   return map[s.toLowerCase()] ?? s.toUpperCase();
 }
 
-function formatDate(dateStr: string, locale: string) {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString(locale, {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
+function formatDateStr(dateStr: string) {
+  return formatDate(dateStr);
 }
 
 function vehicleName(r: { vehicle?: { name?: string; brand?: string; model?: string } }, fallback = "Vehicle") {
@@ -362,7 +357,7 @@ export function DetailDialog({
               <div className="border-l-2 border-[#D5DEEF] dark:border-[#1e293b]/70 pl-4">
                 <p className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-widest mb-1">{t("reservations.date_label")}</p>
                 <p className="text-base font-bold text-[#395886] dark:text-[#D5DEEF]">
-                  {formatDate(res.pickup_date, locale)}
+                  {formatDateStr(res.pickup_date)}
                 </p>
                 {res.pickup_location && (
                   <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1 flex items-center gap-1">
@@ -382,7 +377,7 @@ export function DetailDialog({
               <div className="border-l-2 border-[#D5DEEF] dark:border-[#1e293b]/70 pl-4">
                 <p className="text-[11px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-widest mb-1">{t("reservations.date_label")}</p>
                 <p className="text-base font-bold text-[#395886] dark:text-[#D5DEEF]">
-                  {formatDate(res.dropoff_date, locale)}
+                  {formatDateStr(res.dropoff_date)}
                 </p>
                 {res.dropoff_location && (
                   <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1 flex items-center gap-1">

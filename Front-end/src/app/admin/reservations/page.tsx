@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate, formatDateTime } from "@/lib/dateUtils";
 
 const STATUS_STYLES: Record<string, string> = {
   En_Attente: "bg-amber-50 text-amber-700 border-amber-200",
@@ -35,13 +36,8 @@ function statusStyle(status: string) {
 
 const FINAL_STATUSES = ["Confirmée", "Annulée", "Terminée"];
 
-function formatDate(dateStr: string, locale?: string) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString(locale || "fr-FR", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+function formatDateStr(dateStr: string) {
+  return formatDate(dateStr);
 }
 
 function ImageModal({ url, label, onClose }: { url: string; label: string; onClose: () => void }) {
@@ -312,11 +308,11 @@ function DetailModal({
           <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.start")}</span>
-              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.start_date, locale)}</span>
+              <span className="text-sm font-bold text-[#395886]">{formatDateStr(reservation.start_date)}</span>
             </div>
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.end")}</span>
-              <span className="text-sm font-bold text-[#395886]">{formatDate(reservation.end_date, locale)}</span>
+              <span className="text-sm font-bold text-[#395886]">{formatDateStr(reservation.end_date)}</span>
             </div>
             <div className="col-span-2 pt-2 border-t border-[#D5DEEF]/30">
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.total")}</span>
@@ -527,11 +523,11 @@ function PicturesModal({
                           src={vehicleImageUrl(pic.path)}
                           alt="Avant"
                           className="w-full h-full object-cover cursor-pointer"
-                          onClick={() => onOpenLightbox(vehicleImageUrl(pic.path), `${t("admin.before")} — ${new Date(pic.created_at).toLocaleString(locale)}`)}
+                          onClick={() => onOpenLightbox(vehicleImageUrl(pic.path), `${t("admin.before")} — ${pic.created_at ? formatDateTime(pic.created_at) : ""}`)}
                         />
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1">
                           <span className="text-[9px] font-bold text-white/90 block truncate">
-                            {new Date(pic.created_at).toLocaleString(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                            {pic.created_at ? formatDateTime(pic.created_at) : ""}
                           </span>
                         </div>
                         <button
@@ -582,11 +578,11 @@ function PicturesModal({
                           src={vehicleImageUrl(pic.path)}
                           alt="Après"
                           className="w-full h-full object-cover cursor-pointer"
-                          onClick={() => onOpenLightbox(vehicleImageUrl(pic.path), `${t("admin.after")} — ${new Date(pic.created_at).toLocaleString(locale)}`)}
+                          onClick={() => onOpenLightbox(vehicleImageUrl(pic.path), `${t("admin.after")} — ${pic.created_at ? formatDateTime(pic.created_at) : ""}`)}
                         />
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1">
                           <span className="text-[9px] font-bold text-white/90 block truncate">
-                            {new Date(pic.created_at).toLocaleString(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                            {pic.created_at ? formatDateTime(pic.created_at) : ""}
                           </span>
                         </div>
                         <button
@@ -947,11 +943,11 @@ export default function AdminReservationsPage() {
                     <div className="flex items-center gap-3 mt-1 text-xs font-semibold text-[#638ECB]">
                       <span>{userName}</span>
                       <span className="text-[#D5DEEF]">|</span>
-                      <span>{formatDate(r.start_date, locale)}</span>
+                      <span>{formatDateStr(r.start_date)}</span>
                       <svg className="w-3 h-3 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
-                      <span>{formatDate(r.end_date, locale)}</span>
+                      <span>{formatDateStr(r.end_date)}</span>
                       <span className="text-[#D5DEEF]">|</span>
                       <span className="text-[#395886] font-bold">{r.TotalPrice} MAD</span>
                     </div>
