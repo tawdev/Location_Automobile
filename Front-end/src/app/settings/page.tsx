@@ -11,6 +11,7 @@ import { API_BASE_URL } from "@/lib/config";
 import { useAuth } from "@/lib/authContext";
 import { Car, Calendar, ChevronRight, FileText, IdCard, User, Sparkles, ArrowRight, CheckCircle, AlertCircle, Clock, MapPin, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 
 interface SettingsReservation {
   id: number;
@@ -26,10 +27,8 @@ interface SettingsReservation {
   };
 }
 
-function formatDate(d: string | undefined, locale: string) {
-  if (!d) return "—";
-  const date = new Date(d + "T00:00:00");
-  return date.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+function formatDateStr(d: string | undefined) {
+  return formatDate(d ?? null);
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
@@ -344,14 +343,14 @@ export default function SettingsPage() {
                                     <p className="text-[10px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.1em]">{t("settings.departure")}</p>
                                     <p className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF] mt-0.5 flex items-center gap-1.5">
                                       <Calendar className="w-3.5 h-3.5 text-[#f39c12] dark:text-amber-400" />
-                                      {formatDate(r.start_date, locale)}
+                                      {formatDateStr(r.start_date)}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-[10px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.1em]">{t("settings.return_date")}</p>
                                     <p className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF] mt-0.5 flex items-center gap-1.5">
                                       <Calendar className="w-3.5 h-3.5 text-[#f39c12] dark:text-amber-400" />
-                                      {formatDate(r.end_date, locale)}
+                                      {formatDateStr(r.end_date)}
                                     </p>
                                   </div>
                                 </div>

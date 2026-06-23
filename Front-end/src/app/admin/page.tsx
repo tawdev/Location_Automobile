@@ -9,6 +9,7 @@ import {
 import { getDashboardStats } from "@/lib/adminDashboardApi";
 import type { DashboardStats } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 
 const STATUS_META: Record<string, { color: string; lightBg: string }> = {
   En_Attente: { color: "#D97706", lightBg: "#FEF3C7" },
@@ -18,10 +19,8 @@ const STATUS_META: Record<string, { color: string; lightBg: string }> = {
 };
 
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("fr-FR", {
-    month: "short", day: "numeric", year: "numeric",
-  });
+function formatDateStr(dateStr: string) {
+  return formatDate(dateStr);
 }
 
 function fmt(n: number) {
@@ -499,7 +498,7 @@ export default function AdminDashboardPage() {
                           </span>
                         </div>
                         <div className="text-[11px] font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-0.5">
-                          {r.user?.name ?? "—"} · {formatDate(r.start_date)} → {formatDate(r.end_date)}
+                          {r.user?.name ?? "—"} · {formatDateStr(r.start_date)} → {formatDateStr(r.end_date)}
                         </div>
                       </div>
                       <span className="text-sm font-black text-[#395886] dark:text-[#D5DEEF] shrink-0 tabular-nums">

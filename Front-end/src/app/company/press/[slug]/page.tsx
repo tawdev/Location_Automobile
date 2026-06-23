@@ -11,6 +11,7 @@ import {
   Building2,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 import { pressReleases, catKeys } from "@/lib/data/press";
 
 export default function PressDetailPage() {
@@ -40,11 +41,7 @@ export default function PressDetailPage() {
     );
   }
 
-  const formattedDate = new Date(release.date).toLocaleDateString(locale === "ar" ? "ar" : locale === "fr" ? "fr" : "en", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedDate = formatDate(release.date);
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">

@@ -8,6 +8,7 @@ import type { PressRelease } from "@/lib/types";
 import { getAdminPress, deleteAdminPressRelease } from "@/lib/adminPressApi";
 import type { ApiError } from "@/lib/apiClient";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 
 function SkeletonRow() {
   return (
@@ -208,7 +209,7 @@ export default function AdminPressPage() {
                     </span>
                     {press.published_at && (
                       <span className="text-[10px] font-bold text-[#B0C4DE]">
-                        {new Date(press.published_at).toLocaleDateString()}
+                        {formatDate(press.published_at)}
                       </span>
                     )}
                   </div>

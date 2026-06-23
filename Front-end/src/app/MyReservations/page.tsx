@@ -12,6 +12,7 @@ import { RequireClient } from "@/components/RequireClient";
 import { API_BASE_URL } from "@/lib/config";
 import { vehicleImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 
 const ConfirmDialog = dynamic(() => import("./modals").then(m => m.ConfirmDialog), { ssr: false });
 const DetailDialog = dynamic(() => import("./modals").then(m => m.DetailDialog), { ssr: false });
@@ -133,14 +134,8 @@ function canCancel(pickupDateStr: string) {
   return diffHours >= 48;
 }
 
-function formatDate(dateStr: string, locale: string) {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString(locale, {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
+function formatDateStr(dateStr: string) {
+  return formatDate(dateStr);
 }
 
 function vehicleName(r: Reservation, fallback = "Vehicle") {
@@ -321,9 +316,9 @@ const ReservationCard = memo(function ReservationCard({
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886] dark:text-[#D5DEEF]">
                 <Calendar className="w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8]" />
-                <span>{formatDate(res.pickup_date, locale)}</span>
+                <span>{formatDateStr(res.pickup_date)}</span>
                 <ArrowRight className="w-3 h-3 text-[#638ECB]/40 dark:text-[#94A3B8]/40" />
-                <span>{formatDate(res.dropoff_date, locale)}</span>
+                <span>{formatDateStr(res.dropoff_date)}</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886] dark:text-[#D5DEEF]">
                 <DollarSign className="w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8]" />

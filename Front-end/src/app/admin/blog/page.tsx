@@ -8,6 +8,7 @@ import type { Blog } from "@/lib/types";
 import { getAdminBlogs, deleteAdminBlog } from "@/lib/adminBlogsApi";
 import type { ApiError } from "@/lib/apiClient";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 
 function SkeletonRow() {
   return (
@@ -206,7 +207,7 @@ export default function AdminBlogPage() {
                     </span>
                     {blog.published_at && (
                       <span className="text-[10px] font-bold text-[#B0C4DE]">
-                        {new Date(blog.published_at).toLocaleDateString()}
+                        {formatDate(blog.published_at)}
                       </span>
                     )}
                   </div>
