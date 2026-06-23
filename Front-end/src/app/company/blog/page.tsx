@@ -16,9 +16,15 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate } from "@/lib/dateUtils";
 import { getPublishedBlogs } from "@/lib/blogApi";
 import type { Blog } from "@/lib/types";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 export default function BlogPage() {
   const { t, locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  useClientMetadata({ title: PAGE_TITLES.blog[typedLocale] || PAGE_TITLES.blog.fr });
   const isRtl = locale === "ar";
   const [search, setSearch] = useState("");
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -47,6 +53,13 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
+      <JsonLd
+        id="ld-breadcrumb-blog"
+        data={breadcrumbLD([
+          { name: "CARFORFAR", url: SITE_URL },
+          { name: "Blog", url: `${SITE_URL}/company/blog` },
+        ])}
+      />
       {/* ── Hero ── */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
         <div className="absolute inset-0">

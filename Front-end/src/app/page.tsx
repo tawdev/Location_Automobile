@@ -15,6 +15,10 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useSettings } from "@/lib/SettingsContext";
 import Header from "@/components/Header";
 import ResumeReservationBanner from "@/components/ResumeReservationBanner";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { JsonLd } from "@/components/JsonLd";
+import { organizationLD, websiteLD, localBusinessLD, breadcrumbLD } from "@/lib/json-ld";
+import { PAGE_TITLES, PAGE_DESCRIPTIONS } from "@/lib/seo";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
@@ -1367,9 +1371,24 @@ function AboutSection() {
 
 
 export default function HomePage() {
+  const { locale } = useI18n();
+  const typedLocale = locale as "fr" | "en" | "ar";
+  const pageTitle = PAGE_TITLES.home[typedLocale] || PAGE_TITLES.home.fr;
+  const pageDesc = PAGE_DESCRIPTIONS.home[typedLocale] || PAGE_DESCRIPTIONS.home.fr;
+
+  useClientMetadata({ title: pageTitle, description: pageDesc });
+
+  const breadcrumbItems = [
+    { name: "CARFORFAR", url: "https://www.carforfar.ma/" },
+    { name: "Accueil", url: "https://www.carforfar.ma/" },
+  ];
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] font-sans overflow-x-hidden transition-colors duration-500">
+      <JsonLd id="ld-organization" data={organizationLD(typedLocale)} />
+      <JsonLd id="ld-website" data={websiteLD(typedLocale)} />
+      <JsonLd id="ld-local-business" data={localBusinessLD(typedLocale)} />
+      <JsonLd id="ld-breadcrumb" data={breadcrumbLD(breadcrumbItems)} />
       <style>{`
         html { scroll-behavior: smooth; }
         ::selection { background: #638ECB/30; color: #395886; }

@@ -41,7 +41,7 @@ class ProfileService
             return 'wrong_old_password';
         }
 
-        if ($data['new_password'] !== $data['confirme_password']) {
+        if ($data['new_password'] !== $data['confirm_password']) {
             return 'passwords_mismatch';
         }
 
@@ -71,6 +71,11 @@ class ProfileService
 
         if (empty($data['email'])) {
             return false;
+        }
+
+        $exists = User::where('email', $data['email'])->where('id', '!=', $user->id)->exists();
+        if ($exists) {
+            return 'email_taken';
         }
 
         $user->update(['email' => $data['email']]);
@@ -109,13 +114,11 @@ class ProfileService
         // i need to return true or false ;
 
 
-        if ($user->cin_verso || $user->cin_verso) {
-
-            $doesRectoExists = Storage::disk('public')->exists($user->cin_recto);
-            $doesVersoExists = Storage::disk('public')->exists($user->cin_verso);
-            if ($doesRectoExists) {
+        if ($user->cin_recto || $user->cin_verso) {
+            if ($user->cin_recto && Storage::disk('public')->exists($user->cin_recto)) {
                 Storage::disk('public')->delete($user->cin_recto);
-            } else if ($doesVersoExists) {
+            }
+            if ($user->cin_verso && Storage::disk('public')->exists($user->cin_verso)) {
                 Storage::disk('public')->delete($user->cin_verso);
             }
         }
@@ -139,21 +142,12 @@ class ProfileService
         // i need to return true or false to the controller ;
 
         if ($user->permi_recto || $user->permi_verso) {
-
-            $doesRectoExists = Storage::disk('public')->exists($user->permi_recto);
-
-            $doesVersoExists = Storage::disk('public')->exists($user->permi_verso);
-
-            if ($doesRectoExists) {
-
+            if ($user->permi_recto && Storage::disk('public')->exists($user->permi_recto)) {
                 Storage::disk('public')->delete($user->permi_recto);
-
-            } else if ($doesVersoExists) {
-
-                Storage::disk('public')->delete($user->permi_verso);
-
             }
-
+            if ($user->permi_verso && Storage::disk('public')->exists($user->permi_verso)) {
+                Storage::disk('public')->delete($user->permi_verso);
+            }
         }
 
         $permi_verso_path = $data['permi_verso']->store('Vehicles', 'public');

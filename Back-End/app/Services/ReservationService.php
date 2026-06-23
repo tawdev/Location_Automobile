@@ -140,15 +140,20 @@ class ReservationService
         $reservationData['client_id'] = $client->id;
     }
 
+    // Add default status
+    $reservationData['status'] = 'En_Attente';
+
     // Remove fields that are not in the reservations table
     unset($reservationData['extra_ids']);
-    unset($reservationData['driver2_name']);
-    unset($reservationData['driver2_cin_recto']);
-    unset($reservationData['driver2_cin_verso']);
-    unset($reservationData['driver2_permi_recto']);
-    unset($reservationData['driver2_permi_verso']);
 
     $Reservation = Reservation::create($reservationData);
+
+    // Store second driver document paths if provided
+    $driver2Fields = ['driver2_name', 'driver2_cin_recto', 'driver2_cin_verso', 'driver2_permi_recto', 'driver2_permi_verso'];
+    $driver2Docs = array_intersect_key($data, array_flip($driver2Fields));
+    if (!empty(array_filter($driver2Docs))) {
+        $Reservation->update($driver2Docs);
+    }
 
     if (!empty($extraIds)) {
         $Reservation->extras()->sync($extraIds);
@@ -175,7 +180,7 @@ public function finalizeReservation($id, $kmDriven)
     }
 
     $overage = max(0, $kmDriven - $reservation->km_included);
-    $overageCharge = $overage > 0 ? 100 : 0;
+    $overageCharge = $overage * 2;
 
     $reservation->update([
         'km_driven'         => $kmDriven,
@@ -195,16 +200,20 @@ public function finalizeReservation($id, $kmDriven)
 {
     $reservition = Reservation::with(['user', 'vehicle'])->findOrFail($id);
 
-    $athoreReservations = Reservation::where('start_date', $reservition->start_date)
-        ->where('end_date', $reservition->end_date)
-        ->where('vehicle_id', $reservition->vehicle_id)
+    // Cancel only overlapping PENDING reservations for the same vehicle
+    $conflictingIds = Reservation::where('vehicle_id', $reservition->vehicle_id)
+        ->where('status', 'En_Attente')
         ->where('id', '!=', $id)
+        ->where('start_date', '<', $reservition->end_date)
+        ->where('end_date', '>', $reservition->start_date)
         ->pluck('id');
 
     $reservition->update(['status' => 'Confirmée']);
 
-    Reservation::whereIn('id', $athoreReservations)
-        ->update(['status' => 'Annulée']);
+    if ($conflictingIds->isNotEmpty()) {
+        Reservation::whereIn('id', $conflictingIds)
+            ->update(['status' => 'Annulée']);
+    }
 
     return $reservition;
 }
@@ -253,10 +262,6 @@ public function finalizeReservation($id, $kmDriven)
             $q->where('status',$request->status);
         });
 
-        $query->when($request->filled('end_date'), function ($q) use ($request) {
-            $q->where('end_date','<=',$request->end_date);
-        });
-
         // $query->when($request->filled('vehicle_id')->vehicle(), function ($q) use ($request) {
         //     $q->where('vehicle_id',"%{$request->model}%");
         // });
@@ -293,10 +298,6 @@ public function finalizeReservation($id, $kmDriven)
 
          $query->when($request->filled('status'), function ($q) use ($request) {
             $q->where('status',$request->status);
-        });
-
-        $query->when($request->filled('end_date'), function ($q) use ($request) {
-            $q->where('end_date','<=',$request->end_date);
         });
 
 

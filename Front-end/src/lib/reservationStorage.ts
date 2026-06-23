@@ -56,6 +56,6 @@ export function clearReservationProgress(): void {
   } catch {}
 }
 
-export function hasPendingReservation(): boolean {
+function hasPendingReservation(): boolean {
   return loadReservationProgress() !== null;
 }
