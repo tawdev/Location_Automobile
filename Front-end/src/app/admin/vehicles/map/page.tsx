@@ -6,6 +6,7 @@ import { getAuthToken } from "@/lib/tokenStorage";
 import { API_BASE_URL } from "@/lib/config";
 import { vehicleImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDateTime } from "@/lib/dateUtils";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
 
@@ -171,7 +172,7 @@ export default function VehicleMapPage() {
                 <span>Vitesse: {selectedVehicle.location.speed.toFixed(1)} km/h</span>
               )}
               <span className="text-[10px] text-gray-400 mt-1">
-                {new Date(selectedVehicle.location.updated_at).toLocaleString("fr-FR")}
+                {formatDateTime(selectedVehicle.location.updated_at)}
               </span>
             </div>
           </div>

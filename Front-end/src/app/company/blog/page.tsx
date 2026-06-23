@@ -13,6 +13,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 import { getPublishedBlogs } from "@/lib/blogApi";
 import type { Blog } from "@/lib/types";
 
@@ -39,17 +40,9 @@ export default function BlogPage() {
   const featured = filtered.length > 0 ? filtered[0] : null;
   const gridPosts = featured ? filtered.slice(1) : filtered;
 
-  function formatDate(dateStr: string | null) {
+  function formatDateStr(dateStr: string | null) {
     if (!dateStr) return "";
-    try {
-      return new Intl.DateTimeFormat(locale === "ar" ? "ar-MA" : "en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(new Date(dateStr));
-    } catch {
-      return dateStr;
-    }
+    return formatDate(dateStr);
   }
 
   return (
@@ -148,7 +141,7 @@ export default function BlogPage() {
                     )}
                     <span className="flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5" />
-                      {formatDate(featured.published_at)}
+                      {formatDateStr(featured.published_at)}
                     </span>
                   </div>
                   <motion.button
@@ -184,7 +177,7 @@ export default function BlogPage() {
                     <div className="flex items-center gap-3 text-[10px] text-[#638ECB] dark:text-[#94A3B8] mb-2">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {formatDate(post.published_at)}
+                        {formatDateStr(post.published_at)}
                       </span>
                     </div>
                     <h3 className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors leading-snug mb-2 line-clamp-2">

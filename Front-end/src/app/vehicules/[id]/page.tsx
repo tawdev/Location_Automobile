@@ -15,6 +15,7 @@ import TimePickerField from "@/components/TimePickerField";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { API_BASE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 
 type Vehicle = {
   id: number;
@@ -338,7 +339,7 @@ export default function VehicleDetailPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="truncate">{reserveStartDate ? reserveStartDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}</span>
+                        <span className="truncate">{reserveStartDate ? formatDate(reserveStartDate.toISOString()) : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}</span>
                       </PopoverTrigger>
                       <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
                         <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
@@ -373,7 +374,7 @@ export default function VehicleDetailPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="truncate">{reserveEndDate ? reserveEndDate.toLocaleDateString(locale === "ar" ? "ar-MA" : locale === "fr" ? "fr-FR" : "en-US") : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}</span>
+                        <span className="truncate">{reserveEndDate ? formatDate(reserveEndDate.toISOString()) : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}</span>
                       </PopoverTrigger>
                       <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
                         <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">

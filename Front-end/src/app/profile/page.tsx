@@ -11,6 +11,7 @@ import { getMyReservations } from "@/lib/reservationsApi";
 import type { ApiError } from "@/lib/apiClient";
 import type { Reservation } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate as fd } from "@/lib/dateUtils";
 import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle, Smartphone, MapPin, Calendar, Car, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -194,11 +195,7 @@ const cardVariants = {
 
 export default function ProfilePage({ hideBackButton }: { hideBackButton?: boolean }) {
   const { t, locale } = useI18n();
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return "—";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString(locale, { month: "short", day: "2-digit", year: "numeric" });
-  };
+  const formatDate = fd;
 
   const toDateInputValue = (date: string | null | undefined): string => {
     if (!date) return "";

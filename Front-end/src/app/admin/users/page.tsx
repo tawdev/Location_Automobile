@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { getUsers, getUserStats } from "@/lib/adminUsersApi";
 import { profileImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { formatDate } from "@/lib/dateUtils";
 import type { AdminUser, UserStats } from "@/lib/adminUsersApi";
 
 function fmt(n: number, locale: string = "fr-FR") {
@@ -155,12 +156,7 @@ function UserCard({
   user: AdminUser; index: number; locale?: string;
 }) {
   const { t } = useI18n();
-  const dateLocale = locale === "ar" ? "ar-DZ" : locale === "en" ? "en-US" : "fr-FR";
-  const createdDate = user.created_at
-    ? new Date(user.created_at).toLocaleDateString(dateLocale, {
-        month: "short", day: "numeric", year: "numeric",
-      })
-    : "—";
+  const createdDate = formatDate(user.created_at);
   const moneyLocale = locale === "ar" ? "ar-DZ" : locale === "en" ? "en-US" : "fr-FR";
 
   return (
