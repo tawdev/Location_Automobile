@@ -26,10 +26,10 @@ export const metadata: Metadata = {
     default: `${SITE_NAME} – ${SITE_TAGLINE}`,
     template: `%s | ${SITE_NAME}`,
   },
-  description: "CARFORFAR – Location de voitures de luxe à Marrakech. Réservez votre véhicule premium avec chauffeur ou en libre-service. Devis gratuit, livraison aéroport.",
+  description: "CARFORFAR – Location de voitures de luxe à Marrakech. Réservez votre berline, SUV ou sportive Premium. Livraison aéroport, chauffeur privé. Meilleur rapport qualité-prix.",
   keywords: [
     "location voiture Marrakech",
-    "location voiture luxe Marrakech",
+    "location voiture luxe Marrakech", 
     "voiture de luxe Marrakech",
     "car rental Marrakech",
     "luxury car rental Morocco",
@@ -40,6 +40,10 @@ export const metadata: Metadata = {
     "agence location voiture Marrakech",
     "voiture sportive Marrakech",
     "location voiture aéroport Marrakech",
+    "location voiture premium Marrakech",
+    "voiture de location Marrakech pas cher",
+    "location voiture luxe Marrakech pas cher",
+    "meilleure agence location voiture Marrakech",
   ],
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,
@@ -61,21 +65,15 @@ export const metadata: Metadata = {
     url: SITE_URL,
     images: [
       {
-        url: `${SITE_URL}/og-image.jpg`,
-        width: 1200,
-        height: 630,
-        alt: "CARFORFAR – Location de Voitures de Luxe à Marrakech",
-      },
-      {
         url: `${SITE_URL}/CarForFar_logo.png`,
         width: 512,
         height: 512,
-        alt: "CARFORFAR Logo",
+        alt: "CARFORFAR – Location de Voitures de Luxe à Marrakech",
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     site: SOCIAL.twitter,
     creator: SOCIAL.twitter,
     title: `${SITE_NAME} – ${SITE_TAGLINE}`,
@@ -84,11 +82,6 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: SITE_URL,
-    languages: {
-      fr: `${SITE_URL}/`,
-      en: `${SITE_URL}/en`,
-      ar: `${SITE_URL}/ar`,
-    },
   },
   category: "car rental",
   verification: {

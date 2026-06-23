@@ -1,6 +1,6 @@
 export const SITE_NAME = "CARFORFAR";
 export const SITE_TAGLINE = "Location de Voitures de Luxe à Marrakech";
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.carforfar.ma";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.carforfar.com";
 export const DEFAULT_LOCALE = "fr_FR";
 export const SUPPORTED_LOCALES = ["fr_FR", "en_US", "ar_AE"];
 
@@ -71,28 +71,38 @@ export const PAGE_TITLES: Record<string, { fr: string; en: string; ar: string }>
     en: "Rental Rules – CARFORFAR Marrakech",
     ar: "قواعد التأجير – كارفورفار مراكش",
   },
+  support: {
+    fr: "Centre d'Aide – CARFORFAR Marrakech",
+    en: "Help Center – CARFORFAR Marrakech",
+    ar: "مركز المساعدة – كارفورفار مراكش",
+  },
+  cancellation: {
+    fr: "Annulation – CARFORFAR Marrakech",
+    en: "Cancellation – CARFORFAR Marrakech",
+    ar: "الإلغاء – كارفورفار مراكش",
+  },
 };
 
 export const PAGE_DESCRIPTIONS: Record<string, { fr: string; en: string; ar: string }> = {
   home: {
-    fr: "Découvrez CARFORFAR, le spécialiste de la location de voitures de luxe à Marrakech. Berlines, SUV, sportives – livraison gratuite à l'aéroport. Réservez en ligne.",
-    en: "Discover CARFORFAR, the luxury car rental specialist in Marrakech. Sedans, SUVs, sports cars – free airport delivery. Book online.",
-    ar: "اكتشف كارفورفار، المتخصص في تأجير السيارات الفاخرة في مراكش. سيدان، دفع رباعي، سيارات رياضية – توصيل مجاني للمطار. احجز أونلاين.",
+    fr: "CARFORFAR – Location de voitures de luxe à Marrakech. Réservez votre berline, SUV ou sportive Premium. Livraison aéroport gratuite, chauffeur privé disponible. Devis en 24h.",
+    en: "CARFORFAR – Luxury car rental in Marrakech. Book your premium sedan, SUV or sports car. Free airport delivery, private chauffeur available. Quote in 24h.",
+    ar: "كارفورفار – تأجير سيارات فاخرة في مراكش. احجز سيارتك السيدان أو الدفع الرباعي أو الرياضية الفاخرة. توصيل مجاني للمطار، سائق خاص متاح. عرض سعر في 24 ساعة.",
   },
   vehicules: {
-    fr: "Parc de véhicules de luxe à Marrakech : berlines élégantes, SUV premium et sportives. Location avec ou sans chauffeur. Réservation facile.",
-    en: "Luxury fleet in Marrakech: elegant sedans, premium SUVs and sports cars. Rental with or without chauffeur. Easy booking.",
-    ar: "أسطول سيارات فاخرة في مراكش: سيدان أنيقة، دفع رباعي فاخر، وسيارات رياضية. تأجير مع أو بدون سائق. حجز سهل.",
+    fr: "Découvrez notre flotte de voitures de luxe à Marrakech : BMW, Mercedes, Audi, Range Rover et plus. Location avec ou sans chauffeur. Réservation en ligne facile et sécurisée.",
+    en: "Discover our luxury car fleet in Marrakech: BMW, Mercedes, Audi, Range Rover and more. Rent with or without chauffeur. Easy online booking.",
+    ar: "اكتشف أسطول سياراتنا الفاخرة في مراكش: بي إم دبليو، مرسيدس، أودي، رينج روفر والمزيد. تأجير مع أو بدون سائق. حجز أونلاين سهل وآمن.",
   },
   a_propos: {
-    fr: "CARFORFAR est votre partenaire de confiance pour la location de voitures de luxe à Marrakech. Découvrez notre histoire, notre mission et nos valeurs.",
-    en: "CARFORFAR is your trusted partner for luxury car rental in Marrakech. Discover our story, mission, and values.",
-    ar: "كارفورفار هو شريكك الموثوق لتأجير السيارات الفاخرة في مراكش. اكتشف قصتنا ورسالتنا وقيمنا.",
+    fr: "CARFORFAR est votre expert en location de voitures de luxe à Marrakech. Plus de 15 ans d'expérience, 200+ véhicules premium, 5000+ clients satisfaits. Découvrez notre histoire.",
+    en: "CARFORFAR is your luxury car rental expert in Marrakech. Over 15 years experience, 200+ premium vehicles, 5000+ satisfied clients. Discover our story.",
+    ar: "كارفورفار هو خبيرك في تأجير السيارات الفاخرة في مراكش. أكثر من 15 عامًا من الخبرة، 200+ سيارة فاخرة، 5000+ عميل راضٍ. اكتشف قصتنا.",
   },
   contact: {
-    fr: "Contactez CARFORFAR pour réserver votre voiture de luxe à Marrakech. Réponse sous 24h. WhatsApp, téléphone ou email.",
-    en: "Contact CARFORFAR to book your luxury car in Marrakech. Reply within 24h. WhatsApp, phone or email.",
-    ar: "اتصل بكارفورفار لحجز سيارتك الفاخرة في مراكش. رد خلال 24 ساعة. واتساب، هاتف أو بريد إلكتروني.",
+    fr: "Contactez CARFORFAR pour réserver votre voiture de luxe à Marrakech. WhatsApp, téléphone ou email. Réponse sous 24h. Devis gratuit personnalisé.",
+    en: "Contact CARFORFAR to book your luxury car in Marrakech. WhatsApp, phone or email. Reply within 24h. Free personalized quote.",
+    ar: "اتصل بكارفورفار لحجز سيارتك الفاخرة في مراكش. واتساب، هاتف أو بريد إلكتروني. رد خلال 24 ساعة. عرض سعر مجاني مخصص.",
   },
 };
 
@@ -101,7 +111,3 @@ export const SOCIAL = {
   facebook: "https://facebook.com/carforfar",
   instagram: "https://instagram.com/carforfar",
 };
-
-export function buildMetaImage(locale: string = "fr"): string {
-  return `${SITE_URL}/og-image-${locale}.jpg`;
-}
