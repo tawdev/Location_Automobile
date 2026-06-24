@@ -8,6 +8,8 @@ import Script from "next/script";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, DEFAULT_LOCALE, SOCIAL } from "@/lib/seo";
 import { organizationLD, websiteLD, localBusinessLD } from "@/lib/json-ld";
 
+
+
 const inter = Inter({
   variable: "--font-body",
   subsets: ["latin"],
@@ -21,6 +23,17 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180' },
+    ],
+  },
+  
   metadataBase: new URL(SITE_URL),
   title: {
     default: `${SITE_NAME} – ${SITE_TAGLINE}`,
