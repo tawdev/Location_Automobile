@@ -1,7 +1,7 @@
 export const SITE_NAME = "CARFORFAR";
 export const SITE_TAGLINE = "Location de Voitures de Luxe à Marrakech";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.carforfar.com";
-export const DEFAULT_LOCALE = "fr_FR";
+export const DEFAULT_LOCALE = "fr_MA";
 export const SUPPORTED_LOCALES = ["fr_FR", "en_US", "ar_AE"];
 
 export const SITE_DESCRIPTION = {
