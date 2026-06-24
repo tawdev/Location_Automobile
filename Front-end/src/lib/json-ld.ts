@@ -1,92 +1,49 @@
 import { SITE_URL, SITE_NAME } from "./seo";
 
-export function organizationLD(locale: string = "fr") {
+export function organizationLD(_locale?: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: SITE_NAME,
-    alternateName: "CARFORFAR Marrakech",
+    name: "CARFORFAR",
     url: SITE_URL,
-    logo: `${SITE_URL}/CarForFar_logo.png`,
-    image: `${SITE_URL}/CarForFar_logo.png`,
-    description:
-      locale === "fr"
-        ? "Location de voitures de luxe à Marrakech"
-        : locale === "ar"
-          ? "تأجير سيارات فاخرة في مراكش"
-          : "Luxury car rental in Marrakech",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Avenue Mohammed VI",
-      addressLocality: "Marrakech",
-      addressRegion: "Marrakech-Safi",
-      postalCode: "40000",
-      addressCountry: "MA",
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/icon.png`,
+      width: 512,
+      height: 512,
     },
-    contactPoint: [
-      {
-        "@type": "ContactPoint",
-        telephone: "+212-5XX-XXXXXX",
-        contactType: "customer service",
-        availableLanguage: ["French", "English", "Arabic"],
-      },
-      {
-        "@type": "ContactPoint",
-        telephone: "+212-5XX-XXXXXX",
-        contactType: "reservations",
-        availableLanguage: ["French", "English", "Arabic"],
-      },
-    ],
-    sameAs: [
-      "https://facebook.com/carforfar",
-      "https://instagram.com/carforfar",
-    ],
-    foundingDate: "2010",
-    foundingLocation: "Marrakech, Morocco",
-    numberOfEmployees: { "@type": "QuantitativeValue", minValue: 10, maxValue: 50 },
-  };
-}
-
-export function websiteLD(locale: string = "fr") {
-  const desc =
-    locale === "fr"
-      ? "Location de voitures de luxe à Marrakech. Réservez votre véhicule premium."
-      : locale === "ar"
-        ? "تأجير سيارات فاخرة في مراكش. احجز سيارتك المميزة."
-        : "Luxury car rental in Marrakech. Book your premium vehicle.";
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: SITE_NAME,
-    url: SITE_URL,
-    description: desc,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/vehicules?search={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
-  };
-}
-
-export function localBusinessLD(locale: string = "fr") {
-  return {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: SITE_NAME,
-    image: `${SITE_URL}/logo.png`,
-    url: SITE_URL,
+    image: `${SITE_URL}/og-image.jpg`,
+    description: "Location de voitures de luxe à Marrakech. Berlines, SUV, sportives avec chauffeur ou libre-service.",
     telephone: "+212-5XX-XXXXXX",
-    priceRange: "$$$",
+    email: "contact@carforfar.com",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Avenue Mohammed VI",
+      streetAddress: "Marrakech",
       addressLocality: "Marrakech",
-      addressRegion: "Marrakech-Safi",
+      addressCountry: "MA",
       postalCode: "40000",
+    },
+    sameAs: [
+      "https://www.instagram.com/carforfar",
+      "https://www.facebook.com/carforfar",
+    ],
+  };
+}
+
+export function localBusinessLD(_locale?: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CarRental",
+    name: "CARFORFAR",
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon.png`,
+    image: `${SITE_URL}/og-image.jpg`,
+    description: "Location de voitures de luxe à Marrakech.",
+    priceRange: "$$",
+    telephone: "+212-5XX-XXXXXX",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Marrakech",
       addressCountry: "MA",
     },
     geo: {
@@ -94,20 +51,26 @@ export function localBusinessLD(locale: string = "fr") {
       latitude: 31.6295,
       longitude: -7.9811,
     },
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        opens: "08:00",
-        closes: "20:00",
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: "Sunday",
-        opens: "09:00",
-        closes: "14:00",
-      },
-    ],
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      opens: "08:00",
+      closes: "22:00",
+    },
+  };
+}
+
+export function websiteLD(_locale?: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "CARFORFAR",
+    url: SITE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${SITE_URL}/vehicules?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 
@@ -186,7 +149,7 @@ export function articleLD(article: {
       name: "CARFORFAR",
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/icon.png`,
       },
     },
   };
