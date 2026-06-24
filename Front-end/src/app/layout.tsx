@@ -5,7 +5,7 @@ import { Providers } from "./providers";
 import HtmlLangSync from "@/components/HtmlLangSync";
 import Footer from "@/components/Footer";
 import Script from "next/script";
-import { SITE_URL, SITE_NAME, SITE_TAGLINE, DEFAULT_LOCALE, SOCIAL } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, SITE_TAGLINE, SOCIAL } from "@/lib/seo";
 import { organizationLD, websiteLD, localBusinessLD } from "@/lib/json-ld";
 
 
@@ -70,28 +70,28 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: DEFAULT_LOCALE,
+    locale: "fr_MA",
     alternateLocale: ["en_US", "ar_AE"],
-    siteName: SITE_NAME,
-    title: `${SITE_NAME} – ${SITE_TAGLINE}`,
-    description: "CARFORFAR – Location de voitures de luxe à Marrakech. Réservez votre véhicule premium avec chauffeur ou en libre-service.",
+    siteName: "CARFORFAR",
+    title: "CARFORFAR – Location de Voitures de Luxe à Marrakech",
+    description: "Location de voitures premium à Marrakech. Berlines, SUV, sportives. Livraison aéroport disponible.",
     url: SITE_URL,
     images: [
       {
-        url: `${SITE_URL}/CarForFar_logo.png`,
-        width: 512,
-        height: 512,
+        url: `${SITE_URL}/og-image.jpg`,
+        width: 1200,
+        height: 630,
         alt: "CARFORFAR – Location de Voitures de Luxe à Marrakech",
       },
     ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     site: SOCIAL.twitter,
     creator: SOCIAL.twitter,
     title: `${SITE_NAME} – ${SITE_TAGLINE}`,
     description: "Location de voitures de luxe à Marrakech. Réservez votre véhicule premium.",
-    images: [`${SITE_URL}/CarForFar_logo.png`],
+    images: [`${SITE_URL}/og-image.jpg`],
   },
   alternates: {
     canonical: SITE_URL,
