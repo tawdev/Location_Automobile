@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -7,6 +7,13 @@ import Footer from "@/components/Footer";
 import Script from "next/script";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SOCIAL } from "@/lib/seo";
 import { organizationLD, websiteLD, localBusinessLD } from "@/lib/json-ld";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#395886",
+};
 
 
 
@@ -107,6 +114,10 @@ export const metadata: Metadata = {
     "geo.placename": "Marrakech",
     "geo.position": "31.6295;-7.9811",
     "ICBM": "31.6295, -7.9811",
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "apple-mobile-web-app-title": "CARFORFAR",
   },
 };
 
@@ -141,6 +152,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLD()) }}
         />
+        <Script id="register-sw" strategy="afterInteractive">
+          {`if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");`}
+        </Script>
       </body>
     </html>
   );
