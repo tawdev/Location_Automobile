@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from "
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
-import { listVehicles, fetchCategories } from "@/lib/vehiclesApi";
+import { listVehicles, fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle, Category, Marque } from "@/lib/types";
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import { Search, SlidersHorizontal, X } from "lucide-react";
@@ -109,11 +109,13 @@ export default function VehiculesPage() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const loadInitial = useCallback(async () => {
+  const loadVehicles = useCallback(async (pickup?: string, ret?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await listVehicles();
+      const data = pickup && ret
+        ? await filterVehicles({ pickup_date: pickup, return_date: ret })
+        : await listVehicles();
       setVehicles(data);
     } catch (e) {
       const msg = (e as { message?: string })?.message || t("vehicles.error_load");
@@ -122,11 +124,6 @@ export default function VehiculesPage() {
       setLoading(false);
     }
   }, [t]);
-
-  useEffect(() => {
-    const id = setTimeout(() => { void loadInitial(); }, 0);
-    return () => clearTimeout(id);
-  }, [loadInitial]);
 
   useEffect(() => {
     fetchCategories().then(setCategories);
@@ -150,7 +147,16 @@ export default function VehiculesPage() {
     if (searchParts.length > 0) setSearchText(searchParts.join(" "));
     if (minP) setMinPrice(Number(minP));
     if (maxP) setMaxPrice(Number(maxP));
-  }, []);
+
+    const id = setTimeout(() => { void loadVehicles(pu ?? undefined, rt ?? undefined); }, 0);
+    return () => clearTimeout(id);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Refetch when dates change
+  useEffect(() => {
+    const id = setTimeout(() => { void loadVehicles(pickupDate, returnDate); }, 300);
+    return () => clearTimeout(id);
+  }, [pickupDate, returnDate, loadVehicles]);
 
   // Derived filter options
   const brands = useMemo(() => {
