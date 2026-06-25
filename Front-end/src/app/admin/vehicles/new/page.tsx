@@ -9,6 +9,7 @@ import Image from "next/image";
 import { getAdminCategories } from "@/lib/adminCategoriesApi";
 import { getPublicMarques } from "@/lib/marquesApi";
 import { createAdminVehicle, type AdminVehiclePayload } from "@/lib/adminVehiclesApi";
+import { playConfirmationSound } from "@/lib/playSound";
 
 function AdminVehicleForm({
   categories,
@@ -330,8 +331,8 @@ export default function AdminVehicleNewPage() {
     setError(null);
     try {
       await createAdminVehicle({ ...payload, images: images.length ? images : undefined });
-      // Force a full reload so the list definitely re-fetches the new vehicle.
-      window.location.assign("/admin/vehicles");
+      playConfirmationSound();
+      setTimeout(() => window.location.assign("/admin/vehicles"), 600);
     } catch (e) {
       const msg = e instanceof Error ? e.message : t("admin.vehicle_create_error");
       setError(msg);
