@@ -14,6 +14,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Upload, CheckCircle, X, User, Users, FileText, IdCard, Package, Shield, ChevronLeft } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { playConfirmationSound } from "@/lib/playSound";
 
 type FieldErrors = Record<string, string>;
 
@@ -1273,7 +1274,7 @@ export default function ReservationFlowModal({
             )}
 
             {step === "done" && (
-              <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4 py-6">
+              <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onAnimationStart={playConfirmationSound} className="flex flex-col items-center gap-4 py-6">
                 <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
