@@ -19,6 +19,7 @@ import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { JsonLd } from "@/components/JsonLd";
 import { vehicleLD, breadcrumbLD } from "@/lib/json-ld";
 import { SITE_URL, PAGE_TITLES } from "@/lib/seo";
+import { playConfirmationSound } from "@/lib/playSound";
 
 type Vehicle = {
   id: number;
@@ -598,7 +599,7 @@ export default function VehicleDetailPage() {
       </div>
 
       {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onAnimationStart={playConfirmationSound}>
           <div className="bg-white dark:bg-[#0f1729] border border-[#d9dee6] dark:border-[#1e293b] rounded-[30px] max-w-md w-full p-6 sm:p-10 shadow-2xl flex flex-col items-center gap-5">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
