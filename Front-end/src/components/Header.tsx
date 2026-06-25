@@ -319,7 +319,7 @@ export default function Header({ solid }: { solid?: boolean }) {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${headerClasses}`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
+        <div dir="ltr" className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
           <div className="-ml-6">
             <Logo onClick={() => router.push("/vehicules")} />
           </div>
