@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Moon,
   Sun,
+  Download,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/authContext";
@@ -245,6 +246,36 @@ export default function Header({ solid }: { solid?: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
   const [dark, setDark] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+    const onPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    const onInstalled = () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+    };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    (installPrompt as any).prompt();
+    const result = await (installPrompt as any).userChoice;
+    if (result.outcome === "accepted") setIsInstalled(true);
+    setInstallPrompt(null);
+  };
 
   const isHomePage = pathname === "/";
   const isTransparent = isHomePage && !solid;
@@ -402,17 +433,33 @@ export default function Header({ solid }: { solid?: boolean }) {
             )}
           </nav>
 
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className={`md:hidden w-10 h-10 rounded-xl flex items-center justify-center ${
-              isTransparentState
-                ? "bg-white/10 text-white"
-                : "bg-[#F0F3FA] text-[#395886]"
-            }`}
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </motion.button>
+          <div className="md:hidden flex items-center gap-2">
+            {installPrompt && !isInstalled && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={handleInstall}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  isTransparentState
+                    ? "bg-white/10 text-white"
+                    : "bg-[#F0F3FA] text-[#395886]"
+                }`}
+                aria-label="Installer l'application"
+              >
+                <Download className="w-5 h-5" />
+              </motion.button>
+            )}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                isTransparentState
+                  ? "bg-white/10 text-white"
+                  : "bg-[#F0F3FA] text-[#395886]"
+              }`}
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </motion.button>
+          </div>
         </div>
       </motion.header>
 
@@ -595,6 +642,20 @@ export default function Header({ solid }: { solid?: boolean }) {
                     {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                   </motion.button>
                 </div>
+                {installPrompt && !isInstalled && (
+                  <>
+                    <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
+                    <div className="px-4 py-2">
+                      <button
+                        onClick={handleInstall}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg transition-all"
+                      >
+                        <Download className="w-4 h-4" />
+                        {t("nav.download_app") || "Télécharger l'app"}
+                      </button>
+                    </div>
+                  </>
+                )}
                 {!isAuthenticated && (
                   <>
                     <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
