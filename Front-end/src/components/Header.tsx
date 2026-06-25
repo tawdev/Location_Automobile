@@ -433,33 +433,17 @@ export default function Header({ solid }: { solid?: boolean }) {
             )}
           </nav>
 
-          <div className="md:hidden flex items-center gap-2">
-            {installPrompt && !isInstalled && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={handleInstall}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  isTransparentState
-                    ? "bg-white/10 text-white"
-                    : "bg-[#F0F3FA] text-[#395886]"
-                }`}
-                aria-label="Installer l'application"
-              >
-                <Download className="w-5 h-5" />
-              </motion.button>
-            )}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                isTransparentState
-                  ? "bg-white/10 text-white"
-                  : "bg-[#F0F3FA] text-[#395886]"
-              }`}
-            >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </motion.button>
-          </div>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className={`md:hidden w-10 h-10 rounded-xl flex items-center justify-center ${
+              isTransparentState
+                ? "bg-white/10 text-white"
+                : "bg-[#F0F3FA] text-[#395886]"
+            }`}
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </motion.button>
         </div>
       </motion.header>
 
