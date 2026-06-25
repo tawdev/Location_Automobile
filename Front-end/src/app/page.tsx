@@ -1509,7 +1509,6 @@ export default function HomePage() {
       <CTASection />
       <AboutSection />
       <MapSection />
-      <FooterSection />
     </div>
   );
 }
