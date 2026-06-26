@@ -71,6 +71,18 @@ function RegisterForm() {
   const [remember, setRemember] = useState(true);
 
   const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      const messages: Record<string, string> = {
+        google_auth_failed: "Google authentication failed. Please try again.",
+        missing_role: "System configuration error. Please contact support.",
+      };
+      setFormError(messages[errorParam] || errorParam);
+    }
+  }, [searchParams]);
+
   const [fieldErrors, setFieldErrors] = useState<{
     name: string | null;
     email: string | null;

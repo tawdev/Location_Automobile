@@ -39,7 +39,7 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URL'),
-        'guzzle' => ['verify' => (bool) env('GUZZLE_VERIFY_SSL', true)],
+        'guzzle' => ['verify' => filter_var(env('GUZZLE_VERIFY_SSL', true), FILTER_VALIDATE_BOOLEAN)],
     ],
 
 ];

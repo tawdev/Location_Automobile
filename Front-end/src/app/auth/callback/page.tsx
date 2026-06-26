@@ -18,13 +18,7 @@ function CallbackInner() {
       return;
     }
 
-    // Token is in the URL fragment (#token=xxx) to avoid server logging
-    const hash = window.location.hash;
-    let token: string | null = null;
-    if (hash) {
-      const match = hash.match(/[#&]token=([^&]+)/);
-      if (match) token = match[1];
-    }
+    const token = searchParams.get("token");
 
     if (!token) {
       setError("Réponse d'authentification invalide.");
