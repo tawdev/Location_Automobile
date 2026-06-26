@@ -36,6 +36,11 @@ export type Category = {
   name: string;
 };
 
+export type TypeVehicule = {
+  id: number;
+  name: string;
+};
+
 export type Marque = {
   id: number;
   name: string;
@@ -52,6 +57,7 @@ export type Vehicle = {
   pricePerDay: number;
   fuelType: string;
   category_id: number;
+  type_vehicule_id?: number | null;
   Occupants: string;
   device_id?: string | null;
   air_conditioner?: boolean;
@@ -59,6 +65,7 @@ export type Vehicle = {
   order?: number | null;
   pictures?: Picture[];
   category?: Category;
+  typeVehicule?: TypeVehicule;
   created_at?: string;
 };
 
