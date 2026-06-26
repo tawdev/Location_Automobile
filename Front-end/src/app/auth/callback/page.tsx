@@ -11,7 +11,6 @@ function CallbackInner() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = searchParams.get("token");
     const errorParam = searchParams.get("error");
 
     if (errorParam) {
@@ -19,10 +18,21 @@ function CallbackInner() {
       return;
     }
 
+    // Token is in the URL fragment (#token=xxx) to avoid server logging
+    const hash = window.location.hash;
+    let token: string | null = null;
+    if (hash) {
+      const match = hash.match(/[#&]token=([^&]+)/);
+      if (match) token = match[1];
+    }
+
     if (!token) {
       setError("Réponse d'authentification invalide.");
       return;
     }
+
+    // Clean up the hash
+    window.history.replaceState(null, "", window.location.pathname);
 
     setAuthToken(token);
 

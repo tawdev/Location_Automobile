@@ -2,10 +2,11 @@
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { Category, Marque, Vehicle } from "@/lib/types";
+import type { Category, Marque, TypeVehicule, Vehicle } from "@/lib/types";
 import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
 import { getPublicMarques } from "@/lib/marquesApi";
+import { fetchTypeVehicules } from "@/lib/vehiclesApi";
 import {
   deleteAdminVehicle,
   createAdminVehicle,
@@ -263,6 +264,8 @@ function VehicleCreateEditModal({
   error,
 }: VehicleCreateEditModalProps) {
   const [marques, setMarques] = useState<Marque[]>([]);
+  const [typeVehicules, setTypeVehicules] = useState<TypeVehicule[]>([]);
+  const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(null);
   const [marque, setMarque] = useState("");
   const [model, setModel] = useState("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
@@ -291,6 +294,7 @@ function VehicleCreateEditModal({
 
   useEffect(() => {
     getPublicMarques().then(setMarques).catch(() => {});
+    fetchTypeVehicules().then(setTypeVehicules).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -313,6 +317,7 @@ function VehicleCreateEditModal({
     setPricePerDay(initial?.pricePerDay ?? 0);
     setFuelType(initial?.fuelType ?? "");
     setCategoryId(initial?.category_id ?? 0);
+    setTypeVehiculeId(initial?.type_vehicule_id ?? null);
     setOccupants(initial?.Occupants ?? "");
     setAirConditioner(initial?.air_conditioner ?? false);
     setGps(initial?.gps ?? false);
@@ -398,6 +403,7 @@ function VehicleCreateEditModal({
         pricePerDay,
         fuelType: fuelType.trim(),
         category_id: categoryId,
+        type_vehicule_id: typeVehiculeId,
         Occupants: occupants.trim(),
         air_conditioner: airConditioner,
         gps: gps,
@@ -547,6 +553,22 @@ function VehicleCreateEditModal({
                 {sortedCategories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Type de véhicule</label>
+              <select
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                value={typeVehiculeId ?? ""}
+                onChange={(e) => setTypeVehiculeId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">-- Aucun type --</option>
+                {typeVehicules.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
                   </option>
                 ))}
               </select>
