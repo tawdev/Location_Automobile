@@ -21,11 +21,13 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT || '22' }}
           script: |
+            set -e
             echo "Starting deployment..."
             cd /var/www/Location_Automobile
             
-            # Reset local changes if any, and pull latest code
+            # Reset local changes, remove untracked files that block pull, and get latest code
             git reset --hard
+            git clean -fd
             git pull origin main
             
             # --- Backend Laravel ---
