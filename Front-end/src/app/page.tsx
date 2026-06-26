@@ -10,7 +10,10 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
-import { Search } from "lucide-react";
+import { Search, CalendarDays } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatDate } from "@/lib/dateUtils";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useSettings } from "@/lib/SettingsContext";
 import Header from "@/components/Header";
@@ -194,30 +197,59 @@ function HeroSection() {
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.pickup_date")}
                   </label>
-                  <input
-                    type="date"
-                    value={pickupDate}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setPickupDate(val);
-                      if (returnDate && val && returnDate < val) {
-                        setReturnDate("");
-                      }
-                    }}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all [color-scheme:dark]"
-                  />
+                  <Popover>
+                    <PopoverTrigger className="w-full">
+                      <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-white flex items-center gap-3 focus:border-white/40 focus:bg-white/20 transition-all cursor-pointer hover:bg-white/20">
+                        <CalendarDays className="w-5 h-5 text-white/60 shrink-0" />
+                        <span className={`text-lg font-bold ${pickupDate ? "text-white" : "text-white/40"}`}>
+                          {pickupDate ? formatDate(pickupDate) : t("vehicles.pickup_date")}
+                        </span>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-xl">
+                      <Calendar
+                        mode="single"
+                        selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined}
+                        onSelect={(d: Date | undefined) => {
+                          if (d) {
+                            const val = d.toISOString().split("T")[0];
+                            setPickupDate(val);
+                            if (returnDate && returnDate < val) {
+                              setReturnDate("");
+                            }
+                          }
+                        }}
+                        fromDate={new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.return_date")}
                   </label>
-                  <input
-                    type="date"
-                    value={returnDate}
-                    onChange={(e) => setReturnDate(e.target.value)}
-                    min={pickupDate || undefined}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all [color-scheme:dark]"
-                  />
+                  <Popover>
+                    <PopoverTrigger className="w-full">
+                      <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-white flex items-center gap-3 focus:border-white/40 focus:bg-white/20 transition-all cursor-pointer hover:bg-white/20">
+                        <CalendarDays className="w-5 h-5 text-white/60 shrink-0" />
+                        <span className={`text-lg font-bold ${returnDate ? "text-white" : "text-white/40"}`}>
+                          {returnDate ? formatDate(returnDate) : t("vehicles.return_date")}
+                        </span>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-xl">
+                      <Calendar
+                        mode="single"
+                        selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined}
+                        onSelect={(d: Date | undefined) => {
+                          if (d) {
+                            setReturnDate(d.toISOString().split("T")[0]);
+                          }
+                        }}
+                        fromDate={pickupDate ? new Date(new Date(pickupDate + "T00:00:00").getTime() + 86400000) : new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
