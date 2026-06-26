@@ -25,9 +25,10 @@ jobs:
             echo "Starting deployment..."
             cd /var/www/Location_Automobile
             
-            # Reset local changes, remove untracked files that block pull, and get latest code
+            # Reset local changes and get latest code
             git reset --hard
-            git clean -fd
+            # Remove generated sitemap/robots files that git pull would refuse to overwrite
+            rm -f Front-end/public/robots.txt Front-end/public/sitemap-0.xml Front-end/public/sitemap.xml
             git pull origin main
             
             # --- Backend Laravel ---
