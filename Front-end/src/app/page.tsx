@@ -13,7 +13,6 @@ import Image from "next/image";
 import { Search, CalendarDays } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { formatDate } from "@/lib/dateUtils";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useSettings } from "@/lib/SettingsContext";
 import Header from "@/components/Header";
@@ -191,41 +190,24 @@ function HeroSection() {
             transition={{ duration: 0.6, delay: 0.6 }}
           >
             <div className="bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)]">
-              {/* Dates row */}
+              {/* Row 1: Pickup + Return dates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.2em] font-black text-white/80 mb-2">
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.pickup_date")}
                   </label>
                   <Popover>
                     <PopoverTrigger className="w-full">
-                      {pickupDate ? (() => {
-                        const d = new Date(pickupDate + "T00:00:00");
-                        const day = d.getDate();
-                        const month = d.toLocaleDateString("fr-FR", { month: "short" });
-                        const year = d.getFullYear();
-                        const weekday = d.toLocaleDateString("fr-FR", { weekday: "short" });
-                        return (
-                          <div className="w-full h-20 bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-md border-2 border-white/25 rounded-2xl px-5 outline-none text-white flex items-center gap-4 transition-all cursor-pointer hover:bg-white/25 hover:border-white/40 hover:shadow-[0_8px_30px_rgba(255,255,255,0.08)] active:scale-[0.98]">
-                            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 shrink-0">
-                              <CalendarDays className="w-6 h-6 text-[#f39c12]" />
-                            </div>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-4xl font-black tracking-[-0.02em] text-white drop-shadow-sm">{day}</span>
-                              <span className="text-sm font-bold text-white/70 uppercase">{month}</span>
-                              <span className="text-lg font-bold text-white/50">{year}</span>
-                            </div>
-                            <div className="ml-auto text-[10px] font-bold text-white/50 uppercase tracking-wider">{weekday}</div>
-                          </div>
-                        );
-                      })() : (
-                        <div className="w-full h-20 bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-md border-2 border-dashed border-white/25 rounded-2xl px-5 outline-none text-white flex items-center gap-4 transition-all cursor-pointer hover:bg-white/25 hover:border-white/40 hover:shadow-[0_8px_30px_rgba(255,255,255,0.08)] active:scale-[0.98]">
-                          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 shrink-0">
-                            <CalendarDays className="w-6 h-6 text-white/50" />
-                          </div>
-                          <span className="text-lg font-bold text-white/50">{t("vehicles.pickup_date")}</span>
-                        </div>
-                      )}
+                      <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                        <CalendarDays className="w-4 h-4 shrink-0 text-white/50" />
+                        {pickupDate ? (
+                          <span className="font-medium text-white">
+                            {new Date(pickupDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                        ) : (
+                          <span className="text-white/40">{t("vehicles.pickup_date")}</span>
+                        )}
+                      </div>
                     </PopoverTrigger>
                     <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
                       <Calendar
@@ -246,39 +228,22 @@ function HeroSection() {
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div className="sm:col-span-2 lg:col-span-1">
-                  <label className="block text-[11px] uppercase tracking-[0.2em] font-black text-white/80 mb-2">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.return_date")}
                   </label>
                   <Popover>
                     <PopoverTrigger className="w-full">
-                      {returnDate ? (() => {
-                        const d = new Date(returnDate + "T00:00:00");
-                        const day = d.getDate();
-                        const month = d.toLocaleDateString("fr-FR", { month: "short" });
-                        const year = d.getFullYear();
-                        const weekday = d.toLocaleDateString("fr-FR", { weekday: "short" });
-                        return (
-                          <div className="w-full h-20 bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-md border-2 border-white/25 rounded-2xl px-5 outline-none text-white flex items-center gap-4 transition-all cursor-pointer hover:bg-white/25 hover:border-white/40 hover:shadow-[0_8px_30px_rgba(255,255,255,0.08)] active:scale-[0.98]">
-                            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 shrink-0">
-                              <CalendarDays className="w-6 h-6 text-[#f39c12]" />
-                            </div>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-4xl font-black tracking-[-0.02em] text-white drop-shadow-sm">{day}</span>
-                              <span className="text-sm font-bold text-white/70 uppercase">{month}</span>
-                              <span className="text-lg font-bold text-white/50">{year}</span>
-                            </div>
-                            <div className="ml-auto text-[10px] font-bold text-white/50 uppercase tracking-wider">{weekday}</div>
-                          </div>
-                        );
-                      })() : (
-                        <div className="w-full h-20 bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-md border-2 border-dashed border-white/25 rounded-2xl px-5 outline-none text-white flex items-center gap-4 transition-all cursor-pointer hover:bg-white/25 hover:border-white/40 hover:shadow-[0_8px_30px_rgba(255,255,255,0.08)] active:scale-[0.98]">
-                          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 shrink-0">
-                            <CalendarDays className="w-6 h-6 text-white/50" />
-                          </div>
-                          <span className="text-lg font-bold text-white/50">{t("vehicles.return_date")}</span>
-                        </div>
-                      )}
+                      <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                        <CalendarDays className="w-4 h-4 shrink-0 text-white/50" />
+                        {returnDate ? (
+                          <span className="font-medium text-white">
+                            {new Date(returnDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                        ) : (
+                          <span className="text-white/40">{t("vehicles.return_date")}</span>
+                        )}
+                      </div>
                     </PopoverTrigger>
                     <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
                       <Calendar
