@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon, X } from "lucide-react";
 
-function CalendarDayButton(props: DayButtonProps) {
+function CalendarDayButton({ size, ...props }: DayButtonProps & { size?: "default" | "lg" }) {
   const { day, modifiers, ...buttonProps } = props;
+  const isLg = size === "lg";
   
   if (modifiers.disabled) {
     return (
-      <div className="relative flex h-9 w-9 items-center justify-center opacity-30">
-        <X className="absolute h-4 w-4 text-red-600" />
+      <div className={`relative flex items-center justify-center opacity-30 ${isLg ? "h-12 w-12" : "h-9 w-9"}`}>
+        <X className={`absolute text-red-600 ${isLg ? "h-5 w-5" : "h-4 w-4"}`} />
       </div>
     );
   }
@@ -21,7 +22,8 @@ function CalendarDayButton(props: DayButtonProps) {
     <Button
       variant={modifiers.selected ? "default" : "ghost"}
       className={cn(
-        "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+        isLg ? "h-12 w-12 text-base font-semibold" : "h-9 w-9 p-0 font-normal",
+        "aria-selected:opacity-100",
         modifiers.today && "bg-accent text-accent-foreground font-bold",
       )}
       {...buttonProps}
@@ -33,15 +35,18 @@ export function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  size = "default",
   ...props
 }: {
   className?: string;
   classNames?: Record<string, string>;
   showOutsideDays?: boolean;
+  size?: "default" | "lg";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }) {
   const defaultClassNames = getDefaultClassNames();
+  const isLg = size === "lg";
 
   return (
     <>
@@ -156,6 +161,40 @@ export function Calendar({
   pointer-events: none;
 }
 
+/* Large size variant */
+.rdp-lg .rdp-month_caption {
+  font-size: 16px;
+}
+.rdp-lg .rdp-weekday {
+  font-size: 13px;
+  padding: 8px 0;
+}
+.rdp-lg .rdp-nav button {
+  width: 38px;
+  height: 38px;
+}
+.rdp-lg .rdp-chevron {
+  width: 20px;
+  height: 20px;
+}
+.rdp-lg .rdp-day {
+  width: 48px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.rdp-lg .rdp-selected .rdp-day_button {
+  background: linear-gradient(135deg, #16386b, #395886);
+  box-shadow: 0 4px 12px rgba(57, 88, 134, 0.3);
+  font-size: 17px;
+}
+.rdp-lg .rdp-today .rdp-day_button {
+  font-size: 17px;
+}
+.rdp-lg .rdp-disabled::after {
+  font-size: 22px;
+}
+
 /* Reserved dates: red X + disabled */
 .rdp-disabled {
   position: relative !important;
@@ -184,7 +223,7 @@ export function Calendar({
       <DayPicker
         showOutsideDays={showOutsideDays}
         fixedWeeks
-        className={`p-1 ${className ?? ""}`}
+        className={`p-1 ${isLg ? "rdp-lg" : ""} ${className ?? ""}`}
         classNames={{
           ...defaultClassNames,
           ...classNames,
@@ -194,6 +233,7 @@ export function Calendar({
             if (orientation === "left") return <ChevronLeftIcon className="rdp-chevron" />;
             return <ChevronRightIcon className="rdp-chevron" />;
           },
+          DayButton: (props) => <CalendarDayButton size={size} {...props} />,
         }}
         {...props}
       />

@@ -1,5 +1,5 @@
 import { apiRequest } from "./apiClient";
-import type { Vehicle, Category } from "./types";
+import type { Vehicle, Category, TypeVehicule } from "./types";
 
 type VehiclesResponse = {
   status: string;
@@ -40,6 +40,22 @@ type CategoriesResponse = {
   status: string;
   data: Category[] | string;
 };
+
+type TypeVehiculesResponse = {
+  status: string;
+  data: TypeVehicule[] | string;
+};
+
+export async function fetchTypeVehicules(): Promise<TypeVehicule[]> {
+  const res = await apiRequest<TypeVehiculesResponse>({
+    method: "GET",
+    path: "/type-vehicules/public",
+    query: undefined,
+    auth: false,
+  });
+  if (Array.isArray(res.data)) return res.data;
+  return [];
+}
 
 export async function fetchCategories(): Promise<Category[]> {
   const res = await apiRequest<CategoriesResponse>({

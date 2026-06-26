@@ -208,6 +208,7 @@ function HeroSection() {
                     </PopoverTrigger>
                     <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-xl">
                       <Calendar
+                        size="lg"
                         mode="single"
                         selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined}
                         onSelect={(d: Date | undefined) => {
@@ -239,6 +240,7 @@ function HeroSection() {
                     </PopoverTrigger>
                     <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-xl">
                       <Calendar
+                        size="lg"
                         mode="single"
                         selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined}
                         onSelect={(d: Date | undefined) => {
