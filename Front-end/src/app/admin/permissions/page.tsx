@@ -69,21 +69,29 @@ export default function AdminPermissionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [permissionsError, setPermissionsError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const successTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const load = useCallback(async (search?: string) => {
     setLoading(true);
     setError(null);
+    setPermissionsError(null);
+    let u: AllUser[] = [];
+    let p: Permission[] = [];
     try {
-      const [u, p] = await Promise.all([getAllUsers(search), getPermissions()]);
-      setUsers(u);
-      setPermissions(p);
+      u = await getAllUsers(search);
     } catch (e) {
       setError(e instanceof Error ? e.message : (e as any)?.message || t("admin_permissions.load_error"));
-    } finally {
-      setLoading(false);
     }
+    try {
+      p = await getPermissions();
+    } catch (e) {
+      setPermissionsError(e instanceof Error ? e.message : (e as any)?.message || t("admin_permissions.load_error"));
+    }
+    setUsers(u);
+    setPermissions(p);
+    setLoading(false);
   }, [t]);
 
   useEffect(() => {
@@ -264,7 +272,14 @@ export default function AdminPermissionsPage() {
 
               {/* Permissions grid */}
               {permissions.length === 0 ? (
-                <EmptyState message={t("admin_permissions.no_permissions")} />
+                permissionsError ? (
+                  <div className="p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30">
+                    <p className="text-sm font-bold text-rose-700 dark:text-rose-400">{permissionsError}</p>
+                    <p className="text-xs text-rose-600 dark:text-rose-500 mt-1">Check the browser console (F12 → Network tab) to see the API response for <code>GET /admin/permissions</code></p>
+                  </div>
+                ) : (
+                  <EmptyState message={t("admin_permissions.no_permissions")} />
+                )
               ) : (
                 <div className="space-y-5">
                   {Object.entries(grouped).map(([group, perms]) => (
