@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
     {
         Role::updateOrCreate(['name' => 'Admin']);
         Role::updateOrCreate(['name' => 'Client']);
+        Role::updateOrCreate(['name' => 'Seconde_Admin']);
       
         User::updateOrCreate(['email' => 'admin@example.com'], [
             'name' => 'admin',
@@ -33,7 +34,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             CategorySeeder::class,
-            RoleSeeder::class,
             ExtraSeeder::class,
             PermissionSeeder::class,
         ]);
