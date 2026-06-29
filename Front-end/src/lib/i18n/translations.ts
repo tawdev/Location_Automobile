@@ -291,7 +291,6 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "profile.upload_license_button": { en: "Upload license", fr: "Télécharger le permis", ar: "تحميل رخصة القيادة" },
   "profile.upload_cin_button": { en: "Upload CIN", fr: "Télécharger la CIN", ar: "تحميل بطاقة التعريف" },
   "profile.uploading": { en: "Uploading...", fr: "Téléchargement...", ar: "جاري التحميل..." },
-  "profile.uploading": { en: "Uploading photo...", fr: "Téléchargement de la photo...", ar: "جاري تحميل الصورة..." },
   "profile.your_profile": { en: "Your profile", fr: "Votre profil", ar: "ملفك الشخصي" },
   "profile.documents_banner": { en: "Please upload your CIN and driver's license before booking a vehicle.", fr: "Veuillez uploader votre CIN et votre permis de conduire avant de réserver un véhicule.", ar: "يرجى تحميل بطاقة التعريف ورخصة القيادة قبل حجز مركبة." },
 
