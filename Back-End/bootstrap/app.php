@@ -15,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminPermission::class,
+            'admin'   => \App\Http\Middleware\AdminPermission::class,
+            'permission' => \App\Http\Middleware\CheckPermission::class,
+            'admin_or_permission' => \App\Http\Middleware\AdminOrPermission::class,
         ]);
         $middleware->redirectGuestsTo(function (Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {

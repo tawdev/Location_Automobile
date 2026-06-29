@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { listVehicles } from "@/lib/vehiclesApi";
+import { listVehicles, fetchTypeVehicules } from "@/lib/vehiclesApi";
 import { getPublicMarques } from "@/lib/marquesApi";
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
-import type { Vehicle, Marque } from "@/lib/types";
+import type { Vehicle, Marque, TypeVehicule } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -98,7 +98,7 @@ function CarLogo({ className, dark: forceDark }: { className?: string; dark?: bo
   );
 }
 
-function HeroSection() {
+function HeroSection({ vehicles: showcaseVehicles }: { vehicles?: Vehicle[] }) {
   const router = useRouter();
   const [currentImg, setCurrentImg] = useState(0);
   const { t } = useI18n();
@@ -109,6 +109,22 @@ function HeroSection() {
   const [model, setModel] = useState("");
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
+  const [fuelType, setFuelType] = useState("");
+  const [typeVehicules, setTypeVehicules] = useState<TypeVehicule[]>([]);
+  const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(null);
+  const [marques, setMarques] = useState<Marque[]>([]);
+  const [brandOpen, setBrandOpen] = useState(false);
+
+  const [vehicleIndex, setVehicleIndex] = useState(0);
+  const displayVehicles = useMemo(() => showcaseVehicles?.slice(0, 5) ?? [], [showcaseVehicles]);
+
+  useEffect(() => {
+    if (displayVehicles.length < 2) return;
+    const timer = setInterval(() => {
+      setVehicleIndex((prev) => (prev + 1) % displayVehicles.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [displayVehicles.length]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -118,9 +134,16 @@ function HeroSection() {
     if (model.trim()) params.set("model", model.trim());
     if (minPrice !== undefined) params.set("min_price", String(minPrice));
     if (maxPrice !== undefined) params.set("max_price", String(maxPrice));
+    if (fuelType) params.set("fuel_type", fuelType);
+    if (typeVehiculeId) params.set("type_vehicule_id", String(typeVehiculeId));
     const qs = params.toString();
     router.push(qs ? `/vehicules?${qs}` : "/vehicules");
   };
+
+  useEffect(() => {
+    fetchTypeVehicules().then(setTypeVehicules).catch(() => {});
+    getPublicMarques().then(setMarques).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentImg((p) => (p + 1) % cars.length), 5000);
@@ -128,7 +151,7 @@ function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#F0F3FA] dark:bg-[#070b14]">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#638ECB] dark:bg-[#070b14]">
       {/* Background image slideshow */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -141,50 +164,39 @@ function HeroSection() {
           style={{ backgroundImage: `url(${cars[currentImg]})` }}
         />
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-r from-[#395886]/90 via-[#395886]/60 to-[#638ECB]/40 dark:from-[#050a14]/95 dark:via-[#0d1b3e]/90 dark:to-[#1a2744]/80" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#638ECB]/70 via-[#638ECB]/40 to-[#638ECB]/20 dark:from-[#050a14]/95 dark:via-[#0d1b3e]/90 dark:to-[#1a2744]/80" />
 
       {/* Content */}
       <div className="relative z-10 w-full mx-auto px-6 md:px-12 lg:px-20 pt-28 pb-24">
-        <div className="max-w-5xl mx-auto">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            <span className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md text-white/90 text-[11px] font-bold tracking-[0.2em] uppercase px-5 py-2 rounded-full border border-white/15">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f39c12]" />
-              {t("home.badge")}
-            </span>
-          </motion.div>
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
+              {/* Left: badge + headline + subtitle */}
+            <div className="flex-1 text-left">
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+              >
+                <span className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md text-white/90 text-[11px] font-bold tracking-[0.2em] uppercase px-5 py-2 rounded-full border border-white/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f39c12]" />
+                  {t("home.badge")}
+                </span>
+              </motion.div>
 
-          {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-6 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-white"
-          >
-            {t("home.hero.title1")}
-            <br />
-            <span className="text-[#f39c12]">{t("home.hero.title2")}</span>
-          </motion.h1>
+              {/* Headline */}
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="mt-6 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-[#f39c12]"
+              >
+                {t("home.hero.title1")}
+                <br />
+                <span className="text-[#f39c12]">{t("home.hero.title2")}</span>
+              </motion.h1>
 
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="mt-5 text-base sm:text-lg md:text-xl text-[#D5DEEF]/90 max-w-xl leading-relaxed"
-          >
-            {t("home.hero.subtitle")}
-          </motion.p>
-
-          {/* Spacer */}
-          <div className="mt-10" />
-
-          {/* Search form */}
-          <motion.div
+              {/* Search form */}
+              <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
@@ -262,19 +274,59 @@ function HeroSection() {
                 </div>
               </div>
 
-              {/* Row 2: Brand + Model + Price + Search */}
+              {/* Row 2: Brand + Model + Fuel type + Vehicle type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.brand")}
                   </label>
-                  <input
-                    type="text"
-                    placeholder={t("vehicles.brand_placeholder")}
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
-                  />
+                  <Popover open={brandOpen} onOpenChange={setBrandOpen}>
+                    <PopoverTrigger className="w-full">
+                      <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                        {brand ? (
+                          <>
+                            <img src={getBrandLogo(brand) ?? ""} alt={brand} className="w-5 h-5 object-contain" />
+                            <span className="font-medium text-white">{brand}</span>
+                          </>
+                        ) : (
+                          <span className="text-white/40">{t("vehicles.all_types")}</span>
+                        )}
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" sideOffset={4} className="w-[340px] p-4 max-h-80 overflow-y-auto">
+                      <button
+                        type="button"
+                        onClick={() => { setBrand(""); setBrandOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                      >
+                        {t("vehicles.all_types")}
+                      </button>
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {marques.map((m) => {
+                          const logoUrl = m.logo
+                            ? `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`
+                            : getBrandLogo(m.name);
+                          return (
+                            <button
+                              key={m.id}
+                              type="button"
+                              onClick={() => { setBrand(m.name); setBrandOpen(false); }}
+                              className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-sm transition-all ${
+                                brand === m.name
+                                  ? "bg-[#f39c12]/20 text-[#f39c12] ring-2 ring-[#f39c12]/40"
+                                  : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md"
+                              }`}
+                            >
+                              {logoUrl && (
+                                <img src={logoUrl} alt={m.name} className="w-8 h-8 object-contain shrink-0" />
+                              )}
+                              <span className="text-xs font-medium text-center leading-tight">{m.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
@@ -287,6 +339,37 @@ function HeroSection() {
                     onChange={(e) => setModel(e.target.value)}
                     className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
                   />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                    {t("vehicles.fuel_type")}
+                  </label>
+                  <select
+                    value={fuelType}
+                    onChange={(e) => setFuelType(e.target.value)}
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
+                  >
+                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
+                    <option value="Gasoline" className="text-gray-800">Gasoline</option>
+                    <option value="Diesel" className="text-gray-800">Diesel</option>
+                    <option value="Electricity" className="text-gray-800">Electricity</option>
+                    <option value="Hybrid" className="text-gray-800">Hybrid</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                    {t("vehicles.vehicle_type")}
+                  </label>
+                  <select
+                    value={typeVehiculeId ?? ""}
+                    onChange={(e) => setTypeVehiculeId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
+                  >
+                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
+                    {typeVehicules.map((tv) => (
+                      <option key={tv.id} value={tv.id} className="text-gray-800">{tv.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -331,6 +414,116 @@ function HeroSection() {
             </div>
           </motion.div>
         </div>
+
+            {/* Right: Vehicle showcase */}
+            {displayVehicles.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+                className="relative w-full max-w-[560px] lg:max-w-[780px]"
+              >
+                <div className="relative aspect-[4/3] flex items-center justify-center p-2">
+                  {/* Concentric rings */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full border border-[#f39c12]/10"
+                      style={{ animation: "pulse-ring 3s ease-in-out infinite" }}
+                    />
+                    <div
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] aspect-square rounded-full border border-[#f39c12]/15"
+                      style={{ animation: "pulse-ring 3s ease-in-out infinite 0.5s" }}
+                    />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] aspect-square rounded-full bg-[#f39c12]/[0.04] blur-[60px]" />
+                  </div>
+                  {/* Vehicle images */}
+                  {displayVehicles.map((v, i) => {
+                    const imgSrc = v.pictures?.[0]
+                      ? vehicleImageUrl(v.pictures[0].path)
+                      : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80";
+                    return (
+                    <motion.div
+                      key={v.id}
+                      className="absolute inset-0 flex items-center justify-center p-4"
+                      initial={false}
+                      animate={{
+                        opacity: i === vehicleIndex ? 1 : 0,
+                        scale: i === vehicleIndex ? 1 : 0.85,
+                        x: i === vehicleIndex ? 0 : 40,
+                      }}
+                      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <div
+                        onClick={() => router.push(`/vehicules/${v.id}`)}
+                        className="w-full bg-white/10 backdrop-blur-md rounded-3xl border border-white/15 overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.3)] cursor-pointer group"
+                      >
+                        {/* ── Image taller ── */}
+                        <div className="h-72 lg:h-96 bg-[#F0F3FA]/10 overflow-hidden relative">
+                          <img
+                            src={imgSrc}
+                            alt={`${v.marque} ${v.model}`}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                            <span className="text-[11px] font-bold text-white bg-[#395886]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                              {v.year}
+                            </span>
+                            <span className="text-[11px] font-bold text-white bg-[#f39c12]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                              {v.fuelType}
+                            </span>
+                          </div>
+                          {/* ── Price bigger ── */}
+                          <div className="absolute bottom-3 left-3 flex items-baseline gap-1 text-white drop-shadow-lg">
+                            <span className="text-4xl font-black">{v.pricePerDay.toLocaleString()}</span>
+                            <span className="text-base font-semibold opacity-90">DH / jour</span>
+                          </div>
+                        </div>
+                        {/* ── Card footer bigger ── */}
+                        <div className="p-5 flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-bold text-base truncate">{v.marque} {v.model}</p>
+                            <div className="flex items-center gap-3 mt-1.5">
+                              <span className="text-xs text-white/60 flex items-center gap-1">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/></svg>
+                                {v.Occupants}
+                              </span>
+                              <span className="text-xs text-white/60 flex items-center gap-1">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                {v.km.toLocaleString()} km
+                              </span>
+                            </div>
+                          </div>
+                          {/* ── Button bigger ── */}
+                          <div className="bg-[#f39c12] hover:bg-[#d68910] text-[#395886] text-sm font-black px-5 py-3 rounded-xl transition-colors">
+                            Réserver
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* Dot indicators */}
+                {displayVehicles.length > 1 && (
+                  <div className="flex items-center justify-center gap-2.5 mt-4">
+                    {displayVehicles.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setVehicleIndex(i)}
+                        className={`rounded-full transition-all duration-500 ${
+                          i === vehicleIndex
+                            ? "w-7 h-2 bg-[#f39c12]"
+                            : "w-2 h-2 bg-white/30 hover:bg-white/50"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </div>
 
         {/* Scroll indicator */}
         <motion.div
@@ -1423,6 +1616,14 @@ export default function HomePage() {
 
   useClientMetadata({ title: pageTitle, description: pageDesc });
 
+  const [vehicles, setHeroVehicles] = useState<Vehicle[]>([]);
+
+  useEffect(() => {
+    listVehicles()
+      .then((data) => setHeroVehicles(data))
+      .catch(() => setHeroVehicles([]));
+  }, []);
+
   const breadcrumbItems = [
     { name: "CARFORFAR", url: "https://www.carforfar.ma/" },
     { name: "Accueil", url: "https://www.carforfar.ma/" },
@@ -1545,7 +1746,7 @@ export default function HomePage() {
       `}</style>
       <Header />
       <ResumeReservationBanner />
-      <HeroSection />
+      <HeroSection vehicles={vehicles} />
       <VehiclesMarquee />
       <MarquesSection />
       <ServicesSection />

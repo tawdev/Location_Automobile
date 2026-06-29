@@ -52,6 +52,14 @@ function UsersIcon() {
   );
 }
 
+function PermissionsIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+  );
+}
+
 function UserIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -214,10 +222,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     localStorage.setItem("theme", next ? "dark" : "light");
   };
 
-  const navItems: NavItem[] = useMemo(
+  const allNavItems: NavItem[] = useMemo(
     () => [
       { label: t("admin.dashboard"), href: "/admin", icon: <DashboardIcon /> },
       { label: t("admin_users.title"), href: "/admin/users", icon: <UsersIcon /> },
+      { label: t("admin.permissions"), href: "/admin/permissions", icon: <PermissionsIcon /> },
       { label: t("admin.vehicles"), href: "/admin/vehicles", icon: <FleetIcon /> },
       { label: t("admin.marques"), href: "/admin/marques", icon: <MarqueIcon /> },
       { label: t("admin.type_vehicules"), href: "/admin/type-vehicules", icon: <TypeVehiculeIcon /> },
@@ -231,6 +240,45 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     ],
     [t]
   );
+
+  const userPermissions = useMemo(() => {
+    if (!user?.permissions) return new Set<string>();
+    return new Set(user.permissions.map((p) => p.slug));
+  }, [user?.permissions]);
+
+  const permissionNavMap: Record<string, string[]> = useMemo(() => ({
+    manage_messages: ["/admin/messages"],
+    manage_reservations: ["/admin/reservations"],
+    manage_vehicles: ["/admin/vehicles", "/admin/extras", "/admin/departure-conditions", "/admin/vehicles/map"],
+    manage_categories: ["/admin/marques", "/admin/type-vehicules"],
+    manage_blogs: ["/admin/blog", "/admin/press", "/admin/careers"],
+  }), []);
+
+  const showCompany = useMemo(() =>
+    userPermissions.has("manage_blogs"),
+  [userPermissions]);
+
+  const navItems = useMemo(() => {
+    // Admin: always show core items + only permission-gated items they haven't delegated
+    if (user?.role_id === 1) {
+      const adminOnly = new Set(["/admin", "/admin/profile", "/admin/users", "/admin/permissions", "/admin/settings"]);
+      const allowed = new Set(adminOnly);
+      userPermissions.forEach((slug) => {
+        const hrefs = permissionNavMap[slug];
+        if (hrefs) hrefs.forEach((h) => allowed.add(h));
+      });
+      return allNavItems.filter((item) => allowed.has(item.href));
+    }
+    // Users with custom permissions: show dashboard, profile, and permission-gated items
+    const allowed = new Set<string>();
+    allowed.add("/admin");
+    allowed.add("/admin/profile");
+    userPermissions.forEach((slug) => {
+      const hrefs = permissionNavMap[slug];
+      if (hrefs) hrefs.forEach((h) => allowed.add(h));
+    });
+    return allNavItems.filter((item) => allowed.has(item.href));
+  }, [allNavItems, user?.role_id, userPermissions, permissionNavMap]);
 
   const activeHref = useMemo(() => {
     const sorted = [...navItems].sort((a, b) => b.href.length - a.href.length);
@@ -273,6 +321,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             ))}
 
             {/* Company group */}
+            {showCompany && (
             <div className="pt-1">
               <button
                 type="button"
@@ -334,6 +383,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 )}
               </AnimatePresence>
             </div>
+            )}
           </div>
         </div>
 

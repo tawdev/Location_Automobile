@@ -130,6 +130,8 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        $user->load('permissions:id,slug');
+
         return response()->json([
             'user' => $user,
             'token' => $token,
@@ -155,6 +157,8 @@ class AuthController extends Controller
                 'data' => null,
             ], 401);
         }
+
+        $user->load('permissions:id,slug');
 
         return response()->json([
             'message' => 'information du l’utilisateur',

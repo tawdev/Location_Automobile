@@ -7,20 +7,26 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export function RequireAdmin({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { status, user } = useAuth();
+  const { status, user, refreshUser } = useAuth();
   const { t } = useI18n();
 
   const isAdmin = useMemo(() => {
-    return status === "authenticated" && user?.role_id === 1;
-  }, [status, user?.role_id]);
+    if (status !== "authenticated") return false;
+    if (user?.role_id === 1) return true;
+    return !!user?.permissions && user.permissions.length > 0;
+  }, [status, user?.role_id, user?.permissions]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/login");
     } else if (status === "authenticated" && !isAdmin) {
-      router.replace("/vehicules");
+      if (user?.permissions === undefined) {
+        refreshUser();
+      } else {
+        router.replace("/vehicules");
+      }
     }
-  }, [isAdmin, router, status]);
+  }, [isAdmin, router, status, user?.permissions, refreshUser]);
 
   if (status === "loading") {
     return (

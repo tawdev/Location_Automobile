@@ -4,14 +4,11 @@ import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate, formatDateTime } from "@/lib/dateUtils";
-import {
-  fetchMessages, fetchMessage, replyToMessage, deleteMessage,
-  type ContactMessage, type PaginatedMessages,
-} from "@/lib/adminMessagesApi";
-import type { ApiError } from "@/lib/apiClient";
+import * as adminApi from "@/lib/adminMessagesApi";
+import type { ContactMessage, PaginatedMessages } from "@/lib/adminMessagesApi";
 import {
   Mail, ChevronLeft, ChevronRight, Trash2, Reply, Send, Loader2,
-  CheckCircle, Clock, MessageSquare, X, Eye, EyeOff, AlertCircle, Search,
+  CheckCircle, Clock, MessageSquare, X, Eye, AlertCircle, Search,
 } from "lucide-react";
 
 function StatusBadge({ readAt, adminReply, t }: { readAt: string | null; adminReply: string | null; t: (key: string) => string }) {
@@ -38,6 +35,8 @@ function StatusBadge({ readAt, adminReply, t }: { readAt: string | null; adminRe
 
 export default function AdminMessagesPage() {
   const { t } = useI18n();
+
+  const api = adminApi;
 
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [pagination, setPagination] = useState<Omit<PaginatedMessages, "data"> | null>(null);
@@ -67,7 +66,7 @@ export default function AdminMessagesPage() {
   const loadMessages = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchMessages({
+      const res = await api.fetchMessages({
         status: statusFilter || undefined,
         page,
         search: debouncedSearch || undefined,
@@ -84,7 +83,7 @@ export default function AdminMessagesPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, page, debouncedSearch]);
+  }, [api, statusFilter, page, debouncedSearch]);
 
   useEffect(() => {
     loadMessages();
@@ -101,7 +100,7 @@ export default function AdminMessagesPage() {
     setReplyError("");
     setReplySuccess(false);
     try {
-      const updated = await fetchMessage(msg.id);
+      const updated = await api.fetchMessage(msg.id);
       setSelected(updated);
       setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
     } catch {
@@ -118,13 +117,14 @@ export default function AdminMessagesPage() {
     setReplyError("");
     setReplySuccess(false);
     try {
-      const updated = await replyToMessage(selected.id, replyText.trim());
+      const updated = await api.replyToMessage(selected.id, replyText.trim());
       setSelected(updated);
       setReplySuccess(true);
       setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
       setTimeout(() => setReplySuccess(false), 3000);
-    } catch (err) {
-      setReplyError((err as ApiError)?.message ?? t("admin.reply_failed"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : (err as Record<string, unknown>)?.message as string ?? t("admin.reply_failed");
+      setReplyError(msg);
     } finally {
       setReplySubmitting(false);
     }
@@ -132,7 +132,7 @@ export default function AdminMessagesPage() {
 
   async function handleDelete(id: number) {
     try {
-      await deleteMessage(id);
+      await api.deleteMessage(id);
       setMessages((prev) => prev.filter((m) => m.id !== id));
       if (selected?.id === id) setSelected(null);
     } catch {
@@ -348,7 +348,7 @@ export default function AdminMessagesPage() {
                     </div>
                   )}
 
-                  {/* Reply Form */}
+                  {/* Reply */}
                   {!selected.admin_reply && (
                     <form onSubmit={handleReply} className="px-6 py-5">
                       <div className="flex items-center gap-2 mb-3">

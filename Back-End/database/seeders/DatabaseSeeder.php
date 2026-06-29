@@ -20,11 +20,11 @@ class DatabaseSeeder extends Seeder
     {
         Role::updateOrCreate(['name' => 'Admin']);
         Role::updateOrCreate(['name' => 'Client']);
-     
-        User::factory()->create([
+      
+        User::updateOrCreate(['email' => 'admin@example.com'], [
             'name' => 'admin',
             'role_id' => 1,
-            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
         ]);
         User::factory(20)->create([
             'role_id' => 2
@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             RoleSeeder::class,
             ExtraSeeder::class,
+            PermissionSeeder::class,
         ]);
 
 

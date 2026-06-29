@@ -23,6 +23,9 @@ export type User = {
   scCinVerso?: string | null;
   scPermiRecto?: string | null;
   scPermiVerso?: string | null;
+
+  // permissions loaded for admin panel access
+  permissions?: { id: number; slug: string }[];
 };
 
 export type Picture = {
