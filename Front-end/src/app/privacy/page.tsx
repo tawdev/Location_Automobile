@@ -176,15 +176,17 @@ function getSections(t: (key: string) => string) {
 }
 
 function Particles() {
-  const particles = useMemo(() =>
-    Array.from({ length: 20 }, (_, i) => ({
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number; delay: number }[]>([]);
+  useEffect(() => {
+    setParticles(Array.from({ length: 20 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
       size: Math.random() * 4 + 2,
       duration: Math.random() * 6 + 4,
       delay: Math.random() * 4,
-    })), []);
+    })));
+  }, []);
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
       {particles.map((p) => (

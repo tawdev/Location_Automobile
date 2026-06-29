@@ -9,7 +9,7 @@ const CODE_DIGITS = 6;
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signUp, verifyEmail, error, status } = useAuth();
+  const { signUp, verifyEmail, error, status, user } = useAuth();
 
   const redirectTo = typeof window !== "undefined"
     ? new URLSearchParams(window.location.search).get("redirect") || localStorage.getItem("pendingVehicleRedirect") || null
@@ -43,9 +43,10 @@ export default function SignupPage() {
   useEffect(() => {
     if (status === "authenticated") {
       localStorage.removeItem("pendingVehicleRedirect");
-      router.replace(redirectTo || "/vehicules");
+      const isAdminUser = user?.role_id === 1 || (user?.permissions && user.permissions.length > 0);
+      router.replace(redirectTo || (isAdminUser ? "/admin" : "/vehicules"));
     }
-  }, [status, router, redirectTo]);
+  }, [status, router, redirectTo, user]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

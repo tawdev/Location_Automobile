@@ -20,7 +20,8 @@ class RoleFactory extends Factory
         return [
             'name'=>fake()->unique()->randomElement([
                 'Admin',
-                'Client'
+                'Client',
+                'Seconde_Admin'
             ]),
         ];
     }

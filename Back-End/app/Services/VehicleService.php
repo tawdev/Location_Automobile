@@ -13,7 +13,7 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions')->orderBy('order', 'asc')->get();
+        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions')->orderBy('pricePerDay', 'asc')->get();
     }
 
     public function getById($id)
