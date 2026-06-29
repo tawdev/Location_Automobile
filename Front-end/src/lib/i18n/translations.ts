@@ -528,6 +528,7 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin_permissions.saved": { en: "Permissions updated", fr: "Permissions mises à jour", ar: "تم تحديث الصلاحيات" },
   "admin_permissions.user_permissions": { en: "Permissions for", fr: "Permissions pour", ar: "صلاحيات" },
   "admin_permissions.no_selection": { en: "Select a user to manage their permissions", fr: "Sélectionnez un utilisateur pour gérer ses permissions", ar: "اختر مستخدماً لإدارة صلاحياته" },
+  "admin_permissions.no_permissions": { en: "No permissions available. Make sure permissions are seeded in the database.", fr: "Aucune permission disponible. Assurez-vous que les permissions sont initialisées dans la base de données.", ar: "لا توجد صلاحيات متاحة. تأكد من أن الصلاحيات موجودة في قاعدة البيانات." },
   "admin_permissions.select_user": { en: "Select user", fr: "Sélectionner", ar: "اختيار" },
   "admin_permissions.save": { en: "Save", fr: "Enregistrer", ar: "حفظ" },
   "admin_permissions.saving": { en: "Saving...", fr: "Enregistrement...", ar: "جارٍ الحفظ..." },

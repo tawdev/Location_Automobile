@@ -20,31 +20,39 @@ return new class extends Migration
 
         $inserted = [];
         foreach ($permissions as $perm) {
-            $id = DB::table('permissions')->insertGetId([
-                'slug'       => $perm['slug'],
-                'name_fr'    => $perm['name_fr'],
-                'name_en'    => $perm['name_en'],
-                'name_ar'    => $perm['name_ar'],
-                'group'      => $perm['group'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $id = DB::table('permissions')->where('slug', $perm['slug'])->value('id');
+            if (!$id) {
+                $id = DB::table('permissions')->insertGetId([
+                    'slug'       => $perm['slug'],
+                    'name_fr'    => $perm['name_fr'],
+                    'name_en'    => $perm['name_en'],
+                    'name_ar'    => $perm['name_ar'],
+                    'group'      => $perm['group'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
             $inserted[] = $id;
         }
 
         // Give all permissions to every Admin user
         $adminUserIds = DB::table('users')->where('role_id', 1)->pluck('id');
         foreach ($adminUserIds as $userId) {
+            $existing = DB::table('permission_user')->where('user_id', $userId)->pluck('permission_id')->toArray();
             $pivot = [];
             foreach ($inserted as $permId) {
-                $pivot[] = [
-                    'permission_id' => $permId,
-                    'user_id'       => $userId,
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ];
+                if (!in_array($permId, $existing)) {
+                    $pivot[] = [
+                        'permission_id' => $permId,
+                        'user_id'       => $userId,
+                        'created_at'    => now(),
+                        'updated_at'    => now(),
+                    ];
+                }
             }
-            DB::table('permission_user')->insert($pivot);
+            if (!empty($pivot)) {
+                DB::table('permission_user')->insert($pivot);
+            }
         }
     }
 

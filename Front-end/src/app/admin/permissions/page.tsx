@@ -264,7 +264,7 @@ export default function AdminPermissionsPage() {
 
               {/* Permissions grid */}
               {permissions.length === 0 ? (
-                <EmptyState message={t("admin_permissions.no_selection")} />
+                <EmptyState message={t("admin_permissions.no_permissions")} />
               ) : (
                 <div className="space-y-5">
                   {Object.entries(grouped).map(([group, perms]) => (
