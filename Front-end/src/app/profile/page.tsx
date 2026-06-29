@@ -254,6 +254,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
   }, [initial.name, initial.email, initial.phone, initial.address, initial.cin_passport, initial.date_of_birth, initial.driver_license_number, initial.license_issue_date, initial.license_expiry_date]);
 
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
+  const [profilePicUploading, setProfilePicUploading] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -277,6 +278,19 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
   const [docsSubmitting, setDocsSubmitting] = useState(false);
   const [docsError, setDocsError] = useState<string | null>(null);
   const [docsSuccess, setDocsSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!profilePicFile) return;
+    setProfilePicUploading(true);
+    setBasicError(null);
+    updateProfilePicture(profilePicFile)
+      .then(() => refreshUser())
+      .catch((err) => setBasicError((err as ApiError)?.message ?? t("profile.update_error")))
+      .finally(() => {
+        setProfilePicUploading(false);
+        setProfilePicFile(null);
+      });
+  }, [profilePicFile, refreshUser, t]);
 
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [reservationsLoading, setReservationsLoading] = useState(true);
@@ -304,11 +318,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
         license_issue_date: licenseIssueDate || undefined,
         license_expiry_date: licenseExpiryDate || undefined,
       });
-      if (profilePicFile) {
-        await updateProfilePicture(profilePicFile);
-      }
       setBasicSuccess(t("profile.update_success"));
-      setProfilePicFile(null);
       await refreshUser();
     } catch (err) {
       setBasicError((err as ApiError)?.message ?? t("profile.update_error"));
@@ -411,7 +421,11 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                   )}
                 </div>
                 <label className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-[#f39c12] to-[#e08e0b] flex items-center justify-center cursor-pointer shadow-lg shadow-[#f39c12]/30 hover:scale-110 hover:rotate-12 transition-all duration-300 border-2 border-white dark:border-[#0f1729]">
-                  <Camera className="w-4 h-4 text-white" />
+                  {profilePicUploading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4 text-white" />
+                  )}
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => setProfilePicFile(e.target.files?.[0] ?? null)} />
                 </label>
               </div>
@@ -422,13 +436,13 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                 </div>
                 <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight truncate">{initial.name || t("profile.welcome")}</h1>
                 <p className="text-white/60 text-sm font-semibold mt-1">{initial.email}</p>
-                {profilePicFile && (
+                {profilePicUploading && (
                   <motion.span
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="inline-block mt-2 text-[10px] font-extrabold text-[#f39c12] bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full"
                   >
-                    {t("profile.photo_hint")}
+                    {t("profile.uploading")}
                   </motion.span>
                 )}
               </div>
