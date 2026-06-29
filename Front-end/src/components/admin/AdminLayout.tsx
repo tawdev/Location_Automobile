@@ -254,22 +254,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     manage_blogs: ["/admin/blog", "/admin/press", "/admin/careers"],
   }), []);
 
-  const showCompany = useMemo(() =>
-    userPermissions.has("manage_blogs"),
-  [userPermissions]);
-
   const navItems = useMemo(() => {
-    // Admin: always show core items + only permission-gated items they haven't delegated
-    if (user?.role_id === 1) {
-      const adminOnly = new Set(["/admin", "/admin/profile", "/admin/users", "/admin/permissions", "/admin/settings"]);
-      const allowed = new Set(adminOnly);
-      userPermissions.forEach((slug) => {
-        const hrefs = permissionNavMap[slug];
-        if (hrefs) hrefs.forEach((h) => allowed.add(h));
-      });
-      return allNavItems.filter((item) => allowed.has(item.href));
-    }
-    // Users with custom permissions: show dashboard, profile, and permission-gated items
+    if (user?.role_id === 1) return allNavItems;
     const allowed = new Set<string>();
     allowed.add("/admin");
     allowed.add("/admin/profile");
@@ -279,6 +265,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     });
     return allNavItems.filter((item) => allowed.has(item.href));
   }, [allNavItems, user?.role_id, userPermissions, permissionNavMap]);
+
+  const showCompany = useMemo(() =>
+    user?.role_id === 1 || userPermissions.has("manage_blogs"),
+  [user?.role_id, userPermissions]);
 
   const activeHref = useMemo(() => {
     const sorted = [...navItems].sort((a, b) => b.href.length - a.href.length);
