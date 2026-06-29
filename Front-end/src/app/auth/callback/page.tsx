@@ -35,7 +35,8 @@ function CallbackInner() {
         const user = res.data;
         const pendingRedirect = localStorage.getItem("pendingVehicleRedirect");
         localStorage.removeItem("pendingVehicleRedirect");
-        window.location.href = pendingRedirect || (user.role_id === 1 ? "/admin" : "/vehicules");
+        const isAdminUser = user.role_id === 1 || (user.permissions && user.permissions.length > 0);
+        window.location.href = pendingRedirect || (isAdminUser ? "/admin" : "/vehicules");
       })
       .catch(() => {
         const pendingRedirect = localStorage.getItem("pendingVehicleRedirect");

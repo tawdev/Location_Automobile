@@ -55,7 +55,7 @@ function EyeOffIcon() {
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signIn, signUp, verifyEmail, error, status } = useAuth();
+  const { signIn, signUp, verifyEmail, error, status, user } = useAuth();
   const { t } = useI18n();
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -104,9 +104,10 @@ function RegisterForm() {
   useEffect(() => {
     if (status === "authenticated") {
       localStorage.removeItem("pendingVehicleRedirect");
-      router.replace(redirectTo || "/vehicules");
+      const isAdminUser = user?.role_id === 1 || (user?.permissions && user.permissions.length > 0);
+      router.replace(redirectTo || (isAdminUser ? "/admin" : "/vehicules"));
     }
-  }, [status, router, redirectTo]);
+  }, [status, router, redirectTo, user]);
 
   const displayError = formError ?? error ?? null;
 

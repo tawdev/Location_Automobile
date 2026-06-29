@@ -33,6 +33,28 @@ class UserController extends Controller
         ]);
     }
 
+    public function all(Request $request)
+    {
+        $users = User::with('role:id,name')
+            ->with('permissions:id,slug,name_fr')
+            ->where('role_id', '!=', 1);
+
+        if ($search = $request->query('search')) {
+            $users->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $users->orderBy('created_at', 'desc')
+            ->paginate(30);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $users,
+        ]);
+    }
+
     public function stats()
     {
         $totalClients = User::where('role_id', 2)->count();
