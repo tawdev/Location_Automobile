@@ -126,27 +126,25 @@ Route::middleware(['auth:sanctum','admin_or_permission'])->group(function () {
         Route::get('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Admin\VehicleController::class, 'getConditions']);
     });
 
-    // ── Categories / Marques / Type Vehicules (manage_categories) ──
-    Route::middleware('permission:manage_categories')->group(function () {
-        Route::get('Categories', [CategoryController::class, 'index']);
-        Route::post('Category', [CategoryController::class, 'store']);
-        Route::put('Categories/{id}', [CategoryController::class, 'update']);
-        Route::delete('Categories/{id}', [CategoryController::class, 'destroy']);
-        Route::get('Categories/{id}', [CategoryController::class, 'show']);
-        Route::post('Categories/search', [CategoryController::class, 'FilterByName']);
-        Route::get('Marques', [MarqueController::class, 'index']);
-        Route::post('Marque', [MarqueController::class, 'store']);
-        Route::post('Marques/bulk', [MarqueController::class, 'bulkStore']);
-        Route::get('Marques/{id}', [MarqueController::class, 'show']);
-        Route::match(['post', 'put'], 'Marques/{id}', [MarqueController::class, 'update']);
-        Route::delete('Marques/{id}', [MarqueController::class, 'destroy']);
-        Route::get('type-vehicules', [TypeVehiculeController::class, 'index']);
-        Route::post('type-vehicule', [TypeVehiculeController::class, 'store']);
-        Route::put('type-vehicules/{id}', [TypeVehiculeController::class, 'update']);
-        Route::delete('type-vehicules/{id}', [TypeVehiculeController::class, 'destroy']);
-        Route::get('type-vehicules/{id}', [TypeVehiculeController::class, 'show']);
-        Route::post('type-vehicules/search', [TypeVehiculeController::class, 'FilterByName']);
-    });
+    // ── Categories / Marques / Type Vehicules ──
+    Route::get('Categories', [CategoryController::class, 'index']);
+    Route::post('Category', [CategoryController::class, 'store']);
+    Route::put('Categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('Categories/{id}', [CategoryController::class, 'destroy']);
+    Route::get('Categories/{id}', [CategoryController::class, 'show']);
+    Route::post('Categories/search', [CategoryController::class, 'FilterByName']);
+    Route::get('Marques', [MarqueController::class, 'index']);
+    Route::post('Marque', [MarqueController::class, 'store']);
+    Route::post('Marques/bulk', [MarqueController::class, 'bulkStore']);
+    Route::get('Marques/{id}', [MarqueController::class, 'show']);
+    Route::match(['post', 'put'], 'Marques/{id}', [MarqueController::class, 'update']);
+    Route::delete('Marques/{id}', [MarqueController::class, 'destroy']);
+    Route::get('type-vehicules', [TypeVehiculeController::class, 'index']);
+    Route::post('type-vehicule', [TypeVehiculeController::class, 'store']);
+    Route::put('type-vehicules/{id}', [TypeVehiculeController::class, 'update']);
+    Route::delete('type-vehicules/{id}', [TypeVehiculeController::class, 'destroy']);
+    Route::get('type-vehicules/{id}', [TypeVehiculeController::class, 'show']);
+    Route::post('type-vehicules/search', [TypeVehiculeController::class, 'FilterByName']);
 
     // ── Blog / Press / Careers (manage_blogs) ──
     Route::middleware('permission:manage_blogs')->group(function () {
