@@ -288,7 +288,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <div className={`admin-layout min-h-screen bg-[#F0F3FA] text-[#395886] flex ${dark ? "dark" : ""}`}>
+    <div dir="ltr" style={{ direction: "ltr" }} className={`admin-layout min-h-screen bg-[#F0F3FA] text-[#395886] flex ${dark ? "dark" : ""}`}>
       {/* Sidebar */}
       <aside className="w-[240px] h-screen sticky top-0 bg-white dark:bg-[#0f1729] border-r border-[#D5DEEF] dark:border-[#1e293b] flex flex-col shrink-0 hidden md:flex z-30">
         {/* Header */}
