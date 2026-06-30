@@ -766,8 +766,46 @@ function HowItWorksSection() {
   );
 }
 
+const STAT_KEYS = [
+  { valueKey: "stat_1_value", labelEnKey: "stat_1_label_en", labelFrKey: "stat_1_label_fr", labelArKey: "stat_1_label_ar", fallbackLabelKey: "home.stats.years" },
+  { valueKey: "stat_2_value", labelEnKey: "stat_2_label_en", labelFrKey: "stat_2_label_fr", labelArKey: "stat_2_label_ar", fallbackLabelKey: "home.stats.vehicles" },
+  { valueKey: "stat_3_value", labelEnKey: "stat_3_label_en", labelFrKey: "stat_3_label_fr", labelArKey: "stat_3_label_ar", fallbackLabelKey: "home.stats.clients" },
+  { valueKey: "stat_4_value", labelEnKey: "stat_4_label_en", labelFrKey: "stat_4_label_fr", labelArKey: "stat_4_label_ar", fallbackLabelKey: "home.stats.support" },
+];
+
+const STAT_FALLBACK_VALUES: Record<string, string> = {
+  stat_1_value: "15+",
+  stat_1_label_en: "Years of expertise",
+  stat_1_label_fr: "Années d'expertise",
+  stat_1_label_ar: "سنوات من الخبرة",
+  stat_2_value: "200+",
+  stat_2_label_en: "Vehicles available",
+  stat_2_label_fr: "Véhicules disponibles",
+  stat_2_label_ar: "مركبة متاحة",
+  stat_3_value: "5000+",
+  stat_3_label_en: "Satisfied clients",
+  stat_3_label_fr: "Clients satisfaits",
+  stat_3_label_ar: "عميل راضٍ",
+  stat_4_value: "24/7",
+  stat_4_label_en: "Customer support",
+  stat_4_label_fr: "Support client",
+  stat_4_label_ar: "دعم العملاء",
+};
+
 function StatsSection() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const { settings } = useSettings();
+
+  const getStatValue = (key: string): string => {
+    return (settings as Record<string, string>)[key] ?? STAT_FALLBACK_VALUES[key] ?? "";
+  };
+
+  const getStatLabel = (stat: (typeof STAT_KEYS)[number]): string => {
+    const labelKey = locale === "en" ? stat.labelEnKey : locale === "fr" ? stat.labelFrKey : stat.labelArKey;
+    const customLabel = (settings as Record<string, string>)[labelKey];
+    if (customLabel) return customLabel;
+    return t(stat.fallbackLabelKey);
+  };
 
   return (
     <section className="bg-[#395886] dark:bg-[#0b1121] py-24 px-8 relative overflow-hidden transition-colors duration-500">
@@ -785,14 +823,9 @@ function StatsSection() {
       <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 30% 50%, rgba(243,156,18,0.05) 0%, transparent 60%)' }} />
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {[
-            { value: "15+", labelKey: "home.stats.years" },
-            { value: "200+", labelKey: "home.stats.vehicles" },
-            { value: "5000+", labelKey: "home.stats.clients" },
-            { value: "24/7", labelKey: "home.stats.support" },
-          ].map((stat, i) => (
+          {STAT_KEYS.map((stat, i) => (
             <motion.div
-              key={stat.labelKey}
+              key={stat.valueKey}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -810,10 +843,10 @@ function StatsSection() {
                   transition={{ duration: 0.6, delay: i * 0.15 + 0.2 }}
                   className="text-3xl md:text-4xl font-black text-[#f39c12] block"
                 >
-                  {stat.value}
+                  {getStatValue(stat.valueKey)}
                 </motion.span>
               </motion.div>
-              <span className="text-sm text-[#D5DEEF] font-medium block transition-colors duration-300 group-hover:text-white">{t(stat.labelKey)}</span>
+              <span className="text-sm text-[#D5DEEF] font-medium block transition-colors duration-300 group-hover:text-white">{getStatLabel(stat)}</span>
             </motion.div>
           ))}
         </div>
