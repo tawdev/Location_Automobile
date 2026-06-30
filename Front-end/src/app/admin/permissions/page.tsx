@@ -151,6 +151,9 @@ export default function AdminPermissionsPage() {
       messages: { en: "Messages", fr: "Messages", ar: "الرسائل" },
       reservations: { en: "Reservations", fr: "Réservations", ar: "الحجوزات" },
       vehicles: { en: "Vehicles", fr: "Véhicules", ar: "المركبات" },
+      extras: { en: "Extras", fr: "Extras", ar: "الإضافات" },
+      departure_conditions: { en: "Departure Conditions", fr: "Conditions de départ", ar: "شروط المغادرة" },
+      map: { en: "Map", fr: "Carte", ar: "الخريطة" },
       general: { en: "General", fr: "Général", ar: "عام" },
     };
     const l = map[g];

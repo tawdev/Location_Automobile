@@ -22,8 +22,8 @@ export default function AdminTypeVehiculeNewPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const created = await createAdminTypeVehicule(payload);
-      router.push(`/admin/type-vehicules/${created.id}/edit`);
+      await createAdminTypeVehicule(payload);
+      router.push("/admin/type-vehicules");
     } catch (e) {
       const msg = (e as ApiError)?.message || (e instanceof Error ? e.message : t("admin.type_vehicule_create_error"));
       setError(msg);

@@ -1116,6 +1116,19 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin.career_not_found": { en: "Position not found.", fr: "Poste non trouvé.", ar: "الوظيفة غير موجودة." },
   "admin.no_careers": { en: "No positions yet.", fr: "Aucun poste pour le moment.", ar: "لا توجد وظائف بعد." },
 
+  // ── Admin Home Stats ──
+  "admin.home_stats": { en: "Home Stats", fr: "Statistiques Accueil", ar: "إحصائيات الصفحة الرئيسية" },
+  "admin.home_stats_title": { en: "Home Page Statistics", fr: "Statistiques de la page d'accueil", ar: "إحصائيات الصفحة الرئيسية" },
+  "admin.home_stats_description": { en: "Manage the statistics displayed on the home page.", fr: "Gérez les statistiques affichées sur la page d'accueil.", ar: "إدارة الإحصائيات المعروضة في الصفحة الرئيسية." },
+  "admin.home_stats_value": { en: "Value", fr: "Valeur", ar: "القيمة" },
+  "admin.home_stats_label": { en: "Label", fr: "Étiquette", ar: "التسمية" },
+  "admin.home_stats_save_success": { en: "Home stats updated successfully.", fr: "Statistiques mises à jour avec succès.", ar: "تم تحديث الإحصائيات بنجاح." },
+  "admin.home_stats_save_error": { en: "Failed to save home stats.", fr: "Échec de la sauvegarde des statistiques.", ar: "فشل حفظ الإحصائيات." },
+  "admin.home_stats_load_error": { en: "Failed to load home stats.", fr: "Échec du chargement des statistiques.", ar: "فشل تحميل الإحصائيات." },
+  "admin.home_stats_saving": { en: "Saving...", fr: "Sauvegarde...", ar: "جاري الحفظ..." },
+  "admin.home_stats_save": { en: "Save Changes", fr: "Enregistrer", ar: "حفظ التغييرات" },
+  "admin.home_stats_stat": { en: "Statistic", fr: "Statistique", ar: "إحصائية" },
+
   // ── Errors (API) ──
   "error.cin_missing": { en: "Please add your CIN (front and back) to your profile before booking.", fr: "Veuillez ajouter votre CIN (recto et verso) dans votre profil avant de réserver.", ar: "يرجى إضافة بطاقة التعريف الوطنية (الوجه والخلف) إلى ملفك الشخصي قبل الحجز." },
   "error.permi_missing": { en: "Please add your driver's license (front and back) to your profile before booking.", fr: "Veuillez ajouter votre permis de conduire (recto et verso) dans votre profil avant de réserver.", ar: "يرجى إضافة رخصة القيادة (الوجه والخلف) إلى ملفك الشخصي قبل الحجز." },

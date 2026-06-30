@@ -38,6 +38,9 @@ class PermissionController extends Controller
             ['slug' => 'manage_users',       'name_fr' => 'Gérer les utilisateurs',                'name_en' => 'Manage users',                    'name_ar' => 'إدارة المستخدمين',            'group' => 'general'],
             ['slug' => 'manage_settings',    'name_fr' => 'Modifier les paramètres',               'name_en' => 'Change settings',                 'name_ar' => 'تعديل الإعدادات',             'group' => 'general'],
             ['slug' => 'manage_blogs',       'name_fr' => 'Gérer les articles et blogs',           'name_en' => 'Manage blogs and articles',       'name_ar' => 'إدارة المقالات والمدونات',    'group' => 'general'],
+            ['slug' => 'manage_extras',              'name_fr' => 'Gérer les extras',              'name_en' => 'Manage extras',             'name_ar' => 'إدارة الإضافات',                'group' => 'extras'],
+            ['slug' => 'manage_departure_conditions', 'name_fr' => 'Gérer les conditions de départ', 'name_en' => 'Manage departure conditions', 'name_ar' => 'إدارة شروط المغادرة',          'group' => 'departure_conditions'],
+            ['slug' => 'manage_map',                  'name_fr' => 'Gérer la carte de localisation', 'name_en' => 'Manage location map',       'name_ar' => 'إدارة خريطة الموقع',            'group' => 'map'],
         ];
 
         $inserted = [];

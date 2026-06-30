@@ -117,13 +117,25 @@ Route::middleware(['auth:sanctum','admin_or_permission'])->group(function () {
         Route::post('/vehicle', [VehicleController::class, 'store']);
         Route::put('Vehicle/{Vehicle}', [VehicleController::class, 'update']);
         Route::delete('/Vehicle/{id}', [VehicleController::class, 'destroy']);
+        Route::post('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Admin\VehicleController::class, 'syncConditions']);
+        Route::get('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Admin\VehicleController::class, 'getConditions']);
+    });
+
+    // ── Extras (manage_extras) ──
+    Route::middleware('permission:manage_extras')->group(function () {
+        Route::apiResource('admin/extras', ExtraController::class)->parameters(['extras' => 'extra']);
+    });
+
+    // ── Departure Conditions (manage_departure_conditions) ──
+    Route::middleware('permission:manage_departure_conditions')->group(function () {
+        Route::apiResource('admin/departure-conditions', \App\Http\Controllers\Api\Admin\DepartureConditionController::class)->parameters(['departure_conditions' => 'departure_condition']);
+    });
+
+    // ── Map (manage_map) ──
+    Route::middleware('permission:manage_map')->group(function () {
         Route::get('/admin/vehicles/location', [VehicleController::class, 'locations']);
         Route::get('/location/live/{deviceId}', [LocationController::class, 'live']);
         Route::get('/location/history/{deviceId}', [LocationController::class, 'history']);
-        Route::apiResource('admin/extras', ExtraController::class)->parameters(['extras' => 'extra']);
-        Route::apiResource('admin/departure-conditions', \App\Http\Controllers\Api\Admin\DepartureConditionController::class)->parameters(['departure_conditions' => 'departure_condition']);
-        Route::post('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Admin\VehicleController::class, 'syncConditions']);
-        Route::get('admin/vehicles/{vehicle}/conditions', [\App\Http\Controllers\Api\Admin\VehicleController::class, 'getConditions']);
     });
 
     // ── Categories / Marques / Type Vehicules ──
