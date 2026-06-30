@@ -165,6 +165,14 @@ function SettingsIcon() {
   );
 }
 
+function HomeStatsIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+  );
+}
+
 function SidebarLink({
   label,
   active,
@@ -235,6 +243,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       { label: t("admin.departure_conditions"), href: "/admin/departure-conditions", icon: <ConditionsIcon /> },
       { label: t("admin.messages"), href: "/admin/messages", icon: <MessageIcon /> },
       { label: t("admin.settings"), href: "/admin/settings", icon: <SettingsIcon /> },
+      { label: t("admin.home_stats"), href: "/admin/home-stats", icon: <HomeStatsIcon /> },
       { label: t("admin.profile"), href: "/admin/profile", icon: <UserIcon /> },
       { label: t("admin.map"), href: "/admin/vehicles/map", icon: <MapIcon /> },
     ],
@@ -249,8 +258,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const permissionNavMap: Record<string, string[]> = useMemo(() => ({
     manage_messages: ["/admin/messages"],
     manage_reservations: ["/admin/reservations"],
-    manage_vehicles: ["/admin/vehicles", "/admin/extras", "/admin/departure-conditions", "/admin/vehicles/map"],
+    manage_vehicles: ["/admin/vehicles"],
     manage_categories: ["/admin/marques", "/admin/type-vehicules"],
+    manage_extras: ["/admin/extras"],
+    manage_departure_conditions: ["/admin/departure-conditions"],
+    manage_map: ["/admin/vehicles/map"],
     manage_blogs: ["/admin/blog", "/admin/press", "/admin/careers"],
   }), []);
 

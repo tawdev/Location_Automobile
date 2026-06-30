@@ -71,6 +71,30 @@ class PermissionSeeder extends Seeder
                 'name_ar' => 'إدارة المقالات والمدونات',
                 'group' => 'general',
             ],
+            // Extras group
+            [
+                'slug' => 'manage_extras',
+                'name_fr' => 'Gérer les extras',
+                'name_en' => 'Manage extras',
+                'name_ar' => 'إدارة الإضافات',
+                'group' => 'extras',
+            ],
+            // Departure conditions group
+            [
+                'slug' => 'manage_departure_conditions',
+                'name_fr' => 'Gérer les conditions de départ',
+                'name_en' => 'Manage departure conditions',
+                'name_ar' => 'إدارة شروط المغادرة',
+                'group' => 'departure_conditions',
+            ],
+            // Map group
+            [
+                'slug' => 'manage_map',
+                'name_fr' => 'Gérer la carte de localisation',
+                'name_en' => 'Manage location map',
+                'name_ar' => 'إدارة خريطة الموقع',
+                'group' => 'map',
+            ],
         ];
 
         foreach ($permissions as $perm) {
