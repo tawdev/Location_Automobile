@@ -617,7 +617,7 @@ export default function Header({ solid }: { solid?: boolean }) {
                     {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                   </motion.button>
                 </div>
-                {installPrompt && !isInstalled && (
+                {!isInstalled && (
                   <>
                     <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
                     <div className="px-4 py-2">
