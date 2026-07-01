@@ -333,7 +333,7 @@ export default function Header({ solid }: { solid?: boolean }) {
   const isTransparentState = isTransparent && !scrolled;
 
   const headerClasses = isTransparentState
-    ? "bg-transparent dark:bg-transparent"
+    ? "bg-black/20 dark:bg-black/40 backdrop-blur-md"
     : "bg-[#F0F3FA]/80 dark:bg-[#0f1729]/90 backdrop-blur-2xl shadow-[0_4px_30px_rgba(57,88,134,0.12)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] border-b border-[#D5DEEF]/30 dark:border-[#1e293b]/80";
 
   return (

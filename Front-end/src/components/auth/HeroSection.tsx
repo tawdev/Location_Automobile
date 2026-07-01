@@ -15,7 +15,7 @@ export function HeroSection() {
       className="relative flex flex-col px-[44px] pt-[38px] pb-[30px] overflow-hidden min-h-[340px] lg:min-h-[100vh]"
     >
       <div className="relative flex flex-col h-full w-full">
-        <div className="flex items-start justify-start">
+        <div className="flex items-start justify-start mt-12">
           <Logo />
         </div>
 
