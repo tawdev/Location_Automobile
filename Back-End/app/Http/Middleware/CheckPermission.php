@@ -19,6 +19,12 @@ class CheckPermission
             ], 401);
         }
 
+        // Admins bypass all permission checks
+        $isAdmin = $user->role && $user->role->name === 'Admin';
+        if ($isAdmin) {
+            return $next($request);
+        }
+
         // Check if user has the specific permission
         $hasPermission = $user->permissions()
             ->where('slug', $permission)
