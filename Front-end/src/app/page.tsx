@@ -96,6 +96,7 @@ function CarLogo({ className, dark: forceDark }: { className?: string; dark?: bo
 function HeroSection({ vehicles: showcaseVehicles }: { vehicles?: Vehicle[] }) {
   const router = useRouter();
   const [currentImg, setCurrentImg] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const { t } = useI18n();
 
   const [pickupDate, setPickupDate] = useState("");
@@ -141,27 +142,37 @@ function HeroSection({ vehicles: showcaseVehicles }: { vehicles?: Vehicle[] }) {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentImg((p) => (p + 1) % cars.length), 5000);
-    return () => clearInterval(timer);
+    setIsMobile(window.innerWidth < 768);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    if (window.innerWidth >= 768) {
+      const timer = setInterval(() => setCurrentImg((p) => (p + 1) % cars.length), 5000);
+      return () => { clearInterval(timer); window.removeEventListener("resize", onResize); };
+    }
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-black">
-      {/* Background image slideshow */}
-      <AnimatePresence>
-        <motion.div
-          key={currentImg}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${cars[currentImg]})` }}
-        />
-      </AnimatePresence>
+      {/* Background image */}
+      {isMobile ? (
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${cars[0]})` }} />
+      ) : (
+        <AnimatePresence>
+          <motion.div
+            key={currentImg}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${cars[currentImg]})` }}
+          />
+        </AnimatePresence>
+      )}
       {/* Content */}
       <div className="relative z-10 w-full mx-auto px-6 md:px-12 lg:px-20 pt-28 pb-24">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-16 items-start">
               {/* Left: badge + headline + subtitle */}
             <div className="flex-1 text-left">
               {/* Badge */}

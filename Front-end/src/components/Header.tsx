@@ -17,6 +17,7 @@ import {
   Moon,
   Sun,
   Download,
+  BookOpen,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/authContext";
@@ -240,6 +241,7 @@ export default function Header({ solid }: { solid?: boolean }) {
   const [scrolled, setScrolled] = useState(solid ?? false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const [dark, setDark] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -325,6 +327,7 @@ export default function Header({ solid }: { solid?: boolean }) {
   useEffect(() => {
     setMobileOpen(false);
     setMobileAccountOpen(false);
+    setMobileResourcesOpen(false);
   }, [pathname]);
 
   const isTransparentState = isTransparent && !scrolled;
@@ -547,57 +550,55 @@ export default function Header({ solid }: { solid?: boolean }) {
                   </div>
                 )}
 
-                <button
-                  onClick={() => router.push("/a-propos")}
-                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
-                    pathname === "/a-propos"
-                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
-                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
-                  }`}
-                >
-                  <User className="w-4 h-4" />
-                  {t("nav.about")}
-                </button>
-                <button
-                  onClick={() => router.push("/regles")}
-                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
-                    pathname === "/regles"
-                      ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
-                      : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
-                  }`}
-                >
-                  <Car className="w-4 h-4" />
-                  {t("nav.rules")}
-                </button>
-                <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
+                <div className="rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setMobileResourcesOpen((o) => !o)}
+                    aria-expanded={mobileResourcesOpen}
+                    className={`w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                      mobileResourcesOpen
+                        ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                        : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
+                    }`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <BookOpen className="w-4 h-4" />
+                      Resources
+                    </span>
+                    <motion.span
+                      animate={{ rotate: mobileResourcesOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </motion.span>
+                  </button>
 
-                <div className="px-4 py-3">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.company")}</p>
-                      <div className="flex flex-col gap-1.5">
-                        {[{ label: t("footer.about"), href: "/a-propos" }, { label: t("footer.careers"), href: "/company/careers" }, { label: t("footer.press"), href: "/company/press" }, { label: t("footer.blog"), href: "/company/blog" }].map((l) => (
-                          <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.support")}</p>
-                      <div className="flex flex-col gap-1.5">
-                        {[{ label: t("footer.help_center"), href: "/support/help-center" }, { label: t("footer.contact_us"), href: "/contact" }, { label: t("footer.faq"), href: "/faq" }, { label: t("footer.cancellation"), href: "/support/cancellation" }].map((l) => (
-                          <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-[0.15em] mb-2">{t("footer.legal")}</p>
-                      <div className="flex flex-col gap-1.5">
-                        {[{ label: t("footer.privacy"), href: "/privacy" }, { label: t("footer.terms"), href: "/terms" }, { label: t("footer.insurance"), href: "/insurance" }].map((l) => (
-                          <a key={l.label} href={l.href} className="text-xs font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">{l.label}</a>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <AnimatePresence initial={false}>
+                    {mobileResourcesOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex flex-col gap-1 pt-1 pb-1 pl-4">
+                          <button onClick={() => router.push("/a-propos")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("nav.about")}</button>
+                          <button onClick={() => router.push("/regles")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("nav.rules")}</button>
+                          <button onClick={() => router.push("/company/careers")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.careers")}</button>
+                          <button onClick={() => router.push("/company/press")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.press")}</button>
+                          <button onClick={() => router.push("/company/blog")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.blog")}</button>
+                          <button onClick={() => router.push("/support/help-center")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.help_center")}</button>
+                          <button onClick={() => router.push("/contact")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.contact_us")}</button>
+                          <button onClick={() => router.push("/faq")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.faq")}</button>
+                          <button onClick={() => router.push("/support/cancellation")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.cancellation")}</button>
+                          <button onClick={() => router.push("/privacy")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.privacy")}</button>
+                          <button onClick={() => router.push("/terms")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.terms")}</button>
+                          <button onClick={() => router.push("/insurance")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50 transition-all">{t("footer.insurance")}</button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
