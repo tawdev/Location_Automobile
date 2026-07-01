@@ -25,8 +25,8 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AboutDropdown from "@/components/AboutDropdown";
 
-function Logo({ onClick, scrolled, dark }: { onClick: () => void; scrolled: boolean; dark: boolean }) {
-  const showDark = !scrolled || dark;
+function Logo({ onClick, scrolled, dark, isHomePage }: { onClick: () => void; scrolled: boolean; dark: boolean; isHomePage: boolean }) {
+  const showDark = isHomePage ? (!scrolled || dark) : dark;
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -343,7 +343,7 @@ export default function Header({ solid }: { solid?: boolean }) {
       >
         <div dir="ltr" className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
           <div className="-ml-6">
-            <Logo onClick={() => router.push("/vehicules")} scrolled={scrolled} dark={dark} />
+            <Logo onClick={() => router.push("/vehicules")} scrolled={scrolled} dark={dark} isHomePage={isHomePage} />
           </div>
 
           <nav className="hidden md:flex items-center gap-1">
