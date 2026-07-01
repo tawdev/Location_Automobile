@@ -465,6 +465,12 @@ export default function Header({ solid }: { solid?: boolean }) {
               className="relative bg-white/90 dark:bg-[#0f1729]/95 backdrop-blur-xl border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/80 shadow-xl mx-4 mt-2 rounded-2xl p-3"
             >
               <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/60 mb-1">
+                  <img src="/logo-dark.png" alt="CARFORFAR" className="h-8 w-auto object-contain" />
+                  <p className="text-[11px] font-semibold text-[#638ECB]/60 dark:text-[#94A3B8]/60 leading-tight">
+                    {t("footer.description")}
+                  </p>
+                </div>
                 {NAV_ITEMS.map((item) => (
                   <button
                     key={item.href}
