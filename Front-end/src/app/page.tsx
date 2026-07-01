@@ -24,12 +24,7 @@ import { PAGE_TITLES, PAGE_DESCRIPTIONS } from "@/lib/seo";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
-const cars = [
-  "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80",
-  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
-  "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=800&q=80",
-  "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
-];
+const cars = Array.from({ length: 9 }, (_, i) => `/background_vehicles/bg${`0${i + 1}`.slice(-2)}.jpg`);
 
 const services = [
   {
@@ -151,7 +146,7 @@ function HeroSection({ vehicles: showcaseVehicles }: { vehicles?: Vehicle[] }) {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#638ECB] dark:bg-[#070b14]">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-black">
       {/* Background image slideshow */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -160,12 +155,10 @@ function HeroSection({ vehicles: showcaseVehicles }: { vehicles?: Vehicle[] }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center bg-black [filter:contrast(1.08)_saturate(1.1)_brightness(1.02)]"
           style={{ backgroundImage: `url(${cars[currentImg]})` }}
         />
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-r from-[#638ECB]/70 via-[#638ECB]/40 to-[#638ECB]/20 dark:from-[#050a14]/95 dark:via-[#0d1b3e]/90 dark:to-[#1a2744]/80" />
-
       {/* Content */}
       <div className="relative z-10 w-full mx-auto px-6 md:px-12 lg:px-20 pt-28 pb-24">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
