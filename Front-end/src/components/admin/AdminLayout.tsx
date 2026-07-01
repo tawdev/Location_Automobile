@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
-import { Sun, Moon, ChevronDown } from "lucide-react";
+import { Sun, Moon, Menu, X, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 
@@ -213,6 +213,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [dark, setDark] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
@@ -444,8 +445,118 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
+      {/* Mobile header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white dark:bg-[#0f1729] border-b border-[#D5DEEF] dark:border-[#1e293b] flex items-center justify-between px-4 h-14">
+        <button
+          onClick={() => setMobileMenuOpen(true)}
+          className="p-2 rounded-lg hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] transition-colors"
+        >
+          <Menu className="w-5 h-5 text-[#395886] dark:text-[#D5DEEF]" />
+        </button>
+        <span className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</span>
+        <div className="w-9" />
+      </div>
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/40 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="fixed top-0 left-0 z-50 h-full w-[280px] bg-white dark:bg-[#0f1729] border-r border-[#D5DEEF] dark:border-[#1e293b] flex flex-col md:hidden"
+            >
+              <div className="flex items-center justify-between px-5 h-14 border-b border-[#D5DEEF] dark:border-[#1e293b]">
+                <span className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</span>
+                <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-lg hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] transition-colors">
+                  <X className="w-5 h-5 text-[#395886] dark:text-[#D5DEEF]" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 py-4">
+                <div className="flex flex-col gap-1">
+                  {navItems.map((item) => (
+                    <SidebarLink
+                      key={item.href}
+                      label={item.label}
+                      active={activeHref === item.href}
+                      icon={item.icon}
+                      onClick={() => { router.push(item.href); setMobileMenuOpen(false); }}
+                      small={item.label === t("admin.departure_conditions")}
+                    />
+                  ))}
+                  {showCompany && (
+                    <div className="pt-1">
+                      <button
+                        onClick={() => setCompanyOpen((o) => !o)}
+                        className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                          pathname.startsWith("/admin/blog") || pathname.startsWith("/admin/press") || pathname.startsWith("/admin/careers")
+                            ? "bg-[#395886] text-white shadow-sm"
+                            : "text-[#638ECB] dark:text-[#94A3B8] hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]"
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <CompanyIcon />
+                          <span>{t("admin.company")}</span>
+                        </span>
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${companyOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {companyOpen && (
+                        <div className="flex flex-col gap-0.5 pl-3 pt-0.5">
+                          <SidebarLink label={t("admin.blog")} active={pathname.startsWith("/admin/blog")} icon={<BlogIcon />} onClick={() => { router.push("/admin/blog"); setMobileMenuOpen(false); }} small />
+                          <SidebarLink label={t("admin.press")} active={pathname.startsWith("/admin/press")} icon={<NewspaperIcon />} onClick={() => { router.push("/admin/press"); setMobileMenuOpen(false); }} small />
+                          <SidebarLink label={t("admin.careers")} active={pathname.startsWith("/admin/careers")} icon={<BriefcaseIcon />} onClick={() => { router.push("/admin/careers"); setMobileMenuOpen(false); }} small />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 border-t border-[#D5DEEF] dark:border-[#1e293b] px-5 py-4">
+                <button
+                  onClick={() => { router.push("/admin/profile"); setMobileMenuOpen(false); }}
+                  className="flex items-center gap-2.5 w-full text-left cursor-pointer hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] rounded-lg p-1.5 -mx-1.5 transition-colors"
+                >
+                  <div className="h-8 w-8 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b] border border-[#D5DEEF] dark:border-[#334155] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] font-bold text-xs shrink-0 overflow-hidden">
+                    {userProfilePicUrl ? <img src={userProfilePicUrl} alt="" className="w-full h-full object-cover" /> : userInitial}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-[#395886] dark:text-[#D5DEEF] truncate">{user?.name ?? "Admin"}</div>
+                    <div className="text-[10px] font-semibold text-[#638ECB] dark:text-[#94A3B8] truncate">{user?.email ?? ""}</div>
+                  </div>
+                </button>
+                <LanguageSwitcher upward />
+                <button
+                  onClick={toggleDark}
+                  className="w-full h-9 rounded-lg border border-[#D5DEEF] bg-white/50 hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs flex items-center justify-center gap-2 dark:bg-[#0f1729] dark:border-[#1e293b] dark:hover:bg-[#1e293b]"
+                >
+                  {dark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                  <span>{dark ? "Sombre" : "Clair"}</span>
+                </button>
+                <button
+                  disabled={loggingOut}
+                  onClick={async () => { setLoggingOut(true); await signOut(); router.push("/login"); setLoggingOut(false); }}
+                  className="w-full h-9 rounded-lg border border-[#D5DEEF] hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <LogoutIcon />
+                  <span>{loggingOut ? t("nav.logout_loading") : t("nav.logout")}</span>
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Main */}
-      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto pt-20 md:pt-4">
         {pathname !== "/admin" && (
           <button
             type="button"
