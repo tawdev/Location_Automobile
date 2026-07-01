@@ -4,8 +4,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { Sun, Moon, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
-import { authLogout } from "@/lib/authApi";
-import { clearAuthToken } from "@/lib/tokenStorage";
+
 import { profileImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -209,7 +208,7 @@ function SidebarLink({
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { t } = useI18n();
   const [loggingOut, setLoggingOut] = useState(false);
   const [dark, setDark] = useState(false);
@@ -432,14 +431,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             disabled={loggingOut}
             onClick={async () => {
               setLoggingOut(true);
-              try {
-                await authLogout();
-              } finally {
-                await Promise.resolve();
-                await clearAuthToken();
-                router.push("/login");
-                setLoggingOut(false);
-              }
+              await signOut();
+              router.push("/login");
+              setLoggingOut(false);
             }}
             className="w-full h-9 rounded-lg border border-[#D5DEEF] hover:bg-[#F0F3FA] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >

@@ -21,8 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/authContext";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import { authLogout } from "@/lib/authApi";
-import { clearAuthToken } from "@/lib/tokenStorage";
+
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AboutDropdown from "@/components/AboutDropdown";
 
@@ -43,12 +42,12 @@ function Logo({ onClick }: { onClick: () => void }) {
         <img
           src="/logo.png"
           alt="CARFORFAR logo"
-          className="h-28 sm:h-36 w-auto object-contain select-none dark:hidden"
+          className="h-16 sm:h-20 w-auto object-contain select-none dark:hidden"
         />
         <img
           src="/logo-dark.png"
           alt="CARFORFAR logo"
-          className="h-28 sm:h-36 w-auto object-contain select-none hidden dark:block"
+          className="h-16 sm:h-20 w-auto object-contain select-none hidden dark:block"
         />
       </motion.div>
     </motion.div>
@@ -240,7 +239,7 @@ function AccountDropdown({
 export default function Header({ solid }: { solid?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { status, user } = useAuth();
+  const { status, user, signOut } = useAuth();
   const { t } = useI18n();
   const [scrolled, setScrolled] = useState(solid ?? false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -302,12 +301,8 @@ export default function Header({ solid }: { solid?: boolean }) {
   };
 
   const handleLogout = async () => {
-    try {
-      await authLogout();
-    } finally {
-      clearAuthToken();
-      router.push("/login");
-    }
+    await signOut();
+    router.push("/login");
   };
 
   const VISITOR_NAV = [
