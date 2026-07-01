@@ -24,7 +24,7 @@ import { PAGE_TITLES, PAGE_DESCRIPTIONS } from "@/lib/seo";
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
-const cars = Array.from({ length: 9 }, (_, i) => `/background_vehicles/bg${`0${i + 1}`.slice(-2)}.jpg`);
+const cars = Array.from({ length: 6 }, (_, i) => `/background_vehicles/bg${`0${i + 1}`.slice(-2)}.jpg`);
 
 const services = [
   {
@@ -155,7 +155,7 @@ function HeroSection({ vehicles: showcaseVehicles }: { vehicles?: Vehicle[] }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
-          className="absolute inset-0 bg-cover bg-center bg-black [filter:contrast(1.08)_saturate(1.1)_brightness(1.02)]"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-black"
           style={{ backgroundImage: `url(${cars[currentImg]})` }}
         />
       </AnimatePresence>
