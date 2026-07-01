@@ -7,7 +7,7 @@ import { useSettings } from "@/lib/SettingsContext";
 function FooterLogo() {
   return (
     <div className="flex items-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-      <img src="/logo-dark.png" alt="CARFORFAR logo" className="h-36 w-auto object-contain select-none" />
+      <img src="/logo-dark.png" alt="CARFORFAR logo" className="h-16 sm:h-20 w-auto object-contain select-none" />
     </div>
   );
 }
