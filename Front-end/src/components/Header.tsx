@@ -25,7 +25,8 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AboutDropdown from "@/components/AboutDropdown";
 
-function Logo({ onClick }: { onClick: () => void }) {
+function Logo({ onClick, scrolled, dark }: { onClick: () => void; scrolled: boolean; dark: boolean }) {
+  const showDark = !scrolled || dark;
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -40,14 +41,9 @@ function Logo({ onClick }: { onClick: () => void }) {
         className="flex items-center justify-center"
       >
         <img
-          src="/logo.png"
+          src={showDark ? "/logo-dark.png" : "/logo.png"}
           alt="CARFORFAR logo"
-          className="h-16 sm:h-20 w-auto object-contain select-none dark:hidden"
-        />
-        <img
-          src="/logo-dark.png"
-          alt="CARFORFAR logo"
-          className="h-16 sm:h-20 w-auto object-contain select-none hidden dark:block"
+          className="h-16 sm:h-20 w-auto object-contain select-none"
         />
       </motion.div>
     </motion.div>
@@ -347,7 +343,7 @@ export default function Header({ solid }: { solid?: boolean }) {
       >
         <div dir="ltr" className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
           <div className="-ml-6">
-            <Logo onClick={() => router.push("/vehicules")} />
+            <Logo onClick={() => router.push("/vehicules")} scrolled={scrolled} dark={dark} />
           </div>
 
           <nav className="hidden md:flex items-center gap-1">
