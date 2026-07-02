@@ -11,7 +11,9 @@ export default function TimePickerField({
   onChange: (v: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState<"top" | "bottom">("top");
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -25,11 +27,21 @@ export default function TimePickerField({
     }
   }, [open]);
 
+  function handleToggle() {
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const viewportMid = window.innerHeight / 2;
+      setPosition(rect.top < viewportMid ? "bottom" : "top");
+    }
+    setOpen(!open);
+  }
+
   return (
     <div className="relative shrink-0" ref={containerRef}>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={handleToggle}
         className="w-[120px] h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-3 text-[15px] outline-none transition bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF] flex items-center justify-center gap-1.5 font-bold cursor-pointer hover:border-[#16386b] focus:border-[#16386b]"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
@@ -41,7 +53,7 @@ export default function TimePickerField({
       {open && (
         <div
           className="absolute right-0 z-[300] bg-white dark:bg-[#0f1729] rounded-2xl border border-[#D5DEEF] dark:border-[#1e293b] shadow-xl"
-          style={{ bottom: "calc(100% + 8px)" }}
+          style={position === "top" ? { bottom: "calc(100% + 8px)" } : { top: "calc(100% + 8px)" }}
         >
           <div className="p-4 pb-2">
             <ClockPicker value={value} onChange={onChange} />

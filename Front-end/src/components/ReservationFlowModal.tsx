@@ -1231,7 +1231,13 @@ export default function ReservationFlowModal({
                 </div>
                 <div className="flex gap-2 mt-2">
                   <button
-                    onClick={() => savedChoice === "two" ? setStep("secondDriverInfo") : setStep("clientInfo")}
+                    onClick={() => {
+                      if (existingClient) {
+                        savedChoice === "two" ? setStep("secondDriverInfo") : setStep("extras");
+                      } else {
+                        savedChoice === "two" ? setStep("secondDriverInfo") : setStep("clientInfo");
+                      }
+                    }}
                     className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all"
                   >
                     <ChevronLeft className="w-4 h-4" /> Retour
