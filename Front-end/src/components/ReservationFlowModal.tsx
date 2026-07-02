@@ -14,7 +14,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Upload, CheckCircle, X, User, Users, FileText, IdCard, Package, Shield, ChevronLeft } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import { playConfirmationSound } from "@/lib/playSound";
+import { playConfirmationSound, prepareConfirmationSound } from "@/lib/playSound";
 import { getApiOrigin } from "@/lib/media";
 
 type FieldErrors = Record<string, string>;
@@ -718,6 +718,7 @@ export default function ReservationFlowModal({
 
   async function handleProceedToReservation() {
     setError(null);
+    prepareConfirmationSound();
 
     // Validate second driver if 2 drivers
     if (savedChoice === "two") {

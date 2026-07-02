@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Extra } from "@/lib/types";
 import { getAdminExtras, createAdminExtra, updateAdminExtra, deleteAdminExtra, type AdminExtraPayload } from "@/lib/adminExtrasApi";
 import { getApiOrigin } from "@/lib/media";
-import { Package, Plus, Pencil, Trash2, Eye, X, AlertCircle, ImageIcon, Upload } from "lucide-react";
+import { Package, Plus, Pencil, Trash2, Eye, X, AlertCircle, ImageIcon, Upload, MoreHorizontal } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ModalMode = "create" | "edit" | null;
@@ -112,6 +112,7 @@ export default function AdminExtrasPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [lightbox, setLightbox] = useState<{ url: string; name: string } | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -352,8 +353,8 @@ export default function AdminExtrasPage() {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  {/* Desktop actions */}
+                  <div className="hidden md:flex items-center gap-2 shrink-0">
                     <button
                       type="button"
                       onClick={() => {
@@ -383,6 +384,58 @@ export default function AdminExtrasPage() {
                         ? "..."
                         : t("admin.delete")}
                     </button>
+                  </div>
+
+                  {/* Mobile dropdown */}
+                  <div className="relative md:hidden shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setOpenMenuId(openMenuId === extra.id ? null : extra.id)}
+                      className="h-9 w-9 rounded-xl border border-[#D5DEEF] text-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center justify-center cursor-pointer"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    {openMenuId === extra.id && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                        <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px] bg-white rounded-2xl border border-[#D5DEEF]/70 shadow-lg py-1.5 overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              if (imgUrl) setLightbox({ url: imgUrl, name: extra.name });
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Voir
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              openEditModal(extra);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                          >
+                            <Pencil className="w-4 h-4" />
+                            {t("admin.edit")}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={deletingId === extra.id}
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              handleDelete(extra.id);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            {deletingId === extra.id ? "..." : t("admin.delete")}
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               );

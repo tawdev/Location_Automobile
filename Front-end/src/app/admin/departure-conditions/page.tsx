@@ -9,7 +9,7 @@ import {
   updateAdminDepartureCondition,
   deleteAdminDepartureCondition,
 } from "@/lib/departureConditionsApi";
-import { Plus, Pencil, Trash2, AlertCircle, CheckCircle, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertCircle, CheckCircle, Search, MoreHorizontal } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function SkeletonRow() {
@@ -34,6 +34,7 @@ export default function AdminDepartureConditionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<DepartureCondition | null>(null);
@@ -240,7 +241,8 @@ export default function AdminDepartureConditionsPage() {
                     #{item.id}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                {/* Desktop actions */}
+                <div className="hidden md:flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => openEdit(item)}
@@ -258,6 +260,47 @@ export default function AdminDepartureConditionsPage() {
                     <Trash2 className="w-3.5 h-3.5" />
                     {deletingId === item.id ? "..." : t("admin.delete")}
                   </button>
+                </div>
+
+                {/* Mobile dropdown */}
+                <div className="relative md:hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
+                    className="h-9 w-9 rounded-xl border border-[#D5DEEF] text-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center justify-center cursor-pointer"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                  {openMenuId === item.id && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                      <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px] bg-white rounded-2xl border border-[#D5DEEF]/70 shadow-lg py-1.5 overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            openEdit(item);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          {t("admin.edit")}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={deletingId === item.id}
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            handleDelete(item.id);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          {deletingId === item.id ? "..." : t("admin.delete")}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </motion.div>
             ))}
