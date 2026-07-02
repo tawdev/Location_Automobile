@@ -15,8 +15,15 @@ import "react-phone-number-input/style.css";
 import { Upload, CheckCircle, X, User, Users, FileText, IdCard, Package, Shield, ChevronLeft } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { playConfirmationSound } from "@/lib/playSound";
+import { getApiOrigin } from "@/lib/media";
 
 type FieldErrors = Record<string, string>;
+
+export function extraImageUrl(extra: Extra): string | null {
+  if (extra.image) return `${getApiOrigin()}/storage/${extra.image.replace(/^\/+/, "")}`;
+  if (extra.image_url) return extra.image_url;
+  return null;
+}
 
 type Choice = "one" | "two" | null;
 
@@ -782,6 +789,7 @@ export default function ReservationFlowModal({
     try {
       await makeReservation(vehicleId, formData);
       setStep("done");
+      playConfirmationSound();
     } catch (e: any) {
       const errors = e?.data?.errors as Record<string, string[]> | undefined;
       const errorMsg = e?.message || "Erreur lors de la réservation.";
@@ -1044,11 +1052,14 @@ export default function ReservationFlowModal({
                             }`}>
                               {selected && <CheckCircle className="w-4 h-4 text-white" />}
                             </div>
-                            {extra.image_url && (
-                              <div onClick={() => setLightboxImage(extra.image_url!)} className="shrink-0 cursor-pointer">
-                                <img src={extra.image_url} alt={extra.name} className="w-20 h-20 rounded-xl object-cover pointer-events-none" />
-                              </div>
-                            )}
+                            {(() => {
+                              const eImgUrl = extraImageUrl(extra);
+                              return eImgUrl ? (
+                                <div onClick={() => setLightboxImage(eImgUrl)} className="shrink-0 cursor-pointer">
+                                  <img src={eImgUrl} alt={extra.name} className="w-20 h-20 rounded-xl object-cover pointer-events-none" />
+                                </div>
+                              ) : null;
+                            })()}
                             <span className="font-bold text-[#395886] text-sm">{extra.name}</span>
                           </div>
                           <span className="font-extrabold text-[#395886] text-sm">{extra.price_per_day} DH / jour</span>
@@ -1274,7 +1285,7 @@ export default function ReservationFlowModal({
             )}
 
             {step === "done" && (
-              <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onAnimationStart={playConfirmationSound} className="flex flex-col items-center gap-4 py-6">
+              <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4 py-6">
                 <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
