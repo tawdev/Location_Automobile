@@ -63,7 +63,7 @@ function ImageModal({ url, label, onClose }: { url: string; label: string; onClo
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all z-10 cursor-pointer shadow-lg"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all z-10 cursor-pointer shadow-lg"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -74,8 +74,8 @@ function ImageModal({ url, label, onClose }: { url: string; label: string; onClo
           alt={label}
           className="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-6 py-4">
-          <span className="text-white/90 text-base font-bold">{label}</span>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 sm:px-6 py-3 sm:py-4">
+          <span className="text-white/90 text-sm sm:text-base font-bold">{label}</span>
         </div>
       </div>
     </div>
@@ -86,7 +86,7 @@ function DocThumb({ url, label, onOpen }: { url: string | null | undefined; labe
   if (!url) {
     return (
       <div className="flex flex-col items-center gap-1.5">
-        <div className="w-[90px] h-[64px] rounded-xl bg-[#F0F3FA] border border-dashed border-[#D5DEEF]" />
+        <div className="w-[76px] h-[54px] sm:w-[90px] sm:h-[64px] rounded-xl bg-[#F0F3FA] border border-dashed border-[#D5DEEF]" />
         <span className="text-[10px] font-bold text-[#B0C4DE]">{label}</span>
       </div>
     );
@@ -96,7 +96,7 @@ function DocThumb({ url, label, onOpen }: { url: string | null | undefined; labe
       <button
         type="button"
         onClick={() => onOpen(url, label)}
-        className="block w-[90px] h-[64px] rounded-xl overflow-hidden border border-[#D5DEEF]/60 hover:border-[#638ECB]/50 hover:shadow-md transition-all group relative cursor-pointer"
+        className="block w-[76px] h-[54px] sm:w-[90px] sm:h-[64px] rounded-xl overflow-hidden border border-[#D5DEEF]/60 hover:border-[#638ECB]/50 hover:shadow-md transition-all group relative cursor-pointer"
       >
         <img
           src={url}
@@ -156,19 +156,136 @@ function CameraIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function ThreeDotsIcon() {
+  return (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <circle cx="12" cy="5" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="12" cy="19" r="1.8" />
+    </svg>
+  );
+}
+
+function Spinner({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={`${className} animate-spin`} fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  );
+}
+
 function SkeletonRow() {
   return (
-    <div className="bg-white rounded-3xl border border-[#D5DEEF]/60 overflow-hidden shadow-sm animate-pulse flex items-center gap-4 p-4">
-      <div className="w-20 h-20 rounded-2xl bg-[#F0F3FA] shrink-0" />
+    <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#D5DEEF]/60 overflow-hidden shadow-sm animate-pulse flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#F0F3FA] shrink-0" />
       <div className="flex-1 space-y-2">
-        <div className="h-5 bg-[#F0F3FA] rounded-md w-1/4" />
-        <div className="h-4 bg-[#F0F3FA] rounded-md w-1/3" />
+        <div className="h-5 bg-[#F0F3FA] rounded-md w-2/3 sm:w-1/4" />
+        <div className="h-4 bg-[#F0F3FA] rounded-md w-1/2 sm:w-1/3" />
       </div>
-      <div className="flex gap-2 shrink-0">
+      <div className="hidden sm:flex gap-2 shrink-0">
         <div className="h-9 w-24 rounded-xl bg-[#F0F3FA]" />
         <div className="h-9 w-24 rounded-xl bg-[#F0F3FA]" />
         <div className="h-9 w-24 rounded-xl bg-[#F0F3FA]" />
       </div>
+      <div className="sm:hidden h-9 w-9 rounded-xl bg-[#F0F3FA] shrink-0" />
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mobile actions menu: replaces the Voir / Scan / Photos / Confirmer /   */
+/* Annuler button row with a single "..." button that opens a dropdown.  */
+/* ---------------------------------------------------------------------- */
+
+type ActionItem = {
+  key: string;
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  danger?: boolean;
+  href?: string;
+};
+
+function ActionsMenu({ items }: { items: ActionItem[] }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  return (
+    <div className="relative shrink-0" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Actions"
+        aria-expanded={open}
+        className="w-9 h-9 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] flex items-center justify-center transition-all active:scale-95 cursor-pointer"
+      >
+        <ThreeDotsIcon />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-52 rounded-2xl border border-[#D5DEEF]/70 bg-white shadow-xl z-30 overflow-hidden py-1.5">
+          {items.map((item) =>
+            item.href ? (
+              <a
+                key={item.key}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors no-underline"
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </a>
+            ) : (
+              <button
+                key={item.key}
+                type="button"
+                disabled={item.disabled}
+                onClick={() => {
+                  item.onClick();
+                  setOpen(false);
+                }}
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${
+                  item.danger ? "text-rose-600 hover:bg-rose-50" : "text-[#395886] hover:bg-[#F0F3FA]"
+                }`}
+              >
+                {item.loading ? <Spinner /> : item.icon}
+                <span>{item.label}</span>
+              </button>
+            )
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -245,29 +362,29 @@ function DetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl border border-[#D5DEEF]/80 shadow-2xl"
+        className="relative w-full sm:max-w-2xl max-h-[92vh] sm:max-h-[90vh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl border border-[#D5DEEF]/80 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 pb-0">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
+        <div className="flex items-center justify-between gap-3 p-4 sm:p-5 pb-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
               {vehiclePic ? (
                 <img src={vehiclePic} alt={vehicleName} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#B0C4DE] text-xs font-bold">—</div>
               )}
             </div>
-            <div>
-              <h3 className="font-extrabold text-[#395886] text-lg leading-tight">{vehicleName}</h3>
-              <p className="text-xs font-bold text-[#638ECB]">{userName}</p>
+            <div className="min-w-0">
+              <h3 className="font-extrabold text-[#395886] text-base sm:text-lg leading-tight truncate">{vehicleName}</h3>
+              <p className="text-xs font-bold text-[#638ECB] truncate">{userName}</p>
             </div>
           </div>
-          <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold border ${ss}`}>
+          <span className={`shrink-0 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border ${ss}`}>
             {statusLabel(reservation.status)}
           </span>
         </div>
@@ -276,16 +393,14 @@ function DetailModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] flex items-center justify-center transition-all cursor-pointer"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-full bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] flex items-center justify-center transition-all cursor-pointer"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <XIcon />
         </button>
 
-        <div className="p-5 pt-4 space-y-5">
+        <div className="p-4 sm:p-5 pt-4 space-y-4 sm:space-y-5">
           {/* Vehicle details */}
-          <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.vehicle")}</span>
               <span className="text-sm font-bold text-[#395886]">{vehicleName}</span>
@@ -298,14 +413,14 @@ function DetailModal({
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.client")}</span>
               <span className="text-sm font-bold text-[#395886]">{userName}</span>
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.email")}</span>
               <span className="text-sm font-bold text-[#395886] truncate block">{userEmail || "—"}</span>
             </div>
           </div>
 
           {/* Dates */}
-          <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.start")}</span>
               <span className="text-sm font-bold text-[#395886]">{formatDateStr(reservation.start_date)}</span>
@@ -316,7 +431,7 @@ function DetailModal({
             </div>
             <div className="col-span-2 pt-2 border-t border-[#D5DEEF]/30">
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.total")}</span>
-              <span className="text-xl font-black text-[#395886]">{reservation.TotalPrice} MAD</span>
+              <span className="text-lg sm:text-xl font-black text-[#395886]">{reservation.TotalPrice} MAD</span>
             </div>
           </div>
 
@@ -325,7 +440,7 @@ function DetailModal({
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-3">
               {t("admin.client_documents")}
             </span>
-            <div className="flex flex-wrap items-start gap-6">
+            <div className="flex flex-wrap items-start gap-4 sm:gap-6">
               <div className="flex items-start gap-3">
                 <DocThumb url={cinRecto} label={t("admin.cin_front")} onOpen={onOpenLightbox} />
                 <DocThumb url={cinVerso} label={t("admin.cin_back")} onOpen={onOpenLightbox} />
@@ -369,14 +484,7 @@ function DetailModal({
                     onClick={() => fileInputRef.current?.click()}
                     className="inline-flex h-9 px-4 rounded-xl bg-[#395886] hover:bg-[#2c4570] disabled:bg-[#B0C4DE] text-white font-bold text-xs transition-all active:scale-95 items-center justify-center gap-2 cursor-pointer"
                   >
-                    {uploading ? (
-                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    ) : (
-                      <UploadIcon />
-                    )}
+                    {uploading ? <Spinner className="w-3.5 h-3.5" /> : <UploadIcon />}
                     <span>{uploading ? t("admin.generating") : t("admin.add_scanned_contract")}</span>
                   </button>
                   {uploadError && (
@@ -465,29 +573,24 @@ function PicturesModal({
   const afterPics = pictures.filter(p => p.type === "after");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4" onClick={onClose}>
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl border border-[#D5DEEF]/80 shadow-2xl"
+        className="relative w-full sm:max-w-3xl max-h-[92vh] sm:max-h-[90vh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl border border-[#D5DEEF]/80 shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-5 pb-0 sticky top-0 bg-white z-10">
-          <h3 className="font-extrabold text-[#395886] text-lg">
+        <div className="flex items-center justify-between gap-3 p-4 sm:p-5 pb-0 sticky top-0 bg-white z-10">
+          <h3 className="font-extrabold text-[#395886] text-base sm:text-lg truncate">
             {t("admin.photos")} — {reservation.vehicle?.marque} {reservation.vehicle?.model}
           </h3>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] flex items-center justify-center transition-all cursor-pointer">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] flex items-center justify-center transition-all cursor-pointer shrink-0">
+            <XIcon />
           </button>
         </div>
 
-        <div className="p-5">
+        <div className="p-4 sm:p-5">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <svg className="w-6 h-6 animate-spin text-[#638ECB]" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
+              <Spinner className="w-6 h-6 text-[#638ECB]" />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -534,7 +637,7 @@ function PicturesModal({
                           type="button"
                           disabled={deletingId === pic.id}
                           onClick={() => handleDelete(pic.id)}
-                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover/pic:opacity-100 transition-all cursor-pointer"
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-rose-600 text-white flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover/pic:opacity-100 transition-all cursor-pointer"
                         >
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -589,7 +692,7 @@ function PicturesModal({
                           type="button"
                           disabled={deletingId === pic.id}
                           onClick={() => handleDelete(pic.id)}
-                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover/pic:opacity-100 transition-all cursor-pointer"
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 hover:bg-rose-600 text-white flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover/pic:opacity-100 transition-all cursor-pointer"
                         >
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -785,10 +888,10 @@ export default function AdminReservationsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-4 mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#395886]">{t("admin.reservations_title")}</h1>
-          <p className="text-sm font-bold text-[#638ECB] mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#395886]">{t("admin.reservations_title")}</h1>
+          <p className="text-xs sm:text-sm font-bold text-[#638ECB] mt-1">
             {t("admin.reservations_subtitle")}
           </p>
         </div>
@@ -796,7 +899,7 @@ export default function AdminReservationsPage() {
           type="button"
           onClick={() => void load()}
           disabled={loading}
-          className="h-10 px-4 rounded-xl bg-white border border-[#D5DEEF] text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-sm"
+          className="h-10 px-4 rounded-xl bg-white border border-[#D5DEEF] text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm self-start sm:self-auto"
         >
           <RefreshIcon />
           <span>{loading ? t("admin.loading") : t("admin.refresh")}</span>
@@ -804,8 +907,8 @@ export default function AdminReservationsPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="mb-5 p-4 rounded-2xl bg-white border border-[#D5DEEF]/60 shadow-sm">
-        <div className="flex flex-col lg:flex-row gap-3 items-end">
+      <div className="mb-5 p-3.5 sm:p-4 rounded-2xl bg-white border border-[#D5DEEF]/60 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-end">
           <div className="flex-1 min-w-0 w-full lg:w-auto">
             <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-1.5">
               {t("admin.filter_vehicle")}
@@ -827,12 +930,12 @@ export default function AdminReservationsPage() {
             </div>
           </div>
 
-          <div className="w-full sm:w-[180px]">
+          <div className="w-full lg:w-[180px]">
             <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#B0C4DE] block mb-1.5">
               {t("admin.filter_status")}
             </label>
             <Select value={status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="h-10 rounded-xl border border-[#D5DEEF]/60 bg-[#F0F3FA] text-sm text-[#395886] font-bold">
+              <SelectTrigger className="h-10 w-full rounded-xl border border-[#D5DEEF]/60 bg-[#F0F3FA] text-sm text-[#395886] font-bold">
                 <SelectValue placeholder={t("admin.all_statuses")} />
               </SelectTrigger>
               <SelectContent>
@@ -845,17 +948,14 @@ export default function AdminReservationsPage() {
             </Select>
           </div>
 
-
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full lg:w-auto">
             {hasFilters && (
               <button
                 type="button"
                 onClick={clearFilters}
-                className="flex-1 sm:flex-none h-10 px-4 rounded-xl border border-[#D5DEEF]/60 bg-white text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 lg:flex-none h-10 px-4 rounded-xl border border-[#D5DEEF]/60 bg-white text-[#395886] font-bold text-xs hover:bg-[#F0F3FA] transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <XIcon />
                 <span>{t("admin.clear")}</span>
               </button>
             )}
@@ -879,7 +979,7 @@ export default function AdminReservationsPage() {
       )}
 
       {!loading && !error && reservations.length === 0 && (
-        <div className="mt-12 flex flex-col items-center justify-center text-center">
+        <div className="mt-12 flex flex-col items-center justify-center text-center px-4">
           <div className="h-16 w-16 rounded-full bg-[#D5DEEF]/40 flex items-center justify-center mb-4">
             <svg className="w-8 h-8 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -910,28 +1010,113 @@ export default function AdminReservationsPage() {
               ? vehicleImageUrl(r.vehicle.pictures[0].path)
               : null;
 
+            const hasContract = !!r.contract_pdf;
+            const showPhotosAction = r.status !== "En_Attente" && r.status !== "Annulée";
+
+            // Build the list of actions once — reused by the desktop button
+            // row AND the mobile "..." menu, so behaviour always matches.
+            const menuItems: ActionItem[] = [
+              {
+                key: "view",
+                label: t("admin.view_details"),
+                icon: <EyeIcon />,
+                onClick: () => setDetailReservation(r),
+              },
+              hasContract
+                ? {
+                    key: "contract",
+                    label: "Contrat",
+                    icon: <FileIcon />,
+                    onClick: () => {},
+                    href: `${getApiOrigin()}/storage/${r.contract_pdf}`,
+                  }
+                : {
+                    key: "scan",
+                    label: t("admin.scan"),
+                    icon: <UploadIcon />,
+                    loading: uploadingId === r.id,
+                    onClick: () => fileInputRefs.current.get(r.id)?.click(),
+                  },
+              ...(showPhotosAction
+                ? [
+                    {
+                      key: "photos",
+                      label: t("admin.photos"),
+                      icon: <CameraIcon />,
+                      onClick: () => setPicturesModalReservation(r),
+                    },
+                  ]
+                : []),
+              {
+                key: "confirm",
+                label: t("admin.confirm"),
+                icon: <CheckIcon />,
+                disabled: isFinal,
+                loading: isAccepting(r.id),
+                onClick: () => handleAccept(r.id),
+              },
+              {
+                key: "refuse",
+                label: t("admin.refuse"),
+                icon: <XIcon />,
+                disabled: isFinal,
+                loading: isRefusing(r.id),
+                danger: true,
+                onClick: () => handleRefuse(r.id),
+              },
+            ];
+
             return (
               <div
                 key={r.id}
-                className="rounded-3xl border border-[#D5DEEF]/70 bg-white hover:border-[#638ECB]/50 hover:shadow-[0_4px_20px_rgba(99,142,203,0.10)] transition-all duration-300"
+                className="rounded-2xl sm:rounded-3xl border border-[#D5DEEF]/70 bg-white hover:border-[#638ECB]/50 hover:shadow-[0_4px_20px_rgba(99,142,203,0.10)] transition-all duration-300"
               >
-                {/* Top row: info + actions */}
-                <div className="flex items-center gap-4 p-4">
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
-                    {vehiclePic ? (
-                      <img
-                        src={vehiclePic}
-                        alt={vehicleName}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px]">
-                        {t("admin.no_image")}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3.5 sm:p-4">
+                  {/* Image + mobile title/status */}
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-[#F0F3FA] border border-[#D5DEEF]/40 shrink-0">
+                      {vehiclePic ? (
+                        <img
+                          src={vehiclePic}
+                          alt={vehicleName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center font-bold text-[#638ECB]/50 text-[10px] text-center px-1">
+                          {t("admin.no_image")}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Title/status/user — shown here only on mobile */}
+                    <div className="flex-1 min-w-0 sm:hidden">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-extrabold text-[#395886] text-sm leading-tight truncate">
+                          {vehicleName}
+                        </h4>
+                        <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold border ${ss}`}>
+                          {statusLabel(r.status)}
+                        </span>
                       </div>
-                    )}
+                      <p className="text-xs font-semibold text-[#638ECB] mt-0.5 truncate">{userName}</p>
+                    </div>
+
+                    {/* "..." menu sits next to the image on mobile */}
+                    <div className="sm:hidden">
+                      <input
+                        ref={(el) => { if (el) fileInputRefs.current.set(r.id, el); else fileInputRefs.current.delete(r.id); }}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => { handleQuickUpload(r.id, e.target.files); }}
+                        className="hidden"
+                      />
+                      <ActionsMenu items={menuItems} />
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0">
+                  {/* Desktop title/status/dates block */}
+                  <div className="hidden sm:block flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h4 className="font-extrabold text-[#395886] text-base leading-tight truncate">
                         {vehicleName}
@@ -953,7 +1138,19 @@ export default function AdminReservationsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  {/* Mobile dates/price row */}
+                  <div className="sm:hidden flex items-center flex-wrap gap-x-2 gap-y-1 text-[11px] font-semibold text-[#638ECB] pl-1">
+                    <span>{formatDateStr(r.start_date)}</span>
+                    <svg className="w-3 h-3 text-[#B0C4DE]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span>{formatDateStr(r.end_date)}</span>
+                    <span className="text-[#D5DEEF]">|</span>
+                    <span className="text-[#395886] font-bold">{r.TotalPrice} MAD</span>
+                  </div>
+
+                  {/* Desktop actions row */}
+                  <div className="hidden sm:flex items-center gap-2 shrink-0">
                     <button
                       type="button"
                       onClick={() => setDetailReservation(r)}
@@ -962,7 +1159,7 @@ export default function AdminReservationsPage() {
                       <EyeIcon />
                       <span>{t("admin.view_details")}</span>
                     </button>
-                    {r.contract_pdf ? (
+                    {hasContract ? (
                       <a
                         href={`${getApiOrigin()}/storage/${r.contract_pdf}`}
                         target="_blank"
@@ -973,34 +1170,17 @@ export default function AdminReservationsPage() {
                         <span>Contrat</span>
                       </a>
                     ) : (
-                      <>
-                        <input
-                          ref={(el) => { if (el) fileInputRefs.current.set(r.id, el); else fileInputRefs.current.delete(r.id); }}
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={(e) => { handleQuickUpload(r.id, e.target.files); }}
-                          className="hidden"
-                        />
-                        <button
-                          type="button"
-                          disabled={uploadingId === r.id}
-                          onClick={() => fileInputRefs.current.get(r.id)?.click()}
-                          className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          {uploadingId === r.id ? (
-                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                          ) : (
-                            <UploadIcon />
-                          )}
-                          <span>{t("admin.scan")}</span>
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        disabled={uploadingId === r.id}
+                        onClick={() => fileInputRefs.current.get(r.id)?.click()}
+                        className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        {uploadingId === r.id ? <Spinner /> : <UploadIcon />}
+                        <span>{t("admin.scan")}</span>
+                      </button>
                     )}
-                    {r.status !== "En_Attente" && r.status !== "Annulée" && (
+                    {showPhotosAction && (
                       <button
                         type="button"
                         onClick={() => setPicturesModalReservation(r)}
@@ -1020,16 +1200,7 @@ export default function AdminReservationsPage() {
                           : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
                       }`}
                     >
-                      {isAccepting(r.id) ? (
-                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                      ) : (
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      )}
+                      {isAccepting(r.id) ? <Spinner /> : <CheckIcon />}
                       {!isAccepting(r.id) && <span>{t("admin.confirm")}</span>}
                     </button>
                     <button
@@ -1042,22 +1213,11 @@ export default function AdminReservationsPage() {
                           : "bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100"
                       }`}
                     >
-                      {isRefusing(r.id) ? (
-                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                      ) : (
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      )}
+                      {isRefusing(r.id) ? <Spinner /> : <XIcon />}
                       {!isRefusing(r.id) && <span>{t("admin.refuse")}</span>}
                     </button>
                   </div>
                 </div>
-
-
               </div>
             );
           })}

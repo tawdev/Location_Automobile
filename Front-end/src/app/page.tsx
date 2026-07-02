@@ -205,8 +205,7 @@ function HeroSection({ vehicles: showcaseVehicles }: { vehicles?: Vehicle[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <div className="bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.2)]">
-              {/* Row 1: Pickup + Return dates */}
+      <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">              {/* Row 1: Pickup + Return dates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
