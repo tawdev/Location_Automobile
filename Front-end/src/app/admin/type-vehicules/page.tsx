@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, AlertCircle, Layers } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertCircle, Layers, MoreHorizontal } from "lucide-react";
 import type { TypeVehicule } from "@/lib/types";
 import { getAdminTypeVehicules, deleteAdminTypeVehicule } from "@/lib/adminTypeVehiculesApi";
 import type { ApiError } from "@/lib/apiClient";
@@ -62,6 +62,7 @@ export default function AdminTypeVehiculesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   const loadTypes = useCallback(async () => {
     setLoading(true);
@@ -194,7 +195,8 @@ export default function AdminTypeVehiculesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                {/* Desktop actions */}
+                <div className="hidden md:flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => router.push(`/admin/type-vehicules/${type.id}/edit`)}
@@ -212,6 +214,47 @@ export default function AdminTypeVehiculesPage() {
                     <Trash2 className="w-3.5 h-3.5" />
                     {deletingId === type.id ? "..." : t("admin.delete")}
                   </button>
+                </div>
+
+                {/* Mobile dropdown */}
+                <div className="relative md:hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setOpenMenuId(openMenuId === type.id ? null : type.id)}
+                    className="h-9 w-9 rounded-xl border border-[#D5DEEF] text-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center justify-center cursor-pointer"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                  {openMenuId === type.id && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                      <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px] bg-white rounded-2xl border border-[#D5DEEF]/70 shadow-lg py-1.5 overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            router.push(`/admin/type-vehicules/${type.id}/edit`);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          {t("admin.edit")}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={deletingId === type.id}
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            onDelete(type.id);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          {deletingId === type.id ? "..." : t("admin.delete")}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </motion.div>
             ))}

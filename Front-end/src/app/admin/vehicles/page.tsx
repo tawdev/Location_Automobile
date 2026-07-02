@@ -61,6 +61,14 @@ function TrashIcon() {
   );
 }
 
+function MoreIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+    </svg>
+  );
+}
+
 function EditIcon() {
   return (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,6 +160,7 @@ function VehicleRow({
   deleting,
 }: VehicleRowProps) {
   const { t } = useI18n();
+  const [openMenu, setOpenMenu] = useState(false);
   const picturePath = vehicle.pictures?.[0]?.path;
 
   return (
@@ -207,8 +216,8 @@ function VehicleRow({
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-2 shrink-0">
+      {/* Desktop actions */}
+      <div className="hidden md:flex items-center gap-2 shrink-0">
         <button
           type="button"
           onClick={() => onView(vehicle.id)}
@@ -234,6 +243,49 @@ function VehicleRow({
           <TrashIcon />
           <span>{deleting ? "..." : t("admin.delete")}</span>
         </button>
+      </div>
+
+      {/* Mobile dropdown */}
+      <div className="relative md:hidden shrink-0">
+        <button
+          type="button"
+          onClick={() => setOpenMenu(!openMenu)}
+          className="h-9 w-9 rounded-xl border border-[#D5DEEF] text-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center justify-center cursor-pointer"
+        >
+          <MoreIcon />
+        </button>
+        {openMenu && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(false)} />
+            <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px] bg-white rounded-2xl border border-[#D5DEEF]/70 shadow-lg py-1.5 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => { setOpenMenu(false); onView(vehicle.id); }}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+              >
+                <EyeIcon />
+                Voir
+              </button>
+              <button
+                type="button"
+                onClick={() => { setOpenMenu(false); onEdit(vehicle.id); }}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+              >
+                <EditIcon />
+                {t("admin.edit")}
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => { setOpenMenu(false); onDelete(vehicle.id); }}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <TrashIcon />
+                {deleting ? "..." : t("admin.delete")}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
