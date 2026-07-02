@@ -462,7 +462,7 @@ export default function Header({ solid }: { solid?: boolean }) {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -20, opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="relative bg-white/90 dark:bg-[#0f1729]/95 backdrop-blur-xl border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/80 shadow-xl mx-4 mt-2 rounded-2xl p-3"
+              className="relative bg-white/90 dark:bg-[#0f1729]/95 backdrop-blur-xl border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/80 shadow-xl mx-4 mt-2 rounded-2xl p-3 overflow-y-auto max-h-[calc(100vh-5rem)]"
             >
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/60 mb-1">
@@ -633,7 +633,7 @@ export default function Header({ solid }: { solid?: boolean }) {
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg transition-all"
                       >
                         <Download className="w-4 h-4" />
-                        {t("nav.download_app") || "Télécharger l'app"}
+                        "Télécharger"
                       </button>
                     </div>
                   </>
