@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { Category } from "@/lib/types";
 import { deleteAdminCategory, getAdminCategories } from "@/lib/adminCategoriesApi";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -12,13 +14,18 @@ function CategoryRow({
   deleting,
   onEdit,
   t,
+  openMenuId,
+  setOpenMenuId,
 }: {
   category: Category;
   onDelete: (id: number) => void;
   deleting: boolean;
   onEdit: (id: number) => void;
   t: (key: string) => string;
+  openMenuId: number | null;
+  setOpenMenuId: (id: number | null) => void;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="border-4 border-black bg-white p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
       <div className="flex items-center justify-between gap-4">
@@ -27,7 +34,8 @@ function CategoryRow({
           <div className="font-bold text-sm mt-1">ID: {category.id}</div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Desktop actions */}
+        <div className="hidden md:flex items-center gap-2">
           <button
             type="button"
             onClick={() => onEdit(category.id)}
@@ -44,6 +52,41 @@ function CategoryRow({
             {deleting ? t("admin.deleting") : t("admin.delete")}
           </button>
         </div>
+
+        {/* Mobile dropdown */}
+        <div className="relative md:hidden">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="font-black border-2 border-black px-2 py-2 bg-white hover:bg-zinc-100"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px] bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <button
+                  type="button"
+                  onClick={() => { setMenuOpen(false); onEdit(category.id); }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 font-black text-sm hover:bg-zinc-100 border-b-2 border-black"
+                >
+                  <Pencil className="w-4 h-4" />
+                  {t("admin.edit")}
+                </button>
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={() => { setMenuOpen(false); onDelete(category.id); }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 font-black text-sm hover:bg-zinc-100 disabled:opacity-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {deleting ? t("admin.deleting") : t("admin.delete")}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -58,6 +101,7 @@ export default function AdminCategoriesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   async function loadCategories() {
     setLoading(true);
@@ -130,6 +174,8 @@ export default function AdminCategoriesPage() {
               onDelete={onDelete}
               onEdit={(id) => router.push(`/admin/categories/${id}/edit`)}
               t={t}
+              openMenuId={openMenuId}
+              setOpenMenuId={setOpenMenuId}
             />
           ))}
         </div>

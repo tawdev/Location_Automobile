@@ -10,7 +10,7 @@ import { getAdminCategories } from "@/lib/adminCategoriesApi";
 import { getPublicMarques } from "@/lib/marquesApi";
 import { fetchTypeVehicules } from "@/lib/vehiclesApi";
 import { createAdminVehicle, type AdminVehiclePayload } from "@/lib/adminVehiclesApi";
-import { playConfirmationSound } from "@/lib/playSound";
+import { playConfirmationSound, prepareConfirmationSound } from "@/lib/playSound";
 
 function AdminVehicleForm({
   categories,
@@ -348,6 +348,7 @@ export default function AdminVehicleNewPage() {
   }, []);
 
   async function onCreate(payload: AdminVehiclePayload, images: File[]) {
+    prepareConfirmationSound();
     setSubmitting(true);
     setError(null);
     try {
