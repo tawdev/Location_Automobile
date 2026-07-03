@@ -11,7 +11,6 @@ import { organizationLD, websiteLD, localBusinessLD } from "@/lib/json-ld";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#395886",
 };
 
@@ -21,12 +20,16 @@ const inter = Inter({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["400", "500"],
+  display: "swap",
+  preload: true,
 });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-headings",
   subsets: ["latin"],
   weight: ["600", "700"],
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -35,7 +38,8 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon-96.png', type: 'image/png', sizes: '96x96' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
       { url: '/favicon-192.png', type: 'image/png', sizes: '192x192' },
       { url: '/icon.png', type: 'image/png', sizes: '512x512' },
     ],
@@ -132,6 +136,14 @@ export default function RootLayout({
       lang="fr"
       className={`${inter.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
+      <head>
+        {/* DNS prefetch & preconnect for external origins */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="http://localhost:8000" />
+        {/* Preload the above-the-fold hero background (LCP image) */}
+        <link rel="preload" href="/background_vehicles/bg01.webp" as="image" type="image/webp" fetchPriority="high" />
+      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Providers>
           <HtmlLangSync />
@@ -141,16 +153,19 @@ export default function RootLayout({
         <Script
           id="ld-organization"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLD()) }}
         />
         <Script
           id="ld-website"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLD()) }}
         />
         <Script
           id="ld-local-business"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLD()) }}
         />
         <Script id="register-sw" strategy="afterInteractive">
@@ -160,3 +175,4 @@ export default function RootLayout({
     </html>
   );
 }
+
