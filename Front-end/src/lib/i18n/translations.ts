@@ -16,6 +16,7 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "nav.login": { en: "Login", fr: "Connexion", ar: "تسجيل الدخول" },
   "nav.signup": { en: "Sign up", fr: "S'inscrire", ar: "إنشاء حساب" },
   "nav.my_account": { en: "My Account", fr: "Mon Compte", ar: "حسابي" },
+  "nav.download": { en: "Download", fr: "Télécharger", ar: "تنزيل" },
   "nav.logout": { en: "Logout", fr: "Se déconnecter", ar: "تسجيل الخروج" },
   "nav.logout_loading": { en: "Logging out...", fr: "Déconnexion...", ar: "جاري تسجيل الخروج..." },
   "back": { en: "Back", fr: "Retour", ar: "رجوع" },

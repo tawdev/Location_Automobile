@@ -245,37 +245,43 @@ export default function VehiculesPage() {
   }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const cardsContainerRef = useRef<HTMLDivElement | null>(null);
 
+  // Use event delegation on the cards container – no re-registration needed on filter changes
   useEffect(() => {
-    const refs = cardsRef.current;
-    const handlers: (() => void)[] = [];
-    refs.forEach((card) => {
+    const container = cardsContainerRef.current;
+    if (!container) return;
+
+    let ticking = false;
+    const onMove = (e: MouseEvent) => {
+      const card = (e.target as Element).closest<HTMLDivElement>('[data-tilt]');
       if (!card) return;
-      let ticking = false;
-      const onMove = (e: MouseEvent) => {
-        if (ticking) return;
-        requestAnimationFrame(() => {
-          const rect = card.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          const cx = rect.width / 2;
-          const cy = rect.height / 2;
-          const rx = ((y - cy) / cy) * -8;
-          const ry = ((x - cx) / cx) * 8;
-          card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
-          ticking = false;
-        });
-        ticking = true;
-      };
-      const onLeave = () => {
-        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
-      };
-      card.addEventListener('mousemove', onMove);
-      card.addEventListener('mouseleave', onLeave);
-      handlers.push(() => { card.removeEventListener('mousemove', onMove); card.removeEventListener('mouseleave', onLeave); });
-    });
-    return () => handlers.forEach(h => h());
-  }, [filteredVehicles]);
+      if (ticking) return;
+      requestAnimationFrame(() => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const rx = ((y - cy) / cy) * -8;
+        const ry = ((x - cx) / cx) * 8;
+        card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
+        ticking = false;
+      });
+      ticking = true;
+    };
+    const onLeave = (e: MouseEvent) => {
+      const card = (e.target as Element).closest<HTMLDivElement>('[data-tilt]');
+      if (card) card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+    };
+    container.addEventListener('mousemove', onMove);
+    container.addEventListener('mouseleave', onLeave, true);
+    return () => {
+      container.removeEventListener('mousemove', onMove);
+      container.removeEventListener('mouseleave', onLeave, true);
+    };
+  }, []); // ← empty: only runs once, no re-registration on filter changes
+
 
   // Sidebar filter content (reused in both desktop sidebar and mobile drawer)
   const filterPanel = (
@@ -734,7 +740,7 @@ export default function VehiculesPage() {
                   <p className="text-gray-400 dark:text-[#64748b] text-sm mt-2">Essayez de modifier vos filtres</p>
                 </motion.div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-7">
+                <div ref={cardsContainerRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-7">
                   {filteredVehicles.map((v, idx) => {
                     const picturePath = v.pictures?.[0]?.path;
                     const isNew = idx < NEW_COUNT;
@@ -742,11 +748,11 @@ export default function VehiculesPage() {
                     return (
                       <motion.div
                         key={v.id}
-                        ref={(el) => { cardsRef.current[idx] = el; }}
+                        data-tilt
                         initial={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 50, scale: 0.92 }}
                         whileInView={{ opacity: 1, y: 0, scale: 1 }}
                         viewport={{ once: true, margin: "-40px" }}
-                        transition={{ duration: 0.5, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.5, delay: Math.min(idx * 0.06, 0.3), ease: [0.22, 1, 0.36, 1] }}
                         whileHover={prefersReducedMotion ? {} : { y: -8, boxShadow: "0 25px 60px rgba(31,66,118,0.15)" }}
                         onClick={() => router.push(`/vehicules/${v.id}`)}
                         className="group bg-white dark:bg-[#0f1729] rounded-[18px] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-gray-100/80 dark:border-[#1e293b]/60 hover:shadow-[0_12px_40px_rgba(31,66,118,0.08)] dark:hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:-translate-y-1 cursor-pointer relative flex flex-col transition-all duration-300"
@@ -841,8 +847,8 @@ export default function VehiculesPage() {
                               width={220}
                               height={220}
                               className="absolute -bottom-6 -right-6 w-[180px] h-[180px] opacity-[0.08] -rotate-[15deg] pointer-events-none select-none z-0"
-                              draggable={true}
-                              priority={true}
+                              draggable={false}
+                              priority={false}
                               unoptimized
                             />
                           )}

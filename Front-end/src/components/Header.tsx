@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   Car,
   Clock,
@@ -41,9 +42,12 @@ function Logo({ onClick, scrolled, dark, isHomePage }: { onClick: () => void; sc
         whileTap={{ scale: 0.98 }}
         className="flex items-center justify-center"
       >
-        <img
+        <Image
           src={showDark ? "/logo-dark.png" : "/logo.png"}
           alt="CARFORFAR logo"
+          width={160}
+          height={64}
+          priority
           className="h-16 sm:h-20 w-auto object-contain select-none"
         />
       </motion.div>
@@ -633,7 +637,7 @@ export default function Header({ solid }: { solid?: boolean }) {
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg transition-all"
                       >
                         <Download className="w-4 h-4" />
-                        "Télécharger"
+{t("nav.download")}
                       </button>
                     </div>
                   </>
