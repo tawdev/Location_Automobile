@@ -21,34 +21,59 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT || '22' }}
           script: |
+            set -e
+
             echo "Starting deployment..."
             cd /var/www/Location_Automobile
-            
+
             # Reset local changes if any, and pull latest code
             git reset --hard
             git pull origin main
-            
+
             # --- Backend Laravel ---
             echo "Deploying Backend..."
             cd Back-End
+
+            # Ensure .env exists (VPS must have it pre-configured with production DB creds)
+            if [ ! -f .env ]; then
+              echo "ERROR: .env not found! Create it from .env.example with production credentials."
+              exit 1
+            fi
+
             composer install --optimize-autoloader --no-dev
+
+            # Run migrations (this creates missing tables like countries/cities)
             php artisan migrate --force
             php artisan db:seed --class=PermissionSeeder --force
+
+            # Cache
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            
+
+            # Storage link for uploaded images
+            php artisan storage:link || true
+
+            # Permissions
+            chmod -R 775 storage bootstrap/cache
+
             # Restart backend processes
-            pm2 restart carforfar-api
-            pm2 restart carforfar-queue
-            
+            pm2 restart carforfar-api || pm2 start artisan --name carforfar-api -- serve
+            pm2 restart carforfar-queue || pm2 start php --name carforfar-queue -- artisan queue:work
+
             # --- Frontend Next.js ---
             echo "Deploying Frontend..."
             cd ../Front-end
+
+            if [ ! -f .env.local ]; then
+              echo "ERROR: .env.local not found! Create it with NEXT_PUBLIC_API_BASE_URL."
+              exit 1
+            fi
+
             npm install
             npm run build
-            
+
             # Restart frontend process
-            pm2 restart carforfar-frontend
-            
+            pm2 restart carforfar-frontend || pm2 start npm --name carforfar-frontend -- start
+
             echo "Deployment completed successfully!"
