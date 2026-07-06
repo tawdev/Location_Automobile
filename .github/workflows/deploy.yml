@@ -26,8 +26,9 @@ jobs:
             echo "Starting deployment..."
             cd /var/www/Location_Automobile
 
-            # Reset local changes if any, and pull latest code
+            # Reset local changes and remove untracked files, then pull latest code
             git reset --hard
+            git clean -fd
             git pull origin main
 
             # --- Backend Laravel ---
