@@ -50,6 +50,18 @@ export type Marque = {
   logo: string | null;
 };
 
+export type Country = {
+  id: number;
+  name: string;
+  cities?: City[];
+};
+
+export type City = {
+  id: number;
+  country_id: number;
+  name: string;
+};
+
 export type Vehicle = {
   id: number;
   marque: string;
@@ -66,9 +78,13 @@ export type Vehicle = {
   air_conditioner?: boolean;
   gps?: boolean;
   order?: number | null;
+  country_id?: number | null;
+  city_id?: number | null;
   pictures?: Picture[];
   category?: Category;
   typeVehicule?: TypeVehicule;
+  country?: Country;
+  city?: City;
   created_at?: string;
 };
 
@@ -122,6 +138,10 @@ export type Reservation = {
   client_id?: number | null;
   lieu_depart?: string | null;
   lieu_retour?: string | null;
+  depart_country_id?: number | null;
+  depart_city_id?: number | null;
+  return_country_id?: number | null;
+  return_city_id?: number | null;
   date_heure_depart?: string | null;
   date_heure_retour?: string | null;
   caution_montant?: number | null;

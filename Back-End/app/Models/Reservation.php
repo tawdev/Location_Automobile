@@ -21,6 +21,7 @@ class Reservation extends Model
         'driver2_telephone', 'driver2_numero_permi', 'driver2_date_delivrance', 'driver2_date_expiration',
         'caution_montant', 'caution_mode',
         'lieu_depart', 'lieu_retour', 'date_heure_depart', 'date_heure_retour',
+        'depart_country_id', 'depart_city_id', 'return_country_id', 'return_city_id',
         'observations',
     ];
     /** @use HasFactory<ReservationFactory> */
@@ -80,5 +81,25 @@ class Reservation extends Model
     public function pictures(): HasMany
     {
         return $this->hasMany(ReservationPicture::class);
+    }
+
+    public function departCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'depart_country_id');
+    }
+
+    public function departCity(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'depart_city_id');
+    }
+
+    public function returnCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'return_country_id');
+    }
+
+    public function returnCity(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'return_city_id');
     }
 }

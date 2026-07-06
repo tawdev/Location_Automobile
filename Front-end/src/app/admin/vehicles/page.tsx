@@ -22,6 +22,8 @@ import { Modal } from "@/components/admin/Modal";
 import { CategoriesManagerModal } from "@/components/admin/CategoriesManagerModal";
 import { isAuthError } from "@/lib/apiClient";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
+import type { Country, City } from "@/lib/types";
 
 // Dynamic reliable car images for Seeding
 const DEMO_CAR_IMAGES = [
@@ -149,6 +151,8 @@ interface VehicleRowProps {
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   deleting: boolean;
+  countryName?: string;
+  cityName?: string;
 }
 
 function VehicleRow({
@@ -158,6 +162,8 @@ function VehicleRow({
   onEdit,
   onDelete,
   deleting,
+  countryName,
+  cityName,
 }: VehicleRowProps) {
   const { t } = useI18n();
   const [openMenu, setOpenMenu] = useState(false);
@@ -206,6 +212,14 @@ function VehicleRow({
               <span className="text-[#D5DEEF]">|</span>
               <span className="px-2 py-0.5 rounded-md bg-[#F0F3FA] text-[#395886] text-[10px] font-bold border border-[#D5DEEF]/50">
                 {categoryName}
+              </span>
+            </>
+          )}
+          {(countryName || cityName) && (
+            <>
+              <span className="text-[#D5DEEF]">|</span>
+              <span className="px-2 py-0.5 rounded-md bg-[#F0F3FA] text-[#395886] text-[10px] font-bold border border-[#D5DEEF]/50">
+                📍 {cityName || countryName || ""}{cityName && countryName ? `, ${countryName}` : ""}
               </span>
             </>
           )}
@@ -330,6 +344,10 @@ function VehicleCreateEditModal({
   const [airConditioner, setAirConditioner] = useState(false);
   const [gps, setGps] = useState(false);
   const [order, setOrder] = useState<number>(0);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [countryId, setCountryId] = useState<number | null>(null);
+  const [cityId, setCityId] = useState<number | null>(null);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -347,7 +365,17 @@ function VehicleCreateEditModal({
   useEffect(() => {
     getPublicMarques().then(setMarques).catch(() => {});
     fetchTypeVehicules().then(setTypeVehicules).catch(() => {});
+    fetchCountries().then(setCountries).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (countryId) {
+      fetchCitiesByCountry(countryId).then(setCities).catch(() => setCities([]));
+    } else {
+      setCities([]);
+    }
+    setCityId(null);
+  }, [countryId]);
 
   useEffect(() => {
     if (!open) return;
@@ -374,6 +402,8 @@ function VehicleCreateEditModal({
     setAirConditioner(initial?.air_conditioner ?? false);
     setGps(initial?.gps ?? false);
     setOrder(initial?.order ?? 0);
+    setCountryId(initial?.country_id ?? null);
+    setCityId(initial?.city_id ?? null);
     setImagesFiles([]);
     setUploadError(null);
     setPreviewUrls([]);
@@ -460,6 +490,8 @@ function VehicleCreateEditModal({
         air_conditioner: airConditioner,
         gps: gps,
         order: order,
+        country_id: countryId,
+        city_id: cityId,
       },
       allFiles,
       deletedImageIds.length > 0 ? deletedImageIds : undefined,
@@ -671,6 +703,35 @@ function VehicleCreateEditModal({
               />
             </div>
 
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Pays (localisation)</label>
+              <select
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                value={countryId ?? ""}
+                onChange={(e) => setCountryId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">-- Sélectionner un pays --</option>
+                {countries.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Ville (localisation)</label>
+              <select
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                value={cityId ?? ""}
+                onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : null)}
+                disabled={!countryId}
+              >
+                <option value="">-- Sélectionner une ville --</option>
+                {cities.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Existing Pictures (edit mode) */}
             {mode === "edit" && initial?.pictures && initial.pictures.length > 0 && (
               <div className="flex flex-col gap-2 md:col-span-2">
@@ -845,6 +906,8 @@ interface VehicleViewModalProps {
   onClose: () => void;
   onRemove: (id: number) => void;
   removing: boolean;
+  countryName?: string;
+  cityName?: string;
 }
 
 function VehicleViewModal({
@@ -854,6 +917,8 @@ function VehicleViewModal({
   onClose,
   onRemove,
   removing,
+  countryName,
+  cityName,
 }: VehicleViewModalProps) {
   const { t } = useI18n();
   const pictures = vehicle?.pictures ?? [];
@@ -957,6 +1022,12 @@ function VehicleViewModal({
                       <span className="text-sm font-bold text-green-600">✓ Inclus</span>
                     </div>
                   )}
+                  {(countryName || cityName) && (
+                    <div className="col-span-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Localisation</span>
+                      <span className="text-sm font-bold text-slate-800">{cityName || ""}{cityName && countryName ? ", " : ""}{countryName || ""}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t border-[#D5DEEF]/40 pt-4 flex items-baseline justify-between">
@@ -1034,6 +1105,14 @@ export default function AdminVehiclesPage() {
   const categoryById = useMemo(() => new Map(categories.map((c) => [c.id, c.name])), [categories]);
   const allVehiclesRef = useRef<Vehicle[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [allCountries, setAllCountries] = useState<Country[]>([]);
+
+  const countryById = useMemo(() => new Map(allCountries.map((c) => [c.id, c.name])), [allCountries]);
+  const cityNameById = useMemo(() => {
+    const map = new Map<number, string>();
+    allCountries.forEach((c) => c.cities?.forEach((ct) => map.set(ct.id, ct.name)));
+    return map;
+  }, [allCountries]);
 
   function applyFilters() {
     let result = allVehiclesRef.current;
@@ -1108,6 +1187,7 @@ export default function AdminVehiclesPage() {
       await loadVehicles();
       applyFilters();
     })();
+    fetchCountries().then(setAllCountries).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1479,6 +1559,8 @@ export default function AdminVehiclesPage() {
               key={v.id}
               vehicle={v}
               categoryName={categoryById.get(v.category_id)}
+              countryName={v.country_id ? countryById.get(v.country_id) : undefined}
+              cityName={v.city_id ? cityNameById.get(v.city_id) : undefined}
               onView={onOpenView}
               onEdit={onOpenEdit}
               onDelete={onDelete}
@@ -1532,6 +1614,8 @@ export default function AdminVehiclesPage() {
         open={viewOpen}
         vehicle={viewVehicle}
         categoryName={viewVehicle ? categoryById.get(viewVehicle.category_id) : undefined}
+        countryName={viewVehicle?.country_id ? countryById.get(viewVehicle.country_id) : undefined}
+        cityName={viewVehicle?.city_id ? cityNameById.get(viewVehicle.city_id) : undefined}
         onClose={() => setViewOpen(false)}
         onRemove={onRemoveFromView}
         removing={viewRemoving}

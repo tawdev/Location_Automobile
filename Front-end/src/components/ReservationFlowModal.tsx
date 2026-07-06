@@ -9,7 +9,8 @@ import { makeReservation } from "@/lib/reservationsApi";
 import { getExtras } from "@/lib/extrasApi";
 import { getClientInfo, saveClientInfo } from "@/lib/clientApi";
 import { saveReservationProgress, loadReservationProgress, clearReservationProgress } from "@/lib/reservationStorage";
-import type { Extra } from "@/lib/types";
+import type { Extra, Country, City } from "@/lib/types";
+import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Upload, CheckCircle, X, User, Users, FileText, IdCard, Package, Shield, ChevronLeft } from "lucide-react";
@@ -41,6 +42,7 @@ type Props = {
 
 type Step =
   | "choose"
+  | "location"
   | "oneDriverUpload"
   | "twoDrivers"
   | "extras"
@@ -209,7 +211,7 @@ export default function ReservationFlowModal({
         return saved.step as Step;
       }
     }
-    return defaultChoice ? (defaultChoice === "one" ? "oneDriverUpload" : "twoDrivers") : "choose";
+    return defaultChoice ? "location" : "choose";
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -240,6 +242,15 @@ export default function ReservationFlowModal({
   const [extras, setExtras] = useState<Extra[]>([]);
   const [selectedExtraIds, setSelectedExtraIds] = useState<number[]>([]);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  // Location
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [departCountryId, setDepartCountryId] = useState<number | null>(null);
+  const [departCities, setDepartCities] = useState<City[]>([]);
+  const [departCityId, setDepartCityId] = useState<number | null>(null);
+  const [returnCountryId, setReturnCountryId] = useState<number | null>(null);
+  const [returnCities, setReturnCities] = useState<City[]>([]);
+  const [returnCityId, setReturnCityId] = useState<number | null>(null);
 
   // Client info
   const [existingClient, setExistingClient] = useState<boolean | null>(null);
@@ -280,6 +291,10 @@ export default function ReservationFlowModal({
     const saved = loadReservationProgress();
     if (saved && saved.vehicleId === vehicleId && saved.step !== "done" && saved.step !== "reservationError" && saved.step !== "reserving") {
       setSelectedExtraIds(saved.selectedExtraIds || []);
+      if (saved.departCountryId) setDepartCountryId(saved.departCountryId);
+      if (saved.departCityId) setDepartCityId(saved.departCityId);
+      if (saved.returnCountryId) setReturnCountryId(saved.returnCountryId);
+      if (saved.returnCityId) setReturnCityId(saved.returnCityId);
       setClientNom(saved.clientNom || "");
       setClientDateNaissance(toDateInputValue(saved.clientDateNaissance || ""));
       setClientCin(saved.clientCin || "");
@@ -330,6 +345,7 @@ export default function ReservationFlowModal({
   latestState.current = {
     vehicleId, vehicleName, startDate, endDate, startDateTime, endDateTime,
     savedChoice, step, selectedExtraIds,
+    departCountryId, departCityId, returnCountryId, returnCityId,
     clientNom, clientDateNaissance, clientCin, clientAdresse,
     clientTelephone, clientNumeroPermi, clientDateDelivrance, clientDateExpiration,
     driver2Name,
@@ -545,7 +561,26 @@ export default function ReservationFlowModal({
 
   useEffect(() => {
     getExtras().then(setExtras).catch(() => {});
+    fetchCountries().then(setCountries).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (departCountryId) {
+      fetchCitiesByCountry(departCountryId).then(setDepartCities).catch(() => setDepartCities([]));
+    } else {
+      setDepartCities([]);
+    }
+    setDepartCityId(null);
+  }, [departCountryId]);
+
+  useEffect(() => {
+    if (returnCountryId) {
+      fetchCitiesByCountry(returnCountryId).then(setReturnCities).catch(() => setReturnCities([]));
+    } else {
+      setReturnCities([]);
+    }
+    setReturnCityId(null);
+  }, [returnCountryId]);
 
   useEffect(() => {
     if (step === "extras") {
@@ -614,11 +649,7 @@ export default function ReservationFlowModal({
 
   async function handleChooseOneDriver() {
     setSavedChoice("one");
-    if (userHasCin && userHasPermi) {
-      setStep("extras");
-    } else {
-      setStep("oneDriverUpload");
-    }
+    setStep("location");
   }
 
   async function proceedFromUploads() {
@@ -716,6 +747,20 @@ export default function ReservationFlowModal({
     return true;
   }
 
+  function handleLocationNext() {
+    const el = document.getElementById("reserve-flow-scroll");
+    if (el) el.scrollTop = 0;
+    if (savedChoice === "one") {
+      if (userHasCin && userHasPermi) {
+        setStep("extras");
+      } else {
+        setStep("oneDriverUpload");
+      }
+    } else {
+      setStep("twoDrivers");
+    }
+  }
+
   async function handleProceedToReservation() {
     setError(null);
     prepareConfirmationSound();
@@ -772,6 +817,10 @@ export default function ReservationFlowModal({
     formData.set("end_date", endDate);
     if (startDateTime) formData.set("date_heure_depart", startDateTime);
     if (endDateTime) formData.set("date_heure_retour", endDateTime);
+    if (departCountryId) formData.set("depart_country_id", String(departCountryId));
+    if (departCityId) formData.set("depart_city_id", String(departCityId));
+    if (returnCountryId) formData.set("return_country_id", String(returnCountryId));
+    if (returnCityId) formData.set("return_city_id", String(returnCityId));
 
     if (selectedExtraIds.length > 0) {
       for (const id of selectedExtraIds) {
@@ -854,7 +903,7 @@ export default function ReservationFlowModal({
                     <div className="text-[11px] text-[#638ECB] font-semibold">{t("reserve_modal.one_driver_desc")}</div>
                   </div>
                 </button>
-                <button onClick={() => { setSavedChoice("two"); setStep("twoDrivers"); }} className="w-full p-5 rounded-xl border-2 border-[#D5DEEF] hover:border-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center gap-4">
+                <button onClick={() => { setSavedChoice("two"); setStep("location"); }} className="w-full p-5 rounded-xl border-2 border-[#D5DEEF] hover:border-[#395886] hover:bg-[#F0F3FA] transition-all flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-[#F0F3FA] flex items-center justify-center">
                     <Users className="w-5 h-5 text-[#395886]" />
                   </div>
@@ -862,6 +911,66 @@ export default function ReservationFlowModal({
                     <div className="font-extrabold text-[#395886] text-sm">{t("reserve_modal.two_drivers")}</div>
                     <div className="text-[11px] text-[#638ECB] font-semibold">{t("reserve_modal.two_drivers_desc")}</div>
                   </div>
+                </button>
+              </motion.div>
+            )}
+
+            {step === "location" && (
+              <motion.div key="location" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
+                <p className="text-sm text-[#395886] font-semibold text-center">Lieu de prise en charge et de retour</p>
+                <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
+                  <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">Prise en charge</h4>
+                  <select
+                    value={departCountryId ?? ""}
+                    onChange={(e) => setDepartCountryId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886]"
+                  >
+                    <option value="">Sélectionnez un pays</option>
+                    {countries.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={departCityId ?? ""}
+                    onChange={(e) => setDepartCityId(e.target.value ? Number(e.target.value) : null)}
+                    disabled={!departCountryId}
+                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886] disabled:opacity-50"
+                  >
+                    <option value="">Sélectionnez une ville</option>
+                    {departCities.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
+                  <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">Retour</h4>
+                  <select
+                    value={returnCountryId ?? ""}
+                    onChange={(e) => setReturnCountryId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886]"
+                  >
+                    <option value="">Sélectionnez un pays</option>
+                    {countries.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={returnCityId ?? ""}
+                    onChange={(e) => setReturnCityId(e.target.value ? Number(e.target.value) : null)}
+                    disabled={!returnCountryId}
+                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886] disabled:opacity-50"
+                  >
+                    <option value="">Sélectionnez une ville</option>
+                    {returnCities.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  onClick={handleLocationNext}
+                  className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity"
+                >
+                  Continuer
                 </button>
               </motion.div>
             )}

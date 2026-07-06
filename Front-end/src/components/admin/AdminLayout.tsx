@@ -83,6 +83,14 @@ function MapIcon() {
   );
 }
 
+function GlobeIcon2() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
 function ExtrasIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -243,7 +251,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       { label: t("admin.departure_conditions"), href: "/admin/departure-conditions", icon: <ConditionsIcon /> },
       { label: t("admin.messages"), href: "/admin/messages", icon: <MessageIcon /> },
       { label: t("admin.settings"), href: "/admin/settings", icon: <SettingsIcon /> },
-      { label: t("admin.home_stats"), href: "/admin/home-stats", icon: <HomeStatsIcon /> },
+      { label: t("admin.countries"), href: "/admin/countries", icon: <GlobeIcon2 /> },
       { label: t("admin.profile"), href: "/admin/profile", icon: <UserIcon /> },
       { label: t("admin.map"), href: "/admin/vehicles/map", icon: <MapIcon /> },
     ],
