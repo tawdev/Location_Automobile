@@ -1,7 +1,7 @@
 {
-  "name": "CARFORFAR – Location de voitures de luxe",
+  "name": "CARFORFAR – Location de voitures de luxe à Marrakech",
   "short_name": "CARFORFAR",
-  "description": "Location de voitures de luxe à Marrakech",
+  "description": "Location de voitures de luxe à Marrakech. Berlines, SUV, sportives. Réservation en ligne.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
