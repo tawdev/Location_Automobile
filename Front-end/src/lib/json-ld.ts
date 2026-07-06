@@ -8,9 +8,9 @@ export function organizationLD(_locale?: string) {
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
-      url: `${SITE_URL}/icon.png`,
-      width: 512,
-      height: 512,
+      url: `${SITE_URL}/logo.png`,
+      width: 789,
+      height: 316,
     },
     image: `${SITE_URL}/og-image.jpg`,
     description: "Location de voitures de luxe à Marrakech. Berlines, SUV, sportives avec chauffeur ou libre-service.",
@@ -36,7 +36,7 @@ export function localBusinessLD(_locale?: string) {
     "@type": "CarRental",
     name: "CARFORFAR",
     url: SITE_URL,
-    logo: `${SITE_URL}/icon.png`,
+    logo: `${SITE_URL}/logo.png`,
     image: `${SITE_URL}/og-image.jpg`,
     description: "Location de voitures de luxe à Marrakech.",
     priceRange: "$$",
@@ -149,7 +149,9 @@ export function articleLD(article: {
       name: "CARFORFAR",
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/icon.png`,
+        url: `${SITE_URL}/logo.png`,
+        width: 789,
+        height: 316,
       },
     },
   };

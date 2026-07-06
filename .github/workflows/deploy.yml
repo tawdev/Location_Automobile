@@ -72,9 +72,33 @@ jobs:
             # Permissions
             chmod -R 775 storage bootstrap/cache
 
-            # Restart backend processes
-            pm2 restart carforfar-api || pm2 start artisan --name carforfar-api -- serve
+            # Restart backend processes (bind to 0.0.0.0 so Nginx can proxy)
+            pm2 restart carforfar-api || pm2 start php --name carforfar-api -- artisan serve --host=0.0.0.0 --port=8000
             pm2 restart carforfar-queue || pm2 start php --name carforfar-queue -- artisan queue:work
+
+            # --- Nginx: proxy /api to Laravel ---
+            echo "Configuring Nginx for API proxy..."
+            set +e
+            # Find the active Nginx site config
+            NGINX_SITE=""
+            for f in /etc/nginx/sites-enabled/*; do
+              if [ -f "$f" ] && grep -q "server_name.*carforfar\|location / {" "$f" 2>/dev/null; then
+                NGINX_SITE="$f"
+                break
+              fi
+            done
+            [ -z "$NGINX_SITE" ] && [ -f /etc/nginx/sites-enabled/default ] && NGINX_SITE=/etc/nginx/sites-enabled/default
+
+            if [ -n "$NGINX_SITE" ] && ! grep -q "location /api/" "$NGINX_SITE" 2>/dev/null; then
+              echo "Adding /api/ + /storage/ proxy to $NGINX_SITE"
+              sudo python3 /var/www/Location_Automobile/Back-End/deploy/add_api_proxy.py "$NGINX_SITE"
+              sudo nginx -t && sudo systemctl reload nginx || echo "Nginx config test failed"
+            elif [ -z "$NGINX_SITE" ]; then
+              echo "No Nginx site config found. Install nginx.conf manually."
+            else
+              echo "/api/ location already configured in Nginx"
+            fi
+            set -e
 
             # --- Frontend Next.js ---
             echo "Deploying Frontend..."

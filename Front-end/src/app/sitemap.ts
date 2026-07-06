@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Fetch vehicles from API for dynamic sitemap entries
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
     const res = await fetch(`${apiUrl}/Vehicles`, { next: { revalidate: 3600 } });
     if (res.ok) {
       const json = await res.json();
@@ -75,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Fetch blog posts
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
     const res = await fetch(`${apiUrl}/blogs`, { next: { revalidate: 3600 } });
     if (res.ok) {
       const json = await res.json();
