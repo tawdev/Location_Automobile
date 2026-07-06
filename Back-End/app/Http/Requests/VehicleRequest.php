@@ -48,6 +48,9 @@ class VehicleRequest extends FormRequest
                 'min:0',
             ],
 
+            'country_id' => 'nullable|exists:countries,id',
+            'city_id' => 'nullable|exists:cities,id',
+
             'images' => 'sometimes|array',
             'images.*' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:5120',
         ];

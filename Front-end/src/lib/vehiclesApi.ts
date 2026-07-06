@@ -34,6 +34,8 @@ type FilterParams = {
   max_price?: number;
   pickup_date?: string;
   return_date?: string;
+  country_id?: number;
+  city_id?: number;
 };
 
 type CategoriesResponse = {

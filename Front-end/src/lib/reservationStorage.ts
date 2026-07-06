@@ -8,6 +8,10 @@ export type SavedReservation = {
   savedChoice: "one" | "two" | null;
   step: string;
   selectedExtraIds: number[];
+  departCountryId?: number | null;
+  departCityId?: number | null;
+  returnCountryId?: number | null;
+  returnCityId?: number | null;
   clientNom: string;
   clientDateNaissance: string;
   clientCin: string;

@@ -13,12 +13,12 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions')->orderBy('pricePerDay', 'asc')->get();
+        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city')->orderBy('pricePerDay', 'asc')->get();
     }
 
     public function getById($id)
     {
-        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions')->find($id);
+        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city')->find($id);
     }
 
     public function CreateVehicle($request)
@@ -141,6 +141,14 @@ class VehicleService
             $q->where('pricePerDay', '<=', $request->max_price);
         });
 
+        $query->when($request->filled('country_id'), function ($q) use ($request) {
+            $q->where('country_id', $request->country_id);
+        });
+
+        $query->when($request->filled('city_id'), function ($q) use ($request) {
+            $q->where('city_id', $request->city_id);
+        });
+
         $query->when($request->filled('pickup_date') && $request->filled('return_date'), function ($q) use ($request) {
             $q->whereDoesntHave('reservations', function ($q) use ($request) {
                 $q->whereIn('status', ['En_Attente', 'Confirmée'])
@@ -149,7 +157,7 @@ class VehicleService
             });
         });
 
-        $Vehicles = $query->with('pictures', 'category', 'typeVehicule', 'departureConditions')->orderBy('order', 'asc')->get();
+        $Vehicles = $query->with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city')->orderBy('order', 'asc')->get();
         
         return $Vehicles;
 

@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { listVehicles, fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
-import type { Vehicle, Category, Marque } from "@/lib/types";
+import type { Vehicle, Category, Marque, Country, City } from "@/lib/types";
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getBrandLogo } from "@/lib/brandLogos";
 import { getPublicMarques } from "@/lib/marquesApi";
+import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
 import Image from "next/image";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { JsonLd } from "@/components/JsonLd";
@@ -107,14 +108,25 @@ export default function VehiculesPage() {
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
 
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [filterCountryId, setFilterCountryId] = useState<number | null>(null);
+  const [filterCities, setFilterCities] = useState<City[]>([]);
+  const [filterCityId, setFilterCityId] = useState<number | null>(null);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const loadVehicles = useCallback(async (pickup?: string, ret?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = pickup && ret
-        ? await filterVehicles({ pickup_date: pickup, return_date: ret })
+      const params: Record<string, any> = {};
+      if (pickup) params.pickup_date = pickup;
+      if (ret) params.return_date = ret;
+      if (filterCountryId) params.country_id = filterCountryId;
+      if (filterCityId) params.city_id = filterCityId;
+      const hasFilters = pickup || ret || filterCountryId || filterCityId;
+      const data = hasFilters
+        ? await filterVehicles(params as any)
         : await listVehicles();
       setVehicles(data);
     } catch (e) {
@@ -123,12 +135,22 @@ export default function VehiculesPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, filterCountryId, filterCityId]);
 
   useEffect(() => {
     fetchCategories().then(setCategories);
     getPublicMarques().then(setMarques);
+    fetchCountries().then(setCountries).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (filterCountryId) {
+      fetchCitiesByCountry(filterCountryId).then(setFilterCities).catch(() => setFilterCities([]));
+    } else {
+      setFilterCities([]);
+    }
+    setFilterCityId(null);
+  }, [filterCountryId]);
 
   // Read URL search params on mount
   useEffect(() => {
@@ -139,6 +161,8 @@ export default function VehiculesPage() {
     const md = params.get("model");
     const minP = params.get("min_price");
     const maxP = params.get("max_price");
+    const ci = params.get("country_id");
+    const cti = params.get("city_id");
     if (pu) setPickupDate(pu);
     if (rt) setReturnDate(rt);
     const searchParts: string[] = [];
@@ -147,6 +171,8 @@ export default function VehiculesPage() {
     if (searchParts.length > 0) setSearchText(searchParts.join(" "));
     if (minP) setMinPrice(Number(minP));
     if (maxP) setMaxPrice(Number(maxP));
+    if (ci) setFilterCountryId(Number(ci));
+    if (cti) setFilterCityId(Number(cti));
 
     const id = setTimeout(() => { void loadVehicles(pu ?? undefined, rt ?? undefined); }, 0);
     return () => clearTimeout(id);
@@ -209,11 +235,14 @@ export default function VehiculesPage() {
     setPickupDate("");
     setReturnDate("");
     setSearchText("");
+    setFilterCountryId(null);
+    setFilterCityId(null);
   };
 
   const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 ||
     selectedFuelTypes.length > 0 || minPrice !== undefined || maxPrice !== undefined ||
-    selectedSeats.length > 0 || pickupDate || returnDate || searchText;
+    selectedSeats.length > 0 || pickupDate || returnDate || searchText ||
+    filterCountryId !== null || filterCityId !== null;
 
   // Client-side filtering
   const filteredVehicles = useMemo(() => {
@@ -240,9 +269,12 @@ export default function VehiculesPage() {
       if (minPrice !== undefined && v.pricePerDay < minPrice) return false;
       if (maxPrice !== undefined && v.pricePerDay > maxPrice) return false;
 
+      if (filterCountryId !== null && v.country_id !== filterCountryId) return false;
+      if (filterCityId !== null && v.city_id !== filterCityId) return false;
+
       return true;
     }).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice]);
+  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice, filterCountryId, filterCityId]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -327,6 +359,39 @@ export default function VehiculesPage() {
             className="w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] [color-scheme:light] dark:[color-scheme:dark]"
           />
         </div>
+      </div>
+
+      {/* Country / City */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.country")}
+        </h4>
+        <select
+          value={filterCountryId ?? ""}
+          onChange={(e) => setFilterCountryId(e.target.value ? Number(e.target.value) : null)}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">{t("vehicles.all_types")}</option>
+          {countries.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.city")}
+        </h4>
+        <select
+          value={filterCityId ?? ""}
+          onChange={(e) => setFilterCityId(e.target.value ? Number(e.target.value) : null)}
+          disabled={!filterCountryId}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] disabled:opacity-50"
+        >
+          <option value="">{t("vehicles.all_types")}</option>
+          {filterCities.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
       </div>
 
       {/* Price range */}
