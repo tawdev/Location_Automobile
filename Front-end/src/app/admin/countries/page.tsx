@@ -106,17 +106,29 @@ export default function AdminCountriesPage() {
     setError(null);
     try {
       const countriesData = await getAdminCountries();
-      setCountries(countriesData);
+
+      // Defensive: handle API returning { data: [...] } instead of [...] ,
+      // or null/undefined, which previously crashed .map/.length/.reduce
+      // and produced an unhandled render error in production.
+      const safeCountries: Country[] = Array.isArray(countriesData)
+        ? countriesData
+        : Array.isArray((countriesData as any)?.data)
+          ? (countriesData as any).data
+          : [];
+
+      setCountries(safeCountries);
 
       const grouped: Record<number, City[]> = {};
-      for (const country of countriesData) {
-        if (country.cities) {
+      for (const country of safeCountries) {
+        if (country && Array.isArray(country.cities)) {
           grouped[country.id] = country.cities;
         }
       }
       setCitiesMap(grouped);
     } catch (e) {
       setError(getErrorMessage(e, "Failed to load data"));
+      setCountries([]);
+      setCitiesMap({});
     } finally {
       setLoading(false);
     }
@@ -208,7 +220,13 @@ export default function AdminCountriesPage() {
 
   async function handleCitySubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!cityFormName.trim() || cityFormCountryId === null) return;
+    if (
+      !cityFormName.trim() ||
+      cityFormCountryId === null ||
+      Number.isNaN(cityFormCountryId)
+    ) {
+      return;
+    }
     setCitySubmitting(true);
     setCityFormError(null);
     try {
@@ -245,7 +263,10 @@ export default function AdminCountriesPage() {
   }
 
   const totalCountries = countries.length;
-  const totalCities = Object.values(citiesMap).reduce((sum, arr) => sum + arr.length, 0);
+  const totalCities = Object.values(citiesMap).reduce(
+    (sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
