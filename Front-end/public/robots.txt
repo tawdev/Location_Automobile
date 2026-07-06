@@ -1,0 +1,17 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin/*
+Disallow: /profile/*
+Disallow: /MyReservations/*
+Disallow: /api/*
+
+# GPTBot
+User-agent: GPTBot
+Disallow: /
+
+# Host
+Host: https://www.carforfar.ma
+
+# Sitemaps
+Sitemap: https://www.carforfar.ma/sitemap.xml
