@@ -23,6 +23,8 @@ class FilterVehiclesRequest extends FormRequest
             'max_price' => 'nullable|numeric|gte:min_price',
             'pickup_date' => 'nullable|date',
             'return_date' => 'nullable|date|after_or_equal:pickup_date',
+            'country_id' => 'nullable|exists:countries,id',
+            'city_id' => 'nullable|exists:cities,id',
         ];
     }
 }

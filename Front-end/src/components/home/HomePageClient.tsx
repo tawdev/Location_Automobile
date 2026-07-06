@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
-import type { Vehicle, Marque, TypeVehicule } from "@/lib/types";
+import type { Vehicle, Marque, TypeVehicule, Country, City } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { LazyMotion, m, domAnimation, useReducedMotion } from "framer-motion";
@@ -16,6 +16,7 @@ import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useSettings } from "@/lib/SettingsContext";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbLD } from "@/lib/json-ld";
+import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
 
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
@@ -103,9 +104,26 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [fuelType, setFuelType] = useState("");
   const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(null);
   const [brandOpen, setBrandOpen] = useState(false);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [filterCountryId, setFilterCountryId] = useState<number | null>(null);
+  const [filterCities, setFilterCities] = useState<City[]>([]);
+  const [filterCityId, setFilterCityId] = useState<number | null>(null);
 
   const [vehicleIndex, setVehicleIndex] = useState(0);
   const displayVehicles = useMemo(() => showcaseVehicles?.slice(0, 5) ?? [], [showcaseVehicles]);
+
+  useEffect(() => {
+    fetchCountries().then(setCountries).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (filterCountryId) {
+      fetchCitiesByCountry(filterCountryId).then(setFilterCities).catch(() => setFilterCities([]));
+    } else {
+      setFilterCities([]);
+    }
+    setFilterCityId(null);
+  }, [filterCountryId]);
 
   useEffect(() => {
     if (displayVehicles.length < 2) return;
@@ -125,6 +143,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (maxPrice !== undefined) params.set("max_price", String(maxPrice));
     if (fuelType) params.set("fuel_type", fuelType);
     if (typeVehiculeId) params.set("type_vehicule_id", String(typeVehiculeId));
+    if (filterCountryId) params.set("country_id", String(filterCountryId));
+    if (filterCityId) params.set("city_id", String(filterCityId));
     const qs = params.toString();
     router.push(qs ? `/vehicules?${qs}` : "/vehicules");
   };
@@ -381,7 +401,42 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 </div>
               </div>
 
-              {/* Row 2: Price range + Search */}
+              {/* Row 3: Country + City */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                    {t("vehicles.country")}
+                  </label>
+                  <select
+                    value={filterCountryId ?? ""}
+                    onChange={(e) => setFilterCountryId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
+                  >
+                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
+                    {countries.map((c) => (
+                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                    {t("vehicles.city")}
+                  </label>
+                  <select
+                    value={filterCityId ?? ""}
+                    onChange={(e) => setFilterCityId(e.target.value ? Number(e.target.value) : null)}
+                    disabled={!filterCountryId}
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all disabled:opacity-50"
+                  >
+                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
+                    {filterCities.map((c) => (
+                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 4: Price range + Search */}
               <div className="mt-3 flex flex-col sm:flex-row gap-3">
                 <div className="flex gap-3 flex-1">
                   <div className="w-full sm:w-32">
