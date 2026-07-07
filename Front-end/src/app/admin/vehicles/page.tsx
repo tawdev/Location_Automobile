@@ -1223,7 +1223,7 @@ export default function AdminVehiclesPage() {
       result = result.filter((v) => v.Occupants === filters.Occupants);
     }
 
-    setVehicles(result.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+    setVehicles(result.sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()));
   }
 
   async function loadCategories() {
