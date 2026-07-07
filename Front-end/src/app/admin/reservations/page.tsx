@@ -419,7 +419,7 @@ function DetailModal({
             </div>
           </div>
 
-          {/* Dates */}
+          {/* Dates & Location */}
           <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.start")}</span>
@@ -429,6 +429,34 @@ function DetailModal({
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.end")}</span>
               <span className="text-sm font-bold text-[#395886]">{formatDateStr(reservation.end_date)}</span>
             </div>
+            {reservation.date_heure_depart && (
+              <div>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.departure_time")}</span>
+                <span className="text-sm font-bold text-[#395886]">{new Date(reservation.date_heure_depart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            )}
+            {reservation.date_heure_retour && (
+              <div>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.return_time")}</span>
+                <span className="text-sm font-bold text-[#395886]">{new Date(reservation.date_heure_retour).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            )}
+            {reservation.depart_country && (
+              <div>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.departure_location")}</span>
+                <span className="text-sm font-bold text-[#395886]">
+                  {reservation.depart_city?.name}{reservation.depart_city && reservation.depart_country ? ", " : ""}{reservation.depart_country?.name}
+                </span>
+              </div>
+            )}
+            {reservation.return_country && (
+              <div>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.return_location")}</span>
+                <span className="text-sm font-bold text-[#395886]">
+                  {reservation.return_city?.name}{reservation.return_city && reservation.return_country ? ", " : ""}{reservation.return_country?.name}
+                </span>
+              </div>
+            )}
             <div className="col-span-2 pt-2 border-t border-[#D5DEEF]/30">
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.total")}</span>
               <span className="text-lg sm:text-xl font-black text-[#395886]">{reservation.TotalPrice} MAD</span>

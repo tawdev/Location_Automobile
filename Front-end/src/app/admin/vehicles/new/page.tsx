@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Category, Marque, TypeVehicule, Vehicle } from "@/lib/types";
+import type { Category, Marque, TypeVehicule, Vehicle, Country, City } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import { getPublicMarques } from "@/lib/marquesApi";
 import { fetchTypeVehicules } from "@/lib/vehiclesApi";
 import { createAdminVehicle, type AdminVehiclePayload } from "@/lib/adminVehiclesApi";
 import { playConfirmationSound, prepareConfirmationSound } from "@/lib/playSound";
+import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
 
 function AdminVehicleForm({
   categories,
@@ -42,6 +43,15 @@ function AdminVehicleForm({
   const [gps, setGps] = useState(initial?.gps ?? false);
   const [order, setOrder] = useState<number>(initial?.order ?? 0);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [pickupCountries, setPickupCountries] = useState<Country[]>([]);
+  const [pickupCities, setPickupCities] = useState<City[]>([]);
+  const [pickupCountryId, setPickupCountryId] = useState<number | null>(initial?.pickup_country_id ?? null);
+  const [pickupCityId, setPickupCityId] = useState<number | null>(initial?.pickup_city_id ?? null);
+  const [currentCountries, setCurrentCountries] = useState<Country[]>([]);
+  const [currentCities, setCurrentCities] = useState<City[]>([]);
+  const [currentCountryId, setCurrentCountryId] = useState<number | null>(initial?.current_country_id ?? null);
+  const [currentCityId, setCurrentCityId] = useState<number | null>(initial?.current_city_id ?? null);
   const { t } = useI18n();
 
   const categoryOptions = useMemo(() => categories.slice().sort((a, b) => a.id - b.id), [categories]);
@@ -49,7 +59,33 @@ function AdminVehicleForm({
   useEffect(() => {
     getPublicMarques().then(setMarques).catch(() => {});
     fetchTypeVehicules().then(setTypeVehicules).catch(() => {});
+    fetchCountries().then(setCountries).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (countries.length > 0) {
+      setPickupCountries(countries);
+      setCurrentCountries(countries);
+    }
+  }, [countries]);
+
+  useEffect(() => {
+    if (pickupCountryId) {
+      fetchCitiesByCountry(pickupCountryId).then(setPickupCities).catch(() => setPickupCities([]));
+    } else {
+      setPickupCities([]);
+    }
+    setPickupCityId(null);
+  }, [pickupCountryId]);
+
+  useEffect(() => {
+    if (currentCountryId) {
+      fetchCitiesByCountry(currentCountryId).then(setCurrentCities).catch(() => setCurrentCities([]));
+    } else {
+      setCurrentCities([]);
+    }
+    setCurrentCityId(null);
+  }, [currentCountryId]);
 
   const canSubmit = Boolean(
     marque.trim() &&
@@ -87,6 +123,10 @@ function AdminVehicleForm({
             air_conditioner: airConditioner,
             gps: gps,
             order: order,
+            pickup_country_id: pickupCountryId,
+            pickup_city_id: pickupCityId,
+            current_country_id: currentCountryId,
+            current_city_id: currentCityId,
             images: undefined,
           },
           imagesFiles
@@ -279,6 +319,68 @@ function AdminVehicleForm({
             onChange={(e) => setOrder(Number(e.target.value))}
             placeholder="ex. 1"
           />
+        </label>
+
+        {/* Pickup Country */}
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">Pays départ</span>
+          <select
+            className="border-2 border-black p-2 bg-white"
+            value={pickupCountryId ?? ""}
+            onChange={(e) => setPickupCountryId(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">-- Sélectionner un pays --</option>
+            {pickupCountries.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </label>
+
+        {/* Pickup City */}
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">Ville départ</span>
+          <select
+            className="border-2 border-black p-2 bg-white"
+            value={pickupCityId ?? ""}
+            onChange={(e) => setPickupCityId(e.target.value ? Number(e.target.value) : null)}
+            disabled={!pickupCountryId}
+          >
+            <option value="">-- Sélectionner une ville --</option>
+            {pickupCities.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </label>
+
+        {/* Current Country */}
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">Pays actuel</span>
+          <select
+            className="border-2 border-black p-2 bg-white"
+            value={currentCountryId ?? ""}
+            onChange={(e) => setCurrentCountryId(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">-- Sélectionner un pays --</option>
+            {currentCountries.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </label>
+
+        {/* Current City */}
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">Ville actuelle</span>
+          <select
+            className="border-2 border-black p-2 bg-white"
+            value={currentCityId ?? ""}
+            onChange={(e) => setCurrentCityId(e.target.value ? Number(e.target.value) : null)}
+            disabled={!currentCountryId}
+          >
+            <option value="">-- Sélectionner une ville --</option>
+            {currentCities.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
         </label>
 
         <div className="flex flex-col gap-2">
