@@ -110,6 +110,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [filterCityId, setFilterCityId] = useState<number | null>(null);
 
   const [vehicleIndex, setVehicleIndex] = useState(0);
+  const [heroBgIndex, setHeroBgIndex] = useState(0);
+  const [heroNextBgIndex, setHeroNextBgIndex] = useState<number | null>(null);
+  const [heroBgFading, setHeroBgFading] = useState(false);
   const displayVehicles = useMemo(() => showcaseVehicles?.slice(0, 5) ?? [], [showcaseVehicles]);
 
   useEffect(() => {
@@ -132,6 +135,25 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     }, 4500);
     return () => clearInterval(timer);
   }, [displayVehicles.length]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const next = (heroBgIndex + 1) % cars.length;
+      setHeroNextBgIndex(next);
+      setHeroBgFading(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setHeroBgFading(true);
+        });
+      });
+      setTimeout(() => {
+        setHeroBgIndex(next);
+        setHeroNextBgIndex(null);
+        setHeroBgFading(false);
+      }, 2000);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [heroBgIndex]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -164,37 +186,24 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-black">
+    <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Background image */}
-      {isMobile ? (
+      <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${cars[0]})` }}
+          style={{ backgroundImage: `url(${cars[heroBgIndex]})` }}
         />
-      ) : (
-        <div className="absolute inset-0">
-          {cars.map((car, i) => (
-            <div
-              key={i}
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: i === 0 ? `url(${car})` : undefined,
-                animation: `hero-crossfade ${cars.length * 5}s ease-in-out infinite`,
-                animationDelay: `${i * 5}s`,
-                willChange: 'opacity',
-              }}
-              // Lazy-load non-first images via JS
-              ref={i > 0 ? (el) => {
-                if (el && !el.style.backgroundImage) {
-                  const img = new window.Image();
-                  img.onload = () => { el.style.backgroundImage = `url(${car})`; };
-                  img.src = car;
-                }
-              } : undefined}
-            />
-          ))}
-        </div>
+        {heroNextBgIndex !== null && (
+          <div
+            key={heroNextBgIndex}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[2000ms] ease-in-out"
+            style={{
+              backgroundImage: `url(${cars[heroNextBgIndex]})`,
+              opacity: heroBgFading ? 1 : 0,
+            }}
+        />
       )}
+      </div>
       {/* Content */}
       <div className="relative z-10 w-full mx-auto px-6 md:px-12 lg:px-20 pt-28 pb-24">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-16 items-start">
