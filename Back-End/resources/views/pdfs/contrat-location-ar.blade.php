@@ -168,8 +168,8 @@
         <tr><td class="val">{{ $reservation->start_time ? \Carbon\Carbon::parse($reservation->start_time)->format('H:i') : '______' }}</td><td class="lbl">{!! arabic('وقت الانطلاق') !!}</td></tr>
         <tr><td class="val">{{ $endDate->format('d/m/Y') }}</td><td class="lbl">{!! arabic('تاريخ الإرجاع') !!}</td></tr>
         <tr><td class="val">{{ $reservation->end_time ? \Carbon\Carbon::parse($reservation->end_time)->format('H:i') : '______' }}</td><td class="lbl">{!! arabic('وقت الإرجاع') !!}</td></tr>
-        <tr><td class="val">{{ $reservation->departure_location ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الانطلاق') !!}</td></tr>
-        <tr><td class="val">{{ $reservation->return_location ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الإرجاع') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->lieu_depart ?? '' }}{{ $reservation->lieu_depart ? '، ' : '' }}{{ $reservation->departCity?->name ?? '' }}{{ $reservation->departCity?->name && $reservation->departCountry?->name ? '، ' : '' }}{{ $reservation->departCountry?->name ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الانطلاق') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->lieu_retour ?? '' }}{{ $reservation->lieu_retour ? '، ' : '' }}{{ $reservation->returnCity?->name ?? '' }}{{ $reservation->returnCity?->name && $reservation->returnCountry?->name ? '، ' : '' }}{{ $reservation->returnCountry?->name ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الإرجاع') !!}</td></tr>
     </table>
 
     <div class="section-header">
