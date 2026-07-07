@@ -31,11 +31,11 @@ export async function createAdminCity(countryId: number, name: string): Promise<
   return res.data;
 }
 
-export async function updateAdminCity(id: number, name: string): Promise<City> {
+export async function updateAdminCity(id: number, name: string, countryId?: number): Promise<City> {
   const res = await apiRequest<CityResponse>({
     method: "PUT",
     path: `/admin/cities/${id}`,
-    body: { name },
+    body: { name, ...(countryId !== undefined ? { country_id: countryId } : {}) },
   });
   return res.data;
 }

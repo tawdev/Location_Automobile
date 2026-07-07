@@ -87,6 +87,14 @@ class PermissionSeeder extends Seeder
                 'name_ar' => 'إدارة شروط المغادرة',
                 'group' => 'departure_conditions',
             ],
+            // Countries / Cities group
+            [
+                'slug' => 'manage_countries',
+                'name_fr' => 'Gérer les pays et villes',
+                'name_en' => 'Manage countries and cities',
+                'name_ar' => 'إدارة البلدان والمدن',
+                'group' => 'countries',
+            ],
             // Map group
             [
                 'slug' => 'manage_map',

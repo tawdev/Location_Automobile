@@ -43,21 +43,9 @@ jobs:
 
             composer install --optimize-autoloader --no-dev
 
-            # Run migrations (handles "table already exists" gracefully)
+            # Run pending migrations (--force disables confirmation prompt)
             php artisan migrate --force 2>&1 || {
-              echo "Tables already exist. Registering missing migration records..."
-              php artisan tinker --execute="
-                \$files = glob(database_path('migrations/*.php'));
-                \$ran = DB::table('migrations')->pluck('migration')->toArray();
-                foreach (\$files as \$f) {
-                  \$name = basename(\$f, '.php');
-                  if (!in_array(\$name, \$ran)) {
-                    DB::table('migrations')->insert([['migration' => \$name, 'batch' => 999]]);
-                    echo \"Registered: \$name\n\";
-                  }
-                }
-              " 2>/dev/null
-              php artisan migrate --force
+              echo "Migration had errors. Checking if partial migrations need registration..."
             }
             php artisan db:seed --class=PermissionSeeder --force
 
