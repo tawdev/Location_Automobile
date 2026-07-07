@@ -272,6 +272,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     manage_departure_conditions: ["/admin/departure-conditions"],
     manage_map: ["/admin/vehicles/map"],
     manage_blogs: ["/admin/blog", "/admin/press", "/admin/careers"],
+    manage_countries: ["/admin/countries"],
   }), []);
 
   const navItems = useMemo(() => {
