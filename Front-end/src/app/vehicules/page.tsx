@@ -19,6 +19,7 @@ import { breadcrumbLD } from "@/lib/json-ld";
 import { PAGE_TITLES, PAGE_DESCRIPTIONS, SITE_URL } from "@/lib/seo";
 
 const NEW_COUNT = 10;
+const vehiclesBgImages = Array.from({ length: 6 }, (_, i) => `/background_vehicles/bg${`0${i + 1}`.slice(-2)}.webp`);
 
 const LazyVehicleImage = memo(function LazyVehicleImage({
   picturePath,
@@ -114,6 +115,28 @@ export default function VehiculesPage() {
   const [filterCityId, setFilterCityId] = useState<number | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
+  const [nextBgIndex, setNextBgIndex] = useState<number | null>(null);
+  const [bgFading, setBgFading] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const next = (currentBgIndex + 1) % vehiclesBgImages.length;
+      setNextBgIndex(next);
+      setBgFading(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setBgFading(true);
+        });
+      });
+      setTimeout(() => {
+        setCurrentBgIndex(next);
+        setNextBgIndex(null);
+        setBgFading(false);
+      }, 2000);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [currentBgIndex]);
 
   const loadVehicles = useCallback(async (pickup?: string, ret?: string) => {
     setLoading(true);
@@ -568,49 +591,25 @@ export default function VehiculesPage() {
       />
       {/* Hero */}
         <section className="relative pt-24 pb-16 sm:pt-28 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[320px] sm:min-h-[380px] flex items-center">
-          {/* Background image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400&q=80)` }}
-          />
-
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1f4276]/95 via-[#2d5a8e]/80 to-[#395886]/50 dark:from-[#050a14]/98 dark:via-[#0a1628]/95 dark:to-[#0d1b3e]/85" />
-
-          {/* Animated gradient accent overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/[0.03] to-transparent bg-[length:200%_200%] animate-[gradient-shift_12s_ease_infinite] pointer-events-none" />
-
-          {/* Floating glowing orbs */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-            <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-400/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-[float-slow_12s_ease-in-out_infinite]" />
-            <div className="absolute top-1/3 -right-32 w-[500px] h-[500px] bg-indigo-400/10 dark:bg-indigo-500/5 rounded-full blur-3xl animate-[float-slow_16s_ease-in-out_infinite_reverse]" />
-            <div className="absolute -bottom-40 left-1/4 w-[600px] h-[600px] bg-cyan-400/[0.08] dark:bg-cyan-500/[0.04] rounded-full blur-3xl animate-[float-slow_20s_ease-in-out_infinite]" />
-            <div className="absolute top-[60%] left-[10%] w-48 h-48 bg-violet-400/15 dark:bg-violet-500/8 rounded-full blur-3xl animate-[float-drift-alt_14s_ease-in-out_infinite]" />
-            <div className="absolute top-[5%] left-[40%] w-36 h-36 bg-amber-400/10 dark:bg-amber-500/5 rounded-full blur-3xl animate-[float-drift-alt_11s_ease-in-out_infinite_reverse]" />
+          {/* Background images */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${vehiclesBgImages[currentBgIndex]})` }}
+            />
+            {nextBgIndex !== null && (
+              <div
+                key={nextBgIndex}
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[2000ms] ease-in-out"
+                style={{
+                  backgroundImage: `url(${vehiclesBgImages[nextBgIndex]})`,
+                  opacity: bgFading ? 1 : 0,
+                }}
+              />
+            )}
           </div>
 
-          {/* Pulse rings */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-            <div className="absolute top-[20%] left-[15%] w-32 h-32 border border-white/10 rounded-full animate-[ring-expand_4s_ease-out_infinite]" />
-            <div className="absolute top-[20%] left-[15%] w-32 h-32 border border-white/10 rounded-full animate-[ring-expand_4s_ease-out_infinite_1.5s]" />
-            <div className="absolute top-[65%] right-[20%] w-24 h-24 border border-white/10 rounded-full animate-[ring-expand_5s_ease-out_infinite_0.8s]" />
-            <div className="absolute top-[65%] right-[20%] w-24 h-24 border border-white/10 rounded-full animate-[ring-expand_5s_ease-out_infinite_2.5s]" />
-          </div>
 
-          {/* Twinkling stars */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-            <div className="absolute top-[15%] left-[8%] w-[3px] h-[3px] bg-white/40 rounded-full animate-[twinkle_3s_ease-in-out_infinite_0s]" />
-            <div className="absolute top-[28%] left-[88%] w-[2px] h-[2px] bg-white/30 rounded-full animate-[twinkle_4s_ease-in-out_infinite_1.2s]" />
-            <div className="absolute top-[55%] left-[4%] w-[3px] h-[3px] bg-white/35 rounded-full animate-[twinkle_3.5s_ease-in-out_infinite_0.6s]" />
-            <div className="absolute top-[72%] left-[78%] w-[2px] h-[2px] bg-white/25 rounded-full animate-[twinkle_5s_ease-in-out_infinite_2s]" />
-            <div className="absolute top-[42%] left-[50%] w-[4px] h-[4px] bg-white/20 rounded-full animate-[twinkle_4.5s_ease-in-out_infinite_1.8s]" />
-            <div className="absolute top-[82%] left-[25%] w-[2px] h-[2px] bg-white/30 rounded-full animate-[twinkle_3.2s_ease-in-out_infinite_2.8s]" />
-            <div className="absolute top-[10%] left-[65%] w-[3px] h-[3px] bg-white/25 rounded-full animate-[twinkle_4.2s_ease-in-out_infinite_0.9s]" />
-            <div className="absolute top-[62%] left-[60%] w-[2px] h-[2px] bg-white/20 rounded-full animate-[twinkle_3.8s_ease-in-out_infinite_3.2s]" />
-            <div className="absolute top-[35%] left-[20%] w-[5px] h-[5px] bg-white/15 rounded-full animate-[twinkle_6s_ease-in-out_infinite_4s]" />
-            <div className="absolute top-[50%] left-[75%] w-[3px] h-[3px] bg-white/20 rounded-full animate-[twinkle_3s_ease-in-out_infinite_4.5s]" />
-            <div className="absolute top-[75%] left-[45%] w-[2px] h-[2px] bg-white/35 rounded-full animate-[twinkle_5.5s_ease-in-out_infinite_3.5s]" />
-          </div>
 
           {/* Floating geometric shapes */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
