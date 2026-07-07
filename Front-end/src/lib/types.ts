@@ -84,6 +84,7 @@ export type Vehicle = {
   pickup_city_id?: number | null;
   current_country_id?: number | null;
   current_city_id?: number | null;
+  location_type?: string | null;
   pictures?: Picture[];
   category?: Category;
   typeVehicule?: TypeVehicule;

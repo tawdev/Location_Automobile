@@ -153,6 +153,10 @@ class VehicleService
             $q->where('pickup_city_id', $request->pickup_city_id);
         });
 
+        $query->when($request->filled('location_type'), function ($q) use ($request) {
+            $q->where('location_type', $request->location_type);
+        });
+
         $query->when($request->filled('pickup_date') && $request->filled('return_date'), function ($q) use ($request) {
             $q->whereDoesntHave('reservations', function ($q) use ($request) {
                 $q->whereIn('status', ['En_Attente', 'Confirmée'])

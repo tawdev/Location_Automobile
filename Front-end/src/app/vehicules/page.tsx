@@ -113,6 +113,7 @@ export default function VehiculesPage() {
   const [pickupCountryId, setPickupCountryId] = useState<number | null>(null);
   const [pickupCities, setPickupCities] = useState<City[]>([]);
   const [pickupCityId, setPickupCityId] = useState<number | null>(null);
+  const [locationType, setLocationType] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [nextBgIndex, setNextBgIndex] = useState<number | null>(null);
@@ -146,7 +147,9 @@ export default function VehiculesPage() {
       if (ret) params.return_date = ret;
       if (pickupCountryId) params.pickup_country_id = pickupCountryId;
       if (pickupCityId) params.pickup_city_id = pickupCityId;
-      const hasFilters = pickup || ret || pickupCountryId || pickupCityId;
+      if (locationType) params.location_type = locationType;
+      const hasFilters = pickup || ret || pickupCountryId || pickupCityId || locationType;
+
       const data = hasFilters
         ? await filterVehicles(params as any)
         : await listVehicles();
@@ -160,7 +163,7 @@ export default function VehiculesPage() {
     } finally {
       setLoading(false);
     }
-  }, [t, pickupCountryId, pickupCityId]);
+    }, [t, pickupCountryId, pickupCityId, locationType]);
 
   useEffect(() => {
     fetchCategories().then(setCategories).catch((err) => console.warn("[vehicules] fetchCategories failed", err));
@@ -262,12 +265,13 @@ export default function VehiculesPage() {
     setSearchText("");
     setPickupCountryId(null);
     setPickupCityId(null);
+    setLocationType("");
   };
 
   const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 ||
     selectedFuelTypes.length > 0 || minPrice !== undefined || maxPrice !== undefined ||
     selectedSeats.length > 0 || pickupDate || returnDate || searchText ||
-    pickupCountryId !== null || pickupCityId !== null;
+    pickupCountryId !== null || pickupCityId !== null || locationType !== "";
 
   // Client-side filtering
   const filteredVehicles = useMemo(() => {
@@ -297,9 +301,11 @@ export default function VehiculesPage() {
       if (pickupCountryId !== null && v.pickup_country_id !== pickupCountryId) return false;
       if (pickupCityId !== null && v.pickup_city_id !== pickupCityId) return false;
 
+      if (locationType !== "" && v.location_type !== locationType) return false;
+
       return true;
     }).sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
-  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice, pickupCountryId, pickupCityId]);
+  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice, pickupCountryId, pickupCityId, locationType]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -392,6 +398,22 @@ export default function VehiculesPage() {
           {pickupCities.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
+        </select>
+      </div>
+
+      {/* Location Type */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.pickup_location")}
+        </h4>
+        <select
+          value={locationType}
+          onChange={(e) => setLocationType(e.target.value)}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">{t("vehicles.all_types")}</option>
+          <option value="airport">{t("vehicles.location_airport")}</option>
+          <option value="citycenter">{t("vehicles.location_citycenter")}</option>
         </select>
       </div>
 

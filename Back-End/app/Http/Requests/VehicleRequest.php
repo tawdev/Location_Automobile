@@ -54,6 +54,7 @@ class VehicleRequest extends FormRequest
             'pickup_city_id' => 'nullable|exists:cities,id',
             'current_country_id' => 'nullable|exists:countries,id',
             'current_city_id' => 'nullable|exists:cities,id',
+            'location_type' => 'nullable|string|in:airport,citycenter',
 
             'images' => 'sometimes|array',
             'images.*' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:5120',

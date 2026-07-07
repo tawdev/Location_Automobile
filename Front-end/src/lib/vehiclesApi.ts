@@ -37,6 +37,7 @@ type FilterParams = {
   return_date?: string;
   country_id?: number;
   city_id?: number;
+  location_type?: string;
 };
 
 type CategoriesResponse = {

@@ -27,6 +27,7 @@ class FilterVehiclesRequest extends FormRequest
             'city_id' => 'nullable|exists:cities,id',
             'pickup_country_id' => 'nullable|exists:countries,id',
             'pickup_city_id' => 'nullable|exists:cities,id',
+            'location_type' => 'nullable|string|in:airport,citycenter',
         ];
     }
 }
