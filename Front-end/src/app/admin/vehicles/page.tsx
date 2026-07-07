@@ -153,8 +153,6 @@ interface VehicleRowProps {
   deleting: boolean;
   countryName?: string;
   cityName?: string;
-  pickupCountryName?: string;
-  pickupCityName?: string;
   currentCountryName?: string;
   currentCityName?: string;
 }
@@ -168,8 +166,6 @@ function VehicleRow({
   deleting,
   countryName,
   cityName,
-  pickupCountryName,
-  pickupCityName,
   currentCountryName,
   currentCityName,
 }: VehicleRowProps) {
@@ -223,11 +219,11 @@ function VehicleRow({
               </span>
             </>
           )}
-          {(pickupCountryName || pickupCityName) && (
+          {(currentCountryName || currentCityName) && (
             <>
               <span className="text-[#D5DEEF]">|</span>
               <span className="px-2 py-0.5 rounded-md bg-[#F0F3FA] text-[#395886] text-[10px] font-bold border border-[#D5DEEF]/50">
-                📍 {pickupCityName || pickupCountryName || ""}{pickupCityName && pickupCountryName ? `, ${pickupCountryName}` : ""}
+                📍 {currentCityName || currentCountryName || ""}{currentCityName && currentCountryName ? `, ${currentCountryName}` : ""}
               </span>
             </>
           )}
@@ -356,9 +352,6 @@ function VehicleCreateEditModal({
   const [cities, setCities] = useState<City[]>([]);
   const [countryId, setCountryId] = useState<number | null>(null);
   const [cityId, setCityId] = useState<number | null>(null);
-  const [pickupCountryId, setPickupCountryId] = useState<number | null>(null);
-  const [pickupCities, setPickupCities] = useState<City[]>([]);
-  const [pickupCityId, setPickupCityId] = useState<number | null>(null);
   const [currentCountryId, setCurrentCountryId] = useState<number | null>(null);
   const [currentCities, setCurrentCities] = useState<City[]>([]);
   const [currentCityId, setCurrentCityId] = useState<number | null>(null);
@@ -391,15 +384,6 @@ function VehicleCreateEditModal({
     }
     setCityId(null);
   }, [countryId]);
-
-  useEffect(() => {
-    if (pickupCountryId) {
-      fetchCitiesByCountry(pickupCountryId).then(setPickupCities).catch(() => setPickupCities([]));
-    } else {
-      setPickupCities([]);
-    }
-    setPickupCityId(null);
-  }, [pickupCountryId]);
 
   useEffect(() => {
     if (currentCountryId) {
@@ -437,8 +421,6 @@ function VehicleCreateEditModal({
     setOrder(initial?.order ?? 0);
     setCountryId(initial?.country_id ?? null);
     setCityId(initial?.city_id ?? null);
-    setPickupCountryId(initial?.pickup_country_id ?? null);
-    setPickupCityId(initial?.pickup_city_id ?? null);
     setCurrentCountryId(initial?.current_country_id ?? null);
     setCurrentCityId(initial?.current_city_id ?? null);
     setImagesFiles([]);
@@ -529,8 +511,6 @@ function VehicleCreateEditModal({
         order: order,
         country_id: countryId,
         city_id: cityId,
-        pickup_country_id: pickupCountryId,
-        pickup_city_id: pickupCityId,
         current_country_id: currentCountryId,
         current_city_id: currentCityId,
       },
@@ -745,35 +725,6 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.pickup_country")}</label>
-              <select
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                value={pickupCountryId ?? ""}
-                onChange={(e) => setPickupCountryId(e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">{t("admin.select_country")}</option>
-                {countries.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.pickup_city")}</label>
-              <select
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                value={pickupCityId ?? ""}
-                onChange={(e) => setPickupCityId(e.target.value ? Number(e.target.value) : null)}
-                disabled={!pickupCountryId}
-              >
-                <option value="">{t("admin.select_city")}</option>
-                {pickupCities.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
               <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.current_country")}</label>
               <select
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
@@ -978,8 +929,6 @@ interface VehicleViewModalProps {
   removing: boolean;
   countryName?: string;
   cityName?: string;
-  pickupCountryName?: string;
-  pickupCityName?: string;
   currentCountryName?: string;
   currentCityName?: string;
 }
@@ -993,8 +942,6 @@ function VehicleViewModal({
   removing,
   countryName,
   cityName,
-  pickupCountryName,
-  pickupCityName,
   currentCountryName,
   currentCityName,
 }: VehicleViewModalProps) {
@@ -1098,12 +1045,6 @@ function VehicleViewModal({
                     <div>
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.gps_checkbox")}</span>
                       <span className="text-sm font-bold text-green-600">{t("admin.included")}</span>
-                    </div>
-                  )}
-                  {(pickupCountryName || pickupCityName) && (
-                    <div className="col-span-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.pickup_country")}</span>
-                      <span className="text-sm font-bold text-slate-800">{pickupCityName || ""}{pickupCityName && pickupCountryName ? ", " : ""}{pickupCountryName || ""}</span>
                     </div>
                   )}
                   {(currentCountryName || currentCityName) && (
@@ -1645,8 +1586,6 @@ export default function AdminVehiclesPage() {
               categoryName={categoryById.get(v.category_id)}
               countryName={v.country_id ? countryById.get(v.country_id) : undefined}
               cityName={v.city_id ? cityNameById.get(v.city_id) : undefined}
-              pickupCountryName={v.pickup_country_id ? countryById.get(v.pickup_country_id) : undefined}
-              pickupCityName={v.pickup_city_id ? cityNameById.get(v.pickup_city_id) : undefined}
               currentCountryName={v.current_country_id ? countryById.get(v.current_country_id) : undefined}
               currentCityName={v.current_city_id ? cityNameById.get(v.current_city_id) : undefined}
               onView={onOpenView}
@@ -1704,8 +1643,6 @@ export default function AdminVehiclesPage() {
         categoryName={viewVehicle ? categoryById.get(viewVehicle.category_id) : undefined}
         countryName={viewVehicle?.country_id ? countryById.get(viewVehicle.country_id) : undefined}
         cityName={viewVehicle?.city_id ? cityNameById.get(viewVehicle.city_id) : undefined}
-        pickupCountryName={viewVehicle?.pickup_country_id ? countryById.get(viewVehicle.pickup_country_id) : undefined}
-        pickupCityName={viewVehicle?.pickup_city_id ? cityNameById.get(viewVehicle.pickup_city_id) : undefined}
         currentCountryName={viewVehicle?.current_country_id ? countryById.get(viewVehicle.current_country_id) : undefined}
         currentCityName={viewVehicle?.current_city_id ? cityNameById.get(viewVehicle.current_city_id) : undefined}
         onClose={() => setViewOpen(false)}
