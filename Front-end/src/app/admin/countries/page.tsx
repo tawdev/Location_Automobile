@@ -233,7 +233,7 @@ export default function AdminCountriesPage() {
       if (cityModalMode === "create") {
         await createAdminCity(cityFormCountryId, cityFormName.trim());
       } else if (cityModalMode === "edit" && editingCity) {
-        await updateAdminCity(editingCity.id, cityFormName.trim());
+        await updateAdminCity(editingCity.id, cityFormName.trim(), cityFormCountryId ?? editingCity.country_id);
       }
       closeCityModal();
       await loadData();
