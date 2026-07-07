@@ -144,10 +144,10 @@ function AdminVehicleEditForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <span className="font-bold">Marque</span>
+          <span className="font-bold">{t("admin.brand")}</span>
           <div className="flex items-center gap-3">
             <select className="border-2 border-black p-2 flex-1" value={marque} onChange={(e) => setMarque(e.target.value)} required>
-              <option value="">-- Sélectionner une marque --</option>
+              <option value="">{t("admin.select_brand")}</option>
               {marques.map((m) => (
                 <option key={m.id} value={m.name}>{m.name}</option>
               ))}
@@ -165,12 +165,12 @@ function AdminVehicleEditForm({
         </div>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Modèle</span>
+          <span className="font-bold">{t("admin.model")}</span>
           <input className="border-2 border-black p-2" value={model} onChange={(e) => setModel(e.target.value)} required />
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Année</span>
+          <span className="font-bold">{t("admin.year")}</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -182,7 +182,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Immatriculation</span>
+          <span className="font-bold">{t("admin.registration")}</span>
           <input
             className="border-2 border-black p-2"
             value={registration}
@@ -192,7 +192,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Km</span>
+          <span className="font-bold">{t("admin.km")}</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -205,7 +205,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Prix / jour</span>
+          <span className="font-bold">{t("admin.price_per_day_short")}</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -218,7 +218,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Carburant</span>
+          <span className="font-bold">{t("admin.fuel")}</span>
           <input
             className="border-2 border-black p-2"
             value={fuelType}
@@ -229,14 +229,14 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Catégorie</span>
+          <span className="font-bold">{t("admin.category")}</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={categoryId || ""}
             onChange={(e) => setCategoryId(Number(e.target.value))}
             required
           >
-            <option value="" disabled>Sélectionner une catégorie</option>
+            <option value="" disabled>{t("admin.select_category")}</option>
             {categoryOptions.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -246,13 +246,13 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Type de véhicule</span>
+          <span className="font-bold">{t("admin.vehicle_type")}</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={typeVehiculeId ?? ""}
             onChange={(e) => setTypeVehiculeId(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">-- Aucun type --</option>
+            <option value="">{t("admin.no_type")}</option>
             {typeVehicules.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -262,7 +262,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Places</span>
+          <span className="font-bold">{t("admin.seats")}</span>
           <input
             className="border-2 border-black p-2"
             value={occupants}
@@ -273,7 +273,7 @@ function AdminVehicleEditForm({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">ID du dispositif GPS <span className="text-gray-400 font-normal">(optionnel)</span></span>
+          <span className="font-bold">{t("admin.gps_device")}</span>
           <input
             className="border-2 border-black p-2"
             value={deviceId}
@@ -290,7 +290,7 @@ function AdminVehicleEditForm({
               onChange={(e) => setAirConditioner(e.target.checked)}
               className="w-5 h-5"
             />
-            <span className="font-bold">Climatisation</span>
+            <span className="font-bold">{t("admin.air_conditioning")}</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -299,12 +299,12 @@ function AdminVehicleEditForm({
               onChange={(e) => setGps(e.target.checked)}
               className="w-5 h-5"
             />
-            <span className="font-bold">GPS</span>
+            <span className="font-bold">{t("admin.gps_checkbox")}</span>
           </label>
         </div>
 
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Ordre d'affichage</span>
+          <span className="font-bold">{t("admin.display_order")}</span>
           <input
             className="border-2 border-black p-2"
             type="number"
@@ -317,13 +317,13 @@ function AdminVehicleEditForm({
 
         {/* Pickup Country */}
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Pays départ</span>
+          <span className="font-bold">{t("admin.pickup_country")}</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={pickupCountryId ?? ""}
             onChange={(e) => setPickupCountryId(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">-- Sélectionner un pays --</option>
+            <option value="">{t("admin.select_country")}</option>
             {pickupCountries.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -332,14 +332,14 @@ function AdminVehicleEditForm({
 
         {/* Pickup City */}
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Ville départ</span>
+          <span className="font-bold">{t("admin.pickup_city")}</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={pickupCityId ?? ""}
             onChange={(e) => setPickupCityId(e.target.value ? Number(e.target.value) : null)}
             disabled={!pickupCountryId}
           >
-            <option value="">-- Sélectionner une ville --</option>
+            <option value="">{t("admin.select_city")}</option>
             {pickupCities.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -348,13 +348,13 @@ function AdminVehicleEditForm({
 
         {/* Current Country */}
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Pays actuel</span>
+          <span className="font-bold">{t("admin.current_country")}</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={currentCountryId ?? ""}
             onChange={(e) => setCurrentCountryId(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">-- Sélectionner un pays --</option>
+            <option value="">{t("admin.select_country")}</option>
             {currentCountries.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -363,14 +363,14 @@ function AdminVehicleEditForm({
 
         {/* Current City */}
         <label className="flex flex-col gap-2">
-          <span className="font-bold">Ville actuelle</span>
+          <span className="font-bold">{t("admin.current_city")}</span>
           <select
             className="border-2 border-black p-2 bg-white"
             value={currentCityId ?? ""}
             onChange={(e) => setCurrentCityId(e.target.value ? Number(e.target.value) : null)}
             disabled={!currentCountryId}
           >
-            <option value="">-- Sélectionner une ville --</option>
+            <option value="">{t("admin.select_city")}</option>
             {currentCities.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -378,7 +378,7 @@ function AdminVehicleEditForm({
         </label>
 
         <div className="flex flex-col gap-2">
-          <span className="font-bold">Images (optionnel - laisser vide pour conserver les actuelles)</span>
+          <span className="font-bold">{t("admin.images_optional")}</span>
           <input
             className="bg-white"
             type="file"
@@ -386,7 +386,7 @@ function AdminVehicleEditForm({
             multiple
             onChange={(e) => setImagesFiles(e.target.files ? Array.from(e.target.files) : [])}
           />
-          <span className="text-xs font-bold">Ne sélectionnez des images que si vous souhaitez les remplacer.</span>
+          <span className="text-xs font-bold">{t("admin.images_hint_edit")}</span>
         </div>
       </div>
 

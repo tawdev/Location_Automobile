@@ -246,7 +246,7 @@ function VehicleRow({
           className="h-9 px-4 rounded-xl bg-[#F0F3FA] hover:bg-[#D5DEEF] text-[#395886] font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <EyeIcon />
-          <span>Voir</span>
+          <span>{t("admin.view")}</span>
         </button>
         <button
           type="button"
@@ -368,6 +368,7 @@ function VehicleCreateEditModal({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useI18n();
 
   // Departure conditions
   const [allConditions, setAllConditions] = useState<DepartureCondition[]>([]);
@@ -543,13 +544,13 @@ function VehicleCreateEditModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={mode === "create" ? "Ajouter un véhicule à la flotte" : "Modifier les spécifications du véhicule"}
+      title={mode === "create" ? t("admin.add_to_fleet") : t("admin.edit_specs")}
       maxWidthClassName="max-w-3xl"
     >
       {loading ? (
         <div className="py-20 flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#395886]" />
-          <span className="text-[#395886] font-bold text-sm mt-3">Chargement des détails...</span>
+          <span className="text-[#395886] font-bold text-sm mt-3">{t("admin.loading_details")}</span>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -562,7 +563,7 @@ function VehicleCreateEditModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Input fields with customized slate theme */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Marque</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.brand")}</label>
               <div className="flex items-center gap-3">
                 <select
                   required
@@ -570,7 +571,7 @@ function VehicleCreateEditModal({
                   value={marque}
                   onChange={(e) => setMarque(e.target.value)}
                 >
-                  <option value="">-- Sélectionner une marque --</option>
+                  <option value="">{t("admin.select_brand")}</option>
                   {marques.map((m) => (
                     <option key={m.id} value={m.name}>{m.name}</option>
                   ))}
@@ -588,7 +589,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Modèle</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.model")}</label>
               <input
                 type="text"
                 required
@@ -600,7 +601,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Année de fabrication</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.year")}</label>
               <input
                 type="number"
                 required
@@ -613,7 +614,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Numéro d'immatriculation</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.registration")}</label>
               <input
                 type="text"
                 required
@@ -625,7 +626,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Kilométrage (KM)</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.km")}</label>
               <input
                 type="number"
                 required
@@ -637,7 +638,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Prix de location (DH/jour)</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.price_per_day")}</label>
               <input
                 type="number"
                 required
@@ -649,31 +650,31 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Type de carburant</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.fuel_type")}</label>
               <select
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={fuelType}
                 onChange={(e) => setFuelType(e.target.value)}
               >
-                <option value="">Sélectionner le carburant</option>
-                <option value="Electricity">Électrique</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Gasoline">Essence</option>
-                <option value="hybrid">Hybride</option>
-                <option value="LPG">GPL</option>
+                <option value="">{t("admin.select_fuel")}</option>
+                <option value="Electricity">{t("admin.fuel_electric")}</option>
+                <option value="Diesel">{t("admin.fuel_diesel")}</option>
+                <option value="Gasoline">{t("admin.fuel_gasoline")}</option>
+                <option value="hybrid">{t("admin.fuel_hybrid")}</option>
+                <option value="LPG">{t("admin.fuel_lpg")}</option>
               </select>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Catégorie</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.category")}</label>
               <select
                 required
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={categoryId || ""}
                 onChange={(e) => setCategoryId(Number(e.target.value))}
               >
-                <option value="">Sélectionner une catégorie</option>
+                <option value="">{t("admin.select_category")}</option>
                 {sortedCategories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -683,13 +684,13 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Type de véhicule</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.vehicle_type")}</label>
               <select
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={typeVehiculeId ?? ""}
                 onChange={(e) => setTypeVehiculeId(e.target.value ? Number(e.target.value) : null)}
               >
-                <option value="">-- Aucun type --</option>
+                <option value="">{t("admin.no_type")}</option>
                 {typeVehicules.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name}
@@ -699,7 +700,7 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1 md:col-span-2">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Occupants (nombre de places)</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.occupants")}</label>
               <input
                 type="text"
                 required
@@ -718,7 +719,7 @@ function VehicleCreateEditModal({
                   onChange={(e) => setAirConditioner(e.target.checked)}
                   className="w-5 h-5 rounded border-[#D5DEEF] text-[#395886] focus:ring-[#638ECB]"
                 />
-                <span className="text-xs font-bold text-[#395886] uppercase tracking-wider">Climatisation</span>
+                <span className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.air_conditioning")}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -727,12 +728,12 @@ function VehicleCreateEditModal({
                   onChange={(e) => setGps(e.target.checked)}
                   className="w-5 h-5 rounded border-[#D5DEEF] text-[#395886] focus:ring-[#638ECB]"
                 />
-                <span className="text-xs font-bold text-[#395886] uppercase tracking-wider">GPS</span>
+                <span className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.gps_checkbox")}</span>
               </label>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Ordre d'affichage</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.display_order")}</label>
               <input
                 type="number"
                 min={0}
@@ -744,13 +745,13 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Pays départ</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.pickup_country")}</label>
               <select
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={pickupCountryId ?? ""}
                 onChange={(e) => setPickupCountryId(e.target.value ? Number(e.target.value) : null)}
               >
-                <option value="">-- Sélectionner un pays --</option>
+                <option value="">{t("admin.select_country")}</option>
                 {countries.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -758,14 +759,14 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Ville départ</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.pickup_city")}</label>
               <select
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={pickupCityId ?? ""}
                 onChange={(e) => setPickupCityId(e.target.value ? Number(e.target.value) : null)}
                 disabled={!pickupCountryId}
               >
-                <option value="">-- Sélectionner une ville --</option>
+                <option value="">{t("admin.select_city")}</option>
                 {pickupCities.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -773,13 +774,13 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Pays actuel</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.current_country")}</label>
               <select
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={currentCountryId ?? ""}
                 onChange={(e) => setCurrentCountryId(e.target.value ? Number(e.target.value) : null)}
               >
-                <option value="">-- Sélectionner un pays --</option>
+                <option value="">{t("admin.select_country")}</option>
                 {countries.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -787,14 +788,14 @@ function VehicleCreateEditModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">Ville actuelle</label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.current_city")}</label>
               <select
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
                 value={currentCityId ?? ""}
                 onChange={(e) => setCurrentCityId(e.target.value ? Number(e.target.value) : null)}
                 disabled={!currentCountryId}
               >
-                <option value="">-- Sélectionner une ville --</option>
+                <option value="">{t("admin.select_city")}</option>
                 {currentCities.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -804,9 +805,9 @@ function VehicleCreateEditModal({
             {/* Existing Pictures (edit mode) */}
             {mode === "edit" && initial?.pictures && initial.pictures.length > 0 && (
               <div className="flex flex-col gap-2 md:col-span-2">
-                <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
-                  Images actuelles
-                </label>
+                  <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
+                    {t("admin.current_images")}
+                  </label>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {initial.pictures
                     .filter((pic) => !deletedImageIds.includes(pic.id))
@@ -823,20 +824,20 @@ function VehicleCreateEditModal({
                           onClick={() => setDeletedImageIds((prev) => [...prev, pic.id])}
                           className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity duration-200"
                         >
-                          Supprimer
+                          {t("admin.delete_image")}
                         </button>
                       </div>
                     ))}
                 </div>
                 {deletedImageIds.length > 0 && (
                   <div className="flex items-center gap-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
-                    <span>{deletedImageIds.length} image(s) seront supprimées lors de l'enregistrement.</span>
+                    <span>{t("admin.images_deleted", { count: String(deletedImageIds.length) })}</span>
                     <button
                       type="button"
                       onClick={() => setDeletedImageIds([])}
                       className="ml-auto underline hover:text-rose-800 cursor-pointer"
                     >
-                      Tout annuler
+                      {t("admin.undo_delete")}
                     </button>
                   </div>
                 )}
@@ -846,7 +847,7 @@ function VehicleCreateEditModal({
             {/* Drag & Drop File Zone */}
             <div className="flex flex-col gap-1 md:col-span-2">
               <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
-                {mode === "edit" ? "Remplacer les images (optionnel)" : "Images du véhicule"}
+                {mode === "edit" ? t("admin.replace_images") : t("admin.images")}
               </label>
               <div
                 onDragEnter={handleDrag}
@@ -869,8 +870,8 @@ function VehicleCreateEditModal({
                   className="hidden"
                 />
                 <span className="text-2xl mb-2">📸</span>
-                <span className="text-sm font-bold text-[#395886]">Glissez-déposez les fichiers ici</span>
-                <span className="text-xs text-[#638ECB] mt-1">Prend en charge PNG, JPG, WEBP (Max 5Mo chacun, limite 6)</span>
+                <span className="text-sm font-bold text-[#395886]">{t("admin.drag_drop")}</span>
+                <span className="text-xs text-[#638ECB] mt-1">{t("admin.drag_drop_hint")}</span>
               </div>
 
               {uploadError && (
@@ -894,7 +895,7 @@ function VehicleCreateEditModal({
                         }}
                         className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold text-xs transition-opacity duration-200"
                       >
-                        Retirer
+                        {t("admin.remove_image")}
                       </button>
                     </div>
                   ))}
@@ -905,14 +906,14 @@ function VehicleCreateEditModal({
 
           {/* Departure Conditions */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
-              État du véhicule au départ - Éléments applicables
-            </label>
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
+                {t("admin.vehicle_condition")}
+              </label>
             {conditionsLoading ? (
-              <div className="text-xs font-bold text-[#638ECB]">Chargement...</div>
+              <div className="text-xs font-bold text-[#638ECB]">{t("admin.loading")}</div>
             ) : allConditions.length === 0 ? (
               <div className="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 rounded-xl p-3">
-                Aucune condition disponible. Créez d'abord des conditions dans la section "Conditions de départ".
+                {t("admin.no_conditions")}
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -1030,7 +1031,7 @@ function VehicleViewModal({
                     className="w-full h-full object-cover transition-all duration-300"
                   />
                 ) : (
-                  <div className="text-sm font-bold text-[#638ECB]/70">Aucune image disponible</div>
+                  <div className="text-sm font-bold text-[#638ECB]/70">{t("admin.no_image_available")}</div>
                 )}
               </div>
 
@@ -1060,7 +1061,7 @@ function VehicleViewModal({
               <div className="flex flex-col gap-4">
                 <div>
                   <span className="px-3 py-1.5 rounded-xl bg-[#F0F3FA] border border-[#D5DEEF]/50 text-xs font-black text-[#395886] inline-block">
-                    {categoryName ?? "Classe standard"}
+                    {categoryName ?? t("admin.class_standard")}
                   </span>
                   <h3 className="text-2xl font-black text-[#395886] mt-2 leading-tight">
                     {vehicle.marque}
@@ -1072,49 +1073,49 @@ function VehicleViewModal({
 
                 <div className="p-4 rounded-2xl bg-[#F0F3FA]/40 border border-[#D5DEEF]/40 grid grid-cols-2 gap-3.5">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Carburant</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.fuel")}</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.fuelType}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Immatriculation</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.registration_label")}</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.registration}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Kilométrage (KM)</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.km_label")}</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.km.toLocaleString()} km</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Nombre de places</span>
-                    <span className="text-sm font-bold text-slate-800">{vehicle.Occupants} occupants</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.seats_label")}</span>
+                    <span className="text-sm font-bold text-slate-800">{vehicle.Occupants} {t("admin.occupants_label")}</span>
                   </div>
                   {!!vehicle.air_conditioner && (
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Climatisation</span>
-                      <span className="text-sm font-bold text-green-600">✓ Incluse</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.air_conditioning")}</span>
+                      <span className="text-sm font-bold text-green-600">{t("admin.included")}</span>
                     </div>
                   )}
                   {!!vehicle.gps && (
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">GPS</span>
-                      <span className="text-sm font-bold text-green-600">✓ Inclus</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.gps_checkbox")}</span>
+                      <span className="text-sm font-bold text-green-600">{t("admin.included")}</span>
                     </div>
                   )}
                   {(pickupCountryName || pickupCityName) && (
                     <div className="col-span-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Départ</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.pickup_country")}</span>
                       <span className="text-sm font-bold text-slate-800">{pickupCityName || ""}{pickupCityName && pickupCountryName ? ", " : ""}{pickupCountryName || ""}</span>
                     </div>
                   )}
                   {(currentCountryName || currentCityName) && (
                     <div className="col-span-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">Position actuelle</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.current_position")}</span>
                       <span className="text-sm font-bold text-slate-800">{currentCityName || ""}{currentCityName && currentCountryName ? ", " : ""}{currentCountryName || ""}</span>
                     </div>
                   )}
                 </div>
 
                 <div className="border-t border-[#D5DEEF]/40 pt-4 flex items-baseline justify-between">
-                  <span className="text-sm font-black text-[#395886]">Tarif journalier</span>
+                  <span className="text-sm font-black text-[#395886]">{t("admin.daily_rate")}</span>
                   <div className="text-right">
                     <span className="text-3xl font-black text-[#395886]">{vehicle.pricePerDay} MAD</span>
                     <span className="text-[#638ECB] text-xs font-bold ml-1">{t("admin.price_per_day_label")}</span>
@@ -1499,7 +1500,7 @@ export default function AdminVehiclesPage() {
               {/* Catégories */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#395886] uppercase tracking-wider">
-                  <span>Catégories</span>
+                  <span>{t("admin.categories")}</span>
                   <span className="h-5 px-2 bg-[#F0F3FA] text-[#395886] rounded-md text-[10px] font-black flex items-center justify-center">
                     {categories.length}
                   </span>
@@ -1551,7 +1552,7 @@ export default function AdminVehiclesPage() {
               <div className="mt-5 pt-4 border-t border-[#D5DEEF]">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Marque</label>
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">{t("admin.brand")}</label>
                     <input
                       type="text"
                       className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
@@ -1562,7 +1563,7 @@ export default function AdminVehiclesPage() {
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Modèle</label>
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">{t("admin.model")}</label>
                     <input
                       type="text"
                       className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
@@ -1573,22 +1574,22 @@ export default function AdminVehiclesPage() {
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Carburant</label>
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">{t("admin.fuel")}</label>
                     <select
                       className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886] outline-none transition-colors"
                       value={filters.fuelType}
                       onChange={(e) => setFilters({ ...filters, fuelType: e.target.value })}
                     >
-                      <option value="">Tous</option>
-                      <option value="Electricity">Électrique</option>
-                      <option value="Diesel">Diesel</option>
-                      <option value="Gasoline">Essence</option>
-                      <option value="hybrid">Hybride</option>
+                      <option value="">{t("admin.all")}</option>
+                      <option value="Electricity">{t("admin.fuel_electric")}</option>
+                      <option value="Diesel">{t("admin.fuel_diesel")}</option>
+                      <option value="Gasoline">{t("admin.fuel_gasoline")}</option>
+                      <option value="hybrid">{t("admin.fuel_hybrid")}</option>
                     </select>
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">Sièges</label>
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">{t("admin.seats")}</label>
                     <input
                       type="text"
                       className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#638ECB] outline-none"
