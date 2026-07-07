@@ -13,7 +13,7 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city', 'pickupCountry', 'pickupCity', 'currentCountry', 'currentCity')->orderBy('pricePerDay', 'asc')->get();
+        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city', 'pickupCountry', 'pickupCity', 'currentCountry', 'currentCity')->orderBy('created_at', 'desc')->get();
     }
 
     public function getById($id)
@@ -161,7 +161,7 @@ class VehicleService
             });
         });
 
-        $Vehicles = $query->with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city', 'pickupCountry', 'pickupCity', 'currentCountry', 'currentCity')->orderBy('order', 'asc')->get();
+        $Vehicles = $query->with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city', 'pickupCountry', 'pickupCity', 'currentCountry', 'currentCity')->orderBy('created_at', 'desc')->orderBy('order', 'asc')->get();
         
         return $Vehicles;
 
