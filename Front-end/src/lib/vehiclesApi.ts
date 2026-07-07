@@ -15,6 +15,7 @@ export async function listVehicles(): Promise<Vehicle[]> {
     method: "GET",
     path: "/Vehicles",
     query: undefined,
+    auth: false,
   });
 
   if (Array.isArray(res.data)) return res.data;
@@ -75,6 +76,7 @@ export async function filterVehicles(params: FilterParams): Promise<Vehicle[]> {
     method: "GET",
     path: "/filterVehicles",
     query: params,
+    auth: false,
   });
 
   if (Array.isArray(res.data)) return res.data;

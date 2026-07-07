@@ -152,17 +152,20 @@ export default function VehiculesPage() {
         : await listVehicles();
       setVehicles(data);
     } catch (e) {
-      const msg = (e as { message?: string })?.message || t("vehicles.error_load");
-      setError(msg);
+      const err = e as { message?: string; status?: number; url?: string };
+      const details = err.status ? ` (HTTP ${err.status})` : "";
+      const msg = err.message || t("vehicles.error_load");
+      console.error(`[loadVehicles] Failed`, { error: err });
+      setError(`${msg}${details}`);
     } finally {
       setLoading(false);
     }
   }, [t, pickupCountryId, pickupCityId]);
 
   useEffect(() => {
-    fetchCategories().then(setCategories);
-    getPublicMarques().then(setMarques);
-    fetchCountries().then(setCountries).catch(() => {});
+    fetchCategories().then(setCategories).catch((err) => console.warn("[vehicules] fetchCategories failed", err));
+    getPublicMarques().then(setMarques).catch((err) => console.warn("[vehicules] getPublicMarques failed", err));
+    fetchCountries().then(setCountries).catch((err) => console.warn("[vehicules] fetchCountries failed", err));
   }, []);
 
   useEffect(() => {
@@ -291,8 +294,8 @@ export default function VehiculesPage() {
       if (minPrice !== undefined && v.pricePerDay < minPrice) return false;
       if (maxPrice !== undefined && v.pricePerDay > maxPrice) return false;
 
-      if (pickupCountryId !== null && v.country_id !== pickupCountryId) return false;
-      if (pickupCityId !== null && v.city_id !== pickupCityId) return false;
+      if (pickupCountryId !== null && v.pickup_country_id !== pickupCountryId) return false;
+      if (pickupCityId !== null && v.pickup_city_id !== pickupCityId) return false;
 
       return true;
     }).sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());

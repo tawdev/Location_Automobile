@@ -1197,8 +1197,11 @@ export default function AdminVehiclesPage() {
         router.replace("/login");
         return;
       }
-      const msg = e instanceof Error ? e.message : "Échec du chargement des véhicules";
-      setError(msg);
+      const apiErr = e as { message?: string; status?: number; url?: string };
+      console.error("[admin/vehicles] loadVehicles failed", { error: apiErr });
+      const details = apiErr.status ? ` (HTTP ${apiErr.status})` : "";
+      const msg = apiErr.message || "Échec du chargement des véhicules";
+      setError(`${msg}${details}`);
     } finally {
       setLoading(false);
     }
