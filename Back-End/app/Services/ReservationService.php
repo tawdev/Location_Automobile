@@ -32,7 +32,7 @@ class ReservationService
         return $data;
     }
     public function getAllReservition(){
-        $reservations = Reservation::with('user','vehicle', 'vehicle.pictures', 'pictures')->get();
+        $reservations = Reservation::with(['user','vehicle', 'vehicle.pictures', 'pictures', 'departCountry', 'departCity', 'returnCountry', 'returnCity'])->get();
         foreach($reservations as $reservation){
             if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
                 $reservation->update([
