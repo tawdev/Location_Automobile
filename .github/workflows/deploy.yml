@@ -44,8 +44,30 @@ jobs:
             composer install --optimize-autoloader --no-dev
 
             # Run pending migrations
-            # Clean up phantom migration records (batch 999) from old tinker-hack deployments
-            php artisan tinker --execute="DB::table('migrations')->where('batch', 999)->delete();" 2>/dev/null || true
+            # Sync migration records with actual table existence
+            php artisan tinker --execute="
+              \$dbName = DB::connection()->getDatabaseName();
+              \$tables = array_column(DB::select('SHOW TABLES'), 'Tables_in_' . \$dbName);
+              \$ran = DB::table('migrations')->pluck('migration')->toArray();
+
+              \$known = [
+                '2026_06_28_000001_create_permissions_tables' => 'permissions',
+                '2026_06_30_000001_add_extras_departure_conditions_map_permissions' => null,
+                '2026_07_06_000001_create_countries_table'    => 'countries',
+                '2026_07_06_000002_create_cities_table'       => 'cities',
+              ];
+
+              foreach (\$known as \$migration => \$table) {
+                if (\$table && in_array(\$table, \$tables) && !in_array(\$migration, \$ran)) {
+                  DB::table('migrations')->insert(['migration' => \$migration, 'batch' => 999]);
+                  echo \"Registered: \$migration\n\";
+                }
+                if (\$table && !in_array(\$table, \$tables) && in_array(\$migration, \$ran)) {
+                  DB::table('migrations')->where('migration', \$migration)->delete();
+                  echo \"Removed phantom: \$migration\n\";
+                }
+              }
+            " 2>/dev/null || true
 
             php artisan migrate --force 2>&1 || echo "Migration warning (non-fatal)"
             php artisan db:seed --class=PermissionSeeder --force
@@ -97,6 +119,9 @@ jobs:
               echo "ERROR: .env.local not found! Create it with NEXT_PUBLIC_API_BASE_URL."
               exit 1
             fi
+
+            # Clean previous build cache to avoid ENOTEMPTY errors
+            rm -rf .next
 
             npm install
             npm run build
