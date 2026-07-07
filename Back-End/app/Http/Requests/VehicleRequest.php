@@ -50,6 +50,10 @@ class VehicleRequest extends FormRequest
 
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
+            'pickup_country_id' => 'nullable|exists:countries,id',
+            'pickup_city_id' => 'nullable|exists:cities,id',
+            'current_country_id' => 'nullable|exists:countries,id',
+            'current_city_id' => 'nullable|exists:cities,id',
 
             'images' => 'sometimes|array',
             'images.*' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:5120',

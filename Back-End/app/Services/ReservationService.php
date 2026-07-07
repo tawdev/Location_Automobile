@@ -168,6 +168,15 @@ class ReservationService
         $Reservation->departureConditions()->sync($conditionData);
     }
 
+    // Auto-update vehicle's current location from reservation's return location
+    if (!empty($data['return_country_id'])) {
+        $vehicleUpdate = ['current_country_id' => $data['return_country_id']];
+        if (!empty($data['return_city_id'])) {
+            $vehicleUpdate['current_city_id'] = $data['return_city_id'];
+        }
+        $vehicle->update($vehicleUpdate);
+    }
+
     return $Reservation;
 }
 

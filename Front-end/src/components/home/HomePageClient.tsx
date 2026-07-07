@@ -239,8 +239,43 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-      <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">              {/* Row 1: Pickup + Return dates */}
+      <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">              {/* Row 1: Country + City */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                    {t("vehicles.country")}
+                  </label>
+                  <select
+                    value={filterCountryId ?? ""}
+                    onChange={(e) => setFilterCountryId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
+                  >
+                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
+                    {countries.map((c) => (
+                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                    {t("vehicles.city")}
+                  </label>
+                  <select
+                    value={filterCityId ?? ""}
+                    onChange={(e) => setFilterCityId(e.target.value ? Number(e.target.value) : null)}
+                    disabled={!filterCountryId}
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all disabled:opacity-50"
+                  >
+                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
+                    {filterCities.map((c) => (
+                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 2: Pickup + Return dates */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
                     {t("vehicles.pickup_date")}
@@ -311,7 +346,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 </div>
               </div>
 
-              {/* Row 2: Brand + Model + Fuel type + Vehicle type */}
+              {/* Row 3: Brand + Model + Fuel type + Vehicle type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
@@ -405,41 +440,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
                     {propTypeVehicules.map((tv) => (
                       <option key={tv.id} value={tv.id} className="text-gray-800">{tv.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 3: Country + City */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.country")}
-                  </label>
-                  <select
-                    value={filterCountryId ?? ""}
-                    onChange={(e) => setFilterCountryId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
-                  >
-                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
-                    {countries.map((c) => (
-                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.city")}
-                  </label>
-                  <select
-                    value={filterCityId ?? ""}
-                    onChange={(e) => setFilterCityId(e.target.value ? Number(e.target.value) : null)}
-                    disabled={!filterCountryId}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all disabled:opacity-50"
-                  >
-                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
-                    {filterCities.map((c) => (
-                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
                     ))}
                   </select>
                 </div>
