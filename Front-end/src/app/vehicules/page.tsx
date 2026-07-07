@@ -113,10 +113,6 @@ export default function VehiculesPage() {
   const [pickupCountryId, setPickupCountryId] = useState<number | null>(null);
   const [pickupCities, setPickupCities] = useState<City[]>([]);
   const [pickupCityId, setPickupCityId] = useState<number | null>(null);
-  const [returnCountryId, setReturnCountryId] = useState<number | null>(null);
-  const [returnCities, setReturnCities] = useState<City[]>([]);
-  const [returnCityId, setReturnCityId] = useState<number | null>(null);
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [nextBgIndex, setNextBgIndex] = useState<number | null>(null);
@@ -177,15 +173,6 @@ export default function VehiculesPage() {
     }
     setPickupCityId(null);
   }, [pickupCountryId]);
-
-  useEffect(() => {
-    if (returnCountryId) {
-      fetchCitiesByCountry(returnCountryId).then(setReturnCities).catch(() => setReturnCities([]));
-    } else {
-      setReturnCities([]);
-    }
-    setReturnCityId(null);
-  }, [returnCountryId]);
 
   // Read URL search params on mount
   useEffect(() => {
@@ -272,8 +259,6 @@ export default function VehiculesPage() {
     setSearchText("");
     setPickupCountryId(null);
     setPickupCityId(null);
-    setReturnCountryId(null);
-    setReturnCityId(null);
   };
 
   const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 ||
@@ -402,41 +387,6 @@ export default function VehiculesPage() {
         >
           <option value="">{t("vehicles.all_types")}</option>
           {pickupCities.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Return Country */}
-      <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
-          {t("vehicles.return_country")}
-        </h4>
-        <select
-          value={returnCountryId ?? ""}
-          onChange={(e) => setReturnCountryId(e.target.value ? Number(e.target.value) : null)}
-          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
-        >
-          <option value="">{t("vehicles.all_types")}</option>
-          {countries.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Return City */}
-      <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
-          {t("vehicles.return_city")}
-        </h4>
-        <select
-          value={returnCityId ?? ""}
-          onChange={(e) => setReturnCityId(e.target.value ? Number(e.target.value) : null)}
-          disabled={!returnCountryId}
-          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] disabled:opacity-50"
-        >
-          <option value="">{t("vehicles.all_types")}</option>
-          {returnCities.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>

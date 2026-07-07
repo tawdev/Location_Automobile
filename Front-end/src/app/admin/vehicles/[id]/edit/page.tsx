@@ -43,10 +43,6 @@ function AdminVehicleEditForm({
   const [order, setOrder] = useState<number>(initial.order ?? 0);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
-  const [pickupCountries, setPickupCountries] = useState<Country[]>([]);
-  const [pickupCities, setPickupCities] = useState<City[]>([]);
-  const [pickupCountryId, setPickupCountryId] = useState<number | null>(initial.pickup_country_id ?? null);
-  const [pickupCityId, setPickupCityId] = useState<number | null>(initial.pickup_city_id ?? null);
   const [currentCountries, setCurrentCountries] = useState<Country[]>([]);
   const [currentCities, setCurrentCities] = useState<City[]>([]);
   const [currentCountryId, setCurrentCountryId] = useState<number | null>(initial.current_country_id ?? null);
@@ -66,19 +62,9 @@ function AdminVehicleEditForm({
 
   useEffect(() => {
     if (countries.length > 0) {
-      setPickupCountries(countries);
       setCurrentCountries(countries);
     }
   }, [countries]);
-
-  useEffect(() => {
-    if (pickupCountryId) {
-      fetchCitiesByCountry(pickupCountryId).then(setPickupCities).catch(() => setPickupCities([]));
-    } else {
-      setPickupCities([]);
-    }
-    setPickupCityId(null);
-  }, [pickupCountryId]);
 
   useEffect(() => {
     if (currentCountryId) {
@@ -125,8 +111,6 @@ function AdminVehicleEditForm({
             air_conditioner: airConditioner,
             gps: gps,
             order: order,
-            pickup_country_id: pickupCountryId,
-            pickup_city_id: pickupCityId,
             current_country_id: currentCountryId,
             current_city_id: currentCityId,
             images: imagesFiles.length > 0 ? imagesFiles : undefined,
@@ -313,37 +297,6 @@ function AdminVehicleEditForm({
             onChange={(e) => setOrder(Number(e.target.value))}
             placeholder="ex. 1"
           />
-        </label>
-
-        {/* Pickup Country */}
-        <label className="flex flex-col gap-2">
-          <span className="font-bold">{t("admin.pickup_country")}</span>
-          <select
-            className="border-2 border-black p-2 bg-white"
-            value={pickupCountryId ?? ""}
-            onChange={(e) => setPickupCountryId(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">{t("admin.select_country")}</option>
-            {pickupCountries.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </label>
-
-        {/* Pickup City */}
-        <label className="flex flex-col gap-2">
-          <span className="font-bold">{t("admin.pickup_city")}</span>
-          <select
-            className="border-2 border-black p-2 bg-white"
-            value={pickupCityId ?? ""}
-            onChange={(e) => setPickupCityId(e.target.value ? Number(e.target.value) : null)}
-            disabled={!pickupCountryId}
-          >
-            <option value="">{t("admin.select_city")}</option>
-            {pickupCities.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
         </label>
 
         {/* Current Country */}
