@@ -171,8 +171,8 @@
     <table class="info">
         <tr><td class="lbl">Date et heure de d&eacute;part</td><td class="val">{{ $reservation->date_heure_depart ? \Carbon\Carbon::parse($reservation->date_heure_depart)->format('d/m/Y H:i') : $startDate->format('d/m/Y') }}</td></tr>
         <tr><td class="lbl">Date et heure de retour</td><td class="val">{{ $reservation->date_heure_retour ? \Carbon\Carbon::parse($reservation->date_heure_retour)->format('d/m/Y H:i') : $endDate->format('d/m/Y') }}</td></tr>
-        <tr><td class="lbl">Lieu de d&eacute;part</td><td class="val">{{ $reservation->lieu_depart ?? 'Marrakech' }}</td></tr>
-        <tr><td class="lbl">Lieu de retour</td><td class="val">{{ $reservation->lieu_retour ?? 'Marrakech' }}</td></tr>
+        <tr><td class="lbl">Lieu de d&eacute;part</td><td class="val">{{ $reservation->lieu_depart ?? '' }}{{ $reservation->lieu_depart ? ', ' : '' }}{{ $reservation->departCity?->name ?? '' }}{{ $reservation->departCity?->name && $reservation->departCountry?->name ? ', ' : '' }}{{ $reservation->departCountry?->name ?? 'Marrakech' }}</td></tr>
+        <tr><td class="lbl">Lieu de retour</td><td class="val">{{ $reservation->lieu_retour ?? '' }}{{ $reservation->lieu_retour ? ', ' : '' }}{{ $reservation->returnCity?->name ?? '' }}{{ $reservation->returnCity?->name && $reservation->returnCountry?->name ? ', ' : '' }}{{ $reservation->returnCountry?->name ?? 'Marrakech' }}</td></tr>
     </table>
 
     <div class="section-header">

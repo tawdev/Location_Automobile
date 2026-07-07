@@ -168,8 +168,8 @@
         <tr><td class="lbl">Start time</td><td class="val">{{ $reservation->start_time ? \Carbon\Carbon::parse($reservation->start_time)->format('H:i') : '______' }}</td></tr>
         <tr><td class="lbl">Return date</td><td class="val">{{ $endDate->format('d/m/Y') }}</td></tr>
         <tr><td class="lbl">Return time</td><td class="val">{{ $reservation->end_time ? \Carbon\Carbon::parse($reservation->end_time)->format('H:i') : '______' }}</td></tr>
-        <tr><td class="lbl">Pick-up location</td><td class="val">{{ $reservation->departure_location ?? 'Marrakech' }}</td></tr>
-        <tr><td class="lbl">Return location</td><td class="val">{{ $reservation->return_location ?? 'Marrakech' }}</td></tr>
+        <tr><td class="lbl">Pick-up location</td><td class="val">{{ $reservation->lieu_depart ?? '' }}{{ $reservation->lieu_depart ? ', ' : '' }}{{ $reservation->departCity?->name ?? '' }}{{ $reservation->departCity?->name && $reservation->departCountry?->name ? ', ' : '' }}{{ $reservation->departCountry?->name ?? 'Marrakech' }}</td></tr>
+        <tr><td class="lbl">Return location</td><td class="val">{{ $reservation->lieu_retour ?? '' }}{{ $reservation->lieu_retour ? ', ' : '' }}{{ $reservation->returnCity?->name ?? '' }}{{ $reservation->returnCity?->name && $reservation->returnCountry?->name ? ', ' : '' }}{{ $reservation->returnCountry?->name ?? 'Marrakech' }}</td></tr>
     </table>
 
     <div class="section-header">
