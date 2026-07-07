@@ -1011,7 +1011,7 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
               WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)',
             }}
           >
-            <div className="flex gap-6 pb-4" style={{ animation: prefersReduced ? 'none' : `marquee-scroll ${Math.max(20, vehicles.length * 8)}s linear infinite` }}>
+            <div className="flex gap-6 pb-4" style={{ animation: prefersReduced ? 'none' : `marquee-scroll ${Math.max(5, vehicles.length * 2)}s linear infinite` }}>
               {duplicated.map((v, i) => {
                 const imgSrc = v.pictures?.[0]
                   ? vehicleImageUrl(v.pictures[0].path)
