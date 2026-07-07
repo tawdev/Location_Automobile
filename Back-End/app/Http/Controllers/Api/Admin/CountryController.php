@@ -5,15 +5,21 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CountryController extends Controller
 {
     public function index()
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => Country::with('cities')->get(),
-        ]);
+        if (!Schema::hasTable('countries')) {
+            return response()->json(['status' => 'success', 'data' => []]);
+        }
+
+        $data = Schema::hasTable('cities')
+            ? Country::with('cities')->get()
+            : Country::all();
+
+        return response()->json(['status' => 'success', 'data' => $data]);
     }
 
     public function store(Request $request)
