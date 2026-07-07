@@ -37,15 +37,16 @@ export const metadata: Metadata = {
 
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
       { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
       { url: '/favicon-192.png', type: 'image/png', sizes: '192x192' },
       { url: '/icon.png', type: 'image/png', sizes: '512x512' },
     ],
     apple: [
       { url: '/apple-icon.png', sizes: '180x180' },
     ],
+    shortcut: { url: '/favicon.ico', type: 'image/x-icon' },
   },
   
   metadataBase: new URL(SITE_URL),
@@ -140,7 +141,7 @@ export default function RootLayout({
         {/* DNS prefetch & preconnect for external origins */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="http://localhost:8000" />
+        <link rel="dns-prefetch" href="https://www.carforfar.com" />
         {/* Preload the above-the-fold hero background (LCP image) */}
         <link rel="preload" href="/background_vehicles/bg01.webp" as="image" type="image/webp" fetchPriority="high" />
       </head>
