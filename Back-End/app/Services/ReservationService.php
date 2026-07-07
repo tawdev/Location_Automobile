@@ -21,6 +21,7 @@ class ReservationService
     public function myReservetion(){
         $data = Reservation::with(['vehicle', 'vehicle.pictures'])
                            ->where('user_id', auth()->id())
+                           ->orderBy('created_at', 'desc')
                            ->get();
         foreach ($data as $reservation) {
             if (now() > $reservation->end_date && $reservation->status !== 'Terminée') {
@@ -32,7 +33,7 @@ class ReservationService
         return $data;
     }
     public function getAllReservition(){
-        $reservations = Reservation::with(['user','vehicle', 'vehicle.pictures', 'pictures', 'departCountry', 'departCity', 'returnCountry', 'returnCity'])->get();
+        $reservations = Reservation::with(['user','vehicle', 'vehicle.pictures', 'pictures', 'departCountry', 'departCity', 'returnCountry', 'returnCity'])->orderBy('created_at', 'desc')->get();
         foreach($reservations as $reservation){
             if(now() > $reservation->end_date && $reservation->status !== 'Terminée'){
                 $reservation->update([
@@ -287,7 +288,7 @@ public function finalizeReservation($id, $kmDriven)
 
 
 
-        $reservation = $query->get();
+        $reservation = $query->orderBy('created_at', 'desc')->get();
 
         return $reservation;
 
@@ -319,7 +320,7 @@ public function finalizeReservation($id, $kmDriven)
 
 
 
-        $reservation = $query->get();
+        $reservation = $query->orderBy('created_at', 'desc')->get();
 
         return $reservation;
 

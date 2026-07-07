@@ -310,7 +310,7 @@ export default function VehiculesPage() {
       if (pickupCityId !== null && v.city_id !== pickupCityId) return false;
 
       return true;
-    }).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    }).sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
   }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice, pickupCountryId, pickupCityId]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
