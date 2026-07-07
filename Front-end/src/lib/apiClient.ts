@@ -7,6 +7,9 @@ export type ApiError = {
   message: string;
   status?: number;
   data?: unknown;
+  url?: string;
+  method?: string;
+  originalError?: unknown;
 };
 
 type RequestOptions = {
@@ -54,9 +57,11 @@ export async function apiRequest<T = unknown>({
   const hasJsonBody =
     body !== null && body !== undefined && !(body instanceof FormData) && typeof body !== "string";
 
+  const url = `${API_BASE_URL}${path}${buildQuery(query)}`;
+
   let res: Response;
   try {
-    res = await fetch(`${API_BASE_URL}${path}${buildQuery(query)}`, {
+    res = await fetch(url, {
       method,
       signal,
       headers: {
@@ -72,31 +77,55 @@ export async function apiRequest<T = unknown>({
             : undefined,
     });
   } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    console.error(`[apiRequest] Network error (fetch threw)`, {
+      url,
+      method,
+      API_BASE_URL,
+      fullUrl: url,
+      errorName: err.name,
+      errorMessage: err.message,
+      cause: err.cause,
+      stack: err.stack,
+      originalError: e,
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "server",
+    });
     throw {
-      message: `Failed to fetch. Backend might be down or API_BASE_URL is wrong. Tried: ${API_BASE_URL}${path}`,
+      message: `Failed to fetch. Backend might be down or API_BASE_URL is wrong. Tried: ${url}`,
+      url,
+      method,
       data: e,
+      originalError: err,
     } satisfies ApiError;
   }
 
   if (res.status === 401 || res.status === 419) {
-    // Token expired/invalid; clear local token to avoid infinite 401 loops
+    console.warn(`[apiRequest] Unauthorized (${res.status}) for ${url}`);
     clearAuthToken();
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("auth:token-expired"));
     }
-    throw { message: "Unauthorized", status: res.status } satisfies ApiError;
+    throw { message: "Unauthorized", status: res.status, url } satisfies ApiError;
   }
 
   const contentType = res.headers.get("content-type") ?? "";
   const parsed = contentType.includes("application/json") ? await res.json().catch(() => undefined) : await res.text().catch(() => undefined);
 
   if (!res.ok) {
+    console.error(`[apiRequest] HTTP ${res.status} for ${url}`, {
+      url,
+      status: res.status,
+      statusText: res.statusText,
+      body: parsed,
+    });
     const apiError: ApiError = {
       message:
         (parsed && typeof parsed === "object" && "message" in parsed ? String((parsed as any).message) : undefined) ||
         `Request failed with status ${res.status}`,
       status: res.status,
       data: parsed,
+      url,
+      method,
     };
     throw apiError;
   }
