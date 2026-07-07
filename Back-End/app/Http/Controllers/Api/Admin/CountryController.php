@@ -11,13 +11,15 @@ class CountryController extends Controller
 {
     public function index()
     {
-        $hasCitiesTable = Schema::hasTable('cities');
-        return response()->json([
-            'status' => 'success',
-            'data' => $hasCitiesTable
-                ? Country::with('cities')->get()
-                : Country::all(),
-        ]);
+        if (!Schema::hasTable('countries')) {
+            return response()->json(['status' => 'success', 'data' => []]);
+        }
+
+        $data = Schema::hasTable('cities')
+            ? Country::with('cities')->get()
+            : Country::all();
+
+        return response()->json(['status' => 'success', 'data' => $data]);
     }
 
     public function store(Request $request)
