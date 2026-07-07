@@ -439,12 +439,14 @@ html { scroll-behavior: smooth; }
 }
 
 /* ── Home page specific animations ── */
+@keyframes hero-ken-burns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
 @keyframes hero-crossfade {
-  0% { opacity: 0; }
-  3.33% { opacity: 1; }
-  13.33% { opacity: 1; }
-  16.67% { opacity: 0; }
-  100% { opacity: 0; }
+  0%, 16.66% { opacity: 1; }
+  16.67%, 100% { opacity: 0; }
 }
 
 @keyframes marquee-scroll {
