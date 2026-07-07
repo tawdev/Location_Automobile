@@ -108,6 +108,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [filterCountryId, setFilterCountryId] = useState<number | null>(null);
   const [filterCities, setFilterCities] = useState<City[]>([]);
   const [filterCityId, setFilterCityId] = useState<number | null>(null);
+  const [filterLocationType, setFilterLocationType] = useState("");
 
   const [vehicleIndex, setVehicleIndex] = useState(0);
   const [heroBgIndex, setHeroBgIndex] = useState(0);
@@ -167,6 +168,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (typeVehiculeId) params.set("type_vehicule_id", String(typeVehiculeId));
     if (filterCountryId) params.set("country_id", String(filterCountryId));
     if (filterCityId) params.set("city_id", String(filterCityId));
+    if (filterLocationType) params.set("location_type", filterLocationType);
     const qs = params.toString();
     router.push(qs ? `/vehicules?${qs}` : "/vehicules");
   };
@@ -274,7 +276,25 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 </div>
               </div>
 
-              {/* Row 2: Pickup + Return dates */}
+              {/* Row 2: Location Type */}
+              <div className="mt-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
+                    {t("vehicles.pickup_location")}
+                  </label>
+                  <select
+                    value={filterLocationType}
+                    onChange={(e) => setFilterLocationType(e.target.value)}
+                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
+                  >
+                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
+                    <option value="airport" className="text-gray-800">{t("vehicles.location_airport")}</option>
+                    <option value="citycenter" className="text-gray-800">{t("vehicles.location_citycenter")}</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 3: Pickup + Return dates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
@@ -346,7 +366,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 </div>
               </div>
 
-              {/* Row 3: Brand + Model + Fuel type + Vehicle type */}
+              {/* Row 4: Brand + Model + Fuel type + Vehicle type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
@@ -445,7 +465,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 </div>
               </div>
 
-              {/* Row 4: Price range + Search */}
+              {/* Row 5: Price range + Search */}
               <div className="mt-3 flex flex-col sm:flex-row gap-3">
                 <div className="flex gap-3 flex-1">
                   <div className="w-full sm:w-32">
