@@ -80,11 +80,19 @@ export type Vehicle = {
   order?: number | null;
   country_id?: number | null;
   city_id?: number | null;
+  pickup_country_id?: number | null;
+  pickup_city_id?: number | null;
+  current_country_id?: number | null;
+  current_city_id?: number | null;
   pictures?: Picture[];
   category?: Category;
   typeVehicule?: TypeVehicule;
   country?: Country;
-  city?: City;
+  city?: Country;
+  pickupCountry?: Country;
+  pickupCity?: City;
+  currentCountry?: Country;
+  currentCity?: City;
   created_at?: string;
 };
 
@@ -164,6 +172,10 @@ export type Reservation = {
   // Backend /with('user','vehicle') may also return nested objects
   vehicle?: Vehicle;
   user?: User;
+  depart_country?: Country;
+  depart_city?: City;
+  return_country?: Country;
+  return_city?: City;
   extras?: Extra[];
   client?: ClientInfo;
   departure_conditions?: DepartureCondition[];

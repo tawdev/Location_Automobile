@@ -36,6 +36,10 @@ export type AdminVehiclePayload = {
   order?: number;
   country_id?: number | null;
   city_id?: number | null;
+  pickup_country_id?: number | null;
+  pickup_city_id?: number | null;
+  current_country_id?: number | null;
+  current_city_id?: number | null;
   images?: File[];
   deletedImages?: number[];
 };
@@ -59,6 +63,10 @@ function toVehicleFormData(payload: AdminVehiclePayload): FormData {
   if (payload.order !== undefined) fd.set("order", String(payload.order));
   if (payload.country_id !== undefined && payload.country_id !== null) fd.set("country_id", String(payload.country_id));
   if (payload.city_id !== undefined && payload.city_id !== null) fd.set("city_id", String(payload.city_id));
+  if (payload.pickup_country_id !== undefined && payload.pickup_country_id !== null) fd.set("pickup_country_id", String(payload.pickup_country_id));
+  if (payload.pickup_city_id !== undefined && payload.pickup_city_id !== null) fd.set("pickup_city_id", String(payload.pickup_city_id));
+  if (payload.current_country_id !== undefined && payload.current_country_id !== null) fd.set("current_country_id", String(payload.current_country_id));
+  if (payload.current_city_id !== undefined && payload.current_city_id !== null) fd.set("current_city_id", String(payload.current_city_id));
 
   if (payload.images && payload.images.length > 0) {
     for (const file of payload.images) {

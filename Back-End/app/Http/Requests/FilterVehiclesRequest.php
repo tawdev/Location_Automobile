@@ -25,6 +25,8 @@ class FilterVehiclesRequest extends FormRequest
             'return_date' => 'nullable|date|after_or_equal:pickup_date',
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
+            'pickup_country_id' => 'nullable|exists:countries,id',
+            'pickup_city_id' => 'nullable|exists:cities,id',
         ];
     }
 }

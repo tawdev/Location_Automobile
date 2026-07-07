@@ -110,9 +110,12 @@ export default function VehiculesPage() {
   const [returnDate, setReturnDate] = useState("");
 
   const [countries, setCountries] = useState<Country[]>([]);
-  const [filterCountryId, setFilterCountryId] = useState<number | null>(null);
-  const [filterCities, setFilterCities] = useState<City[]>([]);
-  const [filterCityId, setFilterCityId] = useState<number | null>(null);
+  const [pickupCountryId, setPickupCountryId] = useState<number | null>(null);
+  const [pickupCities, setPickupCities] = useState<City[]>([]);
+  const [pickupCityId, setPickupCityId] = useState<number | null>(null);
+  const [returnCountryId, setReturnCountryId] = useState<number | null>(null);
+  const [returnCities, setReturnCities] = useState<City[]>([]);
+  const [returnCityId, setReturnCityId] = useState<number | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
@@ -145,9 +148,9 @@ export default function VehiculesPage() {
       const params: Record<string, any> = {};
       if (pickup) params.pickup_date = pickup;
       if (ret) params.return_date = ret;
-      if (filterCountryId) params.country_id = filterCountryId;
-      if (filterCityId) params.city_id = filterCityId;
-      const hasFilters = pickup || ret || filterCountryId || filterCityId;
+      if (pickupCountryId) params.pickup_country_id = pickupCountryId;
+      if (pickupCityId) params.pickup_city_id = pickupCityId;
+      const hasFilters = pickup || ret || pickupCountryId || pickupCityId;
       const data = hasFilters
         ? await filterVehicles(params as any)
         : await listVehicles();
@@ -158,7 +161,7 @@ export default function VehiculesPage() {
     } finally {
       setLoading(false);
     }
-  }, [t, filterCountryId, filterCityId]);
+  }, [t, pickupCountryId, pickupCityId]);
 
   useEffect(() => {
     fetchCategories().then(setCategories);
@@ -167,13 +170,22 @@ export default function VehiculesPage() {
   }, []);
 
   useEffect(() => {
-    if (filterCountryId) {
-      fetchCitiesByCountry(filterCountryId).then(setFilterCities).catch(() => setFilterCities([]));
+    if (pickupCountryId) {
+      fetchCitiesByCountry(pickupCountryId).then(setPickupCities).catch(() => setPickupCities([]));
     } else {
-      setFilterCities([]);
+      setPickupCities([]);
     }
-    setFilterCityId(null);
-  }, [filterCountryId]);
+    setPickupCityId(null);
+  }, [pickupCountryId]);
+
+  useEffect(() => {
+    if (returnCountryId) {
+      fetchCitiesByCountry(returnCountryId).then(setReturnCities).catch(() => setReturnCities([]));
+    } else {
+      setReturnCities([]);
+    }
+    setReturnCityId(null);
+  }, [returnCountryId]);
 
   // Read URL search params on mount
   useEffect(() => {
@@ -194,8 +206,8 @@ export default function VehiculesPage() {
     if (searchParts.length > 0) setSearchText(searchParts.join(" "));
     if (minP) setMinPrice(Number(minP));
     if (maxP) setMaxPrice(Number(maxP));
-    if (ci) setFilterCountryId(Number(ci));
-    if (cti) setFilterCityId(Number(cti));
+    if (ci) setPickupCountryId(Number(ci));
+    if (cti) setPickupCityId(Number(cti));
 
     const id = setTimeout(() => { void loadVehicles(pu ?? undefined, rt ?? undefined); }, 0);
     return () => clearTimeout(id);
@@ -258,14 +270,16 @@ export default function VehiculesPage() {
     setPickupDate("");
     setReturnDate("");
     setSearchText("");
-    setFilterCountryId(null);
-    setFilterCityId(null);
+    setPickupCountryId(null);
+    setPickupCityId(null);
+    setReturnCountryId(null);
+    setReturnCityId(null);
   };
 
   const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 ||
     selectedFuelTypes.length > 0 || minPrice !== undefined || maxPrice !== undefined ||
     selectedSeats.length > 0 || pickupDate || returnDate || searchText ||
-    filterCountryId !== null || filterCityId !== null;
+    pickupCountryId !== null || pickupCityId !== null;
 
   // Client-side filtering
   const filteredVehicles = useMemo(() => {
@@ -292,12 +306,12 @@ export default function VehiculesPage() {
       if (minPrice !== undefined && v.pricePerDay < minPrice) return false;
       if (maxPrice !== undefined && v.pricePerDay > maxPrice) return false;
 
-      if (filterCountryId !== null && v.country_id !== filterCountryId) return false;
-      if (filterCityId !== null && v.city_id !== filterCityId) return false;
+      if (pickupCountryId !== null && v.country_id !== pickupCountryId) return false;
+      if (pickupCityId !== null && v.city_id !== pickupCityId) return false;
 
       return true;
     }).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice, filterCountryId, filterCityId]);
+  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, minPrice, maxPrice, pickupCountryId, pickupCityId]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -358,6 +372,76 @@ export default function VehiculesPage() {
         </div>
       </div>
 
+      {/* Pickup Country */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.pickup_country")}
+        </h4>
+        <select
+          value={pickupCountryId ?? ""}
+          onChange={(e) => setPickupCountryId(e.target.value ? Number(e.target.value) : null)}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">{t("vehicles.all_types")}</option>
+          {countries.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Pickup City */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.pickup_city")}
+        </h4>
+        <select
+          value={pickupCityId ?? ""}
+          onChange={(e) => setPickupCityId(e.target.value ? Number(e.target.value) : null)}
+          disabled={!pickupCountryId}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] disabled:opacity-50"
+        >
+          <option value="">{t("vehicles.all_types")}</option>
+          {pickupCities.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Return Country */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.return_country")}
+        </h4>
+        <select
+          value={returnCountryId ?? ""}
+          onChange={(e) => setReturnCountryId(e.target.value ? Number(e.target.value) : null)}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">{t("vehicles.all_types")}</option>
+          {countries.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Return City */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.return_city")}
+        </h4>
+        <select
+          value={returnCityId ?? ""}
+          onChange={(e) => setReturnCityId(e.target.value ? Number(e.target.value) : null)}
+          disabled={!returnCountryId}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] disabled:opacity-50"
+        >
+          <option value="">{t("vehicles.all_types")}</option>
+          {returnCities.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Dates */}
       <div>
         <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
@@ -382,39 +466,6 @@ export default function VehiculesPage() {
             className="w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] [color-scheme:light] dark:[color-scheme:dark]"
           />
         </div>
-      </div>
-
-      {/* Country / City */}
-      <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
-          {t("vehicles.country")}
-        </h4>
-        <select
-          value={filterCountryId ?? ""}
-          onChange={(e) => setFilterCountryId(e.target.value ? Number(e.target.value) : null)}
-          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
-        >
-          <option value="">{t("vehicles.all_types")}</option>
-          {countries.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
-          {t("vehicles.city")}
-        </h4>
-        <select
-          value={filterCityId ?? ""}
-          onChange={(e) => setFilterCityId(e.target.value ? Number(e.target.value) : null)}
-          disabled={!filterCountryId}
-          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] disabled:opacity-50"
-        >
-          <option value="">{t("vehicles.all_types")}</option>
-          {filterCities.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
       </div>
 
       {/* Price range */}

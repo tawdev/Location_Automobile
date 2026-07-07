@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Vehicle extends Model
 {
 
-    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'type_vehicule_id', 'Occupants', 'device_id', 'air_conditioner', 'gps', 'order', 'country_id', 'city_id'];
+    protected $fillable = ['marque', 'model', 'year', 'registration', 'km', 'pricePerDay', 'fuelType', 'category_id', 'type_vehicule_id', 'Occupants', 'device_id', 'air_conditioner', 'gps', 'order', 'country_id', 'city_id', 'pickup_country_id', 'pickup_city_id', 'current_country_id', 'current_city_id'];
     /** @use HasFactory<VehicleFactory> */
     use HasFactory;
 
@@ -69,5 +69,25 @@ class Vehicle extends Model
     public function city(): BelongsTo
     {
         return $this->belongsTo(City::class);
+    }
+
+    public function pickupCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'pickup_country_id');
+    }
+
+    public function pickupCity(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'pickup_city_id');
+    }
+
+    public function currentCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'current_country_id');
+    }
+
+    public function currentCity(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'current_city_id');
     }
 }

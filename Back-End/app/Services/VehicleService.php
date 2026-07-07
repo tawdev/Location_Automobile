@@ -13,12 +13,12 @@ class VehicleService
 {
     public function getAll()
     {
-        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city')->orderBy('pricePerDay', 'asc')->get();
+        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city', 'pickupCountry', 'pickupCity', 'currentCountry', 'currentCity')->orderBy('pricePerDay', 'asc')->get();
     }
 
     public function getById($id)
     {
-        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city')->find($id);
+        return Vehicle::with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city', 'pickupCountry', 'pickupCity', 'currentCountry', 'currentCity')->find($id);
     }
 
     public function CreateVehicle($request)
@@ -143,10 +143,14 @@ class VehicleService
 
         $query->when($request->filled('country_id'), function ($q) use ($request) {
             $q->where('country_id', $request->country_id);
+        })->when($request->filled('pickup_country_id'), function ($q) use ($request) {
+            $q->where('pickup_country_id', $request->pickup_country_id);
         });
 
         $query->when($request->filled('city_id'), function ($q) use ($request) {
             $q->where('city_id', $request->city_id);
+        })->when($request->filled('pickup_city_id'), function ($q) use ($request) {
+            $q->where('pickup_city_id', $request->pickup_city_id);
         });
 
         $query->when($request->filled('pickup_date') && $request->filled('return_date'), function ($q) use ($request) {
@@ -157,7 +161,7 @@ class VehicleService
             });
         });
 
-        $Vehicles = $query->with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city')->orderBy('order', 'asc')->get();
+        $Vehicles = $query->with('pictures', 'category', 'typeVehicule', 'departureConditions', 'country', 'city', 'pickupCountry', 'pickupCity', 'currentCountry', 'currentCity')->orderBy('order', 'asc')->get();
         
         return $Vehicles;
 
