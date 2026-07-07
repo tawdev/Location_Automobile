@@ -381,7 +381,7 @@ export default function Header({ solid }: { solid?: boolean }) {
             {isAuthenticated && (
               <AccountDropdown pathname={pathname} router={router} onLogout={handleLogout} t={t} transparent={isTransparentState} />
             )}
-            <LanguageSwitcher />
+            <LanguageSwitcher transparent={isTransparentState} />
             <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
             <motion.button
               whileHover={{ scale: 1.1, rotate: dark ? -15 : 15 }}
