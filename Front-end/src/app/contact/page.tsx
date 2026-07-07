@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
+import { useSettings } from "@/lib/SettingsContext";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useAuth } from "@/lib/authContext";
 import { API_BASE_URL } from "@/lib/config";
@@ -24,6 +25,7 @@ import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
 
 export default function ContactPage() {
   const { t, locale } = useI18n();
+  const { settings } = useSettings();
   const typedLocale = locale as "fr" | "en" | "ar";
   useClientMetadata({ title: PAGE_TITLES.contact[typedLocale] || PAGE_TITLES.contact.fr });
   const { user } = useAuth();
@@ -63,19 +65,19 @@ export default function ContactPage() {
     {
       icon: Mail,
       label: t("contact.email_label"),
-      value: "contact@carforfar.ma",
-      href: "mailto:contact@carforfar.ma",
+      value: settings.email || "contact@carforfar.ma",
+      href: `mailto:${settings.email || "contact@carforfar.ma"}`,
     },
     {
       icon: Phone,
       label: t("contact.phone_label"),
-      value: "+212 5XX XX XX XX",
-      href: "tel:+2125XXXXXXXX",
+      value: settings.phone || "+212 5XX XX XX XX",
+      href: `tel:${settings.phone?.replace(/\s/g, "") || "+2125XXXXXXXX"}`,
     },
     {
       icon: MapPin,
       label: t("contact.address_label"),
-      value: t("contact.address_value"),
+      value: settings.address || t("contact.address_value"),
       href: "#",
     },
     {
