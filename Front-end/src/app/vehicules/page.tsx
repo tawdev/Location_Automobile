@@ -7,11 +7,14 @@ import { motion, useReducedMotion } from "framer-motion";
 import { listVehicles, fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle, Category, Marque, Country, City } from "@/lib/types";
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, CalendarDays } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getBrandLogo } from "@/lib/brandLogos";
 import { getPublicMarques } from "@/lib/marquesApi";
 import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { toLocalDateString } from "@/lib/dateUtils";
 import Image from "next/image";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { JsonLd } from "@/components/JsonLd";
@@ -423,23 +426,58 @@ export default function VehiculesPage() {
           {t("vehicles.dates")}
         </h4>
         <div className="space-y-2">
-          <input
-            type="date"
-            value={pickupDate}
-            onChange={(e) => {
-              const val = e.target.value;
-              setPickupDate(val);
-              if (returnDate && val && returnDate < val) setReturnDate("");
-            }}
-            className="w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] [color-scheme:light] dark:[color-scheme:dark]"
-          />
-          <input
-            type="date"
-            value={returnDate}
-            onChange={(e) => setReturnDate(e.target.value)}
-            min={pickupDate || undefined}
-            className="w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] [color-scheme:light] dark:[color-scheme:dark]"
-          />
+          <Popover>
+            <PopoverTrigger className="w-full">
+              <div className="w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] flex items-center gap-2 cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-[#1e293b]/80 hover:border-gray-300 dark:hover:border-[#1e293b]">
+                <CalendarDays className="w-4 h-4 shrink-0 text-gray-400 dark:text-[#94A3B8]" />
+                {pickupDate ? (
+                  <span className="font-medium">{new Date(pickupDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}</span>
+                ) : (
+                  <span className="text-gray-400 dark:text-[#94A3B8]">{t("vehicles.pickup_date")}</span>
+                )}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
+              <Calendar
+                size="lg"
+                mode="single"
+                selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined}
+                onSelect={(d: Date | undefined) => {
+                  if (d) {
+                    const val = toLocalDateString(d);
+                    setPickupDate(val);
+                    if (returnDate && returnDate < val) setReturnDate("");
+                  }
+                }}
+                fromDate={new Date()}
+              />
+            </PopoverContent>
+          </Popover>
+          <Popover>
+            <PopoverTrigger disabled={!pickupDate} className="w-full">
+              <div className={`w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] flex items-center gap-2 transition-all ${!pickupDate ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1e293b]/80 hover:border-gray-300 dark:hover:border-[#1e293b]"}`}>
+                <CalendarDays className="w-4 h-4 shrink-0 text-gray-400 dark:text-[#94A3B8]" />
+                {returnDate ? (
+                  <span className="font-medium">{new Date(returnDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}</span>
+                ) : (
+                  <span className="text-gray-400 dark:text-[#94A3B8]">{!pickupDate ? t("vehicles.select_pickup_first") : t("vehicles.return_date")}</span>
+                )}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
+              <Calendar
+                size="lg"
+                mode="single"
+                selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined}
+                onSelect={(d: Date | undefined) => {
+                  if (d) {
+                    setReturnDate(toLocalDateString(d));
+                  }
+                }}
+                disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
