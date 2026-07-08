@@ -35,8 +35,8 @@ type FilterParams = {
   max_price?: number;
   pickup_date?: string;
   return_date?: string;
-  country_id?: number;
-  city_id?: number;
+  current_country_id?: number;
+  current_city_id?: number;
   location_type?: string;
 };
 

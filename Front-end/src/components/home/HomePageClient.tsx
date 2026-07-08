@@ -166,8 +166,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (maxPrice !== undefined) params.set("max_price", String(maxPrice));
     if (fuelType) params.set("fuel_type", fuelType);
     if (typeVehiculeId) params.set("type_vehicule_id", String(typeVehiculeId));
-    if (filterCountryId) params.set("country_id", String(filterCountryId));
-    if (filterCityId) params.set("city_id", String(filterCityId));
+    if (filterCountryId) params.set("current_country_id", String(filterCountryId));
+    if (filterCityId) params.set("current_city_id", String(filterCityId));
     if (filterLocationType) params.set("location_type", filterLocationType);
     const qs = params.toString();
     router.push(qs ? `/vehicules?${qs}` : "/vehicules");
