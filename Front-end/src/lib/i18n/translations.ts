@@ -502,6 +502,11 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "reserve_modal.success": { en: "Reservation confirmed!", fr: "Réservation confirmée !", ar: "تم تأكيد الحجز!" },
   "reserve_modal.view_reservations": { en: "View my reservations", fr: "Voir mes réservations", ar: "عرض حجوزاتي" },
   "reserve_modal.continue_exploring": { en: "Continue exploring", fr: "Continuer à explorer", ar: "مواصلة الاستكشاف" },
+  "reserve_modal.pickup_location_type": { en: "Pickup Location Type", fr: "Type de lieu de prise en charge", ar: "نوع مكان الاستلام" },
+  "reserve_modal.return_location_type": { en: "Return Location Type", fr: "Type de lieu de retour", ar: "نوع مكان العودة" },
+  "reserve_modal.select_location_type": { en: "-- Select location type --", fr: "-- Sélectionner le type de lieu --", ar: "-- اختر نوع المكان --" },
+  "reserve_modal.location_airport": { en: "Airport", fr: "Aéroport", ar: "مطار" },
+  "reserve_modal.location_citycenter": { en: "City Center", fr: "Centre-ville", ar: "وسط المدينة" },
 
   // ── Admin Users ──
   "admin_users.title": { en: "Users", fr: "Utilisateurs", ar: "المستخدمون" },

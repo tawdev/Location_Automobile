@@ -55,6 +55,8 @@ class ReservationRequest extends FormRequest
             'return_city_id' => 'nullable|exists:cities,id',
             'date_heure_depart' => 'sometimes|nullable|date',
             'date_heure_retour' => 'sometimes|nullable|date|after:date_heure_depart',
+            'depart_location_type' => 'nullable|string|in:airport,citycenter',
+            'return_location_type' => 'nullable|string|in:airport,citycenter',
         ];
     }
 
