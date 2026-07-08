@@ -28,6 +28,15 @@ class ReservationService
                 $reservation->update([
                     'status' => 'Terminée'
                 ]);
+                // Update vehicle's current location to reservation's return location
+                $vehicle = $reservation->vehicle;
+                if ($vehicle && !empty($reservation->return_country_id)) {
+                    $vehicleUpdate = ['current_country_id' => $reservation->return_country_id];
+                    if (!empty($reservation->return_city_id)) {
+                        $vehicleUpdate['current_city_id'] = $reservation->return_city_id;
+                    }
+                    $vehicle->update($vehicleUpdate);
+                }
             }
         }
         return $data;
@@ -39,6 +48,15 @@ class ReservationService
                 $reservation->update([
                     'status'=>'Terminée'
                 ]);
+                // Update vehicle's current location to reservation's return location
+                $vehicle = $reservation->vehicle;
+                if ($vehicle && !empty($reservation->return_country_id)) {
+                    $vehicleUpdate = ['current_country_id' => $reservation->return_country_id];
+                    if (!empty($reservation->return_city_id)) {
+                        $vehicleUpdate['current_city_id'] = $reservation->return_city_id;
+                    }
+                    $vehicle->update($vehicleUpdate);
+                }
             }
         }
         return $reservations;
@@ -197,6 +215,16 @@ public function finalizeReservation($id, $kmDriven)
         'km_overage_charge' => $overageCharge,
         'TotalPrice'        => $reservation->TotalPrice + $overageCharge,
     ]);
+
+    // Update vehicle's current location to reservation's return location
+    $vehicle = $reservation->vehicle;
+    if ($vehicle && !empty($reservation->return_country_id)) {
+        $vehicleUpdate = ['current_country_id' => $reservation->return_country_id];
+        if (!empty($reservation->return_city_id)) {
+            $vehicleUpdate['current_city_id'] = $reservation->return_city_id;
+        }
+        $vehicle->update($vehicleUpdate);
+    }
 
     return $reservation;
 }

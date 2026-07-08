@@ -350,15 +350,10 @@ function VehicleCreateEditModal({
   const [order, setOrder] = useState<number>(0);
   const [deviceId, setDeviceId] = useState("");
   const [countries, setCountries] = useState<Country[]>([]);
-  const [cities, setCities] = useState<City[]>([]);
-  const [countryId, setCountryId] = useState<number | null>(null);
-  const [cityId, setCityId] = useState<number | null>(null);
-  const [currentCountryId, setCurrentCountryId] = useState<number | null>(null);
   const [currentCities, setCurrentCities] = useState<City[]>([]);
+  const [currentCountryId, setCurrentCountryId] = useState<number | null>(null);
   const [currentCityId, setCurrentCityId] = useState<number | null>(null);
-  const [pickupCountryId, setPickupCountryId] = useState<number | null>(null);
-  const [pickupCities, setPickupCities] = useState<City[]>([]);
-  const [pickupCityId, setPickupCityId] = useState<number | null>(null);
+
   const [locationType, setLocationType] = useState("");
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -382,15 +377,6 @@ function VehicleCreateEditModal({
   }, []);
 
   useEffect(() => {
-    if (countryId) {
-      fetchCitiesByCountry(countryId).then(setCities).catch(() => setCities([]));
-    } else {
-      setCities([]);
-    }
-    setCityId(null);
-  }, [countryId]);
-
-  useEffect(() => {
     if (currentCountryId) {
       fetchCitiesByCountry(currentCountryId).then(setCurrentCities).catch(() => setCurrentCities([]));
     } else {
@@ -398,15 +384,6 @@ function VehicleCreateEditModal({
     }
     setCurrentCityId(null);
   }, [currentCountryId]);
-
-  useEffect(() => {
-    if (pickupCountryId) {
-      fetchCitiesByCountry(pickupCountryId).then(setPickupCities).catch(() => setPickupCities([]));
-    } else {
-      setPickupCities([]);
-    }
-    setPickupCityId(null);
-  }, [pickupCountryId]);
 
   useEffect(() => {
     if (!open) return;
@@ -434,12 +411,8 @@ function VehicleCreateEditModal({
     setGps(initial?.gps ?? false);
     setOrder(initial?.order ?? 0);
     setDeviceId(initial?.device_id ?? "");
-    setCountryId(initial?.country_id ?? null);
-    setCityId(initial?.city_id ?? null);
     setCurrentCountryId(initial?.current_country_id ?? null);
     setCurrentCityId(initial?.current_city_id ?? null);
-    setPickupCountryId(initial?.pickup_country_id ?? null);
-    setPickupCityId(initial?.pickup_city_id ?? null);
     setLocationType(initial?.location_type ?? "");
     setImagesFiles([]);
     setUploadError(null);
@@ -528,12 +501,8 @@ function VehicleCreateEditModal({
         gps: gps,
         order: order,
         device_id: deviceId.trim() || undefined,
-        country_id: countryId,
-        city_id: cityId,
         current_country_id: currentCountryId,
         current_city_id: currentCityId,
-        pickup_country_id: pickupCountryId,
-        pickup_city_id: pickupCityId,
         location_type: locationType || null,
       },
       allFiles,
@@ -781,35 +750,6 @@ function VehicleCreateEditModal({
               >
                 <option value="">{t("admin.select_city")}</option>
                 {currentCities.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.pickup_country")}</label>
-              <select
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                value={pickupCountryId ?? ""}
-                onChange={(e) => setPickupCountryId(e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">{t("admin.select_country")}</option>
-                {countries.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("admin.pickup_city")}</label>
-              <select
-                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                value={pickupCityId ?? ""}
-                onChange={(e) => setPickupCityId(e.target.value ? Number(e.target.value) : null)}
-                disabled={!pickupCountryId}
-              >
-                <option value="">{t("admin.select_city")}</option>
-                {pickupCities.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
