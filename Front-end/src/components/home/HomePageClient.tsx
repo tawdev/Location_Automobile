@@ -1215,7 +1215,7 @@ function MarquesSection({ marques: propMarques = [] }: { marques?: Marque[] }) {
   const prefersReduced = useReducedMotion();
   const loading = false;
 
-  const MIN_VISIBLE = 16;
+  const MIN_VISIBLE = 24;
   const repeatCount = propMarques.length === 0 ? 0 : Math.max(2, Math.ceil(MIN_VISIBLE / propMarques.length));
   const duplicated = Array.from({ length: repeatCount }, () => propMarques).flat();
 
