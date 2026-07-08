@@ -43,7 +43,6 @@ function AdminVehicleEditForm({
   const [order, setOrder] = useState<number>(initial.order ?? 0);
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
-  const [currentCountries, setCurrentCountries] = useState<Country[]>([]);
   const [currentCities, setCurrentCities] = useState<City[]>([]);
   const [currentCountryId, setCurrentCountryId] = useState<number | null>(initial.current_country_id ?? null);
   const [currentCityId, setCurrentCityId] = useState<number | null>(initial.current_city_id ?? null);
@@ -59,12 +58,6 @@ function AdminVehicleEditForm({
     fetchTypeVehicules().then(setTypeVehicules).catch(() => {});
     fetchCountries().then(setCountries).catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (countries.length > 0) {
-      setCurrentCountries(countries);
-    }
-  }, [countries]);
 
   useEffect(() => {
     if (currentCountryId) {
@@ -308,7 +301,7 @@ function AdminVehicleEditForm({
             onChange={(e) => setCurrentCountryId(e.target.value ? Number(e.target.value) : null)}
           >
             <option value="">{t("admin.select_country")}</option>
-            {currentCountries.map((c) => (
+            {countries.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>

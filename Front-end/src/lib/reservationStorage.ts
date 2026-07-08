@@ -12,6 +12,8 @@ export type SavedReservation = {
   departCityId?: number | null;
   returnCountryId?: number | null;
   returnCityId?: number | null;
+  departLocationType?: string;
+  returnLocationType?: string;
   clientNom: string;
   clientDateNaissance: string;
   clientCin: string;

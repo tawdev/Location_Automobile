@@ -251,6 +251,8 @@ export default function ReservationFlowModal({
   const [returnCountryId, setReturnCountryId] = useState<number | null>(null);
   const [returnCities, setReturnCities] = useState<City[]>([]);
   const [returnCityId, setReturnCityId] = useState<number | null>(null);
+  const [departLocationType, setDepartLocationType] = useState("");
+  const [returnLocationType, setReturnLocationType] = useState("");
 
   // Client info
   const [existingClient, setExistingClient] = useState<boolean | null>(null);
@@ -295,6 +297,8 @@ export default function ReservationFlowModal({
       if (saved.departCityId) setDepartCityId(saved.departCityId);
       if (saved.returnCountryId) setReturnCountryId(saved.returnCountryId);
       if (saved.returnCityId) setReturnCityId(saved.returnCityId);
+      if (saved.departLocationType) setDepartLocationType(saved.departLocationType);
+      if (saved.returnLocationType) setReturnLocationType(saved.returnLocationType);
       setClientNom(saved.clientNom || "");
       setClientDateNaissance(toDateInputValue(saved.clientDateNaissance || ""));
       setClientCin(saved.clientCin || "");
@@ -337,6 +341,8 @@ export default function ReservationFlowModal({
       sdNom, sdDateNaissance, sdCin, sdAdresse,
       sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
       cautionMontant, cautionMode,
+      departLocationType,
+      returnLocationType,
     });
   }, [step]);
 
@@ -352,6 +358,8 @@ export default function ReservationFlowModal({
     sdNom, sdDateNaissance, sdCin, sdAdresse,
     sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
     cautionMontant, cautionMode,
+    departLocationType,
+    returnLocationType,
   };
 
   useEffect(() => {
@@ -821,6 +829,8 @@ export default function ReservationFlowModal({
     if (departCityId) formData.set("depart_city_id", String(departCityId));
     if (returnCountryId) formData.set("return_country_id", String(returnCountryId));
     if (returnCityId) formData.set("return_city_id", String(returnCityId));
+    if (departLocationType) formData.set("depart_location_type", departLocationType);
+    if (returnLocationType) formData.set("return_location_type", returnLocationType);
 
     if (selectedExtraIds.length > 0) {
       for (const id of selectedExtraIds) {
@@ -940,6 +950,30 @@ export default function ReservationFlowModal({
                     {departCities.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
+                  </select>
+                </div>
+                <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
+                  <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">{t("reserve_modal.pickup_location_type")}</h4>
+                  <select
+                    value={departLocationType}
+                    onChange={(e) => setDepartLocationType(e.target.value)}
+                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886]"
+                  >
+                    <option value="">{t("reserve_modal.select_location_type")}</option>
+                    <option value="airport">{t("reserve_modal.location_airport")}</option>
+                    <option value="citycenter">{t("reserve_modal.location_citycenter")}</option>
+                  </select>
+                </div>
+                <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
+                  <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">{t("reserve_modal.return_location_type")}</h4>
+                  <select
+                    value={returnLocationType}
+                    onChange={(e) => setReturnLocationType(e.target.value)}
+                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886]"
+                  >
+                    <option value="">{t("reserve_modal.select_location_type")}</option>
+                    <option value="airport">{t("reserve_modal.location_airport")}</option>
+                    <option value="citycenter">{t("reserve_modal.location_citycenter")}</option>
                   </select>
                 </div>
                 <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">

@@ -23,6 +23,8 @@ class Reservation extends Model
         'lieu_depart', 'lieu_retour', 'date_heure_depart', 'date_heure_retour',
         'depart_country_id', 'depart_city_id', 'return_country_id', 'return_city_id',
         'observations',
+        'depart_location_type',
+        'return_location_type',
     ];
     /** @use HasFactory<ReservationFactory> */
     use HasFactory;
