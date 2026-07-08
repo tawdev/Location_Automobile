@@ -18,8 +18,8 @@ export default function AdminPressNewPage() {
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [publishedAt, setPublishedAt] = useState("");
-  const [status, setStatus] = useState<"draft" | "published">("draft");
+  const [publishedAt, setPublishedAt] = useState(() => new Date().toISOString().split("T")[0]);
+  const [status, setStatus] = useState<"draft" | "published">("published");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

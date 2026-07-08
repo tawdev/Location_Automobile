@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import {
@@ -9,18 +10,37 @@ import {
   Clock,
   Share2,
   Building2,
+  Loader2,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate } from "@/lib/dateUtils";
-import { pressReleases, catKeys } from "@/lib/data/press";
+import { catKeys } from "@/lib/data/press";
+import { getPressBySlug } from "@/lib/pressApi";
+import type { PressRelease } from "@/lib/types";
 
 export default function PressDetailPage() {
   const { t, locale } = useI18n();
   const router = useRouter();
   const params = useParams();
   const isRtl = locale === "ar";
+  const [release, setRelease] = useState<PressRelease | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const release = pressReleases.find((r) => r.slug === params.slug);
+  useEffect(() => {
+    if (!params.slug) return;
+    getPressBySlug(params.slug as string)
+      .then(setRelease)
+      .catch(() => setRelease(null))
+      .finally(() => setLoading(false));
+  }, [params.slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#395886] dark:text-[#D5DEEF]" />
+      </div>
+    );
+  }
 
   if (!release) {
     return (
@@ -41,7 +61,7 @@ export default function PressDetailPage() {
     );
   }
 
-  const formattedDate = formatDate(release.date);
+  const formattedDate = formatDate(release.published_at);
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
@@ -70,7 +90,7 @@ export default function PressDetailPage() {
           >
             <div className="flex items-center flex-wrap gap-3 mb-4">
               <span className="px-3 py-1 rounded-full bg-white/10 text-white/90 text-[10px] font-bold uppercase tracking-wider">
-                {t(catKeys[release.category])}
+                {release.category && catKeys[release.category] ? t(catKeys[release.category]) : release.category}
               </span>
               <span className="flex items-center gap-1.5 text-white/50 text-xs">
                 <Calendar className="w-3.5 h-3.5" />
@@ -78,7 +98,7 @@ export default function PressDetailPage() {
               </span>
               <span className="flex items-center gap-1.5 text-white/50 text-xs">
                 <Clock className="w-3.5 h-3.5" />
-                {Math.ceil(release.content.split(" ").length / 200)} min read
+                {release.content ? Math.ceil(release.content.split(" ").length / 200) : 0} min read
               </span>
             </div>
 
@@ -118,7 +138,7 @@ export default function PressDetailPage() {
               </motion.button>
             </div>
 
-            {release.content.split("\n\n").map((paragraph, i) => (
+            {(release.content ?? "").split("\n\n").map((paragraph, i) => (
               <motion.p
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
