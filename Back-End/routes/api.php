@@ -48,6 +48,14 @@ Route::post('contact', [\App\Http\Controllers\Api\ContactController::class, 'sen
 Route::get('blogs', [\App\Http\Controllers\Api\BlogController::class, 'index']);
 Route::get('blogs/{slug}', [\App\Http\Controllers\Api\BlogController::class, 'show']);
 
+// Public press
+Route::get('press', [\App\Http\Controllers\Api\PressController::class, 'index']);
+Route::get('press/{slug}', [\App\Http\Controllers\Api\PressController::class, 'show']);
+
+// Public careers
+Route::get('careers', [\App\Http\Controllers\Api\CareerController::class, 'index']);
+Route::get('careers/{slug}', [\App\Http\Controllers\Api\CareerController::class, 'show']);
+
 // Public vehicle routes (no auth required)
 Route::get('Vehicles' , [VehicleController::class, 'index']);
 Route::get('/Vehicles/{id}', [VehicleController::class, 'show']);

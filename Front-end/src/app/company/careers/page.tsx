@@ -16,9 +16,12 @@ import {
   Globe,
   Coffee,
   Mail,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { getCareers } from "@/lib/careersApi";
+import type { Career } from "@/lib/types";
 
 function Counter({ from, to, label, suffix = "", duration = 2, decimals = 0 }: { from: number; to: number; label: string; suffix?: string; duration?: number; decimals?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -48,51 +51,6 @@ function Counter({ from, to, label, suffix = "", duration = 2, decimals = 0 }: {
   );
 }
 
-const openPositions = [
-  {
-    title: "Senior Full Stack Developer",
-    location: "Casablanca, Morocco",
-    type: "Full-time",
-    department: "Engineering",
-    tags: ["React", "Node.js", "TypeScript", "PostgreSQL"],
-  },
-  {
-    title: "UX/UI Designer",
-    location: "Rabat, Morocco",
-    type: "Full-time",
-    department: "Design",
-    tags: ["Figma", "Prototyping", "Design Systems"],
-  },
-  {
-    title: "Fleet Operations Manager",
-    location: "Marrakech, Morocco",
-    type: "Full-time",
-    department: "Operations",
-    tags: ["Logistics", "Customer Service", "Analytics"],
-  },
-  {
-    title: "Marketing Lead",
-    location: "Casablanca, Morocco",
-    type: "Full-time",
-    department: "Marketing",
-    tags: ["Digital Marketing", "SEO", "Content Strategy"],
-  },
-  {
-    title: "Customer Success Specialist",
-    location: "Remote",
-    type: "Part-time",
-    department: "Support",
-    tags: ["Communication", "Problem Solving", "CRM"],
-  },
-  {
-    title: "Data Analyst",
-    location: "Casablanca, Morocco",
-    type: "Full-time",
-    department: "Data",
-    tags: ["SQL", "Python", "Tableau", "Statistics"],
-  },
-];
-
 const perks = [
   { icon: Globe, labelKey: "careers.perk_remote", descKey: "careers.perk_remote_desc" },
   { icon: Coffee, labelKey: "careers.perk_coffee", descKey: "careers.perk_coffee_desc" },
@@ -106,11 +64,22 @@ export default function CareersPage() {
   const { t, locale } = useI18n();
   const router = useRouter();
   const isRtl = locale === "ar";
+  const [careers, setCareers] = useState<Career[]>([]);
+  const [loading, setLoading] = useState(true);
   const typeKeys: Record<string, string> = {
     "Full-time": "careers.job_type_fulltime",
     "Part-time": "careers.job_type_parttime",
   };
   const [selectedDept, setSelectedDept] = useState("All");
+
+  useEffect(() => {
+    getCareers()
+      .then(setCareers)
+      .catch(() => setCareers([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const depts = ["All", ...new Set(careers.map((c) => c.department).filter(Boolean) as string[])];
   const deptKeys: Record<string, string> = {
     All: "careers.filter_all",
     Engineering: "careers.dept_engineering",
@@ -120,9 +89,8 @@ export default function CareersPage() {
     Support: "careers.dept_support",
     Data: "careers.dept_data",
   };
-  const depts = Object.keys(deptKeys);
 
-  const filtered = selectedDept === "All" ? openPositions : openPositions.filter((p) => p.department === selectedDept);
+  const filtered = selectedDept === "All" ? careers : careers.filter((p) => p.department === selectedDept);
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
@@ -244,7 +212,7 @@ export default function CareersPage() {
               {t("careers.positions_title")}
             </h2>
             <p className="text-[#638ECB] dark:text-[#94A3B8] max-w-xl mx-auto">
-              {t("careers.positions_count", { count: String(openPositions.length), depts: "6" })}
+              {t("careers.positions_count", { count: String(careers.length), depts: String(depts.length - 1) })}
             </p>
           </motion.div>
 
@@ -269,58 +237,66 @@ export default function CareersPage() {
             ))}
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-5">
-            {filtered.map((job, i) => (
-              <motion.div
-                key={job.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-                whileHover={{ y: -4 }}
-                className="bg-white dark:bg-[#0f1729] rounded-2xl p-6 border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 shadow-sm hover:shadow-xl transition-all duration-300 group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors">{job.title}</h3>
-                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-[#638ECB] dark:text-[#94A3B8]">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {job.location}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {t(typeKeys[job.type])}
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b] text-[10px] font-semibold">
-                        {t(deptKeys[job.department])}
-                      </span>
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-[#395886] dark:text-[#D5DEEF]" />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-5">
+              {filtered.map((job, i) => (
+                <motion.div
+                  key={job.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                  whileHover={{ y: -4 }}
+                  className="bg-white dark:bg-[#0f1729] rounded-2xl p-6 border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 shadow-sm hover:shadow-xl transition-all duration-300 group"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors">{job.title}</h3>
+                      <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-[#638ECB] dark:text-[#94A3B8]">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {job.location}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {job.type && typeKeys[job.type] ? t(typeKeys[job.type]) : job.type}
+                        </span>
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b] text-[10px] font-semibold">
+                          {job.department && deptKeys[job.department] ? t(deptKeys[job.department]) : job.department}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] group-hover:bg-[#f39c12] group-hover:text-white transition-all duration-300 shrink-0">
+                      <Briefcase className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] group-hover:bg-[#f39c12] group-hover:text-white transition-all duration-300 shrink-0">
-                    <Briefcase className="w-4 h-4" />
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {job.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#F0F3FA] dark:bg-[#1e293b] text-[#395886]/70 dark:text-[#94A3B8]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <motion.button
-                  whileHover={{ x: 4 }}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#f39c12] group/btn"
-                >
-                  <span>{t("careers.apply_now")}</span>
-                  <ArrowRight className={`w-3 h-3 transition-transform group-hover/btn:translate-x-0.5 ${isRtl ? "rotate-180" : ""}`} />
-                </motion.button>
-              </motion.div>
-            ))}
-          </div>
+                  {job.requirements && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {job.requirements.split("\n").filter(Boolean).map((req, ri) => (
+                        <span
+                          key={ri}
+                          className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#F0F3FA] dark:bg-[#1e293b] text-[#395886]/70 dark:text-[#94A3B8]"
+                        >
+                          {req}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <motion.button
+                    whileHover={{ x: 4 }}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#f39c12] group/btn"
+                  >
+                    <span>{t("careers.apply_now")}</span>
+                    <ArrowRight className={`w-3 h-3 transition-transform group-hover/btn:translate-x-0.5 ${isRtl ? "rotate-180" : ""}`} />
+                  </motion.button>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {filtered.length === 0 && (
             <div className="text-center py-16">
