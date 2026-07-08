@@ -14,7 +14,7 @@ import TimePickerField from "@/components/TimePickerField";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { API_BASE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import { formatDate } from "@/lib/dateUtils";
+import { formatDate, toLocalDateString } from "@/lib/dateUtils";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { JsonLd } from "@/components/JsonLd";
 import { vehicleLD, breadcrumbLD } from "@/lib/json-ld";
@@ -433,11 +433,11 @@ export default function VehicleDetailPage() {
                   <label className="block mb-3 text-[14px] font-bold text-gray-700 dark:text-[#D5DEEF]">{t("vehicle.dropoff_date")}</label>
                   <div className="flex gap-2">
                     <Popover>
-                      <PopoverTrigger className="flex-1 h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
+                      <PopoverTrigger disabled={!reserveStartDate} className={`flex-1 h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF] ${!reserveStartDate ? "opacity-50 cursor-not-allowed" : "focus:border-[#16386b]"}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="truncate">{reserveEndDate ? formatDate(reserveEndDate.toISOString()) : <span className="text-gray-400">{t("vehicle.choose_date")}</span>}</span>
+                        <span className="truncate">{reserveEndDate ? formatDate(reserveEndDate.toISOString()) : <span className="text-gray-400">{!reserveStartDate ? t("vehicle.select_pickup_first") : t("vehicle.choose_date")}</span>}</span>
                       </PopoverTrigger>
                       <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
                         <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
@@ -644,10 +644,10 @@ export default function VehicleDetailPage() {
         <ReservationFlowModal
           vehicleId={vehicle.id}
           vehicleName={`${vehicle.marque} ${vehicle.model}`}
-          startDate={reserveStartDate.toISOString().split("T")[0]}
-          endDate={reserveEndDate.toISOString().split("T")[0]}
-          startDateTime={`${reserveStartDate.toISOString().split("T")[0]}T${reserveStartTime}:00`}
-          endDateTime={`${reserveEndDate.toISOString().split("T")[0]}T12:00:00`}
+          startDate={toLocalDateString(reserveStartDate)}
+          endDate={toLocalDateString(reserveEndDate)}
+          startDateTime={`${toLocalDateString(reserveStartDate)}T${reserveStartTime}:00`}
+          endDateTime={`${toLocalDateString(reserveEndDate)}T12:00:00`}
           defaultChoice={reservationChoice}
           onClose={(choice) => {
             if (choice) setReservationChoice(choice);
