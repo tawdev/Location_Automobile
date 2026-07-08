@@ -145,8 +145,8 @@ export default function VehiculesPage() {
       const params: Record<string, any> = {};
       if (pickup) params.pickup_date = pickup;
       if (ret) params.return_date = ret;
-      if (pickupCountryId) params.pickup_country_id = pickupCountryId;
-      if (pickupCityId) params.pickup_city_id = pickupCityId;
+      if (pickupCountryId) params.current_country_id = pickupCountryId;
+      if (pickupCityId) params.current_city_id = pickupCityId;
       if (locationType) params.location_type = locationType;
       const hasFilters = pickup || ret || pickupCountryId || pickupCityId || locationType;
 
@@ -189,8 +189,8 @@ export default function VehiculesPage() {
     const md = params.get("model");
     const minP = params.get("min_price");
     const maxP = params.get("max_price");
-    const ci = params.get("country_id");
-    const cti = params.get("city_id");
+    const ci = params.get("current_country_id");
+    const cti = params.get("current_city_id");
     if (pu) setPickupDate(pu);
     if (rt) setReturnDate(rt);
     const searchParts: string[] = [];
@@ -298,8 +298,8 @@ export default function VehiculesPage() {
       if (minPrice !== undefined && v.pricePerDay < minPrice) return false;
       if (maxPrice !== undefined && v.pricePerDay > maxPrice) return false;
 
-      if (pickupCountryId !== null && v.pickup_country_id !== pickupCountryId) return false;
-      if (pickupCityId !== null && v.pickup_city_id !== pickupCityId) return false;
+      if (pickupCountryId !== null && v.current_country_id !== pickupCountryId) return false;
+      if (pickupCityId !== null && v.current_city_id !== pickupCityId) return false;
 
       if (locationType !== "" && v.location_type !== locationType) return false;
 
