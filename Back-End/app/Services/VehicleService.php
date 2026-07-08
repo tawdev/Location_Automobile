@@ -141,16 +141,12 @@ class VehicleService
             $q->where('pricePerDay', '<=', $request->max_price);
         });
 
-        $query->when($request->filled('country_id'), function ($q) use ($request) {
-            $q->where('country_id', $request->country_id);
-        })->when($request->filled('pickup_country_id'), function ($q) use ($request) {
-            $q->where('pickup_country_id', $request->pickup_country_id);
+        $query->when($request->filled('current_country_id'), function ($q) use ($request) {
+            $q->where('current_country_id', $request->current_country_id);
         });
 
-        $query->when($request->filled('city_id'), function ($q) use ($request) {
-            $q->where('city_id', $request->city_id);
-        })->when($request->filled('pickup_city_id'), function ($q) use ($request) {
-            $q->where('pickup_city_id', $request->pickup_city_id);
+        $query->when($request->filled('current_city_id'), function ($q) use ($request) {
+            $q->where('current_city_id', $request->current_city_id);
         });
 
         $query->when($request->filled('location_type'), function ($q) use ($request) {
