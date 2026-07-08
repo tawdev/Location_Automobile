@@ -72,6 +72,15 @@ export async function fetchCategories(): Promise<Category[]> {
   return [];
 }
 
+export async function getVehicleById(id: number): Promise<Vehicle> {
+  const res = await apiRequest<{ status: string; data: Vehicle }>({
+    method: "GET",
+    path: `/Vehicles/${id}`,
+    auth: false,
+  });
+  return res.data;
+}
+
 export async function filterVehicles(params: FilterParams): Promise<Vehicle[]> {
   const res = await apiRequest<VehiclesResponse>({
     method: "GET",

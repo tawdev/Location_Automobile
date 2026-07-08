@@ -9,8 +9,9 @@ import { makeReservation } from "@/lib/reservationsApi";
 import { getExtras } from "@/lib/extrasApi";
 import { getClientInfo, saveClientInfo } from "@/lib/clientApi";
 import { saveReservationProgress, loadReservationProgress, clearReservationProgress } from "@/lib/reservationStorage";
-import type { Extra, Country, City } from "@/lib/types";
+import type { Extra, Country, City, Vehicle } from "@/lib/types";
 import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
+import { getVehicleById } from "@/lib/vehiclesApi";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Upload, CheckCircle, X, User, Users, FileText, IdCard, Package, Shield, ChevronLeft } from "lucide-react";
@@ -211,7 +212,7 @@ export default function ReservationFlowModal({
         return saved.step as Step;
       }
     }
-    return defaultChoice ? "location" : "choose";
+    return "choose";
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -253,6 +254,8 @@ export default function ReservationFlowModal({
   const [returnCityId, setReturnCityId] = useState<number | null>(null);
   const [departLocationType, setDepartLocationType] = useState("");
   const [returnLocationType, setReturnLocationType] = useState("");
+  const [vehicleData, setVehicleData] = useState<Vehicle | null>(null);
+  const [pendingDepartCityId, setPendingDepartCityId] = useState<number | null>(null);
 
   // Client info
   const [existingClient, setExistingClient] = useState<boolean | null>(null);
@@ -572,13 +575,41 @@ export default function ReservationFlowModal({
     fetchCountries().then(setCountries).catch(() => {});
   }, []);
 
+  // Fetch vehicle data to auto-fill departure location
+  useEffect(() => {
+    let cancelled = false;
+    getVehicleById(vehicleId).then(vehicle => {
+      if (cancelled) return;
+      setVehicleData(vehicle);
+      if (vehicle.current_country_id) {
+        setDepartCountryId(vehicle.current_country_id);
+        if (vehicle.current_city_id) {
+          setPendingDepartCityId(vehicle.current_city_id);
+        }
+      }
+      if (vehicle.location_type) {
+        setDepartLocationType(vehicle.location_type);
+      }
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [vehicleId]);
+
   useEffect(() => {
     if (departCountryId) {
-      fetchCitiesByCountry(departCountryId).then(setDepartCities).catch(() => setDepartCities([]));
+      fetchCitiesByCountry(departCountryId).then(cities => {
+        setDepartCities(cities);
+        // Auto-select from pending if cities just loaded
+        if (pendingDepartCityId !== null && cities.some(c => c.id === pendingDepartCityId)) {
+          setDepartCityId(pendingDepartCityId);
+          setPendingDepartCityId(null);
+        }
+      }).catch(() => setDepartCities([]));
     } else {
       setDepartCities([]);
     }
-    setDepartCityId(null);
+    if (!pendingDepartCityId) {
+      setDepartCityId(null);
+    }
   }, [departCountryId]);
 
   useEffect(() => {
@@ -928,41 +959,30 @@ export default function ReservationFlowModal({
             {step === "location" && (
               <motion.div key="location" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
                 <p className="text-sm text-[#395886] font-semibold text-center">Lieu de prise en charge et de retour</p>
-                <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
+                <div className="border border-[#D5DEEF] bg-[#F0F3FA]/50 rounded-xl p-4 space-y-2">
                   <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">Prise en charge</h4>
-                  <select
-                    value={departCountryId ?? ""}
-                    onChange={(e) => setDepartCountryId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886]"
-                  >
-                    <option value="">Sélectionnez un pays</option>
-                    {countries.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={departCityId ?? ""}
-                    onChange={(e) => setDepartCityId(e.target.value ? Number(e.target.value) : null)}
-                    disabled={!departCountryId}
-                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886] disabled:opacity-50"
-                  >
-                    <option value="">Sélectionnez une ville</option>
-                    {departCities.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
-                  <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">{t("reserve_modal.pickup_location_type")}</h4>
-                  <select
-                    value={departLocationType}
-                    onChange={(e) => setDepartLocationType(e.target.value)}
-                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886]"
-                  >
-                    <option value="">{t("reserve_modal.select_location_type")}</option>
-                    <option value="airport">{t("reserve_modal.location_airport")}</option>
-                    <option value="citycenter">{t("reserve_modal.location_citycenter")}</option>
-                  </select>
+                  <div className="text-sm text-[#395886]">
+                    <span className="font-semibold">Pays : </span>
+                    {(() => {
+                      const c = countries.find(c => c.id === departCountryId);
+                      return c ? c.name : "—";
+                    })()}
+                  </div>
+                  <div className="text-sm text-[#395886]">
+                    <span className="font-semibold">Ville : </span>
+                    {(() => {
+                      const c = departCities.find(c => c.id === departCityId);
+                      return c ? c.name : "—";
+                    })()}
+                  </div>
+                  <div className="text-sm text-[#395886]">
+                    <span className="font-semibold">{t("reserve_modal.pickup_location_type")} : </span>
+                    {departLocationType === "airport"
+                      ? t("reserve_modal.location_airport")
+                      : departLocationType === "citycenter"
+                        ? t("reserve_modal.location_citycenter")
+                        : "—"}
+                  </div>
                 </div>
                 <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
                   <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">{t("reserve_modal.return_location_type")}</h4>
