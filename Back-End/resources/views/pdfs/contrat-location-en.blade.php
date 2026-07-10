@@ -110,6 +110,8 @@
                 Contract N&deg; : <strong>{{ str_pad($reservation->id, 6, '0', STR_PAD_LEFT) }}</strong>
                 <span>|</span> Date : <strong>{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong>
                 <span>|</span> Place : <strong>Marrakech</strong>
+                <span>|</span> Status : <strong>{{ $reservation->status ?? 'Pending' }}</strong>
+                <span>|</span> Total : <strong>{{ $reservation->TotalPrice ? number_format($reservation->TotalPrice, 2) . ' DH' : 'N/A' }}</strong>
             </div>
         </div>
         <div class="header-logo-cell">
@@ -151,10 +153,15 @@
     <table class="info">
         <tr><td class="lbl">Make</td><td class="val">{{ $reservation->vehicle->marque }}</td></tr>
         <tr><td class="lbl">Model</td><td class="val">{{ $reservation->vehicle->model }}</td></tr>
+        <tr><td class="lbl">Category</td><td class="val">{{ $reservation->vehicle->category->name ?? '' }}</td></tr>
+        <tr><td class="lbl">Type</td><td class="val">{{ $reservation->vehicle->typeVehicule->name ?? '' }}</td></tr>
         <tr><td class="lbl">Registration</td><td class="val">{{ $reservation->vehicle->registration }}</td></tr>
         <tr><td class="lbl">Starting mileage</td><td class="val">{{ $reservation->vehicle->km }} km</td></tr>
         <tr><td class="lbl">Fuel level at start</td><td class="val">{{ $reservation->vehicle->fuelType ?? '' }}<span class="fill"></span></td></tr>
-        <tr><td class="lbl">First registration date</td><td class="val"><span class="fill"></span></td></tr>
+        <tr><td class="lbl">First registration date</td><td class="val">{{ $reservation->vehicle->year }}</td></tr>
+        <tr><td class="lbl">Air conditioning</td><td class="val">{{ $reservation->vehicle->air_conditioner ? 'Yes' : 'No' }}</td></tr>
+        <tr><td class="lbl">GPS</td><td class="val">{{ $reservation->vehicle->gps ? 'Yes' : 'No' }}</td></tr>
+        <tr><td class="lbl">Number of seats</td><td class="val">{{ $reservation->vehicle->Occupants ?? '' }}</td></tr>
     </table>
 
     @php $startDate = \Carbon\Carbon::parse($reservation->start_date); $endDate = \Carbon\Carbon::parse($reservation->end_date); $days = max(1, $startDate->diffInDays($endDate)); $extrasTotalPerDay = $reservation->extras ? $reservation->extras->sum('price_per_day') : 0; @endphp
@@ -168,8 +175,11 @@
         <tr><td class="lbl">Start time</td><td class="val">{{ $reservation->start_time ? \Carbon\Carbon::parse($reservation->start_time)->format('H:i') : '______' }}</td></tr>
         <tr><td class="lbl">Return date</td><td class="val">{{ $endDate->format('d/m/Y') }}</td></tr>
         <tr><td class="lbl">Return time</td><td class="val">{{ $reservation->end_time ? \Carbon\Carbon::parse($reservation->end_time)->format('H:i') : '______' }}</td></tr>
+        <tr><td class="lbl">Pick-up location type</td><td class="val">{{ $reservation->depart_location_type ?? '' }}</td></tr>
         <tr><td class="lbl">Pick-up location</td><td class="val">{{ $reservation->lieu_depart ?? '' }}{{ $reservation->lieu_depart ? ', ' : '' }}{{ $reservation->departCity?->name ?? '' }}{{ $reservation->departCity?->name && $reservation->departCountry?->name ? ', ' : '' }}{{ $reservation->departCountry?->name ?? 'Marrakech' }}</td></tr>
+        <tr><td class="lbl">Return location type</td><td class="val">{{ $reservation->return_location_type ?? '' }}</td></tr>
         <tr><td class="lbl">Return location</td><td class="val">{{ $reservation->lieu_retour ?? '' }}{{ $reservation->lieu_retour ? ', ' : '' }}{{ $reservation->returnCity?->name ?? '' }}{{ $reservation->returnCity?->name && $reservation->returnCountry?->name ? ', ' : '' }}{{ $reservation->returnCountry?->name ?? 'Marrakech' }}</td></tr>
+        <tr><td class="lbl">Total duration</td><td class="val">{{ $days }} day{{ $days > 1 ? 's' : '' }}</td></tr>
     </table>
 
     <div class="section-header">
@@ -254,8 +264,31 @@
         </tr>
     </table>
 
+    @php
+        $pricePerDay = $reservation->vehicle->pricePerDay ?? 0;
+        $baseRentalCost = $pricePerDay * $days;
+        $extrasTotalCost = $extrasTotalPerDay * $days;
+        $grandTotal = $reservation->TotalPrice ?? ($baseRentalCost + $extrasTotalCost);
+    @endphp
+
     <div class="section-header">
         <div class="section-num">10</div>
+        <div class="section-title">PRICING SUMMARY</div>
+    </div>
+    <table class="info">
+        <tr><td class="lbl">Reservation status</td><td class="val">{{ $reservation->status ?? 'Pending' }}</td></tr>
+        <tr><td class="lbl">Price per day</td><td class="val">{{ number_format($pricePerDay, 2) }} DH</td></tr>
+        <tr><td class="lbl">Number of days</td><td class="val">{{ $days }} day{{ $days > 1 ? 's' : '' }}</td></tr>
+        <tr><td class="lbl">Total rental cost</td><td class="val">{{ number_format($baseRentalCost, 2) }} DH</td></tr>
+        <tr><td class="lbl">Total extra options cost</td><td class="val">{{ number_format($extrasTotalCost, 2) }} DH</td></tr>
+        @if($reservation->caution_montant)
+        <tr><td class="lbl">Deposit</td><td class="val">{{ number_format($reservation->caution_montant, 2) }} DH</td></tr>
+        @endif
+        <tr class="total-row"><td class="lbl">GRAND TOTAL</td><td class="val">{{ number_format($grandTotal, 2) }} DH</td></tr>
+    </table>
+
+    <div class="section-header">
+        <div class="section-num">11</div>
         <div class="section-title">IN CASE OF ACCIDENT OR BREAKDOWN</div>
     </div>
     <div class="bilingual-row"><span class="bullet">1.</span> Immediately inform CARFORFAR</div>
@@ -264,7 +297,7 @@
     <div class="bilingual-row"><span class="bullet">4.</span> Submit all documents within 24 hours</div>
 
     <div class="section-header">
-        <div class="section-num">11</div>
+        <div class="section-num">12</div>
         <div class="section-title">RETURN OF THE VEHICLE</div>
     </div>
     <table class="info">
@@ -277,19 +310,19 @@
     <div class="obs-box"></div>
 
     <div class="section-header">
-        <div class="section-num">12</div>
+        <div class="section-num">13</div>
         <div class="section-title">APPLICABLE LAW</div>
     </div>
     <div class="bilingual-row">This contract is governed by Moroccan law.</div>
     <div class="bilingual-row">Any dispute falls under the jurisdiction of the courts of Marrakech.</div>
 
-    @php $hasExtra = $reservation->driver2_name ? true : false; @endphp
+    @php $hasExtra = $reservation->driver2_name ? true : false; $hasClient = $reservation->client && $reservation->client->nom_prenom !== $reservation->user->name; @endphp
     <div class="section-header">
         <div class="section-num">&#9998;</div>
         <div class="section-title">SIGNATURES</div>
     </div>
     <div class="signatures" style="margin-top:6px;">
-        <div class="sig-box" style="width:{{ $hasExtra ? '31%' : '48%' }};">
+        <div class="sig-box" style="width:{{ ($hasExtra || $hasClient) ? '31%' : '48%' }};">
             <div class="sig-title">The Lessor (CARFORFAR)</div>
             <div class="sig-name">Name : CARFORFAR</div>
             <div class="sig-line">&nbsp;</div>
@@ -297,8 +330,8 @@
             <div class="sig-hint">Signature</div>
             <div class="sig-date">Date : ____ / ____ / ______</div>
         </div>
-        <div class="sig-gap" style="width:{{ $hasExtra ? '2%' : '4%' }};"></div>
-        <div class="sig-box" style="width:{{ $hasExtra ? '31%' : '48%' }};">
+        <div class="sig-gap" style="width:{{ ($hasExtra || $hasClient) ? '2%' : '4%' }};"></div>
+        <div class="sig-box" style="width:{{ ($hasExtra || $hasClient) ? '31%' : '48%' }};">
             <div class="sig-title">The Tenant</div>
             <div class="sig-name">Name : {{ $reservation->user->name }}</div>
             <div class="sig-line">&nbsp;</div>
@@ -311,6 +344,17 @@
         <div class="sig-box" style="width:31%;">
             <div class="sig-title">Additional Driver</div>
             <div class="sig-name">Name : {{ $reservation->driver2_name }}</div>
+            <div class="sig-line">&nbsp;</div>
+            <div class="sig-line">&nbsp;</div>
+            <div class="sig-hint">Signature</div>
+            <div class="sig-date">Date : ____ / ____ / ______</div>
+        </div>
+        @endif
+        @if($hasClient)
+        <div class="sig-gap" style="width:2%;"></div>
+        <div class="sig-box" style="width:31%;">
+            <div class="sig-title">The Client</div>
+            <div class="sig-name">Name : {{ $reservation->client->nom_prenom }}</div>
             <div class="sig-line">&nbsp;</div>
             <div class="sig-line">&nbsp;</div>
             <div class="sig-hint">Signature</div>

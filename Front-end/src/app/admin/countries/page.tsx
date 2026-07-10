@@ -6,7 +6,7 @@ import {
   Globe, Plus, Pencil, Trash2, X, AlertCircle, ChevronDown,
   MapPin, MoreHorizontal
 } from "lucide-react";
-import type { Country, City } from "@/lib/types";
+import type { Country, City, CityLocation } from "@/lib/types";
 import {
   getAdminCountries,
   createAdminCountry,
@@ -18,6 +18,11 @@ import {
   updateAdminCity,
   deleteAdminCity,
 } from "@/lib/adminCitiesApi";
+import {
+  createAdminCityLocation,
+  updateAdminCityLocation,
+  deleteAdminCityLocation,
+} from "@/lib/adminCityLocationsApi";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function getErrorMessage(e: unknown, fallback: string): string {
@@ -100,6 +105,18 @@ export default function AdminCountriesPage() {
   const [cityFormCountryId, setCityFormCountryId] = useState<number | null>(null);
   const [citySubmitting, setCitySubmitting] = useState(false);
   const [cityFormError, setCityFormError] = useState<string | null>(null);
+
+  // Location modal
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [locationModalMode, setLocationModalMode] = useState<"create" | "edit" | null>(null);
+  const [editingLocation, setEditingLocation] = useState<CityLocation | null>(null);
+  const [locationFormName, setLocationFormName] = useState("");
+  const [locationFormType, setLocationFormType] = useState<"airport" | "citycenter">("airport");
+  const [locationFormPrice, setLocationFormPrice] = useState<number | null>(null);
+  const [locationFormCityId, setLocationFormCityId] = useState<number | null>(null);
+  const [locationSubmitting, setLocationSubmitting] = useState(false);
+  const [locationFormError, setLocationFormError] = useState<string | null>(null);
+  const [expandedCity, setExpandedCity] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -257,9 +274,79 @@ export default function AdminCountriesPage() {
     }
   }
 
-  function toggleExpand(countryId: number) {
+  // ── Location CRUD ──
+
+  function openCreateLocationModal(cityId: number) {
+    setLocationModalMode("create");
+    setEditingLocation(null);
+    setLocationFormName("");
+    setLocationFormType("airport");
+    setLocationFormPrice(null);
+    setLocationFormCityId(cityId);
+    setLocationFormError(null);
+    setLocationModalOpen(true);
+  }
+
+  function openEditLocationModal(location: CityLocation) {
+    setLocationModalMode("edit");
+    setEditingLocation(location);
+    setLocationFormName(location.name);
+    setLocationFormType(location.type);
+    setLocationFormPrice(location.price ?? null);
+    setLocationFormCityId(location.city_id);
+    setLocationFormError(null);
+    setLocationModalOpen(true);
+  }
+
+  function closeLocationModal() {
+    setLocationModalOpen(false);
+    setLocationModalMode(null);
+    setEditingLocation(null);
+    setLocationFormPrice(null);
+    setLocationFormCityId(null);
+  }
+
+  async function handleLocationSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!locationFormName.trim() || locationFormCityId === null) return;
+    setLocationSubmitting(true);
+    setLocationFormError(null);
+    try {
+      const price = locationFormPrice !== null ? Number(locationFormPrice) : null;
+      if (locationModalMode === "create") {
+        await createAdminCityLocation(locationFormCityId, locationFormName.trim(), locationFormType, price);
+      } else if (locationModalMode === "edit" && editingLocation) {
+        await updateAdminCityLocation(editingLocation.id, locationFormName.trim(), locationFormType, price);
+      }
+      closeLocationModal();
+      await loadData();
+    } catch (e) {
+      setLocationFormError(getErrorMessage(e, "Failed to save location"));
+    } finally {
+      setLocationSubmitting(false);
+    }
+  }
+
+  async function handleDeleteLocation(locationId: number) {
+    setDeletingCityId(locationId);
+    setError(null);
+    try {
+      await deleteAdminCityLocation(locationId);
+      await loadData();
+    } catch (e) {
+      setError(getErrorMessage(e, "Failed to delete location"));
+    } finally {
+      setDeletingCityId(null);
+    }
+  }
+
+  function toggleExpandCountry(countryId: number) {
     setExpandedCountry(expandedCountry === countryId ? null : countryId);
     setOpenCityMenuId(null);
+  }
+
+  function toggleExpandCity(cityId: number) {
+    setExpandedCity(expandedCity === cityId ? null : cityId);
   }
 
   const totalCountries = countries.length;
@@ -371,7 +458,7 @@ export default function AdminCountriesPage() {
                   {/* Country header */}
                   <div
                     className="flex items-center gap-4 p-4 cursor-pointer"
-                    onClick={() => toggleExpand(country.id)}
+                    onClick={() => toggleExpandCountry(country.id)}
                   >
                     <div className="w-10 h-10 rounded-xl bg-[#F0F3FA] flex items-center justify-center shrink-0">
                       <Globe className="w-5 h-5 text-[#395886]" />
@@ -501,75 +588,172 @@ export default function AdminCountriesPage() {
                               </button>
                             </div>
                           ) : (
-                            countryCities.map((city) => (
-                              <div
-                                key={city.id}
-                                className="flex items-center gap-3 rounded-2xl bg-[#F0F3FA]/60 border border-[#D5DEEF]/40 px-4 py-2.5 group hover:bg-[#F0F3FA] transition-colors"
-                              >
-                                <MapPin className="w-4 h-4 text-[#638ECB] shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <span className="text-sm font-bold text-[#395886]">
-                                    {city.name}
-                                  </span>
-                                </div>
+                            countryCities.map((city) => {
+                              const cityLocations = city.locations || [];
+                              const isCityExpanded = expandedCity === city.id;
+                              return (
+                                <div key={city.id}>
+                                  {/* City row */}
+                                  <div
+                                    className="flex items-center gap-3 rounded-2xl bg-[#F0F3FA]/60 border border-[#D5DEEF]/40 px-4 py-2.5 group hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                                    onClick={() => toggleExpandCity(city.id)}
+                                  >
+                                    <MapPin className="w-4 h-4 text-[#638ECB] shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <span className="text-sm font-bold text-[#395886]">
+                                        {city.name}
+                                      </span>
+                                      <span className="ml-2 text-[10px] font-bold text-[#B0C4DE]">
+                                        {cityLocations.length} {t("admin.locations")}
+                                      </span>
+                                    </div>
 
-                                {/* Desktop city actions */}
-                                <div className="hidden md:flex items-center gap-1.5 shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => openEditCityModal(city)}
-                                    className="h-7 w-7 rounded-lg text-[#638ECB] hover:bg-white hover:text-[#395886] transition-all flex items-center justify-center cursor-pointer"
-                                    title={t("admin.edit")}
-                                  >
-                                    <Pencil className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    disabled={deletingCityId === city.id}
-                                    onClick={() => handleDeleteCity(city.id)}
-                                    className="h-7 w-7 rounded-lg text-rose-400 hover:bg-white hover:text-rose-600 transition-all flex items-center justify-center disabled:opacity-50 cursor-pointer"
-                                    title={t("admin.delete")}
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
+                                    {/* Desktop city actions */}
+                                    <div className="hidden md:flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                      <button
+                                        type="button"
+                                        onClick={() => openCreateLocationModal(city.id)}
+                                        className="h-7 px-2 rounded-lg text-[#638ECB] hover:bg-white hover:text-[#395886] transition-all flex items-center gap-1 text-xs font-extrabold cursor-pointer"
+                                        title={t("admin.add_location")}
+                                      >
+                                        <Plus className="w-3.5 h-3.5" />
+                                        {t("admin.add_location")}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => openEditCityModal(city)}
+                                        className="h-7 w-7 rounded-lg text-[#638ECB] hover:bg-white hover:text-[#395886] transition-all flex items-center justify-center cursor-pointer"
+                                        title={t("admin.edit")}
+                                      >
+                                        <Pencil className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={deletingCityId === city.id}
+                                        onClick={() => handleDeleteCity(city.id)}
+                                        className="h-7 w-7 rounded-lg text-rose-400 hover:bg-white hover:text-rose-600 transition-all flex items-center justify-center disabled:opacity-50 cursor-pointer"
+                                        title={t("admin.delete")}
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
 
-                                {/* Mobile city actions */}
-                                <div className="relative md:hidden shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => setOpenCityMenuId(openCityMenuId === city.id ? null : city.id)}
-                                    className="h-7 w-7 rounded-lg text-[#638ECB] hover:bg-white transition-all flex items-center justify-center cursor-pointer"
-                                  >
-                                    <MoreHorizontal className="w-3.5 h-3.5" />
-                                  </button>
-                                  {openCityMenuId === city.id && (
-                                    <>
-                                      <div className="fixed inset-0 z-10" onClick={() => setOpenCityMenuId(null)} />
-                                      <div className="absolute right-0 top-full mt-1 z-20 min-w-[140px] bg-white rounded-2xl border border-[#D5DEEF]/70 shadow-lg py-1.5 overflow-hidden">
-                                        <button
-                                          type="button"
-                                          onClick={() => { setOpenCityMenuId(null); openEditCityModal(city); }}
-                                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
-                                        >
-                                          <Pencil className="w-4 h-4" />
-                                          {t("admin.edit")}
-                                        </button>
-                                        <button
-                                          type="button"
-                                          disabled={deletingCityId === city.id}
-                                          onClick={() => { setOpenCityMenuId(null); handleDeleteCity(city.id); }}
-                                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                        >
-                                          <Trash2 className="w-4 h-4" />
-                                          {deletingCityId === city.id ? "..." : t("admin.delete")}
-                                        </button>
-                                      </div>
-                                    </>
-                                  )}
+                                    {/* Mobile city actions */}
+                                    <div className="relative md:hidden shrink-0" onClick={(e) => e.stopPropagation()}>
+                                      <button
+                                        type="button"
+                                        onClick={() => setOpenCityMenuId(openCityMenuId === city.id ? null : city.id)}
+                                        className="h-7 w-7 rounded-lg text-[#638ECB] hover:bg-white transition-all flex items-center justify-center cursor-pointer"
+                                      >
+                                        <MoreHorizontal className="w-3.5 h-3.5" />
+                                      </button>
+                                      {openCityMenuId === city.id && (
+                                        <>
+                                          <div className="fixed inset-0 z-10" onClick={() => setOpenCityMenuId(null)} />
+                                          <div className="absolute right-0 top-full mt-1 z-20 min-w-[160px] bg-white rounded-2xl border border-[#D5DEEF]/70 shadow-lg py-1.5 overflow-hidden">
+                                            <button
+                                              type="button"
+                                              onClick={() => { setOpenCityMenuId(null); openCreateLocationModal(city.id); }}
+                                              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                                            >
+                                              <Plus className="w-4 h-4" />
+                                              {t("admin.add_location")}
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => { setOpenCityMenuId(null); openEditCityModal(city); }}
+                                              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-[#395886] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                                            >
+                                              <Pencil className="w-4 h-4" />
+                                              {t("admin.edit")}
+                                            </button>
+                                            <button
+                                              type="button"
+                                              disabled={deletingCityId === city.id}
+                                              onClick={() => { setOpenCityMenuId(null); handleDeleteCity(city.id); }}
+                                              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                            >
+                                              <Trash2 className="w-4 h-4" />
+                                              {deletingCityId === city.id ? "..." : t("admin.delete")}
+                                            </button>
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
+
+                                    <motion.div
+                                      animate={{ rotate: isCityExpanded ? 180 : 0 }}
+                                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                                      className="shrink-0 text-[#B0C4DE]"
+                                    >
+                                      <ChevronDown className="w-4 h-4" />
+                                    </motion.div>
+                                  </div>
+
+                                  {/* Locations section */}
+                                  <AnimatePresence initial={false}>
+                                    {isCityExpanded && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.2, ease: "easeOut" }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="pl-8 pr-4 pb-2 pt-2 space-y-1.5">
+                                          {cityLocations.length === 0 ? (
+                                            <div className="text-center py-2">
+                                              <p className="text-xs font-bold text-[#B0C4DE]">
+                                                {t("admin.no_locations_in_city")}
+                                              </p>
+                                            </div>
+                                          ) : (
+                                            cityLocations.map((loc) => (
+                                              <div
+                                                key={loc.id}
+                                                className="flex items-center gap-2.5 rounded-xl bg-white/80 border border-[#D5DEEF]/30 px-3 py-2"
+                                              >
+                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${loc.type === "airport" ? "bg-amber-100" : "bg-blue-100"}`}>
+                                                  {loc.type === "airport" ? (
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#d97706" className="opacity-80"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
+                                                  ) : (
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#2563eb" className="opacity-80"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                                                  )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                  <span className="text-xs font-bold text-[#395886]">{loc.name}</span>
+                                                  <span className={`ml-1.5 text-[10px] font-bold uppercase ${loc.type === "airport" ? "text-amber-600" : "text-blue-600"}`}>
+                                                    {loc.type === "airport" ? t("admin.location_airport") : t("admin.location_citycenter")}
+                                                  </span>
+                                                  {loc.price ? <span className="ml-2 text-[10px] font-bold text-emerald-600">{Number(loc.price).toFixed(2)} DH</span> : null}
+                                                </div>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => openEditLocationModal(loc)}
+                                                  className="h-6 w-6 rounded-lg text-[#638ECB] hover:bg-white transition-all flex items-center justify-center cursor-pointer"
+                                                  title={t("admin.edit")}
+                                                >
+                                                  <Pencil className="w-3 h-3" />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  disabled={deletingCityId === loc.id}
+                                                  onClick={() => handleDeleteLocation(loc.id)}
+                                                  className="h-6 w-6 rounded-lg text-rose-400 hover:bg-white hover:text-rose-600 transition-all flex items-center justify-center disabled:opacity-50 cursor-pointer"
+                                                  title={t("admin.delete")}
+                                                >
+                                                  <Trash2 className="w-3 h-3" />
+                                                </button>
+                                              </div>
+                                            ))
+                                          )}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </div>
-                              </div>
-                            ))
+                              );
+                            })
                           )}
                         </div>
                       </motion.div>
@@ -745,6 +929,132 @@ export default function AdminCountriesPage() {
                   <button
                     type="button"
                     onClick={closeCityModal}
+                    className="h-11 px-6 rounded-xl border border-[#D5DEEF] text-[#395886] font-extrabold text-sm hover:bg-[#F0F3FA] transition-all active:scale-95 cursor-pointer"
+                  >
+                    {t("admin.cancel")}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Location Modal */}
+      <AnimatePresence>
+        {locationModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            onClick={closeLocationModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="bg-white rounded-3xl border border-[#D5DEEF]/60 shadow-[0_20px_60px_rgba(57,88,134,0.12)] max-w-lg w-full p-6 sm:p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#F0F3FA] flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-[#395886]" />
+                  </div>
+                  <h2 className="text-xl font-black text-[#395886]">
+                    {locationModalMode === "create"
+                      ? t("admin.add_location")
+                      : t("admin.edit_location")}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeLocationModal}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-[#638ECB] hover:bg-[#F0F3FA] transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleLocationSubmit} className="flex flex-col gap-5">
+                {locationFormError && (
+                  <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3 text-sm font-bold text-rose-700">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    {locationFormError}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-[#638ECB]">
+                    {t("admin.location_name")}
+                  </label>
+                  <input
+                    className="h-11 rounded-xl border border-[#D5DEEF] bg-white px-4 text-sm font-bold text-[#395886] placeholder:text-[#B0C4DE] focus:outline-none focus:ring-2 focus:ring-[#638ECB]/30 focus:border-[#638ECB] transition-all"
+                    placeholder={t("admin.location_name_placeholder")}
+                    value={locationFormName}
+                    onChange={(e) => setLocationFormName(e.target.value)}
+                    autoFocus
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-[#638ECB]">
+                    {t("admin.location_type")}
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setLocationFormType("airport")}
+                      className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-extrabold transition-all cursor-pointer ${locationFormType === "airport" ? "bg-[#f59e0b]/10 border-2 border-[#f59e0b]/40 text-[#d97706]" : "bg-white border border-[#D5DEEF] text-[#638ECB] hover:bg-[#F0F3FA]"}`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
+                      {t("admin.location_airport")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLocationFormType("citycenter")}
+                      className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-extrabold transition-all cursor-pointer ${locationFormType === "citycenter" ? "bg-blue-500/10 border-2 border-blue-500/40 text-blue-600" : "bg-white border border-[#D5DEEF] text-[#638ECB] hover:bg-[#F0F3FA]"}`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                      {t("admin.location_citycenter")}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-[#638ECB]">
+                    {t("admin.location_price") || "Prix supplément (DH)"}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="h-11 rounded-xl border border-[#D5DEEF] bg-white px-4 text-sm font-bold text-[#395886] placeholder:text-[#B0C4DE] focus:outline-none focus:ring-2 focus:ring-[#638ECB]/30 focus:border-[#638ECB] transition-all"
+                    placeholder="0"
+                    value={locationFormPrice ?? ""}
+                    onChange={(e) => setLocationFormPrice(e.target.value ? Number(e.target.value) : null)}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={locationSubmitting || !locationFormName.trim()}
+                    className="flex-1 h-11 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:bg-[#2D4670] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {locationSubmitting
+                      ? t("admin.loading")
+                      : locationModalMode === "create"
+                        ? t("admin.create")
+                        : t("admin.save")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeLocationModal}
                     className="h-11 px-6 rounded-xl border border-[#D5DEEF] text-[#395886] font-extrabold text-sm hover:bg-[#F0F3FA] transition-all active:scale-95 cursor-pointer"
                   >
                     {t("admin.cancel")}

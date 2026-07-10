@@ -1185,6 +1185,13 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "admin.city_name": { en: "City Name", fr: "Nom de la ville", ar: "اسم المدينة" },
   "admin.city_name_placeholder": { en: "e.g. Marrakech", fr: "Ex: Marrakech", ar: "مثال: مراكش" },
   "admin.no_cities_in_country": { en: "No cities yet. Add the first city.", fr: "Aucune ville pour le moment. Ajoutez la première ville.", ar: "لا توجد مدن بعد. أضف المدينة الأولى." },
+  "admin.add_location": { en: "Add Location", fr: "Ajouter un emplacement", ar: "إضافة موقع" },
+  "admin.edit_location": { en: "Edit Location", fr: "Modifier l'emplacement", ar: "تعديل الموقع" },
+  "admin.location_name": { en: "Location Name", fr: "Nom de l'emplacement", ar: "اسم الموقع" },
+  "admin.location_name_placeholder": { en: "e.g. Marrakech Airport", fr: "Ex: Aéroport Marrakech", ar: "مثال: مطار مراكش" },
+  "admin.location_type": { en: "Location Type", fr: "Type d'emplacement", ar: "نوع الموقع" },
+  "admin.no_locations_in_city": { en: "No locations yet. Add the first location.", fr: "Aucun emplacement pour le moment. Ajoutez le premier emplacement.", ar: "لا توجد مواقع بعد. أضف الموقع الأول." },
+  "admin.locations": { en: "locations", fr: "emplacements", ar: "مواقع" },
 
   // ── Admin Home Stats ──
   "admin.home_stats": { en: "Home Stats", fr: "Statistiques Accueil", ar: "إحصائيات الصفحة الرئيسية" },

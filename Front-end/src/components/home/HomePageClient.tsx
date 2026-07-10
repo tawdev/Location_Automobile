@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
-import type { Vehicle, Marque, TypeVehicule, Country, City } from "@/lib/types";
+import type { Vehicle, Marque, TypeVehicule, Country, City, CityLocation } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { LazyMotion, m, domAnimation, useReducedMotion } from "framer-motion";
+import { LazyMotion, m, domAnimation, useReducedMotion, AnimatePresence } from "framer-motion";
 import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
 import { Search, CalendarDays } from "lucide-react";
@@ -21,6 +21,27 @@ import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
 
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
+
+const countryFlags: Record<string, string> = {
+  "Maroc": "🇲🇦",
+  "France": "🇫🇷",
+  "Espagne": "🇪🇸",
+  "Algérie": "🇩🇿",
+  "Tunisie": "🇹🇳",
+  "États-Unis": "🇺🇸",
+  "Royaume-Uni": "🇬🇧",
+  "Allemagne": "🇩🇪",
+  "Italie": "🇮🇹",
+  "Belgique": "🇧🇪",
+  "Pays-Bas": "🇳🇱",
+  "Portugal": "🇵🇹",
+  "Suisse": "🇨🇭",
+  "Canada": "🇨🇦",
+};
+
+function getCountryFlag(name: string): string {
+  return countryFlags[name] || "🌍";
+}
 
 const cars = Array.from({ length: 6 }, (_, i) => `/background_vehicles/bg${`0${i + 1}`.slice(-2)}.webp`);
 
@@ -107,15 +128,80 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [brandOpen, setBrandOpen] = useState(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [filterCountryId, setFilterCountryId] = useState<number | null>(null);
+  const [countryOpen, setCountryOpen] = useState(false);
   const [filterCities, setFilterCities] = useState<City[]>([]);
   const [filterCityId, setFilterCityId] = useState<number | null>(null);
+  const [cityOpen, setCityOpen] = useState(false);
   const [filterLocationType, setFilterLocationType] = useState("");
 
+  const [returnCountryId, setReturnCountryId] = useState<number | null>(null);
+  const [returnCountryOpen, setReturnCountryOpen] = useState(false);
+  const [returnCities, setReturnCities] = useState<City[]>([]);
+  const [returnCityId, setReturnCityId] = useState<number | null>(null);
+  const [returnCityOpen, setReturnCityOpen] = useState(false);
+  const [returnLocationType, setReturnLocationType] = useState("");
+  const [returnLocation, setReturnLocation] = useState("");
+  const [returnLocTypeOpen, setReturnLocTypeOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmData, setConfirmData] = useState<{ type: string; name: string; price: number } | null>(null);
+
   const [vehicleIndex, setVehicleIndex] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
   const [heroBgIndex, setHeroBgIndex] = useState(0);
   const [heroNextBgIndex, setHeroNextBgIndex] = useState<number | null>(null);
   const [heroBgFading, setHeroBgFading] = useState(false);
   const displayVehicles = useMemo(() => showcaseVehicles?.slice(0, 5) ?? [], [showcaseVehicles]);
+  const [vehicleType, setVehicleType] = useState("cars");
+  const [pickupLocation, setPickupLocation] = useState("");
+  const [pickupLocationVal, setPickupLocationVal] = useState("");
+  const [returnLocationVal, setReturnLocationVal] = useState("");
+  const [pickupTime, setPickupTime] = useState("10:00");
+  const [returnTime, setReturnTime] = useState("10:00");
+
+
+  const locations = useMemo(() => {
+    const result: { value: string; label: string; icon: string; key: string }[] = [];
+    let targetCities: { id: number; name: string; country_id: number; locations?: CityLocation[] }[] = [];
+
+    if (filterCityId) {
+      const allCities = countries.flatMap(c => c.cities || []);
+      const selected = allCities.find(c => c.id === filterCityId);
+      if (selected) targetCities = [selected];
+    } else if (filterCountryId) {
+      const country = countries.find(c => c.id === filterCountryId);
+      if (country) targetCities = country.cities || [];
+    } else {
+      targetCities = countries.flatMap(c => c.cities || []);
+    }
+
+    for (const city of targetCities) {
+      if (city.locations && city.locations.length > 0) {
+        for (const loc of city.locations) {
+            result.push({
+            key: `city-${city.id}-loc-${loc.id}`,
+            value: loc.name,
+            label: loc.name,
+            icon: loc.type === "airport" ? "plane" : "city",
+          });
+        }
+      } else {
+        result.push({
+          key: `city-${city.id}-default`,
+          value: `${city.name} Centre Ville`,
+          label: `${city.name} Centre Ville`,
+          icon: "city",
+        });
+      }
+    }
+    return result;
+  }, [countries, filterCountryId, filterCityId]);
+
+  const vehicleTypes = [
+    { key: "cars", label: "Voitures", icon: "car" },
+    { key: "vans", label: "Vans", icon: "van" },
+    { key: "mini_vans", label: "Mini Vans", icon: "minivan" },
+    { key: "luxe", label: "voitures de luxe", icon: "luxury" },
+  ];
 
   useEffect(() => {
     fetchCountries().then(setCountries).catch(() => {});
@@ -131,8 +217,46 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   }, [filterCountryId]);
 
   useEffect(() => {
+    const city = filterCityId ? filterCities.find(c => c.id === filterCityId) : null;
+    if (city && filterLocationType && city.locations) {
+      const loc = city.locations.find(l => l.type === filterLocationType);
+      if (loc) {
+        setPickupLocation(loc.name);
+        setPickupLocationVal(loc.name);
+        return;
+      }
+    }
+    setPickupLocation("");
+    setPickupLocationVal("");
+  }, [filterCityId, filterLocationType, filterCities]);
+
+  useEffect(() => {
+    if (returnCountryId) {
+      fetchCitiesByCountry(returnCountryId).then(setReturnCities).catch(() => setReturnCities([]));
+    } else {
+      setReturnCities([]);
+    }
+    setReturnCityId(null);
+  }, [returnCountryId]);
+
+  useEffect(() => {
+    const city = returnCityId ? returnCities.find(c => c.id === returnCityId) : null;
+    if (city && returnLocationType && city.locations) {
+      const loc = city.locations.find(l => l.type === returnLocationType);
+      if (loc) {
+        setReturnLocation(loc.name);
+        setReturnLocationVal(loc.name);
+        return;
+      }
+    }
+    setReturnLocation("");
+    setReturnLocationVal("");
+  }, [returnCityId, returnLocationType, returnCities]);
+
+  useEffect(() => {
     if (displayVehicles.length < 2) return;
     const timer = setInterval(() => {
+      setDirection(1);
       setVehicleIndex((prev) => (prev + 1) % displayVehicles.length);
     }, 4500);
     return () => clearInterval(timer);
@@ -157,10 +281,26 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     return () => clearInterval(timer);
   }, [heroBgIndex]);
 
-  const handleSearch = () => {
+  function handleReturnLocationSelect(type: string, name: string, price?: number | null) {
+    setReturnLocTypeOpen(false);
+    if (price && Number(price) > 0) {
+      setConfirmData({ type, name, price: Number(price) });
+      setConfirmOpen(true);
+    } else {
+      setReturnLocationType(type);
+    }
+  }
+
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
     const params = new URLSearchParams();
-    if (pickupDate) params.set("pickup_date", pickupDate);
-    if (returnDate) params.set("return_date", returnDate);
+    if (pickupLocationVal) params.set("pickup_location", pickupLocationVal);
+    if (returnLocationVal) params.set("dropoff_location", returnLocationVal);
+    if (pickupDate) params.set("start_date", pickupDate);
+    if (pickupTime) params.set("pickup_time", pickupTime);
+    if (returnDate) params.set("end_date", returnDate);
+    if (returnTime) params.set("dropoff_time", returnTime);
+    if (vehicleType) params.set("vehicle_type", vehicleType);
     if (brand.trim()) params.set("marque", brand.trim());
     if (model.trim()) params.set("model", model.trim());
     if (minPrice !== undefined) params.set("min_price", String(minPrice));
@@ -170,6 +310,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (filterCountryId) params.set("current_country_id", String(filterCountryId));
     if (filterCityId) params.set("current_city_id", String(filterCityId));
     if (filterLocationType) params.set("location_type", filterLocationType);
+    if (returnCountryId) params.set("return_country_id", String(returnCountryId));
+    if (returnCityId) params.set("return_city_id", String(returnCityId));
+    if (returnLocationType) params.set("return_location_type", returnLocationType);
     const qs = params.toString();
     router.push(qs ? `/vehicules?${qs}` : "/vehicules");
   };
@@ -209,8 +352,23 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
       </div>
       {/* Content */}
       <div className="relative z-10 w-full mx-auto px-6 md:px-12 lg:px-20 pt-28 pb-24">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-16 items-start">
-              {/* Left: badge + headline + subtitle */}
+          {/* Headline */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl px-8 py-5">
+              <m.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-[#f39c12] text-center"
+              >
+                {t("home.hero.title1")}{' '}
+                <span className="text-[#f39c12]">{t("home.hero.title2")}</span>
+              </m.h1>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-16 items-center">
+              {/* Left: badge + subtitle + search */}
             <div className="flex-1 text-left">
               {/* Badge */}
               <m.div
@@ -224,288 +382,483 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 </span>
               </m.div>
 
-              {/* Headline */}
-              <m.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="mt-6 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-[#f39c12]"
-              >
-                {t("home.hero.title1")}
-                <br />
-                <span className="text-[#f39c12]">{t("home.hero.title2")}</span>
-              </m.h1>
-
               {/* Search form */}
               <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-      <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">              {/* Row 1: Country + City */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.country")}
-                  </label>
-                  <select
-                    value={filterCountryId ?? ""}
-                    onChange={(e) => setFilterCountryId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
-                  >
-                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
-                    {countries.map((c) => (
-                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.city")}
-                  </label>
-                  <select
-                    value={filterCityId ?? ""}
-                    onChange={(e) => setFilterCityId(e.target.value ? Number(e.target.value) : null)}
-                    disabled={!filterCountryId}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all disabled:opacity-50"
-                  >
-                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
-                    {filterCities.map((c) => (
-                      <option key={c.id} value={c.id} className="text-gray-800">{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 2: Location Type */}
-              <div className="mt-3">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.pickup_location")}
-                  </label>
-                  <select
-                    value={filterLocationType}
-                    onChange={(e) => setFilterLocationType(e.target.value)}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
-                  >
-                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
-                    <option value="airport" className="text-gray-800">{t("vehicles.location_airport")}</option>
-                    <option value="citycenter" className="text-gray-800">{t("vehicles.location_citycenter")}</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 3: Pickup + Return dates */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.pickup_date")}
-                  </label>
-                  <Popover>
-                    <PopoverTrigger className="w-full">
-                      <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
-                        <CalendarDays className="w-4 h-4 shrink-0 text-white/50" />
-                        {pickupDate ? (
-                          <span className="font-medium text-white">
-                            {new Date(pickupDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
-                          </span>
-                        ) : (
-                          <span className="text-white/40">{t("vehicles.pickup_date")}</span>
-                        )}
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-                      <Calendar
-                        size="lg"
-                        mode="single"
-                        selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined}
-          onSelect={(d: Date | undefined) => {
-            if (d) {
-              const val = toLocalDateString(d);
-              setPickupDate(val);
-              if (returnDate && returnDate < val) {
-                setReturnDate("");
-              }
-            }
-          }}
-          fromDate={new Date()}
-        />
-      </PopoverContent>
-    </Popover>
-  </div>
-  <div>
-    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-      {t("vehicles.return_date")}
-    </label>
-    <Popover>
-      <PopoverTrigger disabled={!pickupDate} className="w-full">
-        <div className={`w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 transition-all ${!pickupDate ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-white/20 hover:border-white/40"}`}>
-          <CalendarDays className="w-4 h-4 shrink-0 text-white/50" />
-          {returnDate ? (
-            <span className="font-medium text-white">
-              {new Date(returnDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
-            </span>
-          ) : (
-            <span className="text-white/40">{!pickupDate ? t("vehicles.select_pickup_first") : t("vehicles.return_date")}</span>
-          )}
-        </div>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-        <Calendar
-          size="lg"
-          mode="single"
-          selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined}
-          onSelect={(d: Date | undefined) => {
-            if (d) {
-              setReturnDate(toLocalDateString(d));
-            }
-          }}
-                        disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-
-              {/* Row 4: Brand + Model + Fuel type + Vehicle type */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.brand")}
-                  </label>
-                  <Popover open={brandOpen} onOpenChange={setBrandOpen}>
-                    <PopoverTrigger className="w-full">
-                      <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
-                        {brand ? (
-                          <>
-                            <img src={getBrandLogo(brand) ?? ""} alt={brand} className="w-5 h-5 object-contain" />
-                            <span className="font-medium text-white">{brand}</span>
-                          </>
-                        ) : (
-                          <span className="text-white/40">{t("vehicles.all_types")}</span>
-                        )}
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" sideOffset={4} className="w-[340px] p-4 max-h-80 overflow-y-auto">
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                <form onSubmit={handleSearch} className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">
+                  {/* Vehicle Type Selector */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {vehicleTypes.map((vt) => (
                       <button
+                        key={vt.key}
                         type="button"
-                        onClick={() => { setBrand(""); setBrandOpen(false); }}
-                        className="w-full text-left px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                        onClick={() => setVehicleType(vt.key)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                          vehicleType === vt.key
+                            ? "bg-[#f39c12]/20 text-[#f39c12] border border-[#f39c12]/40"
+                            : "bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white/80"
+                        }`}
                       >
-                        {t("vehicles.all_types")}
+                        {vt.key === "cars" && (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
+                          </svg>
+                        )}
+                        {vt.key === "vans" && (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path fillRule="evenodd" d="M1 16V7a2 2 0 012-2h11.86a4 4 0 013.328 1.781L21 11a2 2 0 012 2v3h-2a3 3 0 11-6 0H8a3 3 0 11-6 0H1zm7-9h5v4H8V7zM6 7H3v4h3V7zm9 4V7.005a2 2 0 011.523.886L18.596 11H15zM4 16a1 1 0 102 0 1 1 0 00-2 0zm13 0a1 1 0 102 0 1 1 0 00-2 0z" />
+                          </svg>
+                        )}
+                        {vt.key === "mini_vans" && (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path fillRule="evenodd" d="M1 16V7a2 2 0 012-2h9.5a4 4 0 013.328 1.781L18 10h3a2 2 0 012 2v4h-2a3 3 0 11-6 0H9a3 3 0 11-6 0H1zm6-2a1 1 0 10-2 0 1 1 0 002 0zm11 0a1 1 0 10-2 0 1 1 0 002 0zM8 7H4v3h4V7zm2 0v3h4.596l-1.073-1.709A2 2 0 0012.5 7H10z" />
+                          </svg>
+                        )}
+                        {vt.key === "luxe" && (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l4.5 5h4L12 22 3.5 7h4L12 2z" />
+                          </svg>
+                        )}
+                        <span>{vt.label}</span>
                       </button>
-                      <div className="grid grid-cols-3 gap-2 mt-2">
-                        {propMarques.map((m) => {
-                          const logoUrl = m.logo
-                            ? `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`
-                            : getBrandLogo(m.name);
-                          return (
-                            <button
-                              key={m.id}
-                              type="button"
-                              onClick={() => { setBrand(m.name); setBrandOpen(false); }}
-                              className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-sm transition-all ${
-                                brand === m.name
-                                  ? "bg-[#f39c12]/20 text-[#f39c12] ring-2 ring-[#f39c12]/40"
-                                  : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md"
-                              }`}
-                            >
-                              {logoUrl && (
-                                <img src={logoUrl} alt={m.name} className="w-8 h-8 object-contain shrink-0" />
-                              )}
-                              <span className="text-xs font-medium text-center leading-tight">{m.name}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.model")}
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={t("vehicles.model_placeholder")}
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.fuel_type")}
-                  </label>
-                  <select
-                    value={fuelType}
-                    onChange={(e) => setFuelType(e.target.value)}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
-                  >
-                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
-                    <option value="Gasoline" className="text-gray-800">Gasoline</option>
-                    <option value="Diesel" className="text-gray-800">Diesel</option>
-                    <option value="Electricity" className="text-gray-800">Electricity</option>
-                    <option value="Hybrid" className="text-gray-800">Hybrid</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                    {t("vehicles.vehicle_type")}
-                  </label>
-                  <select
-                    value={typeVehiculeId ?? ""}
-                    onChange={(e) => setTypeVehiculeId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white appearance-none cursor-pointer focus:border-white/40 focus:bg-white/20 transition-all"
-                  >
-                    <option value="" className="text-gray-800">{t("vehicles.all_types")}</option>
-                    {propTypeVehicules.map((tv) => (
-                      <option key={tv.id} value={tv.id} className="text-gray-800">{tv.name}</option>
                     ))}
-                  </select>
-                </div>
-              </div>
+                    <a href="/vehicules?tab=lld" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white/80 transition-all">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.655 7.517h-11.5L4.62 12.088l-1.674.955 3.107 1.085-.524 1.504-3.07-1.07v5.371h3.038v-1.637h1.59l.005 3.23H.864v-9.129l2.579-1.471 2.773-5.003h11.555l.884 1.594zm3.33 8.966a5.93 5.93 0 01-5.923 5.923 5.93 5.93 0 01-5.923-5.923 5.93 5.93 0 015.923-5.923 5.93 5.93 0 014.668 2.286h-1.827v1.593h4.593V9.838h-1.593v1.932a7.528 7.528 0 00-5.84-2.804c-4.145 0-7.518 3.374-7.518 7.517 0 4.144 3.373 7.517 7.517 7.517 4.143 0 7.517-3.373 7.517-7.517h-1.594zM16.86 20.12v-2.84h2.84v-1.594h-2.84v-2.84h-1.594v2.84h-2.84v1.594h2.84v2.84h1.594z" />
+                      </svg>
+                      <span>Longue Durée</span>
+                    </a>
+                  </div>
 
-              {/* Row 5: Price range + Search */}
-              <div className="mt-3 flex flex-col sm:flex-row gap-3">
-                <div className="flex gap-3 flex-1">
-                  <div className="w-full sm:w-32">
-                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                      Min
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="0 DH"
-                      value={minPrice ?? ""}
-                      onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
-                      className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
-                    />
+                  {/* Form Row */}
+                  <div className="flex flex-wrap items-stretch gap-2">
+                    <input type="hidden" name="pickup_location" value={pickupLocationVal} />
+
+                    <input type="hidden" name="dropoff_location" value={returnLocationVal} />
+
+                    {/* Pickup Date + Time joined */}
+                    <div className="flex-1 min-w-[160px] flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
+                      <Popover>
+                        <PopoverTrigger className="flex-1 min-w-0">
+                          <span className="block w-full bg-transparent px-3 py-2.5 text-sm text-white text-left leading-normal">
+                            {pickupDate ? new Date(pickupDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">Date</span>}
+                          </span>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
+                          <Calendar size="lg" mode="single" selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { const val = toLocalDateString(d); setPickupDate(val); if (returnDate && returnDate < val) setReturnDate(""); } }} fromDate={new Date()} />
+                        </PopoverContent>
+                      </Popover>
+                      <div className="w-px bg-white/10 self-stretch" />
+                      <input type="time" name="pickup_time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-20 bg-transparent px-2 py-2.5 text-sm text-white outline-none border-none text-center cursor-pointer [color-scheme:dark]" />
+                    </div>
+
+                    <span className="flex items-center text-white/15 text-lg select-none">-</span>
+
+                    {/* Return Date + Time joined */}
+                    <div className="flex-1 min-w-[160px] flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
+                      <Popover>
+                        <PopoverTrigger className={`flex-1 min-w-0 ${!pickupDate ? "pointer-events-none" : ""}`} disabled={!pickupDate}>
+                          <span className={`block w-full bg-transparent px-3 py-2.5 text-sm text-left leading-normal ${!pickupDate ? "text-white/40" : "text-white"}`}>
+                            {returnDate ? new Date(returnDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">{!pickupDate ? "Choisir d'abord" : "Date"}</span>}
+                          </span>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
+                          <Calendar size="lg" mode="single" selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) setReturnDate(toLocalDateString(d)); }} disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined} />
+                        </PopoverContent>
+                      </Popover>
+                      <div className="w-px bg-white/10 self-stretch" />
+                      <input type="time" name="dropoff_time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-20 bg-transparent px-2 py-2.5 text-sm text-white outline-none border-none text-center cursor-pointer [color-scheme:dark]" />
+                    </div>
+
                   </div>
-                  <div className="w-full sm:w-32">
-                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">
-                      Max
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="1000 DH"
-                      value={maxPrice ?? ""}
-                      onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
-                      className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all"
-                    />
+
+                  {/* Row 1: Country + City */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.country")}</label>
+                      <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {filterCountryId ? (
+                              <><span className="text-lg">{getCountryFlag(countries.find(c => c.id === filterCountryId)?.name ?? "")}</span><span className="font-medium text-white">{countries.find(c => c.id === filterCountryId)?.name}</span></>
+                            ) : (
+                              <span className="text-white/40">{t("vehicles.all_types")}</span>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => { setFilterCountryId(null); setFilterCityId(null); setCountryOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {countries.map(c => (
+                            <button key={c.id} type="button" onClick={() => { setFilterCountryId(c.id); setCountryOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${filterCountryId === c.id ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="text-lg">{getCountryFlag(c.name)}</span>
+                              <span className="font-medium">{c.name}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.city")}</label>
+                      <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                        <PopoverTrigger className="w-full" disabled={!filterCountryId}>
+                          <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!filterCountryId ? "opacity-50 pointer-events-none" : ""}`}>
+                            {filterCityId ? (
+                              <span className="font-medium text-white">{filterCities.find(c => c.id === filterCityId)?.name}</span>
+                            ) : (
+                              <span className="text-white/40">{t("vehicles.all_types")}</span>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => { setFilterCityId(null); setCityOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {filterCities.map(c => (
+                            <button key={c.id} type="button" onClick={() => { setFilterCityId(c.id); setCityOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${filterCityId === c.id ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="font-medium">{c.name}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
-                </div>
-                <m.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleSearch}
-                  className="h-11 px-8 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center justify-center gap-2 transition-all shrink-0 shadow-lg shadow-[#f39c12]/20"
-                >
-                  <Search className="w-4 h-4" />
-                  {t("vehicles.filter_button")}
-                </m.button>
-              </div>
-            </div>
-          </m.div>
+
+                  {/* Row 2: Location Type */}
+                  <div className="mt-3">
+                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.pickup_location")}</label>
+                    <Popover>
+                      <PopoverTrigger className="w-full">
+                        <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                          {pickupLocation ? (
+                            <><span className="font-medium text-white">{pickupLocation}</span></>
+                          ) : (
+                            <span className="text-white/40">{t("vehicles.all_types")}</span>
+                          )}
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" sideOffset={4} className="min-w-[320px] p-3 max-h-96 overflow-y-auto">
+                        <button type="button" onClick={() => setFilterLocationType("")} className="w-full flex items-center gap-4 px-5 py-4 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <span>{t("vehicles.all_types")}</span>
+                        </button>
+                        {(() => {
+                          const city = filterCityId ? filterCities.find(c => c.id === filterCityId) : null;
+                          const locs = city?.locations?.length ? city.locations : null;
+                          if (locs) {
+                            return locs.map(loc => (
+                              <button key={loc.id} type="button" onClick={() => setFilterLocationType(loc.type)} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === loc.type ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${loc.type === "airport" ? "bg-gradient-to-br from-[#f39c12]/20 to-[#f39c12]/5" : "bg-gradient-to-br from-blue-500/20 to-blue-500/5"}`}>
+                                  {loc.type === "airport" ? (
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#f39c12" className="opacity-90"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
+                                  ) : (
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6" className="opacity-90"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                                  )}
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{loc.name}</span>
+                                  <span className="text-xs text-white/40">{loc.type === "airport" ? "Prise en charge à l'aéroport" : "Prise en charge en centre-ville"}</span>
+                                </div>
+                              </button>
+                            ));
+                          }
+                          return (
+                            <>
+                              <button type="button" onClick={() => setFilterLocationType("airport")} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === "airport" ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#f39c12]/20 to-[#f39c12]/5 flex items-center justify-center shrink-0">
+                                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#f39c12" className="opacity-90"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{t("vehicles.location_airport")}</span>
+                                  <span className="text-xs text-white/40">Prise en charge à l'aéroport</span>
+                                </div>
+                              </button>
+                              <button type="button" onClick={() => setFilterLocationType("citycenter")} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === "citycenter" ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center shrink-0">
+                                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6" className="opacity-90"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{t("vehicles.location_citycenter")}</span>
+                                  <span className="text-xs text-white/40">Prise en charge en centre-ville</span>
+                                </div>
+                              </button>
+                            </>
+                          );
+                        })()}
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Row 3: Return Country + City */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_country") || "Pays de restitution"}</label>
+                      <Popover open={returnCountryOpen} onOpenChange={setReturnCountryOpen}>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {returnCountryId ? (
+                              <><span className="text-lg">{getCountryFlag(countries.find(c => c.id === returnCountryId)?.name ?? "")}</span><span className="font-medium text-white">{countries.find(c => c.id === returnCountryId)?.name}</span></>
+                            ) : (
+                              <span className="text-white/40">{t("vehicles.all_types")}</span>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => { setReturnCountryId(null); setReturnCityId(null); setReturnCountryOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {countries.map(c => (
+                            <button key={c.id} type="button" onClick={() => { setReturnCountryId(c.id); setReturnCountryOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${returnCountryId === c.id ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="text-lg">{getCountryFlag(c.name)}</span>
+                              <span className="font-medium">{c.name}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_city") || "Ville de restitution"}</label>
+                      <Popover open={returnCityOpen} onOpenChange={setReturnCityOpen}>
+                        <PopoverTrigger className="w-full" disabled={!returnCountryId}>
+                          <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!returnCountryId ? "opacity-50 pointer-events-none" : ""}`}>
+                            {returnCityId ? (
+                              <span className="font-medium text-white">{returnCities.find(c => c.id === returnCityId)?.name}</span>
+                            ) : (
+                              <span className="text-white/40">{t("vehicles.all_types")}</span>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => { setReturnCityId(null); setReturnCityOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {returnCities.map(c => (
+                            <button key={c.id} type="button" onClick={() => { setReturnCityId(c.id); setReturnCityOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${returnCityId === c.id ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="font-medium">{c.name}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+
+                  {/* Row 4: Return Location Type */}
+                  <div className="mt-3">
+                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_location") || "Lieu de restitution"}</label>
+                    <Popover open={returnLocTypeOpen} onOpenChange={setReturnLocTypeOpen}>
+                      <PopoverTrigger className="w-full">
+                        <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                          {returnLocation ? (
+                            <><span className="font-medium text-white">{returnLocation}</span></>
+                          ) : (
+                            <span className="text-white/40">{t("vehicles.all_types")}</span>
+                          )}
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" sideOffset={4} className="min-w-[320px] p-3 max-h-96 overflow-y-auto">
+                        <button type="button" onClick={() => setReturnLocationType("")} className="w-full flex items-center gap-4 px-5 py-4 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <span>{t("vehicles.all_types")}</span>
+                        </button>
+                        {(() => {
+                          const city = returnCityId ? returnCities.find(c => c.id === returnCityId) : null;
+                          const locs = city?.locations?.length ? city.locations : null;
+                          if (locs) {
+                            return locs.map(loc => (
+                              <button key={loc.id} type="button" onClick={() => handleReturnLocationSelect(loc.type, loc.name, loc.price)} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${returnLocationType === loc.type ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${loc.type === "airport" ? "bg-gradient-to-br from-[#f39c12]/20 to-[#f39c12]/5" : "bg-gradient-to-br from-blue-500/20 to-blue-500/5"}`}>
+                                  {loc.type === "airport" ? (
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#f39c12" className="opacity-90"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
+                                  ) : (
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6" className="opacity-90"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                                  )}
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{loc.name}</span>
+                                  <span className="text-xs text-white/40">{loc.type === "airport" ? "Restitution à l'aéroport" : "Restitution en centre-ville"}</span>
+                                </div>
+                              </button>
+                            ));
+                          }
+                          return (
+                            <>
+                              <button type="button" onClick={() => handleReturnLocationSelect("airport", t("vehicles.location_airport"), 0)} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${returnLocationType === "airport" ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#f39c12]/20 to-[#f39c12]/5 flex items-center justify-center shrink-0">
+                                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#f39c12" className="opacity-90"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{t("vehicles.location_airport")}</span>
+                                  <span className="text-xs text-white/40">Restitution à l'aéroport</span>
+                                </div>
+                              </button>
+                              <button type="button" onClick={() => handleReturnLocationSelect("citycenter", t("vehicles.location_citycenter"), 0)} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${returnLocationType === "citycenter" ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center shrink-0">
+                                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6" className="opacity-90"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{t("vehicles.location_citycenter")}</span>
+                                  <span className="text-xs text-white/40">Restitution en centre-ville</span>
+                                </div>
+                              </button>
+                            </>
+                          );
+                        })()}
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Extra fee display */}
+                  {(() => {
+                    const pickupCity = filterCityId ? filterCities.find(c => c.id === filterCityId) : null;
+                    const pickupLoc = pickupCity?.locations?.find(l => l.type === filterLocationType);
+                    const returnCity = returnCityId ? returnCities.find(c => c.id === returnCityId) : null;
+                    const returnLoc = returnCity?.locations?.find(l => l.type === returnLocationType);
+                    const fee = returnLoc?.price && Number(returnLoc.price) > 0 ? Number(returnLoc.price) : null;
+                    if (!fee) return null;
+                    return (
+                      <div className="mt-3 flex items-center gap-2 bg-[#f39c12]/10 border border-[#f39c12]/20 rounded-xl px-4 py-3">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#f39c12"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                        <span className="text-sm font-bold text-[#f39c12]">
+                          Supplément {returnLoc?.name}: {fee.toFixed(2)} DH
+                        </span>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Confirmation popup */}
+                  {confirmOpen && confirmData && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setConfirmOpen(false)}>
+                      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl shadow-2xl max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-[#f39c12]/20 flex items-center justify-center">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#f39c12"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                          </div>
+                          <h3 className="text-lg font-bold text-white">Supplément de restitution</h3>
+                        </div>
+                        <p className="text-sm text-white/70 mb-6 leading-relaxed">
+                          Un supplément de <span className="font-bold text-[#f39c12]">{confirmData.price.toFixed(2)} DH</span> sera ajouté pour la restitution à <span className="font-bold text-white">{confirmData.name}</span>.
+                        </p>
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => { setReturnLocationType(confirmData.type); setConfirmOpen(false); setConfirmData(null); }}
+                            className="flex-1 h-11 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm transition-all active:scale-95 cursor-pointer"
+                          >
+                            Confirmer
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setConfirmOpen(false); setConfirmData(null); }}
+                            className="h-11 px-6 rounded-xl border border-white/20 text-white/70 hover:text-white font-bold text-sm transition-all active:scale-95 cursor-pointer"
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Row 5: Brand + Model + Fuel type + Vehicle type */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.brand")}</label>
+                      <Popover open={brandOpen} onOpenChange={setBrandOpen}>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {brand ? (<><img src={getBrandLogo(brand) ?? ""} alt={brand} className="w-5 h-5 object-contain" /><span className="font-medium text-white">{brand}</span></>) : (<span className="text-white/40">{t("vehicles.all_types")}</span>)}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="w-[340px] p-4 max-h-80 overflow-y-auto">
+                          <button type="button" onClick={() => { setBrand(""); setBrandOpen(false); }} className="w-full text-left px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">{t("vehicles.all_types")}</button>
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            {propMarques.map((m) => {
+                              const logoUrl = m.logo ? `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}` : getBrandLogo(m.name);
+                              return (
+                                <button key={m.id} type="button" onClick={() => { setBrand(m.name); setBrandOpen(false); }} className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-sm transition-all ${brand === m.name ? "bg-[#f39c12]/20 text-[#f39c12] ring-2 ring-[#f39c12]/40" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md"}`}>
+                                  {logoUrl && <img src={logoUrl} alt={m.name} className="w-8 h-8 object-contain shrink-0" />}
+                                  <span className="text-xs font-medium text-center leading-tight">{m.name}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.vehicle_type")}</label>
+                      <Popover>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {typeVehiculeId ? (
+                              <span className="font-medium text-white">{propTypeVehicules.find(tv => tv.id === typeVehiculeId)?.name}</span>
+                            ) : (
+                              <span className="text-white/40">{t("vehicles.all_types")}</span>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="min-w-[240px] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => setTypeVehiculeId(null)} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {propTypeVehicules.map(tv => (
+                            <button key={tv.id} type="button" onClick={() => setTypeVehiculeId(tv.id)} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${typeVehiculeId === tv.id ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="font-medium">{tv.name}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.model")}</label>
+                      <input type="text" placeholder={t("vehicles.model_placeholder")} value={model} onChange={(e) => setModel(e.target.value)} className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.fuel_type")}</label>
+                      <Popover>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {fuelType ? (
+                              <span className="font-medium text-white">{fuelType === "Gasoline" ? "Essence" : fuelType === "Electricity" ? "Électrique" : fuelType}</span>
+                            ) : (
+                              <span className="text-white/40">{t("vehicles.all_types")}</span>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="min-w-[240px] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => setFuelType("")} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {[["Gasoline","Essence"],["Diesel","Diesel"],["Electricity","Électrique"],["Hybrid","Hybride"]].map(([val,label]) => (
+                            <button key={val} type="button" onClick={() => setFuelType(val)} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${fuelType === val ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="font-medium">{label}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+
+                  {/* Row 4: Price range + Search */}
+                  <div className="mt-3 flex flex-col sm:flex-row gap-3">
+                    <div className="flex gap-3 flex-1">
+                      <div className="w-full sm:w-32">
+                        <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Min</label>
+                        <input type="number" placeholder="0 DH" value={minPrice ?? ""} onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)} className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all" />
+                      </div>
+                      <div className="w-full sm:w-32">
+                        <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Max</label>
+                        <input type="number" placeholder="1000 DH" value={maxPrice ?? ""} onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)} className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all" />
+                      </div>
+                    </div>
+                    <m.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSearch} className="h-11 px-8 rounded-xl bg-[#f39c12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center justify-center gap-2 transition-all shrink-0 shadow-lg shadow-[#f39c12]/20">
+                      <Search className="w-4 h-4" />
+                      {t("vehicles.filter_button")}
+                    </m.button>
+                  </div>
+                </form>
+              </m.div>
         </div>
 
             {/* Right: Vehicle showcase */}
@@ -514,101 +867,95 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-                className="relative w-full max-w-[560px] lg:max-w-[780px]"
+                className="flex-1 relative group w-full mt-10 lg:mt-0"
               >
-                <div className="relative aspect-[4/3] flex items-center justify-center p-2">
-                  {/* Concentric rings */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full border border-[#f39c12]/10"
-                      style={{ animation: "pulse-ring 3s ease-in-out infinite" }}
-                    />
-                    <div
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] aspect-square rounded-full border border-[#f39c12]/15"
-                      style={{ animation: "pulse-ring 3s ease-in-out infinite 0.5s" }}
-                    />
+                    <div className="relative w-full max-w-[900px] lg:max-w-[1100px] mx-auto">
+                    <div className="relative aspect-[16/10] flex items-center justify-center p-2">
+                    {/* Pulse circles */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full border border-[#f39c12]/10" style={{animation:'pulse-ring 3s ease-in-out infinite'}} />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] aspect-square rounded-full border border-[#f39c12]/15" style={{animation:'pulse-ring 3s ease-in-out infinite 0.5s'}} />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] aspect-square rounded-full bg-[#f39c12]/[0.04] blur-[60px]" />
-                  </div>
-                  {/* Vehicle images */}
-                  {displayVehicles.map((v, i) => {
-                    const imgSrc = v.pictures?.[0]
-                      ? vehicleImageUrl(v.pictures[0].path)
-                      : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80";
-                    return (
-                    <m.div
-                      key={v.id}
-                      className="absolute inset-0 flex items-center justify-center p-4"
-                      initial={false}
-                      animate={{
-                        opacity: i === vehicleIndex ? 1 : 0,
-                        scale: i === vehicleIndex ? 1 : 0.85,
-                        x: i === vehicleIndex ? 0 : 40,
-                      }}
-                      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      <div
-                        onClick={() => router.push(`/vehicules/${v.id}`)}
-                        className="w-full bg-white/10 backdrop-blur-md rounded-3xl border border-white/15 overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.3)] cursor-pointer group"
-                      >
-                        {/* ── Image taller ── */}
-                        <div className="h-72 lg:h-96 bg-[#F0F3FA]/10 overflow-hidden relative">
-                          <img
-                            src={imgSrc}
-                            alt={`${v.marque} ${v.model}`}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <span className="text-[11px] font-bold text-white bg-[#395886]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                              {v.year}
-                            </span>
-                            <span className="text-[11px] font-bold text-white bg-[#f39c12]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                              {v.fuelType}
-                            </span>
-                          </div>
-                          {/* ── Price bigger ── */}
-                          <div className="absolute bottom-3 left-3 flex items-baseline gap-1 text-white drop-shadow-lg">
-                            <span className="text-4xl font-black">{v.pricePerDay.toLocaleString()}</span>
-                            <span className="text-base font-semibold opacity-90">DH / jour</span>
-                          </div>
-                        </div>
-                        {/* ── Card footer bigger ── */}
-                        <div className="p-5 flex items-center justify-between">
-                          <div>
-                            <p className="text-white font-bold text-base truncate">{v.marque} {v.model}</p>
-                            <div className="flex items-center gap-3 mt-1.5">
-                              <span className="text-xs text-white/60 flex items-center gap-1">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/></svg>
-                                {v.Occupants}
-                              </span>
-                              <span className="text-xs text-white/60 flex items-center gap-1">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                                {v.km.toLocaleString()} km
-                              </span>
+
+                    {/* Concentric circles — behind card */}
+                    <div className="absolute top-1/2 left-1/2 w-[70%] aspect-square rounded-full border border-[#f39c12]/10 z-0 pulse-scale" />
+                    <div className="absolute top-1/2 left-1/2 w-[60%] aspect-square rounded-full border border-[#f39c12]/10 z-0 pulse-scale-reverse" />
+
+                    {/* Soft radial glow — behind card */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] aspect-square rounded-full bg-[#f39c12]/[0.06] blur-[70px] z-0 pointer-events-none" />
+
+                    {/* Vehicle crossfade — fixed so the transition actually triggers on index change */}
+                    <div className="absolute inset-0 overflow-visible z-10">
+                      <AnimatePresence mode="popLayout" custom={direction}>
+                        <m.div
+                          key={vehicleIndex}
+                          custom={direction}
+                          initial={{ opacity: 0, scale: 0.92, x: direction * 60 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.92, x: -direction * 60 }}
+                          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                          className="absolute inset-0 flex items-center justify-center"
+                        >
+                          <div className="floating">
+                          <div
+                            onClick={() => router.push(`/vehicules/${displayVehicles[vehicleIndex]?.id}`)}
+                            className="w-[90%] mx-auto bg-white/10 backdrop-blur-md rounded-3xl border border-white/15 overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.3)] cursor-pointer group"
+                          >
+                            <div className="aspect-[16/9] bg-[#F0F3FA]/10 overflow-hidden relative">
+                              <img
+                                src={vehicleImageUrl(displayVehicles[vehicleIndex]?.pictures?.[0]?.path ?? "") || "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80"}
+                                alt={displayVehicles[vehicleIndex] ? `${displayVehicles[vehicleIndex].marque} ${displayVehicles[vehicleIndex].model}` : ""}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                              <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                                <span className="text-[11px] font-bold text-white bg-[#395886]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">{displayVehicles[vehicleIndex]?.year}</span>
+                                <span className="text-[11px] font-bold text-white bg-[#f39c12]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">{displayVehicles[vehicleIndex]?.fuelType}</span>
+                              </div>
+                              <div className="absolute bottom-3 left-3 flex items-baseline gap-1 text-white drop-shadow-lg">
+                                <span className="text-4xl font-black">{displayVehicles[vehicleIndex]?.pricePerDay.toLocaleString()}</span>
+                                <span className="text-base font-semibold opacity-90">DH / jour</span>
+                              </div>
+                            </div>
+                            <div className="p-5 flex items-center justify-between">
+                              <div>
+                                <p className="text-white font-bold text-base truncate">{displayVehicles[vehicleIndex]?.marque} {displayVehicles[vehicleIndex]?.model}</p>
+                                <div className="flex items-center gap-3 mt-1.5">
+                                  <span className="text-xs text-white/60 flex items-center gap-1">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4" /><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" /></svg>
+                                    {displayVehicles[vehicleIndex]?.Occupants}
+                                  </span>
+                                  <span className="text-xs text-white/60 flex items-center gap-1">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                                    {displayVehicles[vehicleIndex]?.km.toLocaleString()} km
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="bg-[#f39c12] hover:bg-[#d68910] text-[#395886] text-sm font-black px-5 py-3 rounded-xl transition-colors">Réserver</div>
                             </div>
                           </div>
-                          {/* ── Button bigger ── */}
-                          <div className="bg-[#f39c12] hover:bg-[#d68910] text-[#395886] text-sm font-black px-5 py-3 rounded-xl transition-colors">
-                            Réserver
                           </div>
-                        </div>
-                      </div>
-                    </m.div>
-                    );
-                  })}
+                        </m.div>
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+
                 </div>
 
                 {/* Dot indicators */}
                 {displayVehicles.length > 1 && (
-                  <div className="flex items-center justify-center gap-2.5 mt-4">
+                  <div className="relative z-20 flex items-center justify-center gap-3 mt-8 sm:mt-6">
                     {displayVehicles.map((_, i) => (
                       <button
                         key={i}
-                        onClick={() => setVehicleIndex(i)}
+                        onClick={() => {
+                          setDirection(i > vehicleIndex ? 1 : -1);
+                          setVehicleIndex(i);
+                        }}
                         className={`rounded-full transition-all duration-500 ${
                           i === vehicleIndex
-                            ? "w-7 h-2 bg-[#f39c12]"
-                            : "w-2 h-2 bg-white/30 hover:bg-white/50"
+                            ? "w-6 h-1.5 sm:w-8 sm:h-2 bg-[#f39c12]"
+                            : "w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/20 hover:bg-white/40"
                         }`}
                       />
                     ))}
@@ -1297,6 +1644,26 @@ function MarquesSection({ marques: propMarques = [] }: { marques?: Marque[] }) {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        @keyframes pulse-scale {
+          0%, 100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.3; }
+          50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.6; }
+        }
+        @keyframes pulse-scale-reverse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.4; }
+          50% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.7; }
+        }
+        @keyframes floating {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes floating-reverse {
+          0%, 100% { transform: translateY(0px) rotate(var(--rot, -3deg)); }
+          50% { transform: translateY(8px) rotate(var(--rot, -3deg)); }
+        }
+        .floating { animation: floating 5.5s ease-in-out infinite; }
+        .floating-reverse { animation: floating-reverse 4s ease-in-out infinite; }
+        .pulse-scale { animation: pulse-scale 4s ease-in-out infinite; }
+        .pulse-scale-reverse { animation: pulse-scale-reverse 4s ease-in-out infinite; }
       `}</style>
     </section>
   );

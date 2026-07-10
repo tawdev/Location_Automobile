@@ -56,10 +56,19 @@ export type Country = {
   cities?: City[];
 };
 
+export type CityLocation = {
+  id: number;
+  city_id: number;
+  name: string;
+  type: "airport" | "citycenter";
+  price?: number | null;
+};
+
 export type City = {
   id: number;
   country_id: number;
   name: string;
+  locations?: CityLocation[];
 };
 
 export type Vehicle = {

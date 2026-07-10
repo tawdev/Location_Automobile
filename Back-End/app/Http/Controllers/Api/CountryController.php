@@ -11,7 +11,7 @@ class CountryController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'data' => Country::with('cities')->get(),
+            'data' => Country::with('cities.locations')->get(),
         ]);
     }
 }
