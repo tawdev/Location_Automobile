@@ -16,7 +16,7 @@ class CountryController extends Controller
         }
 
         $data = Schema::hasTable('cities')
-            ? Country::with('cities')->get()
+            ? Country::with('cities.locations')->get()
             : Country::all();
 
         return response()->json(['status' => 'success', 'data' => $data]);

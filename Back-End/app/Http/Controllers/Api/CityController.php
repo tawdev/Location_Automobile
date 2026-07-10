@@ -9,7 +9,7 @@ class CityController extends Controller
 {
     public function byCountry($countryId)
     {
-        $country = Country::with('cities')->findOrFail($countryId);
+        $country = Country::with('cities.locations')->findOrFail($countryId);
 
         return response()->json([
             'status' => 'success',

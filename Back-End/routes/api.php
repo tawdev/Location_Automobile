@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\ExtraController;
 use App\Http\Controllers\Api\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\Api\Admin\CityController as AdminCityController;
+use App\Http\Controllers\Api\Admin\CityLocationController as AdminCityLocationController;
 use App\Http\Controllers\Api\Admin\PermissionController;
 use App\Http\Controllers\Api\Admin\SettingsController;
 use App\Http\Controllers\Api\Admin\UserController;
@@ -64,9 +65,10 @@ Route::get('Categories/public', [CategoryController::class , 'index']);
 Route::get('Marques/public', [MarqueController::class, 'index']);
 Route::get('type-vehicules/public', [TypeVehiculeController::class, 'index']);
 
-// Public country/city routes
+// Public country/city/location routes
 Route::get('countries', [\App\Http\Controllers\Api\CountryController::class, 'index']);
 Route::get('countries/{id}/cities', [\App\Http\Controllers\Api\CityController::class, 'byCountry']);
+Route::get('cities/{id}/locations', [\App\Http\Controllers\Api\CityLocationController::class, 'byCity']);
 
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::post('/vehicle' , [VehicleController::class , 'store']);
@@ -183,6 +185,11 @@ Route::middleware(['auth:sanctum','admin_or_permission'])->group(function () {
     Route::get('admin/cities/{city}', [AdminCityController::class, 'show']);
     Route::put('admin/cities/{city}', [AdminCityController::class, 'update']);
     Route::delete('admin/cities/{city}', [AdminCityController::class, 'destroy']);
+    Route::get('admin/city-locations', [AdminCityLocationController::class, 'index']);
+    Route::post('admin/city-locations', [AdminCityLocationController::class, 'store']);
+    Route::get('admin/city-locations/{cityLocation}', [AdminCityLocationController::class, 'show']);
+    Route::put('admin/city-locations/{cityLocation}', [AdminCityLocationController::class, 'update']);
+    Route::delete('admin/city-locations/{cityLocation}', [AdminCityLocationController::class, 'destroy']);
 
     // ── Blog / Press / Careers (manage_blogs) ──
     Route::middleware('permission:manage_blogs')->group(function () {

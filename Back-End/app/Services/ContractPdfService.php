@@ -75,7 +75,7 @@ class ContractPdfService
 
     public function generateAll(Reservation $reservation): array
     {
-        $reservation->loadMissing(['user', 'vehicle', 'extras', 'departureConditions', 'departCountry', 'departCity', 'returnCountry', 'returnCity']);
+        $reservation->loadMissing(['user', 'vehicle.category', 'vehicle.typeVehicule', 'client', 'extras', 'departureConditions', 'departCountry', 'departCity', 'returnCountry', 'returnCity']);
 
         return [
             'fr' => $this->generateSingle($reservation, 'fr'),
@@ -101,7 +101,7 @@ class ContractPdfService
             default => 'pdfs.contrat-location-fr',
         };
 
-        $reservation->loadMissing(['user', 'vehicle', 'extras', 'client', 'departureConditions', 'departCountry', 'departCity', 'returnCountry', 'returnCity']);
+        $reservation->loadMissing(['user', 'vehicle.category', 'vehicle.typeVehicule', 'client', 'extras', 'departureConditions', 'departCountry', 'departCity', 'returnCountry', 'returnCity']);
 
         $logoPath = public_path('image/Logo.png');
         $logoBase64 = file_exists($logoPath)

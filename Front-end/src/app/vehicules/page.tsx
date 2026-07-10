@@ -20,6 +20,7 @@ import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbLD } from "@/lib/json-ld";
 import { PAGE_TITLES, PAGE_DESCRIPTIONS, SITE_URL } from "@/lib/seo";
+import Header from "@/components/Header";
 
 const NEW_COUNT = 10;
 const vehiclesBgImages = Array.from({ length: 6 }, (_, i) => `/background_vehicles/bg${`0${i + 1}`.slice(-2)}.webp`);
@@ -646,6 +647,7 @@ export default function VehiculesPage() {
 
   return (
     <div className="bg-gray-50/50 dark:bg-[#070b14] transition-colors duration-500">
+      <Header />
       <JsonLd
         id="ld-breadcrumb-vehicules"
         data={breadcrumbLD([
