@@ -18,6 +18,8 @@ import { toLocalDateString } from "@/lib/dateUtils";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbLD } from "@/lib/json-ld";
 import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
+import { fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
+import type { Category } from "@/lib/types";
 
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
@@ -126,6 +128,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [fuelType, setFuelType] = useState("");
   const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(null);
   const [brandOpen, setBrandOpen] = useState(false);
+  const [modelOpen, setModelOpen] = useState(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [filterCountryId, setFilterCountryId] = useState<number | null>(null);
   const [countryOpen, setCountryOpen] = useState(false);
@@ -151,7 +154,18 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [heroNextBgIndex, setHeroNextBgIndex] = useState<number | null>(null);
   const [heroBgFading, setHeroBgFading] = useState(false);
   const displayVehicles = useMemo(() => showcaseVehicles?.slice(0, 5) ?? [], [showcaseVehicles]);
-  const [vehicleType, setVehicleType] = useState("cars");
+
+  const brandModels = useMemo(() => {
+    if (!brand || !showcaseVehicles) return [];
+    const models = new Set<string>();
+    for (const v of showcaseVehicles) {
+      if (v.marque === brand && v.model) models.add(v.model);
+    }
+    return Array.from(models).sort();
+  }, [brand, showcaseVehicles]);
+  const [vehicleType, setVehicleType] = useState<number | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [noResults, setNoResults] = useState(false);
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupLocationVal, setPickupLocationVal] = useState("");
   const [returnLocationVal, setReturnLocationVal] = useState("");
@@ -196,12 +210,25 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     return result;
   }, [countries, filterCountryId, filterCityId]);
 
-  const vehicleTypes = [
-    { key: "cars", label: "Voitures", icon: "car" },
-    { key: "vans", label: "Vans", icon: "van" },
-    { key: "mini_vans", label: "Mini Vans", icon: "minivan" },
-    { key: "luxe", label: "voitures de luxe", icon: "luxury" },
-  ];
+  useEffect(() => {
+    fetchCategories().then(setCategories).catch(() => {});
+  }, []);
+
+  const categoryIcons: Record<string, string> = {
+    economy: "M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z",
+    standard: "M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z",
+    suv: "M1 16V7a2 2 0 012-2h11.86a4 4 0 013.328 1.781L21 11a2 2 0 012 2v3h-2a3 3 0 11-6 0H8a3 3 0 11-6 0H1zm7-9h5v4H8V7zM6 7H3v4h3V7zm9 4V7.005a2 2 0 011.523.886L18.596 11H15zM4 16a1 1 0 102 0 1 1 0 00-2 0zm13 0a1 1 0 102 0 1 1 0 00-2 0z",
+    premium: "M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4-6.2-4.5h7.6z",
+    luxury: "M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4-6.2-4.5h7.6z",
+  };
+
+  function getCategoryIcon(name: string): string {
+    const lower = name.toLowerCase();
+    if (lower.includes("suv")) return categoryIcons.suv;
+    if (lower.includes("premium") || lower.includes("luxe") || lower.includes("luxury")) return categoryIcons.premium;
+    if (lower.includes("van")) return "M1 16V7a2 2 0 012-2h11.86a4 4 0 013.328 1.781L21 11a2 2 0 012 2v3h-2a3 3 0 11-6 0H8a3 3 0 11-6 0H1zm7-9h5v4H8V7zM6 7H3v4h3V7zm9 4V7.005a2 2 0 011.523.886L18.596 11H15zM4 16a1 1 0 102 0 1 1 0 00-2 0zm13 0a1 1 0 102 0 1 1 0 00-2 0z";
+    return categoryIcons.economy;
+  }
 
   useEffect(() => {
     fetchCountries().then(setCountries).catch(() => {});
@@ -215,6 +242,10 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     }
     setFilterCityId(null);
   }, [filterCountryId]);
+
+  useEffect(() => {
+    setModel("");
+  }, [brand]);
 
   useEffect(() => {
     const city = filterCityId ? filterCities.find(c => c.id === filterCityId) : null;
@@ -291,8 +322,28 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     }
   }
 
-  const handleSearch = (e?: React.FormEvent) => {
+  const handleSearch = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    setNoResults(false);
+    try {
+      const results = await filterVehicles({
+        marque: brand.trim() || undefined,
+        model: model.trim() || undefined,
+        fuelType: fuelType || undefined,
+        min_price: minPrice,
+        max_price: maxPrice,
+        current_country_id: filterCountryId ?? undefined,
+        current_city_id: filterCityId ?? undefined,
+        location_type: filterLocationType || undefined,
+      });
+      if (!results || results.length === 0) {
+        setNoResults(true);
+        return;
+      }
+    } catch {
+      setNoResults(true);
+      return;
+    }
     const params = new URLSearchParams();
     if (pickupLocationVal) params.set("pickup_location", pickupLocationVal);
     if (returnLocationVal) params.set("dropoff_location", returnLocationVal);
@@ -300,7 +351,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (pickupTime) params.set("pickup_time", pickupTime);
     if (returnDate) params.set("end_date", returnDate);
     if (returnTime) params.set("dropoff_time", returnTime);
-    if (vehicleType) params.set("vehicle_type", vehicleType);
+    if (vehicleType) params.set("category_id", String(vehicleType));
     if (brand.trim()) params.set("marque", brand.trim());
     if (model.trim()) params.set("model", model.trim());
     if (minPrice !== undefined) params.set("min_price", String(minPrice));
@@ -389,48 +440,25 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 transition={{ duration: 0.6, delay: 0.6 }}
               >
                 <form onSubmit={handleSearch} className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">
-                  {/* Vehicle Type Selector */}
+                  {/* Category Selector */}
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {vehicleTypes.map((vt) => (
+                    {categories.map((cat) => (
                       <button
-                        key={vt.key}
+                        key={cat.id}
                         type="button"
-                        onClick={() => setVehicleType(vt.key)}
+                        onClick={() => setVehicleType(vehicleType === cat.id ? null : cat.id)}
                         className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                          vehicleType === vt.key
+                          vehicleType === cat.id
                             ? "bg-[#f39c12]/20 text-[#f39c12] border border-[#f39c12]/40"
                             : "bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white/80"
                         }`}
                       >
-                        {vt.key === "cars" && (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
-                          </svg>
-                        )}
-                        {vt.key === "vans" && (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path fillRule="evenodd" d="M1 16V7a2 2 0 012-2h11.86a4 4 0 013.328 1.781L21 11a2 2 0 012 2v3h-2a3 3 0 11-6 0H8a3 3 0 11-6 0H1zm7-9h5v4H8V7zM6 7H3v4h3V7zm9 4V7.005a2 2 0 011.523.886L18.596 11H15zM4 16a1 1 0 102 0 1 1 0 00-2 0zm13 0a1 1 0 102 0 1 1 0 00-2 0z" />
-                          </svg>
-                        )}
-                        {vt.key === "mini_vans" && (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path fillRule="evenodd" d="M1 16V7a2 2 0 012-2h9.5a4 4 0 013.328 1.781L18 10h3a2 2 0 012 2v4h-2a3 3 0 11-6 0H9a3 3 0 11-6 0H1zm6-2a1 1 0 10-2 0 1 1 0 002 0zm11 0a1 1 0 10-2 0 1 1 0 002 0zM8 7H4v3h4V7zm2 0v3h4.596l-1.073-1.709A2 2 0 0012.5 7H10z" />
-                          </svg>
-                        )}
-                        {vt.key === "luxe" && (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l4.5 5h4L12 22 3.5 7h4L12 2z" />
-                          </svg>
-                        )}
-                        <span>{vt.label}</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d={getCategoryIcon(cat.name)} />
+                        </svg>
+                        <span>{cat.name}</span>
                       </button>
                     ))}
-                    <a href="/vehicules?tab=lld" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white/80 transition-all">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.655 7.517h-11.5L4.62 12.088l-1.674.955 3.107 1.085-.524 1.504-3.07-1.07v5.371h3.038v-1.637h1.59l.005 3.23H.864v-9.129l2.579-1.471 2.773-5.003h11.555l.884 1.594zm3.33 8.966a5.93 5.93 0 01-5.923 5.923 5.93 5.93 0 01-5.923-5.923 5.93 5.93 0 015.923-5.923 5.93 5.93 0 014.668 2.286h-1.827v1.593h4.593V9.838h-1.593v1.932a7.528 7.528 0 00-5.84-2.804c-4.145 0-7.518 3.374-7.518 7.517 0 4.144 3.373 7.517 7.517 7.517 4.143 0 7.517-3.373 7.517-7.517h-1.594zM16.86 20.12v-2.84h2.84v-1.594h-2.84v-2.84h-1.594v2.84h-2.84v1.594h2.84v2.84h1.594z" />
-                      </svg>
-                      <span>Longue Durée</span>
-                    </a>
                   </div>
 
                   {/* Form Row */}
@@ -812,7 +840,26 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.model")}</label>
-                      <input type="text" placeholder={t("vehicles.model_placeholder")} value={model} onChange={(e) => setModel(e.target.value)} className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all" />
+                      <Popover open={modelOpen} onOpenChange={setModelOpen}>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {model ? <span className="font-medium text-white">{model}</span> : <span className="text-white/40">{brand ? t("vehicles.model_placeholder") : t("vehicles.all_types")}</span>}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="min-w-[200px] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => { setModel(""); setModelOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {brandModels.map((m) => (
+                            <button key={m} type="button" onClick={() => { setModel(m); setModelOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${model === m ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="font-medium">{m}</span>
+                            </button>
+                          ))}
+                          {brand && brandModels.length === 0 && (
+                            <div className="px-4 py-3 text-sm text-gray-400">No models found</div>
+                          )}
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.fuel_type")}</label>
@@ -858,6 +905,16 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </m.button>
                   </div>
                 </form>
+                {noResults && (
+                  <m.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 bg-[#f39c12]/10 backdrop-blur-md border border-[#f39c12]/30 rounded-xl px-5 py-4 text-center"
+                  >
+                    <p className="text-[#f39c12] font-semibold text-sm">{t("home.no_results")}</p>
+                    <p className="text-white/50 text-xs mt-1">{t("home.no_results_hint")}</p>
+                  </m.div>
+                )}
               </m.div>
         </div>
 
