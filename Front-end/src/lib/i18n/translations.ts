@@ -28,6 +28,8 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "home.hero.subtitle": { en: "Discover a tailor-made automotive experience. Exceptional vehicles, concierge service available 24/7, just for you.", fr: "Découvrez une expérience automobile sur mesure. Des véhicules d'exception, un service de conciergerie disponible 24h/24, rien que pour vous.", ar: "اكتشف تجربة سيارات مصممة خصيصًا لك. مركبات استثنائية، وخدمة كونسيرج متاحة على مدار الساعة." },
   "home.hero.cta": { en: "Get Started", fr: "Commencer", ar: "ابدأ الآن" },
   "home.hero.connect": { en: "Sign in", fr: "Se connecter", ar: "تسجيل الدخول" },
+  "home.no_results": { en: "No vehicles found for your search.", fr: "Aucun véhicule trouvé pour votre recherche.", ar: "لم يتم العثور على مركبات لبحثك." },
+  "home.no_results_hint": { en: "Try adjusting your filters or removing some criteria.", fr: "Essayez d'ajuster vos filtres ou de supprimer certains critères.", ar: "حاول تعديل عوامل التصفية أو إزالة بعض المعايير." },
   "home.services.title": { en: "The art of car rental", fr: "L'art de la location automobile", ar: "فن تأجير السيارات" },
   "home.services.subtitle": { en: "Everything you need for a smooth experience.", fr: "Tout ce dont vous avez besoin pour une expérience sans accroc.", ar: "كل ما تحتاجه لتجربة سلسة." },
   "home.services.premium": { en: "Premium Rental", fr: "Location Premium", ar: "تأجير فاخر" },
