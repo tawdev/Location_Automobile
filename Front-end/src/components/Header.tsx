@@ -28,7 +28,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AboutDropdown from "@/components/AboutDropdown";
 
 function Logo({ onClick, scrolled, dark, isHomePage }: { onClick: () => void; scrolled: boolean; dark: boolean; isHomePage: boolean }) {
-  const showDark = isHomePage ? (!scrolled || dark) : dark;
+  const showDark = true;
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -88,12 +88,12 @@ function NavLink({
       {active && !transparent && (
         <motion.div
           layoutId="nav-pill"
-          className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] shadow-lg shadow-[#395886]/20"
+          className={`absolute inset-0 rounded-xl shadow-lg ${href === "/" ? "bg-gradient-to-r from-[#f39c12] to-[#d68910] shadow-[#f39c12]/20" : "bg-gradient-to-r from-[#395886] to-[#2b4c7e] shadow-[#395886]/20"}`}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
       <span className="relative z-10 flex items-center gap-2">
-        <Icon className={`w-4 h-4 ${active && !transparent ? "text-white" : ""}`} />
+        <Icon className={`w-4 h-4 ${active && !transparent ? (href === "/" ? "text-white border border-[#4A5C6A] rounded-md p-[1px]" : "text-white") : ""}`} />
         {label}
       </span>
     </motion.button>
@@ -334,11 +334,9 @@ export default function Header({ solid }: { solid?: boolean }) {
     setMobileResourcesOpen(false);
   }, [pathname]);
 
-  const isTransparentState = isTransparent && !scrolled;
+  const isTransparentState = true;
 
-  const headerClasses = isTransparentState
-    ? "bg-black/20 dark:bg-black/40 backdrop-blur-md"
-    : "bg-[#F0F3FA]/80 dark:bg-[#0f1729]/90 backdrop-blur-2xl shadow-[0_4px_30px_rgba(57,88,134,0.12)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] border-b border-[#D5DEEF]/30 dark:border-[#1e293b]/80";
+  const headerClasses = "bg-black/60 backdrop-blur-xl border-b border-white/10";
 
   return (
     <>
@@ -365,7 +363,7 @@ export default function Header({ solid }: { solid?: boolean }) {
             ))}
             <AboutDropdown
               variant={isTransparentState ? "visitor" : "client"}
-              scrolled={scrolled || !isTransparent}
+              scrolled={false}
               isActive={
                 pathname.startsWith("/a-propos") ||
                 pathname.startsWith("/regles") ||
@@ -382,7 +380,7 @@ export default function Header({ solid }: { solid?: boolean }) {
               <AccountDropdown pathname={pathname} router={router} onLogout={handleLogout} t={t} transparent={isTransparentState} />
             )}
             <LanguageSwitcher transparent={isTransparentState} />
-            <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
+            <div className="w-px h-8 bg-white/20 mx-3" />
             <motion.button
               whileHover={{ scale: 1.1, rotate: dark ? -15 : 15 }}
               whileTap={{ scale: 0.9 }}
@@ -400,7 +398,7 @@ export default function Header({ solid }: { solid?: boolean }) {
             </motion.button>
             {!isAuthenticated && (
               <>
-                <div className="w-px h-8 bg-[#D5DEEF]/60 dark:bg-[#1e293b]/60 mx-3" />
+                <div className="w-px h-8 bg-white/20 mx-3" />
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
@@ -481,7 +479,9 @@ export default function Header({ solid }: { solid?: boolean }) {
                     onClick={() => router.push(item.href)}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
                       pathname === item.href
-                        ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
+                        ? item.href === "/"
+                          ? "bg-gradient-to-r from-[#f39c12] to-[#d68910] text-[#395886] shadow-md"
+                          : "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
                         : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
                     }`}
                   >
@@ -541,7 +541,7 @@ export default function Header({ solid }: { solid?: boolean }) {
                                       : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
                                   }`}
                                 >
-                                  <item.icon className="w-4 h-4" />
+                    <item.icon className={`w-4 h-4 ${pathname === item.href && item.href === "/" ? "border border-[#4A5C6A] rounded-md p-[1px]" : ""}`} />
                                   {item.label}
                                 </button>
                               );

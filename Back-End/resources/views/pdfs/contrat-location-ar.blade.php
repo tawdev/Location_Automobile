@@ -110,6 +110,8 @@
                 {!! arabic('رقم العقد :') !!} <strong>{{ str_pad($reservation->id, 6, '0', STR_PAD_LEFT) }}</strong>
                 <span>|</span> {!! arabic('التاريخ :') !!} <strong>{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong>
                 <span>|</span> {!! arabic('المكان :') !!} <strong>{!! arabic('مراكش') !!}</strong>
+                <span>|</span> {!! arabic('الحالة :') !!} <strong>{!! arabic($reservation->status ?? 'قيد الانتظار') !!}</strong>
+                <span>|</span> {!! arabic('المجموع :') !!} <strong>{{ $reservation->TotalPrice ? number_format($reservation->TotalPrice, 2) . ' ' . arabic('درهم') : arabic('غير محدد') }}</strong>
             </div>
         </div>
         <div class="header-logo-cell">
@@ -153,10 +155,15 @@
     <table class="info">
         <tr><td class="val">{{ $reservation->vehicle->marque }}</td><td class="lbl">{!! arabic('الماركة') !!}</td></tr>
         <tr><td class="val">{{ $reservation->vehicle->model }}</td><td class="lbl">{!! arabic('الموديل') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->vehicle->category->name ?? '' }}</td><td class="lbl">{!! arabic('الفئة') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->vehicle->typeVehicule->name ?? '' }}</td><td class="lbl">{!! arabic('النوع') !!}</td></tr>
         <tr><td class="val">{{ $reservation->vehicle->registration }}</td><td class="lbl">{!! arabic('رقم التسجيل') !!}</td></tr>
         <tr><td class="val">{{ $reservation->vehicle->km }} {!! arabic('كم') !!}</td><td class="lbl">{!! arabic('عدد الكيلومترات عند الانطلاق') !!}</td></tr>
         <tr><td class="val">{{ $reservation->vehicle->fuelType ?? '' }}<span class="fill"></span></td><td class="lbl">{!! arabic('مستوى الوقود عند الانطلاق') !!}</td></tr>
-        <tr><td class="val"><span class="fill"></span></td><td class="lbl">{!! arabic('تاريخ أول تسجيل') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->vehicle->year }}</td><td class="lbl">{!! arabic('تاريخ أول تسجيل') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->vehicle->air_conditioner ? arabic('نعم') : arabic('لا') }}</td><td class="lbl">{!! arabic('التكييف') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->vehicle->gps ? arabic('نعم') : arabic('لا') }}</td><td class="lbl">{!! arabic('الملاحة') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->vehicle->Occupants ?? '' }}</td><td class="lbl">{!! arabic('عدد المقاعد') !!}</td></tr>
     </table>
 
     <div class="section-header">
@@ -168,8 +175,11 @@
         <tr><td class="val">{{ $reservation->start_time ? \Carbon\Carbon::parse($reservation->start_time)->format('H:i') : '______' }}</td><td class="lbl">{!! arabic('وقت الانطلاق') !!}</td></tr>
         <tr><td class="val">{{ $endDate->format('d/m/Y') }}</td><td class="lbl">{!! arabic('تاريخ الإرجاع') !!}</td></tr>
         <tr><td class="val">{{ $reservation->end_time ? \Carbon\Carbon::parse($reservation->end_time)->format('H:i') : '______' }}</td><td class="lbl">{!! arabic('وقت الإرجاع') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->depart_location_type ?? '' }}</td><td class="lbl">{!! arabic('نوع مكان الانطلاق') !!}</td></tr>
         <tr><td class="val">{{ $reservation->lieu_depart ?? '' }}{{ $reservation->lieu_depart ? '، ' : '' }}{{ $reservation->departCity?->name ?? '' }}{{ $reservation->departCity?->name && $reservation->departCountry?->name ? '، ' : '' }}{{ $reservation->departCountry?->name ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الانطلاق') !!}</td></tr>
+        <tr><td class="val">{{ $reservation->return_location_type ?? '' }}</td><td class="lbl">{!! arabic('نوع مكان الإرجاع') !!}</td></tr>
         <tr><td class="val">{{ $reservation->lieu_retour ?? '' }}{{ $reservation->lieu_retour ? '، ' : '' }}{{ $reservation->returnCity?->name ?? '' }}{{ $reservation->returnCity?->name && $reservation->returnCountry?->name ? '، ' : '' }}{{ $reservation->returnCountry?->name ?? 'مراكش' }}</td><td class="lbl">{!! arabic('مكان الإرجاع') !!}</td></tr>
+        <tr><td class="val">{{ $days }} {!! arabic('يوم') !!}</td><td class="lbl">{!! arabic('المدة الإجمالية') !!}</td></tr>
     </table>
 
     <div class="section-header">
@@ -254,8 +264,31 @@
         </tr>
     </table>
 
+    @php
+        $pricePerDay = $reservation->vehicle->pricePerDay ?? 0;
+        $baseRentalCost = $pricePerDay * $days;
+        $extrasTotalCost = $extrasTotalPerDay * $days;
+        $grandTotal = $reservation->TotalPrice ?? ($baseRentalCost + $extrasTotalCost);
+    @endphp
+
     <div class="section-header">
         <div class="section-num">10</div>
+        <div class="section-title">{!! arabic('ملخص التكلفة') !!}</div>
+    </div>
+    <table class="info">
+        <tr><td class="val">{!! arabic($reservation->status ?? 'قيد الانتظار') !!}</td><td class="lbl">{!! arabic('حالة الحجز') !!}</td></tr>
+        <tr><td class="val">{{ number_format($pricePerDay, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('السعر اليومي') !!}</td></tr>
+        <tr><td class="val">{{ $days }} {!! arabic('يوم') !!}</td><td class="lbl">{!! arabic('عدد الأيام') !!}</td></tr>
+        <tr><td class="val">{{ number_format($baseRentalCost, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('التكلفة الإيجارية') !!}</td></tr>
+        <tr><td class="val">{{ number_format($extrasTotalCost, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('تكلفة الخيارات') !!}</td></tr>
+        @if($reservation->caution_montant)
+        <tr><td class="val">{{ number_format($reservation->caution_montant, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('وديعة الضمان') !!}</td></tr>
+        @endif
+        <tr class="total-row"><td class="val">{{ number_format($grandTotal, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('المجموع الكلي') !!}</td></tr>
+    </table>
+
+    <div class="section-header">
+        <div class="section-num">11</div>
         <div class="section-title">{!! arabic('في حالة الحادث أو العطل') !!}</div>
     </div>
     <div class="bilingual-row"><span class="bullet">1.</span> {!! arabic('الإبلاغ الفوري عن CARFORFAR') !!}</div>
@@ -264,7 +297,7 @@
     <div class="bilingual-row"><span class="bullet">4.</span> {!! arabic('إرسال جميع الوثائق في غضون 24 ساعة') !!}</div>
 
     <div class="section-header">
-        <div class="section-num">11</div>
+        <div class="section-num">12</div>
         <div class="section-title">{!! arabic('إرجاع السيارة') !!}</div>
     </div>
     <table class="info">
@@ -277,19 +310,19 @@
     <div class="obs-box"></div>
 
     <div class="section-header">
-        <div class="section-num">12</div>
+        <div class="section-num">13</div>
         <div class="section-title">{!! arabic('القانون المنطبق') !!}</div>
     </div>
     <div class="bilingual-row">{!! arabic('يخضع هذا العقد للقانون المغربي.') !!}</div>
     <div class="bilingual-row">{!! arabic('يختص القضاء بمحاكم مراكش في أي نزاع.') !!}</div>
 
-    @php $hasExtra = $reservation->driver2_name ? true : false; @endphp
+    @php $hasExtra = $reservation->driver2_name ? true : false; $hasClient = $reservation->client && $reservation->client->nom_prenom !== $reservation->user->name; @endphp
     <div class="section-header">
         <div class="section-num">&#9998;</div>
         <div class="section-title">{!! arabic('التوقيعات') !!}</div>
     </div>
     <div class="signatures" style="margin-top:6px;">
-        <div class="sig-box" style="width:{{ $hasExtra ? '31%' : '48%' }};">
+        <div class="sig-box" style="width:{{ ($hasExtra || $hasClient) ? '31%' : '48%' }};">
             <div class="sig-title">{!! arabic('المؤجر (CARFORFAR)') !!}</div>
             <div class="sig-name">{!! arabic('الاسم :') !!} CARFORFAR</div>
             <div class="sig-line">&nbsp;</div>
@@ -297,8 +330,8 @@
             <div class="sig-hint">{!! arabic('التوقيع') !!}</div>
             <div class="sig-date">{!! arabic('التاريخ :') !!} ____ / ____ / ______</div>
         </div>
-        <div class="sig-gap" style="width:{{ $hasExtra ? '2%' : '4%' }};"></div>
-        <div class="sig-box" style="width:{{ $hasExtra ? '31%' : '48%' }};">
+        <div class="sig-gap" style="width:{{ ($hasExtra || $hasClient) ? '2%' : '4%' }};"></div>
+        <div class="sig-box" style="width:{{ ($hasExtra || $hasClient) ? '31%' : '48%' }};">
             <div class="sig-title">{!! arabic('المستأجر') !!}</div>
             <div class="sig-name">{!! arabic('الاسم :') !!} {{ $reservation->user->name }}</div>
             <div class="sig-line">&nbsp;</div>
@@ -311,6 +344,17 @@
         <div class="sig-box" style="width:31%;">
             <div class="sig-title">{!! arabic('السائق الإضافي') !!}</div>
             <div class="sig-name">{!! arabic('الاسم :') !!} {{ $reservation->driver2_name }}</div>
+            <div class="sig-line">&nbsp;</div>
+            <div class="sig-line">&nbsp;</div>
+            <div class="sig-hint">{!! arabic('التوقيع') !!}</div>
+            <div class="sig-date">{!! arabic('التاريخ :') !!} ____ / ____ / ______</div>
+        </div>
+        @endif
+        @if($hasClient)
+        <div class="sig-gap" style="width:2%;"></div>
+        <div class="sig-box" style="width:31%;">
+            <div class="sig-title">{!! arabic('العميل') !!}</div>
+            <div class="sig-name">{!! arabic('الاسم :') !!} {{ $reservation->client->nom_prenom }}</div>
             <div class="sig-line">&nbsp;</div>
             <div class="sig-line">&nbsp;</div>
             <div class="sig-hint">{!! arabic('التوقيع') !!}</div>
