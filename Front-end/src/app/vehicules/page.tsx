@@ -403,6 +403,23 @@ export default function VehiculesPage() {
         </div>
       </div>
 
+      {/* Category */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.category")}
+        </h4>
+        <select
+          value={selectedCategories[0] || ""}
+          onChange={(e) => setSelectedCategories(e.target.value ? [e.target.value] : [])}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">All categories</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.name}>{cat.name}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Pickup Country */}
       <div>
         <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
@@ -596,23 +613,6 @@ export default function VehiculesPage() {
           </div>
         );
       })()}
-
-      {/* Category */}
-      <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
-          {t("vehicles.category")}
-        </h4>
-        <select
-          value={selectedCategories[0] || ""}
-          onChange={(e) => setSelectedCategories(e.target.value ? [e.target.value] : [])}
-          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
-        >
-          <option value="">All categories</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.name}>{cat.name}</option>
-          ))}
-        </select>
-      </div>
 
       {/* Brand */}
       <div>
