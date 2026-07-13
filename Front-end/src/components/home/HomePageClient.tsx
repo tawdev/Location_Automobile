@@ -163,6 +163,16 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     }
     return Array.from(models).sort();
   }, [brand, showcaseVehicles]);
+
+  const brandTypes = useMemo(() => {
+    if (!brand || !showcaseVehicles) return propTypeVehicules;
+    const typeIds = new Set<number>();
+    for (const v of showcaseVehicles) {
+      if (v.marque === brand && v.typeVehicule) typeIds.add(v.typeVehicule.id);
+    }
+    if (typeIds.size === 0) return propTypeVehicules;
+    return propTypeVehicules.filter(tv => typeIds.has(tv.id));
+  }, [brand, showcaseVehicles, propTypeVehicules]);
   const [vehicleType, setVehicleType] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [noResults, setNoResults] = useState(false);
@@ -245,6 +255,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
 
   useEffect(() => {
     setModel("");
+    setTypeVehiculeId(null);
   }, [brand]);
 
   useEffect(() => {
@@ -675,7 +686,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
 
                   {/* Row 4: Return Location Type */}
                   <div className="mt-3">
-                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_location") || "Lieu de restitution"}</label>
+                    <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Return location</label>
                     <Popover open={returnLocTypeOpen} onOpenChange={setReturnLocTypeOpen}>
                       <PopoverTrigger className="w-full">
                         <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
@@ -795,7 +806,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                       <Popover open={brandOpen} onOpenChange={setBrandOpen}>
                         <PopoverTrigger className="w-full">
                           <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-2 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
-                            {brand ? (<><img src={getBrandLogo(brand) ?? ""} alt={brand} className="w-5 h-5 object-contain" /><span className="font-medium text-white">{brand}</span></>) : (<span className="text-white/40">{t("vehicles.all_types")}</span>)}
+                            {brand ? (<>{getBrandLogo(brand) && <img src={getBrandLogo(brand)!} alt={brand} className="w-5 h-5 object-contain" />}<span className="font-medium text-white">{brand}</span></>) : (<span className="text-white/40">{t("vehicles.all_types")}</span>)}
                           </div>
                         </PopoverTrigger>
                         <PopoverContent align="start" sideOffset={4} className="w-[340px] p-4 max-h-80 overflow-y-auto">
@@ -830,11 +841,14 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           <button type="button" onClick={() => setTypeVehiculeId(null)} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                             <span>{t("vehicles.all_types")}</span>
                           </button>
-                          {propTypeVehicules.map(tv => (
+                          {brandTypes.map(tv => (
                             <button key={tv.id} type="button" onClick={() => setTypeVehiculeId(tv.id)} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${typeVehiculeId === tv.id ? "bg-[#f39c12]/20 text-[#f39c12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                               <span className="font-medium">{tv.name}</span>
                             </button>
                           ))}
+                          {brand && brandTypes.length === 0 && (
+                            <div className="px-4 py-3 text-sm text-gray-400">No types found</div>
+                          )}
                         </PopoverContent>
                       </Popover>
                     </div>
