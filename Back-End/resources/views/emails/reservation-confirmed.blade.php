@@ -39,6 +39,18 @@
                     <td>Date de fin</td>
                     <td>{{ \Carbon\Carbon::parse($reservation->end_date)->format('d/m/Y') }}</td>
                 </tr>
+                @if($reservation->return_location_name)
+                <tr>
+                    <td>Lieu de retour</td>
+                    <td>{{ $reservation->return_location_name }}</td>
+                </tr>
+                @endif
+                @if($reservation->return_location_supplement && $reservation->return_location_supplement > 0)
+                <tr>
+                    <td>Supplément retour</td>
+                    <td>{{ number_format($reservation->return_location_supplement, 2) }} DH</td>
+                </tr>
+                @endif
                 <tr>
                     <td>Statut</td>
                     <td>Confirmée</td>

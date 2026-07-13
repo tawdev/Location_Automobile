@@ -9,8 +9,8 @@ import { makeReservation } from "@/lib/reservationsApi";
 import { getExtras } from "@/lib/extrasApi";
 import { getClientInfo, saveClientInfo } from "@/lib/clientApi";
 import { saveReservationProgress, loadReservationProgress, clearReservationProgress } from "@/lib/reservationStorage";
-import type { Extra, Country, City, Vehicle } from "@/lib/types";
-import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
+import type { Extra, Country, City, Vehicle, CityLocation } from "@/lib/types";
+import { fetchCountries, fetchCitiesByCountry, fetchCityLocations } from "@/lib/locationApi";
 import { getVehicleById } from "@/lib/vehiclesApi";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -254,6 +254,11 @@ export default function ReservationFlowModal({
   const [returnCityId, setReturnCityId] = useState<number | null>(null);
   const [departLocationType, setDepartLocationType] = useState("");
   const [returnLocationType, setReturnLocationType] = useState("");
+  const [returnLocations, setReturnLocations] = useState<CityLocation[]>([]);
+  const [selectedReturnLocationId, setSelectedReturnLocationId] = useState<number | null>(null);
+  const [returnLocationName, setReturnLocationName] = useState("");
+  const [returnLocationSupplement, setReturnLocationSupplement] = useState(0);
+  const [showSupplementPopup, setShowSupplementPopup] = useState(false);
   const [vehicleData, setVehicleData] = useState<Vehicle | null>(null);
   const [pendingDepartCityId, setPendingDepartCityId] = useState<number | null>(null);
 
@@ -302,6 +307,9 @@ export default function ReservationFlowModal({
       if (saved.returnCityId) setReturnCityId(saved.returnCityId);
       if (saved.departLocationType) setDepartLocationType(saved.departLocationType);
       if (saved.returnLocationType) setReturnLocationType(saved.returnLocationType);
+      if (saved.returnLocationName) setReturnLocationName(saved.returnLocationName);
+      if (saved.returnLocationSupplement) setReturnLocationSupplement(saved.returnLocationSupplement);
+      if (saved.selectedReturnLocationId) setSelectedReturnLocationId(saved.selectedReturnLocationId);
       setClientNom(saved.clientNom || "");
       setClientDateNaissance(toDateInputValue(saved.clientDateNaissance || ""));
       setClientCin(saved.clientCin || "");
@@ -357,6 +365,9 @@ export default function ReservationFlowModal({
       cautionMontant, cautionMode,
       departLocationType,
       returnLocationType,
+      returnLocationName,
+      returnLocationSupplement,
+      selectedReturnLocationId,
     });
   }, [step]);
 
@@ -374,6 +385,9 @@ export default function ReservationFlowModal({
     cautionMontant, cautionMode,
     departLocationType,
     returnLocationType,
+    returnLocationName,
+    returnLocationSupplement,
+    selectedReturnLocationId,
   };
 
   useEffect(() => {
@@ -630,7 +644,22 @@ export default function ReservationFlowModal({
       setReturnCities([]);
     }
     setReturnCityId(null);
+    setReturnLocations([]);
+    setSelectedReturnLocationId(null);
+    setReturnLocationName("");
+    setReturnLocationSupplement(0);
   }, [returnCountryId]);
+
+  useEffect(() => {
+    if (returnCityId) {
+      fetchCityLocations(returnCityId).then(setReturnLocations).catch(() => setReturnLocations([]));
+    } else {
+      setReturnLocations([]);
+    }
+    setSelectedReturnLocationId(null);
+    setReturnLocationName("");
+    setReturnLocationSupplement(0);
+  }, [returnCityId]);
 
   useEffect(() => {
     if (step === "extras") {
@@ -798,6 +827,11 @@ export default function ReservationFlowModal({
   }
 
   function handleLocationNext() {
+    if (returnCityId && returnLocations.length > 0 && !selectedReturnLocationId) {
+      setError("Veuillez sélectionner un lieu de retour.");
+      return;
+    }
+    setError(null);
     const el = document.getElementById("reserve-flow-scroll");
     if (el) el.scrollTop = 0;
     if (savedChoice === "one") {
@@ -873,6 +907,8 @@ export default function ReservationFlowModal({
     if (returnCityId) formData.set("return_city_id", String(returnCityId));
     if (departLocationType) formData.set("depart_location_type", departLocationType);
     if (returnLocationType) formData.set("return_location_type", returnLocationType);
+    if (returnLocationName) formData.set("return_location_name", returnLocationName);
+    if (returnLocationSupplement > 0) formData.set("return_location_supplement", String(returnLocationSupplement));
 
     if (selectedExtraIds.length > 0) {
       for (const id of selectedExtraIds) {
@@ -996,18 +1032,6 @@ export default function ReservationFlowModal({
                   </div>
                 </div>
                 <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
-                  <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">{t("reserve_modal.return_location_type")}</h4>
-                  <select
-                    value={returnLocationType}
-                    onChange={(e) => setReturnLocationType(e.target.value)}
-                    className="w-full h-[42px] bg-white border border-[#D5DEEF] rounded-xl px-3 outline-none text-[14px] text-[#395886]"
-                  >
-                    <option value="">{t("reserve_modal.select_location_type")}</option>
-                    <option value="airport">{t("reserve_modal.location_airport")}</option>
-                    <option value="citycenter">{t("reserve_modal.location_citycenter")}</option>
-                  </select>
-                </div>
-                <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
                   <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">Retour</h4>
                   <select
                     value={returnCountryId ?? ""}
@@ -1031,6 +1055,47 @@ export default function ReservationFlowModal({
                     ))}
                   </select>
                 </div>
+                {returnCityId && returnLocations.length === 0 && (
+                  <div className="border border-[#D5DEEF] rounded-xl p-4">
+                    <p className="text-sm text-[#638ECB] text-center">Aucun lieu de retour disponible pour cette ville. Le type de lieu par défaut sera utilisé.</p>
+                  </div>
+                )}
+                {returnCityId && returnLocations.length > 0 && (
+                  <div className="border border-[#D5DEEF] rounded-xl p-4 space-y-3">
+                    <h4 className="text-[11px] font-bold text-[#395886] uppercase tracking-wider">{t("reserve_modal.return_location_type")}</h4>
+                    {returnLocations.map((loc) => (
+                      <button
+                        key={loc.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedReturnLocationId(loc.id);
+                          setReturnLocationType(loc.type);
+                          setReturnLocationName(loc.name);
+                          setReturnLocationSupplement(Number(loc.price) || 0);
+                          setShowSupplementPopup(true);
+                        }}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm transition-all ${
+                          selectedReturnLocationId === loc.id
+                            ? "border-[#f39c12] bg-[#f39c12]/10 text-[#395886] font-bold"
+                            : "border-[#D5DEEF] bg-white text-[#395886] hover:bg-[#F0F3FA]"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          {loc.type === "airport" ? (
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0011.5 2 1.5 1.5 0 0010 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+                          ) : (
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                          )}
+                          {loc.name}
+                        </span>
+                        <span className="text-[11px] font-bold text-[#638ECB]">
+                          {loc.type === "airport" ? "Aéroport" : "Centre-ville"}
+                          {Number(loc.price) > 0 && ` +${Number(loc.price)} DH`}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <button
                   onClick={handleLocationNext}
                   className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity"
@@ -1485,6 +1550,45 @@ export default function ReservationFlowModal({
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {showSupplementPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4" onClick={() => setShowSupplementPopup(false)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-[#f39c12]/10 flex items-center justify-center">
+                <svg className="w-7 h-7 text-[#f39c12]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+              </div>
+              <h3 className="text-lg font-bold text-[#395886]">Supplément de retour</h3>
+              <p className="text-sm text-[#638ECB]">
+                Vous avez sélectionné <strong>{returnLocationName}</strong> comme lieu de retour.
+              </p>
+              {returnLocationSupplement > 0 ? (
+                <div className="bg-[#f39c12]/10 border border-[#f39c12]/30 rounded-xl px-5 py-3">
+                  <span className="text-2xl font-extrabold text-[#f39c12]">+{returnLocationSupplement} DH</span>
+                  <p className="text-[11px] text-[#638ECB] mt-1">Supplément ajouté au prix total</p>
+                </div>
+              ) : (
+                <div className="bg-green-50 border border-green-200 rounded-xl px-5 py-3">
+                  <span className="text-lg font-extrabold text-green-600">Aucun supplément</span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowSupplementPopup(false)}
+                className="w-full h-11 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity"
+              >
+                Confirmer
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {lightboxImage && (
         <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center p-4" onClick={() => setLightboxImage(null)}>

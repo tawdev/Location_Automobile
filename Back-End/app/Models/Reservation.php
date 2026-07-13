@@ -25,6 +25,8 @@ class Reservation extends Model
         'observations',
         'depart_location_type',
         'return_location_type',
+        'return_location_name',
+        'return_location_supplement',
     ];
     /** @use HasFactory<ReservationFactory> */
     use HasFactory;
