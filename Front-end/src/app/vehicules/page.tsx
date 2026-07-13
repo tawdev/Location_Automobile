@@ -114,6 +114,7 @@ export default function VehiculesPage() {
   const [selectedTypeVehiculeIds, setSelectedTypeVehiculeIds] = useState<number[]>([]);
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
+  const [pendingCategoryId, setPendingCategoryId] = useState<number | null>(null);
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [pickupCountryId, setPickupCountryId] = useState<number | null>(null);
@@ -178,6 +179,15 @@ export default function VehiculesPage() {
     fetchCountries().then(setCountries).catch((err) => console.warn("[vehicules] fetchCountries failed", err));
   }, []);
 
+  // Resolve pending category ID once categories are loaded
+  useEffect(() => {
+    if (pendingCategoryId !== null && categories.length > 0) {
+      const cat = categories.find(c => c.id === pendingCategoryId);
+      if (cat) setSelectedCategories([cat.name]);
+      setPendingCategoryId(null);
+    }
+  }, [pendingCategoryId, categories]);
+
   useEffect(() => {
     if (pickupCountryId) {
       fetchCitiesByCountry(pickupCountryId).then(setPickupCities).catch(() => setPickupCities([]));
@@ -199,6 +209,8 @@ export default function VehiculesPage() {
     const ci = params.get("current_country_id");
     const cti = params.get("current_city_id");
     const tvId = params.get("type_vehicule_id");
+    const catId = params.get("category_id");
+    const catName = params.get("category_name");
     if (pu) setPickupDate(pu);
     if (rt) setReturnDate(rt);
     if (mq) setSelectedBrands([mq]);
@@ -208,6 +220,8 @@ export default function VehiculesPage() {
     if (ci) setPickupCountryId(Number(ci));
     if (cti) setPickupCityId(Number(cti));
     if (tvId) setSelectedTypeVehiculeIds([Number(tvId)]);
+    if (catId) setPendingCategoryId(Number(catId));
+    if (catName) setSelectedCategories([catName]);
 
     const id = setTimeout(() => { void loadVehicles(pu ?? undefined, rt ?? undefined); }, 0);
     return () => clearTimeout(id);
