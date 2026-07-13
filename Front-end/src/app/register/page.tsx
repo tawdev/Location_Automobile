@@ -217,7 +217,7 @@ function RegisterForm() {
 
   return (
     <div className="relative min-h-screen w-full text-[#395886] dark:text-[#D5DEEF] overflow-hidden">
-      <Header solid />
+      <Header />
       {/* Light mode background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden"

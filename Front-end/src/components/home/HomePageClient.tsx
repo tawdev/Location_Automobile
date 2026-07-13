@@ -1329,7 +1329,7 @@ function StatsSection() {
         className="absolute -bottom-48 -left-48 w-[500px] h-[500px] rounded-full border border-[#f39c12]/10 dark:border-[#f39c12]/5"
         style={{ animation: 'spin-slow 60s linear infinite reverse' }}
       />
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 30% 50%, rgba(243,156,18,0.05) 0%, transparent 60%)' }} />
+      <div className="absolute inset-0" style={{ background: '#666A6D' }} />
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {STAT_KEYS.map((stat, i) => (

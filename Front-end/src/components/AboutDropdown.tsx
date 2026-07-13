@@ -65,17 +65,15 @@ export default function AboutDropdown({ variant, scrolled, isActive }: { variant
     : "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50";
 
   const triggerClass = variant === "visitor"
-    ? `relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all ${
+    ? `relative flex items-center gap-1.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
         isActive
-          ? scrolled ? "text-black dark:text-[#f39c12]" : "text-white"
-          : scrolled
-            ? "text-black/60 dark:text-[#94A3B8]/70 hover:text-black dark:hover:text-[#D5DEEF]"
-            : "text-white/70 hover:text-white"
+          ? "border-2 border-[#f39c12] px-4 py-2 text-white"
+          : "border-2 border-transparent px-4 py-2 text-white/70 hover:text-white"
       }`
-    : `relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all ${
+    : `relative flex items-center gap-1.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
         isActive
-          ? "text-white bg-gradient-to-r from-[#395886] to-[#2b4c7e] shadow-lg shadow-[#395886]/20"
-          : "text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50"
+          ? "border-2 border-[#f39c12] px-4 py-2 text-white"
+          : "border-2 border-transparent px-4 py-2 text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50"
       }`;
 
   return (
@@ -86,13 +84,6 @@ export default function AboutDropdown({ variant, scrolled, isActive }: { variant
         onClick={() => setOpen((o) => !o)}
         className={triggerClass}
       >
-        {isActive && variant === "client" && (
-          <motion.div
-            layoutId="nav-pill"
-            className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] shadow-lg shadow-[#395886]/20"
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          />
-        )}
         <span className="relative z-10 flex items-center gap-1.5">
           <BookOpen className="w-4 h-4" />
           <span>{t("nav.resources")}</span>
