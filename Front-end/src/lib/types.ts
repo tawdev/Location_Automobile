@@ -164,6 +164,10 @@ export type Reservation = {
   date_heure_retour?: string | null;
   caution_montant?: number | null;
   caution_mode?: string | null;
+  depart_location_type?: string | null;
+  return_location_type?: string | null;
+  return_location_name?: string | null;
+  return_location_supplement?: number | null;
   observations?: string | null;
 
   // Second conductor
