@@ -127,6 +127,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [fuelType, setFuelType] = useState("");
   const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(null);
+  const [typeCarouselPage, setTypeCarouselPage] = useState(0);
+  const [catCarouselPage, setCatCarouselPage] = useState(0);
   const [brandOpen, setBrandOpen] = useState(false);
   const [modelOpen, setModelOpen] = useState(false);
   const [countries, setCountries] = useState<Country[]>([]);
@@ -173,6 +175,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (typeIds.size === 0) return propTypeVehicules;
     return propTypeVehicules.filter(tv => typeIds.has(tv.id));
   }, [brand, showcaseVehicles, propTypeVehicules]);
+
+  useEffect(() => { setTypeCarouselPage(0); }, [brandTypes]);
   const [vehicleType, setVehicleType] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [noResults, setNoResults] = useState(false);
@@ -351,6 +355,13 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
         setNoResults(true);
         return;
       }
+      if (vehicleType) {
+        const cat = categories.find(c => c.id === vehicleType);
+        if (cat && !results.some(v => v.category?.name === cat.name)) {
+          setNoResults(true);
+          return;
+        }
+      }
     } catch {
       setNoResults(true);
       return;
@@ -362,7 +373,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (pickupTime) params.set("pickup_time", pickupTime);
     if (returnDate) params.set("end_date", returnDate);
     if (returnTime) params.set("dropoff_time", returnTime);
-    if (vehicleType) params.set("category_id", String(vehicleType));
+    if (vehicleType) { const cat = categories.find(c => c.id === vehicleType); if (cat) params.set("category_name", cat.name); }
     if (brand.trim()) params.set("marque", brand.trim());
     if (model.trim()) params.set("model", model.trim());
     if (minPrice !== undefined) params.set("min_price", String(minPrice));
@@ -457,25 +468,33 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 transition={{ duration: 0.6, delay: 0.6 }}
               >
                 <form onSubmit={handleSearch} className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">
-                  {/* Category Selector */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setVehicleType(vehicleType === cat.id ? null : cat.id)}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                          vehicleType === cat.id
-                            ? "bg-[#f39c12]/20 text-[#f39c12] border border-[#f39c12]/40"
-                            : "bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white/80"
-                        }`}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d={getCategoryIcon(cat.name)} />
-                        </svg>
-                        <span>{cat.name}</span>
-                      </button>
-                    ))}
+                  {/* Category Selector — carousel 4 at a time */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <button type="button" onClick={() => setCatCarouselPage((p) => Math.max(0, p - 1))} disabled={catCarouselPage === 0} className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white transition-all hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+                    </button>
+                    <div className="flex-1 flex gap-2">
+                      {categories.slice(catCarouselPage * 4, catCarouselPage * 4 + 4).map((cat) => (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setVehicleType(vehicleType === cat.id ? null : cat.id)}
+                          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium transition-all ${
+                            vehicleType === cat.id
+                              ? "bg-[#f39c12]/20 text-[#f39c12] border border-[#f39c12]/40"
+                              : "bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white/80"
+                          }`}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d={getCategoryIcon(cat.name)} />
+                          </svg>
+                          <span className="truncate">{cat.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <button type="button" onClick={() => setCatCarouselPage((p) => (p + 1) * 4 < categories.length ? p + 1 : p)} disabled={(catCarouselPage + 1) * 4 >= categories.length} className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white transition-all hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                    </button>
                   </div>
 
                   {/* Form Row */}
