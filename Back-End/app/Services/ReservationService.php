@@ -124,6 +124,11 @@ class ReservationService
     }
 
     $total = $days * ($vehicle->pricePerDay + $extraPricePerDay);
+
+    // Add return location supplement if provided
+    $returnLocationSupplement = !empty($data['return_location_supplement']) ? (float) $data['return_location_supplement'] : 0;
+    $total += $returnLocationSupplement;
+
     $kmIncluded = $days * 200;
 
     // Handle client info - create/update client record
