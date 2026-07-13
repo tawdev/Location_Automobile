@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 import { LazyMotion, m, domAnimation, useReducedMotion, AnimatePresence } from "framer-motion";
 import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
-import { Search, CalendarDays } from "lucide-react";
+import { Search, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -179,6 +179,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   useEffect(() => { setTypeCarouselPage(0); }, [brandTypes]);
   const [vehicleType, setVehicleType] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
   const [noResults, setNoResults] = useState(false);
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupLocationVal, setPickupLocationVal] = useState("");
@@ -411,7 +412,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0 overflow-hidden">
         <div
@@ -446,9 +447,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-16 items-center">
-              {/* Left: badge + subtitle + search */}
-            <div className="flex-1 text-left">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
+              {/* Left: badge + search form */}
+              <div className="flex-1 min-w-0">
               {/* Badge */}
               <m.div
                 initial={{ opacity: 0, y: 30 }}
@@ -467,80 +468,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
               >
-                <form onSubmit={handleSearch} className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">
-                  {/* Category Selector — carousel 4 at a time */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <button type="button" onClick={() => setCatCarouselPage((p) => Math.max(0, p - 1))} disabled={catCarouselPage === 0} className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white transition-all hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-                    </button>
-                    <div className="flex-1 flex gap-2">
-                      {categories.slice(catCarouselPage * 4, catCarouselPage * 4 + 4).map((cat) => (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          onClick={() => setVehicleType(vehicleType === cat.id ? null : cat.id)}
-                          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium transition-all ${
-                            vehicleType === cat.id
-                              ? "bg-[#f39c12]/20 text-[#f39c12] border border-[#f39c12]/40"
-                              : "bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white/80"
-                          }`}
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d={getCategoryIcon(cat.name)} />
-                          </svg>
-                          <span className="truncate">{cat.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                    <button type="button" onClick={() => setCatCarouselPage((p) => (p + 1) * 4 < categories.length ? p + 1 : p)} disabled={(catCarouselPage + 1) * 4 >= categories.length} className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white transition-all hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-                    </button>
-                  </div>
-
-                  {/* Form Row */}
-                  <div className="flex flex-wrap items-stretch gap-2">
-                    <input type="hidden" name="pickup_location" value={pickupLocationVal} />
-
-                    <input type="hidden" name="dropoff_location" value={returnLocationVal} />
-
-                    {/* Pickup Date + Time joined */}
-                    <div className="flex-1 min-w-[160px] flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
-                      <Popover>
-                        <PopoverTrigger className="flex-1 min-w-0">
-                          <span className="block w-full bg-transparent px-3 py-2.5 text-sm text-white text-left leading-normal">
-                            {pickupDate ? new Date(pickupDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">Date</span>}
-                          </span>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-                          <Calendar size="lg" mode="single" selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { const val = toLocalDateString(d); setPickupDate(val); if (returnDate && returnDate < val) setReturnDate(""); } }} fromDate={new Date()} />
-                        </PopoverContent>
-                      </Popover>
-                      <div className="w-px bg-white/10 self-stretch" />
-                      <input type="time" name="pickup_time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-20 bg-transparent px-2 py-2.5 text-sm text-white outline-none border-none text-center cursor-pointer [color-scheme:dark]" />
-                    </div>
-
-                    <span className="flex items-center text-white/15 text-lg select-none">-</span>
-
-                    {/* Return Date + Time joined */}
-                    <div className="flex-1 min-w-[160px] flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
-                      <Popover>
-                        <PopoverTrigger className={`flex-1 min-w-0 ${!pickupDate ? "pointer-events-none" : ""}`} disabled={!pickupDate}>
-                          <span className={`block w-full bg-transparent px-3 py-2.5 text-sm text-left leading-normal ${!pickupDate ? "text-white/40" : "text-white"}`}>
-                            {returnDate ? new Date(returnDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">{!pickupDate ? "Choisir d'abord" : "Date"}</span>}
-                          </span>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-                          <Calendar size="lg" mode="single" selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) setReturnDate(toLocalDateString(d)); }} disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined} />
-                        </PopoverContent>
-                      </Popover>
-                      <div className="w-px bg-white/10 self-stretch" />
-                      <input type="time" name="dropoff_time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-20 bg-transparent px-2 py-2.5 text-sm text-white outline-none border-none text-center cursor-pointer [color-scheme:dark]" />
-                    </div>
-
-                  </div>
-
+                <form onSubmit={handleSearch} className="bg-black backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">
                   {/* Row 1: Country + City */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.country")}</label>
                       <Popover open={countryOpen} onOpenChange={setCountryOpen}>
@@ -592,8 +522,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                   </div>
 
-                  {/* Row 2: Location Type */}
-                  <div className="mt-3">
+                  {/* Row 2: Pickup Location */}
+                  <div className="mb-3">
                     <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.pickup_location")}</label>
                     <Popover>
                       <PopoverTrigger className="w-full">
@@ -656,8 +586,49 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </Popover>
                   </div>
 
-                  {/* Row 3: Return Country + City */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                  {/* Row 3: Dates */}
+                  <div className="mb-3">
+                    <input type="hidden" name="pickup_location" value={pickupLocationVal} />
+                    <input type="hidden" name="dropoff_location" value={returnLocationVal} />
+                    <div className="flex flex-wrap items-stretch gap-2">
+                      {/* Pickup Date + Time joined */}
+                      <div className="flex-1 min-w-[160px] flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
+                        <Popover>
+                          <PopoverTrigger className="flex-1 min-w-0">
+                            <span className="block w-full bg-transparent px-3 py-2.5 text-sm text-white text-left leading-normal">
+                              {pickupDate ? new Date(pickupDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">Date</span>}
+                            </span>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
+                            <Calendar size="lg" mode="single" selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { const val = toLocalDateString(d); setPickupDate(val); if (returnDate && returnDate < val) setReturnDate(""); } }} fromDate={new Date()} />
+                          </PopoverContent>
+                        </Popover>
+                        <div className="w-px bg-white/10 self-stretch" />
+                        <input type="time" name="pickup_time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-20 bg-transparent px-2 py-2.5 text-sm text-white outline-none border-none text-center cursor-pointer [color-scheme:dark]" />
+                      </div>
+
+                      <span className="flex items-center text-white/15 text-lg select-none">-</span>
+
+                      {/* Return Date + Time joined */}
+                      <div className="flex-1 min-w-[160px] flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
+                        <Popover>
+                          <PopoverTrigger className={`flex-1 min-w-0 ${!pickupDate ? "pointer-events-none" : ""}`} disabled={!pickupDate}>
+                            <span className={`block w-full bg-transparent px-3 py-2.5 text-sm text-left leading-normal ${!pickupDate ? "text-white/40" : "text-white"}`}>
+                              {returnDate ? new Date(returnDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">{!pickupDate ? "Choisir d'abord" : "Date"}</span>}
+                            </span>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
+                            <Calendar size="lg" mode="single" selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) setReturnDate(toLocalDateString(d)); }} disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined} />
+                          </PopoverContent>
+                        </Popover>
+                        <div className="w-px bg-white/10 self-stretch" />
+                        <input type="time" name="dropoff_time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} className="w-20 bg-transparent px-2 py-2.5 text-sm text-white outline-none border-none text-center cursor-pointer [color-scheme:dark]" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 4: Return Country + City */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_country") || "Pays de restitution"}</label>
                       <Popover open={returnCountryOpen} onOpenChange={setReturnCountryOpen}>
@@ -709,8 +680,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                   </div>
 
-                  {/* Row 4: Return Location Type */}
-                  <div className="mt-3">
+                  {/* Row 5: Return Location Type */}
+                  <div className="mb-3">
                     <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Return location</label>
                     <Popover open={returnLocTypeOpen} onOpenChange={setReturnLocTypeOpen}>
                       <PopoverTrigger className="w-full">
@@ -782,7 +753,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     const fee = returnLoc?.price && Number(returnLoc.price) > 0 ? Number(returnLoc.price) : null;
                     if (!fee) return null;
                     return (
-                      <div className="mt-3 flex items-center gap-2 bg-[#f39c12]/10 border border-[#f39c12]/20 rounded-xl px-4 py-3">
+                      <div className="mb-3 flex items-center gap-2 bg-[#f39c12]/10 border border-[#f39c12]/20 rounded-xl px-4 py-3">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="#f39c12"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
                         <span className="text-sm font-bold text-[#f39c12]">
                           Supplément {returnLoc?.name}: {fee.toFixed(2)} DH
@@ -824,7 +795,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                   )}
 
-                  {/* Row 5: Brand + Model + Fuel type + Vehicle type */}
+                  {/* Row 6: Brand + Model + Fuel type + Vehicle type */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.brand")}</label>
@@ -926,7 +897,41 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                   </div>
 
-                  {/* Row 4: Price range + Search */}
+                  {/* Row 7: Category carousel */}
+                  {categories.length > 0 && (
+                    <div className="mt-3">
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.category")}</label>
+                      <div className="relative">
+                        <div ref={categoryScrollRef} className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}>
+                          {categories.map((cat) => (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setVehicleType(vehicleType === cat.id ? null : cat.id)}
+                              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                                vehicleType === cat.id
+                                  ? "bg-[#f39c12] text-[#395886] shadow-lg shadow-[#f39c12]/20"
+                                  : "bg-white/15 text-white/80 hover:bg-white/25 border border-white/20"
+                              }`}
+                            >
+                              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                <path d={getCategoryIcon(cat.name)} />
+                              </svg>
+                              <span>{cat.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <button type="button" onClick={() => categoryScrollRef.current?.scrollBy({ left: -200, behavior: "smooth" })} className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors z-10">
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <button type="button" onClick={() => categoryScrollRef.current?.scrollBy({ left: 200, behavior: "smooth" })} className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors z-10">
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Row 8: Price range + Search */}
                   <div className="mt-3 flex flex-col sm:flex-row gap-3">
                     <div className="flex gap-3 flex-1">
                       <div className="w-full sm:w-32">
@@ -955,31 +960,24 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   </m.div>
                 )}
               </m.div>
-        </div>
+              </div>
 
-            {/* Right: Vehicle showcase */}
-            {displayVehicles.length > 0 && (
-              <m.div
-                initial={{ opacity: 0, x: 60 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-                className="flex-1 relative group w-full mt-10 lg:mt-0"
-              >
-                    <div className="relative w-full max-w-[900px] lg:max-w-[1100px] mx-auto">
+              {/* Right: Vehicle showcase */}
+              {displayVehicles.length > 0 && (
+                <m.div
+                  initial={{ opacity: 0, x: 60 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+                  className="flex-1 relative group w-full min-w-0"
+                >
+                  <div className="relative w-full max-w-[700px] mx-auto">
                     <div className="relative aspect-[16/10] flex items-center justify-center p-2">
-                    {/* Pulse circles */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full border border-[#f39c12]/10" style={{animation:'pulse-ring 3s ease-in-out infinite'}} />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] aspect-square rounded-full border border-[#f39c12]/15" style={{animation:'pulse-ring 3s ease-in-out infinite 0.5s'}} />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] aspect-square rounded-full bg-[#f39c12]/[0.04] blur-[60px]" />
-
-                    {/* Concentric circles — behind card */}
                     <div className="absolute top-1/2 left-1/2 w-[70%] aspect-square rounded-full border border-[#f39c12]/10 z-0 pulse-scale" />
                     <div className="absolute top-1/2 left-1/2 w-[60%] aspect-square rounded-full border border-[#f39c12]/10 z-0 pulse-scale-reverse" />
-
-                    {/* Soft radial glow — behind card */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] aspect-square rounded-full bg-[#f39c12]/[0.06] blur-[70px] z-0 pointer-events-none" />
-
-                    {/* Vehicle crossfade — fixed so the transition actually triggers on index change */}
                     <div className="absolute inset-0 overflow-visible z-10">
                       <AnimatePresence mode="popLayout" custom={direction}>
                         <m.div
@@ -1033,32 +1031,28 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                         </m.div>
                       </AnimatePresence>
                     </div>
+                    </div>
                   </div>
-
-
-                </div>
-
-                {/* Dot indicators */}
-                {displayVehicles.length > 1 && (
-                  <div className="relative z-20 flex items-center justify-center gap-3 mt-8 sm:mt-6">
-                    {displayVehicles.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          setDirection(i > vehicleIndex ? 1 : -1);
-                          setVehicleIndex(i);
-                        }}
-                        className={`rounded-full transition-all duration-500 ${
-                          i === vehicleIndex
-                            ? "w-6 h-1.5 sm:w-8 sm:h-2 bg-[#f39c12]"
-                            : "w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/20 hover:bg-white/40"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </m.div>
-            )}
+                  {displayVehicles.length > 1 && (
+                    <div className="relative z-20 flex items-center justify-center gap-3 mt-4 sm:mt-3">
+                      {displayVehicles.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => {
+                            setDirection(i > vehicleIndex ? 1 : -1);
+                            setVehicleIndex(i);
+                          }}
+                          className={`rounded-full transition-all duration-500 ${
+                            i === vehicleIndex
+                              ? "w-6 h-1.5 sm:w-8 sm:h-2 bg-[#f39c12]"
+                              : "w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/20 hover:bg-white/40"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </m.div>
+              )}
           </div>
 
         {/* Scroll indicator */}
