@@ -533,3 +533,11 @@ html { scroll-behavior: smooth; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ── iOS / Safari fallback for backdrop-filter ── */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .backdrop-blur-xl { background-color: rgba(0,0,0,0.85) !important; }
+  .backdrop-blur-md { background-color: rgba(0,0,0,0.7) !important; }
+  .backdrop-blur-sm { background-color: rgba(0,0,0,0.6) !important; }
+  .backdrop-blur-\[2px\] { background-color: rgba(0,0,0,0.6) !important; }
+}
