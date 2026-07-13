@@ -61,39 +61,26 @@ function NavLink({
   label,
   active,
   onClick,
-  transparent,
 }: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   active: boolean;
   onClick: () => void;
-  transparent: boolean;
 }) {
   return (
     <motion.button
       whileHover={{ scale: 1.04 }}
       whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all ${
-        transparent
-          ? active
-            ? "text-white"
-            : "text-white/70 hover:text-white"
-          : active
-            ? "text-white"
-            : "text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50"
+      className={`relative flex items-center gap-2 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
+        active
+          ? "border-2 border-[#f39c12] px-4 py-2 text-white"
+          : "border-2 border-transparent px-4 py-2 text-white/70 hover:text-white"
       }`}
     >
-      {active && !transparent && (
-        <motion.div
-          layoutId="nav-pill"
-          className={`absolute inset-0 rounded-xl shadow-lg ${href === "/" ? "bg-gradient-to-r from-[#f39c12] to-[#d68910] shadow-[#f39c12]/20" : "bg-gradient-to-r from-[#395886] to-[#2b4c7e] shadow-[#395886]/20"}`}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        />
-      )}
       <span className="relative z-10 flex items-center gap-2">
-        <Icon className={`w-4 h-4 ${active && !transparent ? (href === "/" ? "text-white border border-[#4A5C6A] rounded-md p-[1px]" : "text-white") : ""}`} />
+        <Icon className="w-4 h-4" />
         {label}
       </span>
     </motion.button>
@@ -237,12 +224,12 @@ function AccountDropdown({
   );
 }
 
-export default function Header({ solid }: { solid?: boolean }) {
+export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { status, user, signOut } = useAuth();
   const { t } = useI18n();
-  const [scrolled, setScrolled] = useState(solid ?? false);
+  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
@@ -279,7 +266,6 @@ export default function Header({ solid }: { solid?: boolean }) {
   };
 
   const isHomePage = pathname === "/";
-  const isTransparent = isHomePage && !solid;
   const isAuthenticated = status === "authenticated";
 
   useEffect(() => {
@@ -289,11 +275,11 @@ export default function Header({ solid }: { solid?: boolean }) {
   }, []);
 
   useEffect(() => {
-    if (!isTransparent) return;
+    if (!isHomePage) return;
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isTransparent]);
+  }, [isHomePage]);
 
   const toggleDark = () => {
     const next = !dark;
@@ -336,7 +322,7 @@ export default function Header({ solid }: { solid?: boolean }) {
 
   const isTransparentState = true;
 
-  const headerClasses = "bg-black/60 backdrop-blur-xl border-b border-white/10";
+  const headerClasses = "bg-black";
 
   return (
     <>
@@ -358,7 +344,6 @@ export default function Header({ solid }: { solid?: boolean }) {
                 {...item}
                 active={pathname === item.href}
                 onClick={() => router.push(item.href)}
-                transparent={isTransparentState}
               />
             ))}
             <AboutDropdown
