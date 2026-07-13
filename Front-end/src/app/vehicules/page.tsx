@@ -106,6 +106,7 @@ export default function VehiculesPage() {
   const [searchText, setSearchText] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedFuelTypes, setSelectedFuelTypes] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
@@ -200,10 +201,8 @@ export default function VehiculesPage() {
     const tvId = params.get("type_vehicule_id");
     if (pu) setPickupDate(pu);
     if (rt) setReturnDate(rt);
-    const searchParts: string[] = [];
-    if (mq) searchParts.push(mq);
-    if (md) searchParts.push(md);
-    if (searchParts.length > 0) setSearchText(searchParts.join(" "));
+    if (mq) setSelectedBrands([mq]);
+    if (md) setSelectedModel(md);
     if (minP) setMinPrice(Number(minP));
     if (maxP) setMaxPrice(Number(maxP));
     if (ci) setPickupCountryId(Number(ci));
@@ -226,6 +225,16 @@ export default function VehiculesPage() {
     vehicles.forEach((v) => { if (v.marque) set.add(v.marque); });
     return Array.from(set).sort();
   }, [vehicles]);
+
+  const models = useMemo(() => {
+    const set = new Set<string>();
+    vehicles.forEach((v) => {
+      if (v.model && (selectedBrands.length === 0 || selectedBrands.includes(v.marque))) {
+        set.add(v.model);
+      }
+    });
+    return Array.from(set).sort();
+  }, [vehicles, selectedBrands]);
 
   const fuelTypes = useMemo(() => {
     const set = new Set<string>();
@@ -264,6 +273,7 @@ export default function VehiculesPage() {
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedBrands([]);
+    setSelectedModel("");
     setSelectedFuelTypes([]);
     setMinPrice(undefined);
     setMaxPrice(undefined);
@@ -277,7 +287,7 @@ export default function VehiculesPage() {
     setLocationType("");
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 ||
+  const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 || selectedModel ||
     selectedFuelTypes.length > 0 || minPrice !== undefined || maxPrice !== undefined ||
     selectedSeats.length > 0 || selectedTypeVehiculeIds.length > 0 || pickupDate || returnDate || searchText ||
     pickupCountryId !== null || pickupCityId !== null || locationType !== "";
@@ -300,6 +310,8 @@ export default function VehiculesPage() {
 
       if (selectedBrands.length > 0 && !selectedBrands.includes(v.marque)) return false;
 
+      if (selectedModel && v.model.toLowerCase() !== selectedModel.toLowerCase()) return false;
+
       if (selectedFuelTypes.length > 0 && !selectedFuelTypes.includes(v.fuelType)) return false;
 
       if (selectedSeats.length > 0 && !selectedSeats.includes(v.Occupants)) return false;
@@ -316,7 +328,7 @@ export default function VehiculesPage() {
 
       return true;
     }).sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
-  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedFuelTypes, selectedSeats, selectedTypeVehiculeIds, minPrice, maxPrice, pickupCountryId, pickupCityId, locationType]);
+  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedModel, selectedFuelTypes, selectedSeats, selectedTypeVehiculeIds, minPrice, maxPrice, pickupCountryId, pickupCityId, locationType]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -601,6 +613,23 @@ export default function VehiculesPage() {
           <option value="">All brands</option>
           {brands.map((brand) => (
             <option key={brand} value={brand}>{brand}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Model */}
+      <div>
+        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
+          {t("vehicles.model")}
+        </h4>
+        <select
+          value={selectedModel}
+          onChange={(e) => setSelectedModel(e.target.value)}
+          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
+        >
+          <option value="">All models</option>
+          {models.map((model) => (
+            <option key={model} value={model}>{model}</option>
           ))}
         </select>
       </div>
