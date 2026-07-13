@@ -372,9 +372,15 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (filterCountryId) params.set("current_country_id", String(filterCountryId));
     if (filterCityId) params.set("current_city_id", String(filterCityId));
     if (filterLocationType) params.set("location_type", filterLocationType);
-    if (returnCountryId) params.set("return_country_id", String(returnCountryId));
-    if (returnCityId) params.set("return_city_id", String(returnCityId));
-    if (returnLocationType) params.set("return_location_type", returnLocationType);
+    const returnInfo: { returnCountryId?: number | null; returnCityId?: number | null; returnLocationType?: string } = {};
+    if (returnCountryId) returnInfo.returnCountryId = returnCountryId;
+    if (returnCityId) returnInfo.returnCityId = returnCityId;
+    if (returnLocationType) returnInfo.returnLocationType = returnLocationType;
+    if (Object.keys(returnInfo).length > 0) {
+      try { localStorage.setItem("homeReturnLocation", JSON.stringify(returnInfo)); } catch {}
+    } else {
+      try { localStorage.removeItem("homeReturnLocation"); } catch {}
+    }
     const qs = params.toString();
     router.push(qs ? `/vehicules?${qs}` : "/vehicules");
   };
