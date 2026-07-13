@@ -321,6 +321,17 @@ export default function ReservationFlowModal({
       setSdDateExpiration(toDateInputValue(saved.sdDateExpiration || ""));
       setCautionMontant(saved.cautionMontant || "");
       setCautionMode(saved.cautionMode || "");
+    } else {
+      try {
+        const raw = localStorage.getItem("homeReturnLocation");
+        if (raw) {
+          const info = JSON.parse(raw);
+          if (info.returnCountryId) setReturnCountryId(info.returnCountryId);
+          if (info.returnCityId) setReturnCityId(info.returnCityId);
+          if (info.returnLocationType) setReturnLocationType(info.returnLocationType);
+          localStorage.removeItem("homeReturnLocation");
+        }
+      } catch {}
     }
   }, []);
 
