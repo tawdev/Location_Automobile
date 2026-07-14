@@ -138,6 +138,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [filterCityId, setFilterCityId] = useState<number | null>(null);
   const [cityOpen, setCityOpen] = useState(false);
   const [filterLocationType, setFilterLocationType] = useState("");
+  const [pickupLocOpen, setPickupLocOpen] = useState(false);
 
   const [returnCountryId, setReturnCountryId] = useState<number | null>(null);
   const [returnCountryOpen, setReturnCountryOpen] = useState(false);
@@ -525,9 +526,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   {/* Row 2: Pickup Location */}
                   <div className="mb-3">
                     <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.pickup_location")}</label>
-                    <Popover>
-                      <PopoverTrigger className="w-full">
-                        <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                    <Popover open={pickupLocOpen} onOpenChange={setPickupLocOpen}>
+                      <PopoverTrigger className="w-full" disabled={!filterCityId}>
+                        <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!filterCityId ? "opacity-50 pointer-events-none" : ""}`}>
                           {pickupLocation ? (
                             <><span className="font-medium text-white">{pickupLocation}</span></>
                           ) : (
@@ -684,8 +685,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   <div className="mb-3">
                     <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Return location</label>
                     <Popover open={returnLocTypeOpen} onOpenChange={setReturnLocTypeOpen}>
-                      <PopoverTrigger className="w-full">
-                        <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                      <PopoverTrigger className="w-full" disabled={!returnCityId}>
+                        <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!returnCityId ? "opacity-50 pointer-events-none" : ""}`}>
                           {returnLocation ? (
                             <><span className="font-medium text-white">{returnLocation}</span></>
                           ) : (
@@ -1419,7 +1420,7 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
 
 
   return (
-    <section className="bg-[#E1E2E4] py-28 px-8 overflow-hidden relative transition-colors duration-500">
+    <section className="bg-white dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#638ECB]/5 dark:bg-[#638ECB]/[0.03] rounded-full blur-3xl pointer-events-none" />
       <m.div
         initial={{ opacity: 0, y: 40 }}
