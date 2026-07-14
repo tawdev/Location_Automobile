@@ -133,22 +133,22 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [modelOpen, setModelOpen] = useState(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [filterCountryId, setFilterCountryId] = useState<number | null>(null);
-  const [countryOpen, setCountryOpen] = useState(false);
   const [filterCities, setFilterCities] = useState<City[]>([]);
   const [filterCityId, setFilterCityId] = useState<number | null>(null);
-  const [cityOpen, setCityOpen] = useState(false);
   const [filterLocationType, setFilterLocationType] = useState("");
-  const [pickupLocOpen, setPickupLocOpen] = useState(false);
 
   const [returnCountryId, setReturnCountryId] = useState<number | null>(null);
-  const [returnCountryOpen, setReturnCountryOpen] = useState(false);
   const [returnCities, setReturnCities] = useState<City[]>([]);
   const [returnCityId, setReturnCityId] = useState<number | null>(null);
-  const [returnCityOpen, setReturnCityOpen] = useState(false);
   const [returnLocationType, setReturnLocationType] = useState("");
   const [returnLocation, setReturnLocation] = useState("");
-  const [returnLocTypeOpen, setReturnLocTypeOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const toggleDropdown = useCallback((id: string) => {
+    setOpenDropdownId(prev => prev === id ? null : id);
+  }, []);
+  const closeDropdown = useCallback(() => setOpenDropdownId(null), []);
   const [confirmData, setConfirmData] = useState<{ type: string; name: string; price: number } | null>(null);
 
   const [vehicleIndex, setVehicleIndex] = useState(0);
@@ -265,6 +265,14 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   }, [brand]);
 
   useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenDropdownId(null);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  useEffect(() => {
     const city = filterCityId ? filterCities.find(c => c.id === filterCityId) : null;
     if (city && filterLocationType && city.locations) {
       const loc = city.locations.find(l => l.type === filterLocationType);
@@ -330,7 +338,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   }, [heroBgIndex]);
 
   function handleReturnLocationSelect(type: string, name: string, price?: number | null) {
-    setReturnLocTypeOpen(false);
+    setOpenDropdownId(null);
     if (price && Number(price) > 0) {
       setConfirmData({ type, name, price: Number(price) });
       setConfirmOpen(true);
@@ -474,7 +482,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.country")}</label>
-                      <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                      <Popover open={openDropdownId === "pickup-country"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "pickup-country" : null)}>
                         <PopoverTrigger className="w-full">
                           <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
                             {filterCountryId ? (
@@ -485,11 +493,11 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           </div>
                         </PopoverTrigger>
                         <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
-                          <button type="button" onClick={() => { setFilterCountryId(null); setFilterCityId(null); setCountryOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <button type="button" onClick={() => { setFilterCountryId(null); setFilterCityId(null); setOpenDropdownId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                             <span>{t("vehicles.all_types")}</span>
                           </button>
                           {countries.map(c => (
-                            <button key={c.id} type="button" onClick={() => { setFilterCountryId(c.id); setCountryOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${filterCountryId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                            <button key={c.id} type="button" onClick={() => { setFilterCountryId(c.id); setOpenDropdownId(null); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${filterCountryId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                               <span className="text-lg">{getCountryFlag(c.name)}</span>
                               <span className="font-medium">{c.name}</span>
                             </button>
@@ -499,7 +507,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.city")}</label>
-                      <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                      <Popover open={openDropdownId === "pickup-city"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "pickup-city" : null)}>
                         <PopoverTrigger className="w-full" disabled={!filterCountryId}>
                           <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!filterCountryId ? "opacity-50 pointer-events-none" : ""}`}>
                             {filterCityId ? (
@@ -510,11 +518,11 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           </div>
                         </PopoverTrigger>
                         <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
-                          <button type="button" onClick={() => { setFilterCityId(null); setCityOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <button type="button" onClick={() => { setFilterCityId(null); setOpenDropdownId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                             <span>{t("vehicles.all_types")}</span>
                           </button>
                           {filterCities.map(c => (
-                            <button key={c.id} type="button" onClick={() => { setFilterCityId(c.id); setCityOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${filterCityId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                            <button key={c.id} type="button" onClick={() => { setFilterCityId(c.id); setOpenDropdownId(null); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${filterCityId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                               <span className="font-medium">{c.name}</span>
                             </button>
                           ))}
@@ -526,7 +534,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   {/* Row 2: Pickup Location */}
                   <div className="mb-3">
                     <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.pickup_location")}</label>
-                    <Popover open={pickupLocOpen} onOpenChange={setPickupLocOpen}>
+                    <Popover open={openDropdownId === "pickup-loc"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "pickup-loc" : null)}>
                       <PopoverTrigger className="w-full" disabled={!filterCityId}>
                         <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!filterCityId ? "opacity-50 pointer-events-none" : ""}`}>
                           {pickupLocation ? (
@@ -537,7 +545,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                         </div>
                       </PopoverTrigger>
                        <PopoverContent align="start" sideOffset={4} className="min-w-[320px] p-3 max-h-96 overflow-y-auto">
-                         <button type="button" onClick={() => setFilterLocationType("")} className="w-full flex items-center gap-4 px-5 py-4 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                         <button type="button" onClick={() => { setFilterLocationType(""); setOpenDropdownId(null); }} className="w-full flex items-center gap-4 px-5 py-4 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                            <span>{t("vehicles.all_types")}</span>
                          </button>
                          {(() => {
@@ -545,7 +553,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           const locs = city?.locations?.length ? city.locations : null;
                           if (locs) {
                             return locs.map(loc => (
-                              <button key={loc.id} type="button" onClick={() => setFilterLocationType(loc.type)} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === loc.type ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <button key={loc.id} type="button" onClick={() => { setFilterLocationType(loc.type); setOpenDropdownId(null); }} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === loc.type ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${loc.type === "airport" ? "bg-gradient-to-br from-[#ff8d21]/20 to-[#ff8d21]/5" : "bg-gradient-to-br from-blue-500/20 to-blue-500/5"}`}>
                                   {loc.type === "airport" ? (
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="#ff8d21" className="opacity-90"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
@@ -562,7 +570,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           }
                           return (
                             <>
-                              <button type="button" onClick={() => setFilterLocationType("airport")} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === "airport" ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <button type="button" onClick={() => { setFilterLocationType("airport"); setOpenDropdownId(null); }} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === "airport" ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff8d21]/20 to-[#ff8d21]/5 flex items-center justify-center shrink-0">
                                   <svg width="22" height="22" viewBox="0 0 24 24" fill="#ff8d21" className="opacity-90"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
                                 </div>
@@ -571,7 +579,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                                   <span className="text-xs text-white/40">Prise en charge à l'aéroport</span>
                                 </div>
                               </button>
-                              <button type="button" onClick={() => setFilterLocationType("citycenter")} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === "citycenter" ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <button type="button" onClick={() => { setFilterLocationType("citycenter"); setOpenDropdownId(null); }} className={`w-full flex items-center gap-4 px-5 py-4 text-base rounded-xl transition-all ${filterLocationType === "citycenter" ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center shrink-0">
                                   <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6" className="opacity-90"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
                                 </div>
@@ -632,7 +640,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_country") || "Pays de restitution"}</label>
-                      <Popover open={returnCountryOpen} onOpenChange={setReturnCountryOpen}>
+                      <Popover open={openDropdownId === "return-country"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "return-country" : null)}>
                         <PopoverTrigger className="w-full">
                           <div className="w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
                             {returnCountryId ? (
@@ -643,11 +651,11 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           </div>
                         </PopoverTrigger>
                         <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
-                          <button type="button" onClick={() => { setReturnCountryId(null); setReturnCityId(null); setReturnCountryOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <button type="button" onClick={() => { setReturnCountryId(null); setReturnCityId(null); setOpenDropdownId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                             <span>{t("vehicles.all_types")}</span>
                           </button>
                           {countries.map(c => (
-                            <button key={c.id} type="button" onClick={() => { setReturnCountryId(c.id); setReturnCountryOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${returnCountryId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                            <button key={c.id} type="button" onClick={() => { setReturnCountryId(c.id); setOpenDropdownId(null); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${returnCountryId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                               <span className="text-lg">{getCountryFlag(c.name)}</span>
                               <span className="font-medium">{c.name}</span>
                             </button>
@@ -657,7 +665,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_city") || "Ville de restitution"}</label>
-                      <Popover open={returnCityOpen} onOpenChange={setReturnCityOpen}>
+                      <Popover open={openDropdownId === "return-city"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "return-city" : null)}>
                         <PopoverTrigger className="w-full" disabled={!returnCountryId}>
                           <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!returnCountryId ? "opacity-50 pointer-events-none" : ""}`}>
                             {returnCityId ? (
@@ -668,11 +676,11 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           </div>
                         </PopoverTrigger>
                         <PopoverContent align="start" sideOffset={4} className="min-w-[280px] p-3 max-h-72 overflow-y-auto">
-                          <button type="button" onClick={() => { setReturnCityId(null); setReturnCityOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <button type="button" onClick={() => { setReturnCityId(null); setOpenDropdownId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                             <span>{t("vehicles.all_types")}</span>
                           </button>
                           {returnCities.map(c => (
-                            <button key={c.id} type="button" onClick={() => { setReturnCityId(c.id); setReturnCityOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${returnCityId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                            <button key={c.id} type="button" onClick={() => { setReturnCityId(c.id); setOpenDropdownId(null); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${returnCityId === c.id ? "bg-[#ff8d21]/20 text-[#ff8d21]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                               <span className="font-medium">{c.name}</span>
                             </button>
                           ))}
@@ -684,7 +692,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   {/* Row 5: Return Location Type */}
                   <div className="mb-3">
                     <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Return location</label>
-                    <Popover open={returnLocTypeOpen} onOpenChange={setReturnLocTypeOpen}>
+                    <Popover open={openDropdownId === "return-loc"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "return-loc" : null)}>
                       <PopoverTrigger className="w-full" disabled={!returnCityId}>
                         <div className={`w-full h-14 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${!returnCityId ? "opacity-50 pointer-events-none" : ""}`}>
                           {returnLocation ? (
@@ -695,7 +703,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                         </div>
                       </PopoverTrigger>
                        <PopoverContent align="start" sideOffset={4} className="min-w-[320px] p-3 max-h-96 overflow-y-auto">
-                         <button type="button" onClick={() => setReturnLocationType("")} className="w-full flex items-center gap-4 px-5 py-4 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                         <button type="button" onClick={() => { setReturnLocationType(""); setOpenDropdownId(null); }} className="w-full flex items-center gap-4 px-5 py-4 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                            <span>{t("vehicles.all_types")}</span>
                          </button>
                          {(() => {
