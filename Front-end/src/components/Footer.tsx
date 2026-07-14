@@ -18,7 +18,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#395886] dark:bg-[#050a14] px-8 py-16 relative overflow-hidden transition-colors duration-500">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#f39c12]/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#ff8d21]/30 to-transparent" />
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row justify-between gap-10 mb-12">
           <motion.div
@@ -66,10 +66,10 @@ export default function Footer() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: ci * 0.1 }}
               >
-                <h4 className="text-[#f39c12] text-xs font-bold tracking-[0.15em] uppercase mb-4">{col.title}</h4>
+                <h4 className="text-[#ff8d21] text-xs font-bold tracking-[0.15em] uppercase mb-4">{col.title}</h4>
                 <div className="flex flex-col gap-2.5">
                   {col.links.map((linkObj) => (
-                    <a key={linkObj.label} href={linkObj.href} className="text-[#D5DEEF]/70 text-sm hover:text-[#f39c12] transition-all duration-300 hover:translate-x-1 inline-block w-fit">
+                    <a key={linkObj.label} href={linkObj.href} className="text-[#D5DEEF]/70 text-sm hover:text-[#ff8d21] transition-all duration-300 hover:translate-x-1 inline-block w-fit">
                       {linkObj.label}
                     </a>
                   ))}
@@ -85,14 +85,14 @@ export default function Footer() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="border-t border-[#638ECB]/30 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
         >
-          <p className="text-[#D5DEEF]/40 text-xs">&copy; {new Date().getFullYear()} <a href="https://cdigital.ma/" target="_blank" rel="noopener noreferrer" className="text-[#D5DEEF]/60 hover:text-[#f39c12] transition-colors duration-200">Cdigital</a>. {t("footer.rights")}</p>
+          <p className="text-[#D5DEEF]/40 text-xs">&copy; {new Date().getFullYear()} <a href="https://cdigital.ma/" target="_blank" rel="noopener noreferrer" className="text-[#D5DEEF]/60 hover:text-[#ff8d21] transition-colors duration-200">Cdigital</a>. {t("footer.rights")}</p>
           <div className="flex gap-4">
             {["Instagram", "Facebook", "LinkedIn"].map((s) => (
               <motion.a
                 key={s}
                 href="#"
                 whileHover={{ scale: 1.1, y: -2 }}
-                className="text-[#D5DEEF]/40 text-xs hover:text-[#f39c12] transition-colors duration-300"
+                className="text-[#D5DEEF]/40 text-xs hover:text-[#ff8d21] transition-colors duration-300"
               >
                 {s}
               </motion.a>

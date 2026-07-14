@@ -81,7 +81,7 @@ function Particles() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          className="absolute rounded-full bg-white/10 dark:bg-[#ff8d21]/10"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
@@ -188,7 +188,7 @@ export default function SettingsPage() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex items-center gap-2.5 mb-2">
-                <Sparkles className="w-4 h-4 text-[#f39c12]" />
+                <Sparkles className="w-4 h-4 text-[#ff8d21]" />
                 <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">{t("reservations.dashboard")}</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">{t("settings.title")}</h1>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => router.push("/profile")}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold tracking-wider shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold tracking-wider shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl transition-all flex items-center justify-center gap-2"
                   >
                     <User className="w-3.5 h-3.5" />
                     {t("settings.edit_profile")}
@@ -264,7 +264,7 @@ export default function SettingsPage() {
               <div className="rounded-3xl border border-[#D5DEEF]/50 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 backdrop-blur-xl shadow-lg shadow-black/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:shadow-xl dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all duration-500 overflow-hidden">
                 <div className="px-7 py-5 border-b border-[#D5DEEF]/40 dark:border-[#1e293b]/60 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f39c12] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 flex items-center justify-center shadow-lg shadow-black/10">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff8d21] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 flex items-center justify-center shadow-lg shadow-black/10">
                       <Car className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -275,7 +275,7 @@ export default function SettingsPage() {
                   <motion.a
                     whileHover={{ x: 3 }}
                     href="/MyReservations"
-                    className="text-xs font-extrabold text-[#f39c12] dark:text-amber-400 hover:text-[#e08e0b] dark:hover:text-amber-500 transition-colors flex items-center gap-1"
+                    className="text-xs font-extrabold text-[#ff8d21] dark:text-amber-400 hover:text-[#e08e0b] dark:hover:text-amber-500 transition-colors flex items-center gap-1"
                   >
                     {t("settings.history_link")} <ArrowRight className="w-3 h-3" />
                   </motion.a>
@@ -286,7 +286,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-center py-16">
                       <div className="relative">
                         <div className="w-10 h-10 border-3 border-[#D5DEEF] dark:border-[#1e293b] rounded-full" />
-                        <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] dark:border-t-[#f39c12] rounded-full animate-spin" />
+                        <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] dark:border-t-[#ff8d21] rounded-full animate-spin" />
                       </div>
                       <span className="ml-3 text-sm font-extrabold text-[#638ECB] dark:text-[#94A3B8]">{t("settings.loading")}</span>
                     </div>
@@ -299,7 +299,7 @@ export default function SettingsPage() {
                       <p className="text-sm font-semibold text-[#638ECB]/70 dark:text-[#94A3B8]/70 mt-1 mb-5">{t("settings.no_active_cta")}</p>
                       <ShimmerButton
                         onClick={() => router.push("/vehicules")}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl transition-all"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl transition-all"
                       >
                         <Car className="w-3.5 h-3.5" />
                         {t("settings.browse_vehicles")}
@@ -345,14 +345,14 @@ export default function SettingsPage() {
                                   <div>
                                     <p className="text-[10px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.1em]">{t("settings.departure")}</p>
                                     <p className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF] mt-0.5 flex items-center gap-1.5">
-                                      <Calendar className="w-3.5 h-3.5 text-[#f39c12] dark:text-amber-400" />
+                                      <Calendar className="w-3.5 h-3.5 text-[#ff8d21] dark:text-amber-400" />
                                       {formatDateStr(r.start_date)}
                                     </p>
                                   </div>
                                   <div>
                                     <p className="text-[10px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.1em]">{t("settings.return_date")}</p>
                                     <p className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF] mt-0.5 flex items-center gap-1.5">
-                                      <Calendar className="w-3.5 h-3.5 text-[#f39c12] dark:text-amber-400" />
+                                      <Calendar className="w-3.5 h-3.5 text-[#ff8d21] dark:text-amber-400" />
                                       {formatDateStr(r.end_date)}
                                     </p>
                                   </div>

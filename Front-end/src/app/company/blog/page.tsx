@@ -78,7 +78,7 @@ export default function BlogPage() {
               </div>
               <div>
                 <h1 className="text-3xl md:text-5xl font-extrabold text-white">
-                  <span className="bg-gradient-to-r from-[#f39c12] to-[#e67e22] bg-clip-text text-transparent">{t("blog.hero_title")}</span>
+                  <span className="bg-gradient-to-r from-[#ff8d21] to-[#e67e22] bg-clip-text text-transparent">{t("blog.hero_title")}</span>
                 </h1>
                 <p className="text-white/50 text-sm mt-0.5">{t("blog.hero_desc")}</p>
               </div>
@@ -132,14 +132,14 @@ export default function BlogPage() {
                 viewport={{ once: true }}
                 className="relative bg-gradient-to-br from-[#395886]/5 to-[#2b4c7e]/5 dark:from-[#0f1729] dark:to-[#0f1729] rounded-3xl overflow-hidden border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 group cursor-pointer"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#f39c12]/5 to-transparent dark:from-[#f39c12]/10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#ff8d21]/5 to-transparent dark:from-[#ff8d21]/10" />
                 <div className="relative p-8 md:p-10">
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="px-3 py-1 rounded-full bg-[#f39c12]/10 text-[#f39c12] text-[10px] font-bold uppercase tracking-wider">
+                    <span className="px-3 py-1 rounded-full bg-[#ff8d21]/10 text-[#ff8d21] text-[10px] font-bold uppercase tracking-wider">
                       {t("blog.featured")}
                     </span>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-extrabold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors leading-tight mb-3">
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#ff8d21] transition-colors leading-tight mb-3">
                     {featured.title}
                   </h2>
                   <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] max-w-2xl leading-relaxed mb-6">
@@ -193,7 +193,7 @@ export default function BlogPage() {
                         {formatDateStr(post.published_at)}
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#f39c12] transition-colors leading-snug mb-2 line-clamp-2">
+                    <h3 className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#ff8d21] transition-colors leading-snug mb-2 line-clamp-2">
                       {post.title}
                     </h3>
                     <p className="text-xs text-[#638ECB] dark:text-[#94A3B8] leading-relaxed line-clamp-2 flex-1">
@@ -205,7 +205,7 @@ export default function BlogPage() {
                       </span>
                       <motion.span
                         whileHover={{ x: 2 }}
-                        className="flex items-center gap-0.5 text-[10px] font-bold text-[#f39c12]"
+                        className="flex items-center gap-0.5 text-[10px] font-bold text-[#ff8d21]"
                       >
                         <span>{t("blog.read")}</span>
                         <ChevronRight className="w-3 h-3" />
@@ -229,7 +229,7 @@ export default function BlogPage() {
         >
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
           <div className="relative">
-            <BookOpen className="w-10 h-10 mx-auto text-[#f39c12] mb-4" />
+            <BookOpen className="w-10 h-10 mx-auto text-[#ff8d21] mb-4" />
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">{t("blog.newsletter_title")}</h2>
             <p className="text-white/60 text-sm max-w-md mx-auto mb-6">
               {t("blog.newsletter_desc")}
@@ -245,7 +245,7 @@ export default function BlogPage() {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-6 py-3 rounded-xl bg-[#f39c12] hover:bg-[#e67e22] text-white font-bold text-sm transition-all shadow-lg shadow-[#f39c12]/20"
+                className="px-6 py-3 rounded-xl bg-[#ff8d21] hover:bg-[#e67e22] text-white font-bold text-sm transition-all shadow-lg shadow-[#ff8d21]/20"
               >
                 {t("blog.newsletter_button")}
               </motion.button>

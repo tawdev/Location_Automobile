@@ -15,7 +15,7 @@
         .details td { padding: 10px 0; border-bottom: 1px solid #eef0f4; font-size: 14px; }
         .details td:first-child { color: #638ECB; font-weight: 600; width: 40%; }
         .details td:last-child { color: #1a2a4a; font-weight: 700; text-align: right; }
-        .total { font-size: 18px; font-weight: 800; color: #f39c12; text-align: right; padding-top: 16px; }
+        .total { font-size: 18px; font-weight: 800; color: #ff8d21; text-align: right; padding-top: 16px; }
         .footer { background: #F0F3FA; padding: 20px 40px; text-align: center; font-size: 12px; color: #638ECB; }
     </style>
 </head>

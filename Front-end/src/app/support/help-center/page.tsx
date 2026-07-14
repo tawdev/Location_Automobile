@@ -75,9 +75,9 @@ export default function HelpCenterPage() {
                 className="flex items-center gap-3 p-4 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b]/50 hover:bg-[#e5eaf3] dark:hover:bg-[#1e293b] transition-all group"
               >
                 <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#0f1729] flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-[#395886] dark:text-[#f39c12]" />
+                  <Icon className="w-5 h-5 text-[#395886] dark:text-[#ff8d21]" />
                 </div>
-                <span className="font-bold text-sm text-[#395886] dark:text-[#94A3B8] group-hover:text-[#f39c12] transition-colors">
+                <span className="font-bold text-sm text-[#395886] dark:text-[#94A3B8] group-hover:text-[#ff8d21] transition-colors">
                   {key === "email" ? (settings.email || "contact@carforfar.ma") : key === "phone" ? (settings.phone || "+212 5XX XX XX XX") : t("footer.contact_us")}
                 </span>
               </a>
@@ -94,7 +94,7 @@ export default function HelpCenterPage() {
           <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-[#0f1729]/60 border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 text-xs text-[#638ECB]/60 dark:text-[#94A3B8]/60">
             <Sparkles className="w-3.5 h-3.5" />
             {t("faq.more_help")}
-            <a href="/faq" className="text-[#f39c12] hover:underline font-bold ml-1">
+            <a href="/faq" className="text-[#ff8d21] hover:underline font-bold ml-1">
               {t("footer.faq")}
             </a>
           </div>

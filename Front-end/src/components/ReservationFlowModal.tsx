@@ -1076,7 +1076,7 @@ export default function ReservationFlowModal({
                         }}
                         className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm transition-all ${
                           selectedReturnLocationId === loc.id
-                            ? "border-[#f39c12] bg-[#f39c12]/10 text-[#395886] font-bold"
+                            ? "border-[#ff8d21] bg-[#ff8d21]/10 text-[#395886] font-bold"
                             : "border-[#D5DEEF] bg-white text-[#395886] hover:bg-[#F0F3FA]"
                         }`}
                       >
@@ -1561,16 +1561,16 @@ export default function ReservationFlowModal({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-[#f39c12]/10 flex items-center justify-center">
-                <svg className="w-7 h-7 text-[#f39c12]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+              <div className="w-14 h-14 rounded-full bg-[#ff8d21]/10 flex items-center justify-center">
+                <svg className="w-7 h-7 text-[#ff8d21]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
               </div>
               <h3 className="text-lg font-bold text-[#395886]">Supplément de retour</h3>
               <p className="text-sm text-[#638ECB]">
                 Vous avez sélectionné <strong>{returnLocationName}</strong> comme lieu de retour.
               </p>
               {returnLocationSupplement > 0 ? (
-                <div className="bg-[#f39c12]/10 border border-[#f39c12]/30 rounded-xl px-5 py-3">
-                  <span className="text-2xl font-extrabold text-[#f39c12]">+{returnLocationSupplement} DH</span>
+                <div className="bg-[#ff8d21]/10 border border-[#ff8d21]/30 rounded-xl px-5 py-3">
+                  <span className="text-2xl font-extrabold text-[#ff8d21]">+{returnLocationSupplement} DH</span>
                   <p className="text-[11px] text-[#638ECB] mt-1">Supplément ajouté au prix total</p>
                 </div>
               ) : (

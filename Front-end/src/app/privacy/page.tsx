@@ -192,7 +192,7 @@ function Particles() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          className="absolute rounded-full bg-white/10 dark:bg-[#ff8d21]/10"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
@@ -313,7 +313,7 @@ function SectionCard({
                       <ul className="space-y-1 ml-4">
                         {item.details.map((d, k) => (
                           <li key={k} className="text-[#638ECB]/80 dark:text-[#94A3B8]/80 flex items-start gap-2 text-sm">
-                            <span className="text-[#f39c12] mt-1 shrink-0">•</span>
+                            <span className="text-[#ff8d21] mt-1 shrink-0">•</span>
                             {d}
                           </li>
                         ))}
@@ -337,7 +337,7 @@ function SectionCard({
               )}
 
               {section.after && (
-                <p className="text-[#638ECB]/80 dark:text-[#94A3B8]/80 leading-relaxed mt-4 italic border-l-2 border-[#f39c12]/30 pl-4">
+                <p className="text-[#638ECB]/80 dark:text-[#94A3B8]/80 leading-relaxed mt-4 italic border-l-2 border-[#ff8d21]/30 pl-4">
                   {section.after}
                 </p>
               )}
@@ -387,7 +387,7 @@ export default function PrivacyPage() {
             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">
               {t("legal.title_privacy")}
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f39c12] to-amber-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff8d21] to-amber-300">
                 {t("legal.title_privacy_accent")}
               </span>
             </h1>
@@ -480,7 +480,7 @@ export default function PrivacyPage() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-gradient-to-br from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white shadow-xl hover:shadow-2xl transition-shadow flex items-center justify-center"
+            className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-gradient-to-br from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white shadow-xl hover:shadow-2xl transition-shadow flex items-center justify-center"
           >
             <ArrowUp className="w-5 h-5" />
           </motion.button>

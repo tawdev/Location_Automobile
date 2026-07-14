@@ -21,7 +21,7 @@
             --mid:   #638ECB;
             --light: #D5DEEF;
             --bg:    #F0F3FA;
-            --amber: #f39c12;
+            --amber: #ff8d21;
             --text:  #1a2a4a;
             --muted: #64748b;
             --white: #ffffff;
