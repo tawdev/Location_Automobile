@@ -43,7 +43,7 @@ function Counter({ from, to, label, suffix = "", duration = 2, decimals = 0 }: {
 
   return (
     <div ref={ref} className="text-center">
-      <div className="text-4xl md:text-5xl font-extrabold text-[#395886] dark:text-[#ff8d21] tabular-nums">
+      <div className="text-4xl md:text-5xl font-extrabold text-[#395886] dark:text-[#F39C12] tabular-nums">
         {decimals > 0 ? count.toFixed(decimals) : Math.round(count)}{suffix}
       </div>
       <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] mt-2 font-semibold">{label}</p>
@@ -114,7 +114,7 @@ export default function CareersPage() {
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-4">
               {t("careers.hero_title")}{" "}
-              <span className="bg-gradient-to-r from-[#ff8d21] to-[#e67e22] bg-clip-text text-transparent">{t("careers.hero_accent")}</span>
+              <span className="bg-gradient-to-r from-[#F39C12] to-[#e67e22] bg-clip-text text-transparent">{t("careers.hero_accent")}</span>
             </h1>
             <p className="text-white/60 text-lg max-w-2xl mx-auto leading-relaxed">
               {t("careers.hero_desc")}
@@ -123,7 +123,7 @@ export default function CareersPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => document.getElementById("positions")?.scrollIntoView({ behavior: "smooth" })}
-              className="mt-8 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#ff8d21] hover:bg-[#e67e22] text-white font-bold shadow-lg shadow-[#ff8d21]/20 transition-all"
+              className="mt-8 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#F39C12] hover:bg-[#e67e22] text-white font-bold shadow-lg shadow-[#F39C12]/20 transition-all"
             >
               <Briefcase className="w-4 h-4" />
               <span>{t("careers.view_positions")}</span>
@@ -163,7 +163,7 @@ export default function CareersPage() {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#395886]/10 dark:bg-[#D5DEEF]/10 text-[#395886] dark:text-[#ff8d21] text-xs font-semibold mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#395886]/10 dark:bg-[#D5DEEF]/10 text-[#395886] dark:text-[#F39C12] text-xs font-semibold mb-4">
             <Target className="w-3.5 h-3.5" />
             <span>{t("careers.why_title")}</span>
           </div>
@@ -184,7 +184,7 @@ export default function CareersPage() {
                 whileHover={{ y: -6, boxShadow: "0 24px 48px rgba(57,88,134,0.12)" }}
                 className="bg-white dark:bg-[#0f1729] rounded-2xl p-6 border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 shadow-sm hover:shadow-xl transition-all duration-300 group"
               >
-                <div className="w-14 h-14 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] mb-5 group-hover:bg-[#ff8d21] group-hover:text-white transition-all duration-300">
+                <div className="w-14 h-14 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] mb-5 group-hover:bg-[#F39C12] group-hover:text-white transition-all duration-300">
                   <Icon className="w-6 h-6" />
                 </div>
                 <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] mb-2">{t(perk.labelKey)}</h3>
@@ -204,7 +204,7 @@ export default function CareersPage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#395886]/10 dark:bg-[#D5DEEF]/10 text-[#395886] dark:text-[#ff8d21] text-xs font-semibold mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#395886]/10 dark:bg-[#D5DEEF]/10 text-[#395886] dark:text-[#F39C12] text-xs font-semibold mb-4">
               <Briefcase className="w-3.5 h-3.5" />
               <span>{t("careers.section_title")}</span>
             </div>
@@ -255,7 +255,7 @@ export default function CareersPage() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#ff8d21] transition-colors">{job.title}</h3>
+                      <h3 className="text-lg font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#F39C12] transition-colors">{job.title}</h3>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-[#638ECB] dark:text-[#94A3B8]">
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
@@ -270,7 +270,7 @@ export default function CareersPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="w-10 h-10 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] group-hover:bg-[#ff8d21] group-hover:text-white transition-all duration-300 shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] group-hover:bg-[#F39C12] group-hover:text-white transition-all duration-300 shrink-0">
                       <Briefcase className="w-4 h-4" />
                     </div>
                   </div>
@@ -288,7 +288,7 @@ export default function CareersPage() {
                   )}
                   <motion.button
                     whileHover={{ x: 4 }}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ff8d21] group/btn"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F39C12] group/btn"
                   >
                     <span>{t("careers.apply_now")}</span>
                     <ArrowRight className={`w-3 h-3 transition-transform group-hover/btn:translate-x-0.5 ${isRtl ? "rotate-180" : ""}`} />
@@ -324,7 +324,7 @@ export default function CareersPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-3.5 rounded-xl bg-[#ff8d21] hover:bg-[#e67e22] text-white font-bold shadow-lg shadow-[#ff8d21]/20 transition-all inline-flex items-center gap-2"
+              className="px-8 py-3.5 rounded-xl bg-[#F39C12] hover:bg-[#e67e22] text-white font-bold shadow-lg shadow-[#F39C12]/20 transition-all inline-flex items-center gap-2"
             >
               <Mail className="w-4 h-4" />
               <span>{t("careers.cta_button")}</span>

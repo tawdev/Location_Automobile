@@ -263,7 +263,7 @@ export default function HomeMap() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <span className="text-[#ff8d21] text-xs font-bold tracking-[0.25em] uppercase">{t("home.map.badge")}</span>
+          <span className="text-[#F39C12] text-xs font-bold tracking-[0.25em] uppercase">{t("home.map.badge")}</span>
           <h2 className="text-4xl md:text-5xl font-black text-[#395886] dark:text-[#D5DEEF] mt-3 leading-tight">
             {t("home.map.title")}
           </h2>

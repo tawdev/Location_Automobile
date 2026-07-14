@@ -331,8 +331,8 @@ export default function AdminDashboardPage() {
                           <stop offset="100%" stopColor="#638ECB" stopOpacity={0.4} />
                         </linearGradient>
                         <linearGradient id="revLine" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#FF8D21" stopOpacity={1} />
-                          <stop offset="100%" stopColor="#FF8D21" stopOpacity={1} />
+                          <stop offset="0%" stopColor="#F39C12" stopOpacity={1} />
+                          <stop offset="100%" stopColor="#F39C12" stopOpacity={1} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#D5DEEF" strokeOpacity={0.2} vertical={false} />
@@ -340,7 +340,7 @@ export default function AdminDashboardPage() {
                       <YAxis tick={{ fontSize: 11, fontWeight: 700, fill: "#B0C4DE" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} width={36} />
                       <Tooltip content={<ChartTooltip />} cursor={{ fill: "#F0F3FA", fillOpacity: 0.4 }} />
                       <Bar dataKey="revenu" radius={[4, 4, 0, 0]} maxBarSize={32} fill="url(#revBar)" />
-                      <Line type="monotone" dataKey="revenu" stroke="#FF8D21" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: "#FF8D21", stroke: "#fff", strokeWidth: 2 }} />
+                      <Line type="monotone" dataKey="revenu" stroke="#F39C12" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: "#F39C12", stroke: "#fff", strokeWidth: 2 }} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </>

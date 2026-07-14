@@ -83,7 +83,7 @@ export default function FaqPage() {
             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">
               {t("faq.title")}
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff8d21] to-amber-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F39C12] to-amber-300">
                 {t("faq.title_accent")}
               </span>
             </h1>
@@ -110,7 +110,7 @@ export default function FaqPage() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setOpenIndex(null); }}
             placeholder={t("faq.search_placeholder")}
-            className={`w-full pl-11 pr-4 py-3.5 rounded-xl border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 bg-white dark:bg-[#0f1729] text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#ff8d21]/30 focus:border-[#ff8d21]/50 shadow-sm transition-all ${isRtl ? "text-right" : "text-left"}`}
+            className={`w-full pl-11 pr-4 py-3.5 rounded-xl border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 bg-white dark:bg-[#0f1729] text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#F39C12]/30 focus:border-[#F39C12]/50 shadow-sm transition-all ${isRtl ? "text-right" : "text-left"}`}
           />
         </motion.div>
 
@@ -193,7 +193,7 @@ export default function FaqPage() {
           <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-[#0f1729]/60 border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 text-xs text-[#638ECB]/60 dark:text-[#94A3B8]/60">
             <HelpCircle className="w-3.5 h-3.5" />
             {t("faq.more_help")}
-            <a href="/contact" className="text-[#ff8d21] hover:underline font-bold ml-1">
+            <a href="/contact" className="text-[#F39C12] hover:underline font-bold ml-1">
               {t("faq.contact_link")}
             </a>
           </div>
