@@ -238,14 +238,14 @@ export default function ProfileForm() {
                   </div>
                 )}
               </div>
-              <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-[#ff8d21] to-[#e08e0b] flex items-center justify-center cursor-pointer shadow-lg shadow-[#ff8d21]/30 hover:scale-110 transition-transform border-2 border-white">
+              <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-[#F39C12] to-[#e08e0b] flex items-center justify-center cursor-pointer shadow-lg shadow-[#F39C12]/30 hover:scale-110 transition-transform border-2 border-white">
                 <Camera className="w-3.5 h-3.5 text-white" />
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => setProfilePicFile(e.target.files?.[0] ?? null)} />
               </label>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-[#ff8d21]" />
+                <Sparkles className="w-4 h-4 text-[#F39C12]" />
                 <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">{t("profile.badge")}</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight truncate">{initial.name || t("profile.welcome")}</h1>
@@ -254,7 +254,7 @@ export default function ProfileForm() {
                 <motion.span
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="inline-block mt-2 text-[10px] font-extrabold text-[#ff8d21] bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full"
+                  className="inline-block mt-2 text-[10px] font-extrabold text-[#F39C12] bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full"
                 >
                   {t("profile.photo_saved")}
                 </motion.span>

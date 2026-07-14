@@ -207,7 +207,7 @@ export default function SignupPage() {
             required
           />
           {fieldErrors.name ? (
-            <span className="text-[11px] font-extrabold text-[#FF8D21] mt-[-6px]">
+            <span className="text-[11px] font-extrabold text-[#F39C12] mt-[-6px]">
               {fieldErrors.name}
             </span>
           ) : null}
@@ -232,7 +232,7 @@ export default function SignupPage() {
             required
           />
           {fieldErrors.email ? (
-            <span className="text-[11px] font-extrabold text-[#FF8D21] mt-[-6px]">
+            <span className="text-[11px] font-extrabold text-[#F39C12] mt-[-6px]">
               {fieldErrors.email}
             </span>
           ) : null}
@@ -258,7 +258,7 @@ export default function SignupPage() {
             minLength={8}
           />
           {fieldErrors.password ? (
-            <span className="text-[11px] font-extrabold text-[#FF8D21] mt-[-6px]">
+            <span className="text-[11px] font-extrabold text-[#F39C12] mt-[-6px]">
               {fieldErrors.password}
             </span>
           ) : null}

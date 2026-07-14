@@ -75,7 +75,7 @@ function NavLink({
       onClick={onClick}
       className={`relative flex items-center gap-2 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
         active
-          ? "border-2 border-[#ff8d21] px-4 py-2 text-white"
+          ? "border-2 border-[#F39C12] px-4 py-2 text-white"
           : "border-2 border-transparent px-4 py-2 text-white/70 hover:text-white"
       }`}
     >
@@ -372,7 +372,7 @@ export default function Header() {
               onClick={toggleDark}
               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                 dark
-                  ? "bg-[#1e293b] text-[#ff8d21] border border-[#ff8d21]/20"
+                  ? "bg-[#1e293b] text-[#F39C12] border border-[#F39C12]/20"
                   : isTransparentState
                     ? "bg-white/10 text-white border border-white/20 hover:bg-white/20"
                     : "bg-[#F0F3FA] text-[#395886] border border-[#D5DEEF]/40 hover:bg-[#e4e8f0]"
@@ -465,7 +465,7 @@ export default function Header() {
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
                       pathname === item.href
                         ? item.href === "/"
-                          ? "bg-gradient-to-r from-[#ff8d21] to-[#d68910] text-[#395886] shadow-md"
+                          ? "bg-gradient-to-r from-[#F39C12] to-[#d68910] text-[#395886] shadow-md"
                           : "bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-md"
                         : "text-[#395886] dark:text-[#94A3B8] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/50"
                     }`}
@@ -605,7 +605,7 @@ export default function Header() {
                     onClick={toggleDark}
                     className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                       dark
-                        ? "bg-[#1e293b] text-[#ff8d21] border border-[#ff8d21]/20"
+                        ? "bg-[#1e293b] text-[#F39C12] border border-[#F39C12]/20"
                         : "bg-[#F0F3FA] text-[#395886] border border-[#D5DEEF]/40"
                     }`}
                     aria-label={dark ? t("theme.light") : t("theme.dark")}

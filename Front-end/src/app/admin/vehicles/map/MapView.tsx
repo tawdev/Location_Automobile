@@ -29,7 +29,7 @@ const defaultIcon = L.divIcon({
 
 const selectedIcon = L.divIcon({
   className: "",
-  html: `<div style="width:40px;height:40px;background:#ff8d21;border:3px solid white;border-radius:50%;box-shadow:0 2px 12px rgba(255,141,33,.5);display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:16px">📍</div>`,
+  html: `<div style="width:40px;height:40px;background:#F39C12;border:3px solid white;border-radius:50%;box-shadow:0 2px 12px rgba(243,156,18,.5);display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:16px">📍</div>`,
   iconSize: [40, 40],
   iconAnchor: [20, 20],
 });
