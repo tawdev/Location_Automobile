@@ -218,7 +218,7 @@ export function ConfirmDialog({
             <p className="text-sm text-gray-800 dark:text-[#D5DEEF] font-bold text-center">{modal.message}</p>
             <button
               onClick={onClose}
-              className="w-full bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/50 transition-all"
+              className="w-full bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/50 transition-all"
             >
               OK
             </button>
@@ -233,7 +233,7 @@ export function ConfirmDialog({
             <p className="text-sm text-gray-800 dark:text-[#D5DEEF] font-bold text-center">{modal.message}</p>
             <button
               onClick={onClose}
-              className="w-full bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/50 transition-all"
+              className="w-full bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/50 transition-all"
             >
               OK
             </button>
@@ -421,7 +421,7 @@ export function DetailDialog({
               whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
               whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
               onClick={onClose}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-sm font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-all"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] text-sm font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-all"
             >
               {t("reservations.back_to_history")}
             </motion.button>

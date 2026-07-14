@@ -67,12 +67,12 @@ export default function AboutDropdown({ variant, scrolled, isActive }: { variant
   const triggerClass = variant === "visitor"
     ? `relative flex items-center gap-1.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
         isActive
-          ? "border-2 border-[#f39c12] px-4 py-2 text-white"
+          ? "border-2 border-[#ff8d21] px-4 py-2 text-white"
           : "border-2 border-transparent px-4 py-2 text-white/70 hover:text-white"
       }`
     : `relative flex items-center gap-1.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
         isActive
-          ? "border-2 border-[#f39c12] px-4 py-2 text-white"
+          ? "border-2 border-[#ff8d21] px-4 py-2 text-white"
           : "border-2 border-transparent px-4 py-2 text-[#395886]/70 dark:text-[#94A3B8]/70 hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50"
       }`;
 
@@ -115,7 +115,7 @@ export default function AboutDropdown({ variant, scrolled, isActive }: { variant
                     className={`flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
                       isLinkActive
                         ? variant === "visitor"
-                          ? "bg-[#D5DEEF]/50 dark:bg-[#1e293b]/80 text-black dark:text-[#f39c12]"
+                          ? "bg-[#D5DEEF]/50 dark:bg-[#1e293b]/80 text-black dark:text-[#ff8d21]"
                           : "bg-[#F0F3FA] dark:bg-[#1e293b]/80 text-[#395886] dark:text-[#D5DEEF]"
                         : variant === "visitor"
                           ? "text-black/60 dark:text-[#94A3B8] hover:bg-[#D5DEEF]/30 dark:hover:bg-[#1e293b]/50 hover:text-black dark:hover:text-[#D5DEEF]"

@@ -791,7 +791,7 @@ export default function VehiculesPage() {
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
                 <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md text-white/80 text-[11px] font-bold tracking-[0.2em] uppercase px-4 py-1.5 rounded-full border border-white/15 mb-5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#f39c12] animate-[glow-pulse_2s_ease-in-out_infinite]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ff8d21] animate-[glow-pulse_2s_ease-in-out_infinite]" />
                   {t("vehicles.featured_subtitle")}
                 </span>
               </motion.div>
@@ -821,7 +821,7 @@ export default function VehiculesPage() {
                 initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scaleX: 0 }}
                 animate={{ opacity: 1, scaleX: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="origin-left mt-6 h-1 w-20 bg-gradient-to-r from-[#f39c12] to-transparent rounded-full"
+                className="origin-left mt-6 h-1 w-20 bg-gradient-to-r from-[#ff8d21] to-transparent rounded-full"
               />
             </div>
           </div>
@@ -956,7 +956,7 @@ export default function VehiculesPage() {
                       >
                         {/* Shimmer border overlay on hover */}
                         <div className="absolute inset-0 rounded-[18px] p-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20" style={{
-                          background: 'linear-gradient(135deg, transparent, #f39c12, #1f4276, transparent)',
+                          background: 'linear-gradient(135deg, transparent, #ff8d21, #1f4276, transparent)',
                           backgroundSize: '300% 300%',
                           animation: 'border-shimmer 3s ease infinite',
                           WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
@@ -1008,7 +1008,7 @@ export default function VehiculesPage() {
                               transition={{ delay: idx * 0.06 + 0.3 }}
                               className="bg-white/95 dark:bg-[#1e293b]/90 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)] border border-white/60 dark:border-transparent"
                             >
-                              <span className="text-[18px] font-extrabold text-[#1f4276] dark:text-[#f39c12]">{v.pricePerDay.toLocaleString()} DH</span>
+                              <span className="text-[18px] font-extrabold text-[#1f4276] dark:text-[#ff8d21]">{v.pricePerDay.toLocaleString()} DH</span>
                             </motion.div>
                           </div>
 
@@ -1063,7 +1063,7 @@ export default function VehiculesPage() {
                             ) : (
                               <span className="text-[18px] font-bold text-[#1f4276] dark:text-[#D5DEEF] shrink-0">{v.marque}</span>
                             )}
-                            <h3 className="text-[22px] font-extrabold text-[#1f4276] dark:text-[#D5DEEF] leading-tight transition-colors duration-300 group-hover:text-[#f39c12]">
+                            <h3 className="text-[22px] font-extrabold text-[#1f4276] dark:text-[#D5DEEF] leading-tight transition-colors duration-300 group-hover:text-[#ff8d21]">
                               {v.model}
                             </h3>
                           </div>
@@ -1105,19 +1105,19 @@ export default function VehiculesPage() {
                             className="mt-4 border-t border-gray-100/80 dark:border-[#1e293b]/80 pt-4 flex items-center justify-between relative overflow-hidden"
                           >
                             <motion.div
-                              className="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-[#f39c12] to-[#e67e22]"
+                              className="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-[#ff8d21] to-[#e67e22]"
                               initial={prefersReducedMotion ? { width: '100%' } : { width: '0%' }}
                               whileHover={{ width: '100%' }}
                               transition={{ duration: 0.4, ease: "easeOut" }}
                             />
                             <motion.button
-                              whileHover={prefersReducedMotion ? {} : { scale: 1.06, boxShadow: "0 8px 20px rgba(243,156,18,0.3)" }}
+                              whileHover={prefersReducedMotion ? {} : { scale: 1.06, boxShadow: "0 8px 20px rgba(255,141,33,0.3)" }}
                               whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/vehicules/${v.id}`);
                               }}
-                              className="relative overflow-hidden h-10 px-6 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e67e22] text-white dark:text-[#0f1729] text-[13px] font-bold tracking-wide transition-all duration-300 shadow-[0_4px_12px_rgba(243,156,18,0.2)] dark:shadow-[0_4px_12px_rgba(243,156,18,0.3)] hover:shadow-[0_8px_25px_rgba(243,156,18,0.35)] shimmer-btn"
+                              className="relative overflow-hidden h-10 px-6 rounded-xl bg-gradient-to-r from-[#ff8d21] to-[#e67e22] text-white dark:text-[#0f1729] text-[13px] font-bold tracking-wide transition-all duration-300 shadow-[0_4px_12px_rgba(255,141,33,0.2)] dark:shadow-[0_4px_12px_rgba(255,141,33,0.3)] hover:shadow-[0_8px_25px_rgba(255,141,33,0.35)] shimmer-btn"
                             >
                               <span className="relative z-10">{t("vehicles.book_button")}</span>
                             </motion.button>

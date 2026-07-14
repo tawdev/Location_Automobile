@@ -102,7 +102,7 @@ function ParticlesComponent() {
       {data.map((d) => (
         <motion.div
           key={d.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          className="absolute rounded-full bg-white/10 dark:bg-[#ff8d21]/10"
           style={{ left: `${d.x}%`, top: `${d.y}%`, width: d.size, height: d.size }}
           animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: d.duration, repeat: Infinity, delay: d.delay, ease: "easeInOut" }}
@@ -342,7 +342,7 @@ const ReservationCard = memo(function ReservationCard({
             <>
                 <ShimmerButton
                   onClick={() => onShowDetails(res)}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#ff8d21] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#ff8d21]/20 hover:shadow-lg hover:shadow-[#ff8d21]/30 transition-all"
               >
                 {t("reservations.details_button")}
               </ShimmerButton>
@@ -361,7 +361,7 @@ const ReservationCard = memo(function ReservationCard({
             <>
               <ShimmerButton
                 onClick={() => onBookAgain(res.vehicle?.id ?? res.id)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f39c12] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#f39c12]/20 hover:shadow-lg hover:shadow-[#f39c12]/30 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#ff8d21] to-[#e08e0b] dark:from-amber-500 dark:to-amber-700 text-white text-xs font-extrabold tracking-wider shadow-md shadow-[#ff8d21]/20 hover:shadow-lg hover:shadow-[#ff8d21]/30 transition-all"
               >
                 {t("reservations.rebook_button")}
               </ShimmerButton>
@@ -425,7 +425,7 @@ const FilterDropdown = memo(function FilterDropdown({ filter, onChange }: { filt
                 onClick={() => { onChange(opt); setOpen(false); }}
                 className={`text-left px-4 py-2.5 rounded-lg text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#638ECB]/40 focus-visible:ring-inset ${
                   filter === opt
-                    ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] shadow-md"
+                    ? "bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] shadow-md"
                     : "text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]/60"
                 }`}
               >
@@ -755,7 +755,7 @@ export default function BookingHistoryPage() {
             <div className="flex items-center justify-center py-20" role="status" aria-label={t("reservations.loading")}>
               <div className="relative">
                 <div className="w-10 h-10 border-3 border-[#D5DEEF] dark:border-[#1e293b] rounded-full" />
-                <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] dark:border-t-[#f39c12] rounded-full animate-spin" />
+                <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-[#638ECB] dark:border-t-[#ff8d21] rounded-full animate-spin" />
               </div>
               <span className="ml-4 text-sm font-extrabold text-[#638ECB] dark:text-[#94A3B8]">{t("reservations.loading")}</span>
             </div>

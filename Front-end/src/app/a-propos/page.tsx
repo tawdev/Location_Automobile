@@ -61,7 +61,7 @@ function Particles() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          className="absolute rounded-full bg-white/10 dark:bg-[#ff8d21]/10"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
@@ -118,7 +118,7 @@ export default function AProposPage() {
         >
           {STATS.map((stat, i) => (
             <div key={i} className="text-center">
-              <p className="text-3xl font-black text-[#395886] dark:text-[#f39c12]">{t(stat.valueKey)}</p>
+              <p className="text-3xl font-black text-[#395886] dark:text-[#ff8d21]">{t(stat.valueKey)}</p>
               <p className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-wider mt-1">{t(stat.labelKey)}</p>
             </div>
           ))}
@@ -134,7 +134,7 @@ export default function AProposPage() {
           className="bg-white dark:bg-[#0f1729]/90 rounded-2xl p-8 md:p-12 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-[#D5DEEF]/30 dark:border-[#1e293b]/70"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-[#f39c12]" />
+            <Sparkles className="w-5 h-5 text-[#ff8d21]" />
             <h2 className="text-2xl font-black text-[#395886] dark:text-white">{t("about.story_title")}</h2>
           </div>
           <div className="space-y-4 text-gray-600 dark:text-[#94A3B8] text-[15px] leading-relaxed">
@@ -155,7 +155,7 @@ export default function AProposPage() {
           <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 blur-2xl -translate-y-1/2 translate-x-1/3" />
           <div className="relative z-10 flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10 shrink-0">
-              <HeartHandshake className="w-6 h-6 text-[#f39c12]" />
+              <HeartHandshake className="w-6 h-6 text-[#ff8d21]" />
             </div>
             <div>
               <h2 className="text-2xl font-black text-white mb-3">{t("about.mission_title")}</h2>
@@ -189,7 +189,7 @@ export default function AProposPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-[#395886] dark:text-white flex items-center gap-2">
-                      <ChevronRight className="w-4 h-4 text-[#d08a1b] dark:text-[#f39c12] shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-[#d08a1b] dark:text-[#ff8d21] shrink-0" />
                       {t(value.titleKey)}
                     </h3>
                     <p className="text-gray-600 dark:text-[#94A3B8] text-sm leading-relaxed mt-2">{t(value.descKey)}</p>
