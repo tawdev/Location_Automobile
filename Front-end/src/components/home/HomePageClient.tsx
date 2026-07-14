@@ -1081,6 +1081,11 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
           </div>
         </div>
       </div>
+
+      {/* Smooth transition gradient to next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-20" aria-hidden="true">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#F0F3FA]/60 to-[#F0F3FA] dark:via-[#070b14]/60 dark:to-[#070b14]" />
+      </div>
     </section>
   );
 }
@@ -1428,7 +1433,7 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
 
 
   return (
-    <section className="bg-[#F3F3F3] py-28 px-8 overflow-hidden relative transition-colors duration-500">
+    <section className="bg-[#F3F3F3] dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#638ECB]/5 dark:bg-[#638ECB]/[0.03] rounded-full blur-3xl pointer-events-none" />
       <m.div
         initial={{ opacity: 0, y: 40 }}
