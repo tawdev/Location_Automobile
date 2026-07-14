@@ -144,9 +144,9 @@ export function LoginCard({
       className="w-full max-w-[470px] mx-auto md:max-w-[560px] lg:max-w-[650px]"
     >
       <div className="relative rounded-[20px] bg-white/[0.07] backdrop-blur-2xl border border-[#D5DEEF]/25 shadow-[0_8px_32px_rgba(57,88,134,0.10)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px] overflow-hidden">
-        <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-[#638ECB]/0 via-[#638ECB] to-[#F39C12]/0 rounded-full" />
+        <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-[#638ECB]/0 via-[#638ECB] to-[#FF8D21]/0 rounded-full" />
         <div className="absolute -top-32 -right-32 w-64 h-64 bg-[#638ECB]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-[#F39C12]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-[#FF8D21]/5 rounded-full blur-3xl pointer-events-none" />
 
         <motion.h2
           initial={{ opacity: 0, y: 8 }}
@@ -156,11 +156,11 @@ export function LoginCard({
         >
           {mode === "login" ? (
             <>
-              {t("auth.login_title")} <span className="text-[#F39C12]">{t("auth.login_title_highlight")}</span>
+              {t("auth.login_title")} <span className="text-[#FF8D21]">{t("auth.login_title_highlight")}</span>
             </>
           ) : (
             <>
-              {t("auth.signup_title")} <span className="text-[#F39C12]">{t("auth.signup_title_highlight")}</span>
+              {t("auth.signup_title")} <span className="text-[#FF8D21]">{t("auth.signup_title_highlight")}</span>
             </>
           )}
         </motion.h2>
@@ -178,10 +178,10 @@ export function LoginCard({
           <motion.div
             initial={{ opacity: 0, y: -4, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="mt-[18px] rounded-[12px] border border-[#F39C12]/40 bg-[#F39C12]/8 px-[16px] py-[12px] text-[13px] font-semibold text-[#395886] backdrop-blur-md"
+            className="mt-[18px] rounded-[12px] border border-[#FF8D21]/40 bg-[#FF8D21]/8 px-[16px] py-[12px] text-[13px] font-semibold text-[#395886] backdrop-blur-md"
           >
             <span className="inline-flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#F39C12]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#FF8D21]">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" />
                 <path d="M12 8v4M12 16v0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
@@ -213,7 +213,7 @@ export function LoginCard({
                 leftIcon={<div className="font-extrabold">@</div>}
               />
               {fieldErrors.name ? (
-                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">
+                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#FF8D21]">
                   {fieldErrors.name}
                 </motion.span>
               ) : null}
@@ -237,7 +237,7 @@ export function LoginCard({
               leftIcon={<MailIcon />}
             />
             {fieldErrors.email ? (
-              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">
+              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#FF8D21]">
                 {fieldErrors.email}
               </motion.span>
             ) : null}
@@ -285,7 +285,7 @@ export function LoginCard({
                 </button>
               </div>
               {fieldErrors.password ? (
-                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">
+                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#FF8D21]">
                   {fieldErrors.password}
                 </motion.span>
               ) : null}
@@ -353,14 +353,14 @@ export function LoginCard({
             {mode === "login" ? (
               <>
                 {t("auth.no_account")}{" "}
-                <a href={`/register${currentSearch}`} className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">
+                <a href={`/register${currentSearch}`} className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#FF8D21] dark:hover:text-[#FF8D21] transition-colors duration-200">
                   {t("auth.sign_up_link")}
                 </a>
               </>
             ) : (
               <>
                 {t("auth.has_account")}{" "}
-                <a href={`/login${currentSearch}`} className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">
+                <a href={`/login${currentSearch}`} className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#FF8D21] dark:hover:text-[#FF8D21] transition-colors duration-200">
                   {t("auth.sign_in_link")}
                 </a>
               </>

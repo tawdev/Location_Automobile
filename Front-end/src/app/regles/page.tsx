@@ -55,7 +55,7 @@ function Particles() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          className="absolute rounded-full bg-white/10 dark:bg-[#ff8d21]/10"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
@@ -158,7 +158,7 @@ export default function ReglesPage() {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h2 className="text-xl font-bold text-[#1d3560] dark:text-[#D5DEEF] mb-2 flex items-center gap-2">
-                      <ChevronRight className="w-4 h-4 text-[#d08a1b] dark:text-[#f39c12] shrink-0 group-hover:translate-x-1 transition-transform duration-300" />
+                      <ChevronRight className="w-4 h-4 text-[#d08a1b] dark:text-[#ff8d21] shrink-0 group-hover:translate-x-1 transition-transform duration-300" />
                       {t(`rules.${key}`)}
                     </h2>
                     <p className="text-gray-600 dark:text-[#94A3B8] text-[15px] leading-relaxed mb-4">
@@ -168,7 +168,7 @@ export default function ReglesPage() {
                     {/* Detail box */}
                     <div className={`${BG_LIGHTS[index]} rounded-xl p-4 border border-[#D5DEEF]/20 dark:border-[#1e293b]/60 transition-all duration-300 group-hover:shadow-inner`}>
                       <p className="text-sm text-gray-500 dark:text-[#94A3B8] leading-relaxed flex items-start gap-2">
-                        <Info className="w-4 h-4 text-[#395886] dark:text-[#f39c12] shrink-0 mt-0.5 group-hover:rotate-12 transition-transform duration-300" />
+                        <Info className="w-4 h-4 text-[#395886] dark:text-[#ff8d21] shrink-0 mt-0.5 group-hover:rotate-12 transition-transform duration-300" />
                         <span>{t(`rules.${key}.detail`)}</span>
                       </p>
                     </div>

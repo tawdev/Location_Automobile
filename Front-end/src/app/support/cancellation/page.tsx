@@ -73,7 +73,7 @@ export default function CancellationPage() {
               key={key}
               variants={cardVariants}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="group bg-white dark:bg-[#0f1729]/90 rounded-2xl p-6 md:p-8 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 hover:border-[#638ECB]/30 dark:hover:border-[#f39c12]/20 transition-all duration-500 hover:shadow-xl"
+              className="group bg-white dark:bg-[#0f1729]/90 rounded-2xl p-6 md:p-8 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 hover:border-[#638ECB]/30 dark:hover:border-[#ff8d21]/20 transition-all duration-500 hover:shadow-xl"
             >
               <div className={`absolute top-0 left-6 right-6 h-1.5 rounded-full bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-all duration-500 scale-x-0 group-hover:scale-x-100 origin-left`} />
               <div className="flex items-start gap-5 relative z-10">
@@ -83,7 +83,7 @@ export default function CancellationPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h2 className="text-xl font-bold text-[#1d3560] dark:text-[#D5DEEF] mb-2 flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-[#d08a1b] dark:text-[#f39c12] shrink-0 group-hover:translate-x-1 transition-transform duration-300" />
+                    <ChevronRight className="w-4 h-4 text-[#d08a1b] dark:text-[#ff8d21] shrink-0 group-hover:translate-x-1 transition-transform duration-300" />
                     {t(`cancellation.${key}_title`)}
                   </h2>
                   <p className="text-gray-600 dark:text-[#94A3B8] text-[15px] leading-relaxed">
@@ -104,7 +104,7 @@ export default function CancellationPage() {
           <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-[#0f1729]/60 border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 text-xs text-[#638ECB]/60 dark:text-[#94A3B8]/60">
             <Shield className="w-3.5 h-3.5" />
             {t("faq.more_help")}
-            <a href="/contact" className="text-[#f39c12] hover:underline font-bold ml-1">
+            <a href="/contact" className="text-[#ff8d21] hover:underline font-bold ml-1">
               {t("faq.contact_link")}
             </a>
           </div>

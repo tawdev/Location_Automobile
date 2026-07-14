@@ -15,8 +15,8 @@
         .details td { padding: 10px 0; border-bottom: 1px solid #eef0f4; font-size: 14px; }
         .details td:first-child { color: #638ECB; font-weight: 600; width: 40%; }
         .details td:last-child { color: #1a2a4a; font-weight: 700; text-align: right; }
-        .total { font-size: 18px; font-weight: 800; color: #f39c12; text-align: right; padding-top: 16px; }
-        .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; background: #f39c12; color: #fff; }
+        .total { font-size: 18px; font-weight: 800; color: #ff8d21; text-align: right; padding-top: 16px; }
+        .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; background: #ff8d21; color: #fff; }
         .footer { background: #F0F3FA; padding: 20px 40px; text-align: center; font-size: 12px; color: #638ECB; }
     </style>
 </head>

@@ -30,7 +30,7 @@ function UploadZone({
       whileTap={{ scale: 0.98 }}
       className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 h-40 overflow-hidden
         ${dragging
-          ? "border-[#395886] dark:border-[#f39c12] bg-[#eef2fb] dark:bg-[#1e293b]/60 shadow-inner"
+          ? "border-[#395886] dark:border-[#ff8d21] bg-[#eef2fb] dark:bg-[#1e293b]/60 shadow-inner"
           : "border-[#D5DEEF]/70 dark:border-[#1e293b]/70 bg-white/50 dark:bg-[#0f1729]/40 hover:border-[#638ECB]/50 dark:hover:border-[#638ECB]/40 hover:bg-[#F0F3FA]/80 dark:hover:bg-[#1e293b]/50 hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}
@@ -41,7 +41,7 @@ function UploadZone({
         <>
           <img src={existingUrl} alt={label} className="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-30 dark:opacity-20" />
           <div className="relative z-10 flex flex-col items-center gap-1.5 bg-white/60 dark:bg-[#0f1729]/70 backdrop-blur-sm rounded-xl px-4 py-3 shadow-lg">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#638ECB] to-[#395886] dark:from-[#f39c12] dark:to-[#d68910] flex items-center justify-center shadow-md">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#638ECB] to-[#395886] dark:from-[#ff8d21] dark:to-[#d68910] flex items-center justify-center shadow-md">
               <Upload className="w-4 h-4 text-white" />
             </div>
             <span className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF]">{label}</span>
@@ -83,7 +83,7 @@ function Particles() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#f39c12]/10"
+          className="absolute rounded-full bg-white/10 dark:bg-[#ff8d21]/10"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{
             y: [0, -30, 0],
@@ -420,7 +420,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                     </div>
                   )}
                 </div>
-                <label className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-[#f39c12] to-[#e08e0b] flex items-center justify-center cursor-pointer shadow-lg shadow-[#f39c12]/30 hover:scale-110 hover:rotate-12 transition-all duration-300 border-2 border-white dark:border-[#0f1729]">
+                <label className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-[#ff8d21] to-[#e08e0b] flex items-center justify-center cursor-pointer shadow-lg shadow-[#ff8d21]/30 hover:scale-110 hover:rotate-12 transition-all duration-300 border-2 border-white dark:border-[#0f1729]">
                   {profilePicUploading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
@@ -431,7 +431,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-4 h-4 text-[#f39c12]" />
+                  <Sparkles className="w-4 h-4 text-[#ff8d21]" />
                   <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">{t("profile.your_profile")}</span>
                 </div>
                 <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight truncate">{initial.name || t("profile.welcome")}</h1>
@@ -440,7 +440,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                   <motion.span
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="inline-block mt-2 text-[10px] font-extrabold text-[#f39c12] bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full"
+                    className="inline-block mt-2 text-[10px] font-extrabold text-[#ff8d21] bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full"
                   >
                     {t("profile.uploading")}
                   </motion.span>
@@ -559,7 +559,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                 <div className="flex justify-end mt-6">
                   <ShimmerButton
                     type="submit" disabled={basicSubmitting}
-                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-sm font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl disabled:opacity-50 transition-all"
+                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] text-sm font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                   >
                     {basicSubmitting ? (
                       <span className="flex items-center gap-2">
@@ -612,7 +612,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
 
                 <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-[#638ECB] dark:text-[#94A3B8] hover:text-[#395886] dark:hover:text-[#D5DEEF] transition-colors">
                   <input type="checkbox" checked={showPw} onChange={(e) => setShowPw(e.target.checked)}
-                    className="w-4 h-4 accent-[#638ECB] dark:accent-[#f39c12] rounded" />
+                    className="w-4 h-4 accent-[#638ECB] dark:accent-[#ff8d21] rounded" />
                   <Eye className="w-3.5 h-3.5" /> {t("profile.show_passwords")}
                 </label>
 
@@ -701,7 +701,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                   <div className="flex justify-end">
                     <ShimmerButton
                       type="submit" disabled={docsSubmitting}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl disabled:opacity-50 transition-all"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                     >
                       {docsSubmitting ? t("profile.uploading") : t("profile.upload_license_button")}
                     </ShimmerButton>
@@ -736,7 +736,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                   <div className="flex justify-end">
                     <ShimmerButton
                       type="submit" disabled={docsSubmitting}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#f39c12] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#f39c12]/20 hover:shadow-xl disabled:opacity-50 transition-all"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white dark:text-[#0f1729] text-xs font-extrabold shadow-lg shadow-[#395886]/20 dark:shadow-[#ff8d21]/20 hover:shadow-xl disabled:opacity-50 transition-all"
                     >
                       {docsSubmitting ? t("profile.uploading") : t("profile.upload_cin_button")}
                     </ShimmerButton>
@@ -751,14 +751,14 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
             <SectionCard>
               <SectionHeader
                 icon={Calendar}
-                gradient="bg-gradient-to-br from-[#f39c12] to-[#e08e0b]"
+                gradient="bg-gradient-to-br from-[#ff8d21] to-[#e08e0b]"
                 title={t("profile.my_reservations") || "My Reservations"}
                 subtitle={t("profile.reservations_subtitle") || "Your rental history"}
               />
               <div className="px-7 py-6">
                 {reservationsLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <div className="w-6 h-6 border-2 border-[#f39c12] border-t-transparent rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-2 border-[#ff8d21] border-t-transparent rounded-full animate-spin" />
                   </div>
                 ) : reservations.length === 0 ? (
                   <p className="text-sm font-bold text-[#638ECB]/50 dark:text-[#94A3B8]/50 text-center py-8">
@@ -769,7 +769,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                     {reservations.slice(0, 5).map((res) => (
                       <div
                         key={res.id}
-                        className="flex items-center gap-4 p-4 rounded-2xl bg-[#F0F3FA]/70 dark:bg-[#1e293b]/40 border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 hover:border-[#f39c12]/30 dark:hover:border-[#f39c12]/20 transition-all"
+                        className="flex items-center gap-4 p-4 rounded-2xl bg-[#F0F3FA]/70 dark:bg-[#1e293b]/40 border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 hover:border-[#ff8d21]/30 dark:hover:border-[#ff8d21]/20 transition-all"
                       >
                         <div className="w-12 h-12 rounded-xl bg-[#D5DEEF]/60 dark:bg-[#1e293b]/70 flex items-center justify-center shrink-0">
                           <Car className="w-6 h-6 text-[#395886] dark:text-[#94A3B8]" />

@@ -210,7 +210,7 @@ export default function AdminPermissionsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t("admin_permissions.search_placeholder")}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 text-xs font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#B0C4DE] dark:placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]/40 transition-all"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 text-xs font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#B0C4DE] dark:placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#ff8d21]/20 focus:border-[#ff8d21]/40 transition-all"
                 />
               </div>
             </div>
@@ -227,7 +227,7 @@ export default function AdminPermissionsPage() {
                     onClick={() => void loadUserPermissions(user)}
                     className={`w-full text-left p-3.5 flex items-center gap-3 transition-all duration-200 hover:bg-[#F0F3FA]/60 dark:hover:bg-[#1e293b]/40 cursor-pointer ${
                       selectedUser?.id === user.id
-                        ? "bg-[#638ECB]/10 dark:bg-[#638ECB]/20 border-l-2 border-[#f39c12]"
+                        ? "bg-[#638ECB]/10 dark:bg-[#638ECB]/20 border-l-2 border-[#ff8d21]"
                         : "border-l-2 border-transparent"
                     }`}
                   >
@@ -301,14 +301,14 @@ export default function AdminPermissionsPage() {
                               onClick={() => togglePermission(perm.id)}
                               className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
                                 isActive
-                                  ? "bg-[#f39c12]/10 dark:bg-[#f39c12]/20 border-[#f39c12]/30 dark:border-[#f39c12]/40"
+                                  ? "bg-[#ff8d21]/10 dark:bg-[#ff8d21]/20 border-[#ff8d21]/30 dark:border-[#ff8d21]/40"
                                   : "bg-white/50 dark:bg-[#0f1729]/50 border-[#D5DEEF]/40 dark:border-[#1e293b]/70 hover:border-[#638ECB]/30"
                               }`}
                             >
                               <div
                                 className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all duration-200 ${
                                   isActive
-                                    ? "bg-[#f39c12] border-[#f39c12]"
+                                    ? "bg-[#ff8d21] border-[#ff8d21]"
                                     : "border-[#B0C4DE] dark:border-[#64748B]"
                                 }`}
                               >
@@ -352,7 +352,7 @@ export default function AdminPermissionsPage() {
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="ml-auto h-10 px-5 rounded-xl bg-[#f39c12] text-[#395886] font-extrabold text-xs hover:bg-[#e08e0b] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-[#f39c12]/20 cursor-pointer"
+                  className="ml-auto h-10 px-5 rounded-xl bg-[#ff8d21] text-[#395886] font-extrabold text-xs hover:bg-[#e08e0b] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-[#ff8d21]/20 cursor-pointer"
                 >
                   {saving ? (
                     <>

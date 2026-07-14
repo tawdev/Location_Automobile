@@ -27,7 +27,7 @@ export function HeroSection() {
             {t("auth.hero_highlight")}
             <br />
             <span className="text-[#F0F3FA]">{t("auth.hero_our")}</span>
-            <span className="text-[#F39C12]">{t("auth.hero_priority")}</span>
+            <span className="text-[#FF8D21]">{t("auth.hero_priority")}</span>
           </h1>
         </div>
       </div>

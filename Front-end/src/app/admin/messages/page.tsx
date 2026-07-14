@@ -353,7 +353,7 @@ export default function AdminMessagesPage() {
                     <form onSubmit={handleReply} className="px-6 py-5">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-7 h-7 rounded-lg bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center">
-                          <Reply className="w-3.5 h-3.5 text-[#395886] dark:text-[#f39c12]" />
+                          <Reply className="w-3.5 h-3.5 text-[#395886] dark:text-[#ff8d21]" />
                         </div>
                         <span className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF] uppercase tracking-wider">
                           {t("admin.reply")}

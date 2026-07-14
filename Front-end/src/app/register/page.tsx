@@ -250,9 +250,9 @@ function RegisterForm() {
                 className="w-full max-w-[470px] mx-auto md:max-w-[560px] lg:max-w-[650px]"
               >
                 <div className="relative rounded-[20px] bg-white/[0.07] dark:bg-[#0f1729]/20 backdrop-blur-2xl border border-[#D5DEEF]/25 dark:border-[#334155]/40 shadow-[0_8px_32px_rgba(57,88,134,0.10)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.30)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px] overflow-hidden">
-                  <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-[#638ECB]/0 via-[#638ECB] to-[#F39C12]/0 rounded-full" />
+                  <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-[#638ECB]/0 via-[#638ECB] to-[#FF8D21]/0 rounded-full" />
                   <div className="absolute -top-32 -right-32 w-64 h-64 bg-[#638ECB]/5 dark:bg-[#638ECB]/8 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-[#F39C12]/5 dark:bg-[#F39C12]/8 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-[#FF8D21]/5 dark:bg-[#FF8D21]/8 rounded-full blur-3xl pointer-events-none" />
 
                   <motion.h2
                     initial={{ opacity: 0, y: 8 }}
@@ -260,7 +260,7 @@ function RegisterForm() {
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="text-[28px] md:text-[32px] lg:text-[40px] font-extrabold text-[#395886] dark:text-[#D5DEEF] leading-[1.05] text-center tracking-tight"
                   >
-                    {t("register.verify_title")} <span className="text-[#F39C12]">{t("register.verify_title_highlight")}</span>
+                    {t("register.verify_title")} <span className="text-[#FF8D21]">{t("register.verify_title_highlight")}</span>
                   </motion.h2>
                   <motion.p
                     initial={{ opacity: 0 }}
@@ -275,10 +275,10 @@ function RegisterForm() {
                     <motion.div
                       initial={{ opacity: 0, y: -4, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      className="mt-[18px] rounded-[12px] border border-[#F39C12]/40 bg-[#F39C12]/8 dark:border-[#F39C12]/30 dark:bg-[#F39C12]/5 px-[16px] py-[12px] text-[13px] font-semibold text-[#395886] dark:text-[#D5DEEF] backdrop-blur-md"
+                      className="mt-[18px] rounded-[12px] border border-[#FF8D21]/40 bg-[#FF8D21]/8 dark:border-[#FF8D21]/30 dark:bg-[#FF8D21]/5 px-[16px] py-[12px] text-[13px] font-semibold text-[#395886] dark:text-[#D5DEEF] backdrop-blur-md"
                     >
                       <span className="inline-flex items-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#F39C12]">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#FF8D21]">
                           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" />
                           <path d="M12 8v4M12 16v0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                         </svg>
@@ -329,10 +329,10 @@ function RegisterForm() {
                   </motion.button>
 
                   <div className="mt-[18px] flex items-center justify-between text-[13px] font-semibold">
-                    <button type="button" onClick={backToForm} className="text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200 cursor-pointer">
+                    <button type="button" onClick={backToForm} className="text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#FF8D21] dark:hover:text-[#FF8D21] transition-colors duration-200 cursor-pointer">
                       {t("register.back")}
                     </button>
-                    <button type="button" onClick={handleResend} disabled={resending} className="text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] disabled:opacity-40 disabled:hover:text-[#638ECB] dark:disabled:hover:text-[#94A3B8] transition-colors duration-200 cursor-pointer">
+                    <button type="button" onClick={handleResend} disabled={resending} className="text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#FF8D21] dark:hover:text-[#FF8D21] disabled:opacity-40 disabled:hover:text-[#638ECB] dark:disabled:hover:text-[#94A3B8] transition-colors duration-200 cursor-pointer">
                       {resending ? t("register.resending") : t("register.resend")}
                     </button>
                   </div>
@@ -352,9 +352,9 @@ function RegisterForm() {
                 className="w-full max-w-[470px] mx-auto md:max-w-[560px] lg:max-w-[650px]"
               >
                 <div className="relative rounded-[20px] bg-white/[0.07] dark:bg-[#0f1729]/20 backdrop-blur-2xl border border-[#D5DEEF]/25 dark:border-[#334155]/40 shadow-[0_8px_32px_rgba(57,88,134,0.10)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.30)] px-[28px] py-[24px] md:px-[40px] md:py-[28px] lg:px-[54px] lg:py-[40px] overflow-hidden">
-                  <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-[#638ECB]/0 via-[#638ECB] to-[#F39C12]/0 rounded-full" />
+                  <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-[#638ECB]/0 via-[#638ECB] to-[#FF8D21]/0 rounded-full" />
                   <div className="absolute -top-32 -right-32 w-64 h-64 bg-[#638ECB]/5 dark:bg-[#638ECB]/8 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-[#F39C12]/5 dark:bg-[#F39C12]/8 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-[#FF8D21]/5 dark:bg-[#FF8D21]/8 rounded-full blur-3xl pointer-events-none" />
 
                   <motion.h2
                     initial={{ opacity: 0, y: 8 }}
@@ -362,7 +362,7 @@ function RegisterForm() {
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="text-[28px] md:text-[32px] lg:text-[40px] font-extrabold text-[#395886] dark:text-[#D5DEEF] leading-[1.05] text-center tracking-tight"
                   >
-                    {mode === "login" ? <>{t("auth.login_title")} <span className="text-[#F39C12]">{t("auth.login_title_highlight")}</span></> : <>{t("auth.signup_title")} <span className="text-[#F39C12]">{t("auth.signup_title_highlight")}</span></>}
+                    {mode === "login" ? <>{t("auth.login_title")} <span className="text-[#FF8D21]">{t("auth.login_title_highlight")}</span></> : <>{t("auth.signup_title")} <span className="text-[#FF8D21]">{t("auth.signup_title_highlight")}</span></>}
                   </motion.h2>
 
                   <motion.p
@@ -378,10 +378,10 @@ function RegisterForm() {
                     <motion.div
                       initial={{ opacity: 0, y: -4, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      className="mt-[18px] rounded-[12px] border border-[#F39C12]/40 bg-[#F39C12]/8 dark:border-[#F39C12]/30 dark:bg-[#F39C12]/5 px-[16px] py-[12px] text-[13px] font-semibold text-[#395886] dark:text-[#D5DEEF] backdrop-blur-md"
+                      className="mt-[18px] rounded-[12px] border border-[#FF8D21]/40 bg-[#FF8D21]/8 dark:border-[#FF8D21]/30 dark:bg-[#FF8D21]/5 px-[16px] py-[12px] text-[13px] font-semibold text-[#395886] dark:text-[#D5DEEF] backdrop-blur-md"
                     >
                       <span className="inline-flex items-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#F39C12]">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#FF8D21]">
                           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" />
                           <path d="M12 8v4M12 16v0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                         </svg>
@@ -399,19 +399,19 @@ function RegisterForm() {
                       >
                         <div className="sr-only"><label>{t("auth.name")}</label></div>
                         <InputField label={t("auth.name")} type="text" value={name} onChange={(next) => { setName(next); setFieldErrors((prev) => ({ ...prev, name: null })); }} autoComplete="name" placeholder="" leftIcon={<div className="font-extrabold">@</div>} />
-                        {fieldErrors.name && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.name}</motion.span>}
+                        {fieldErrors.name && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#FF8D21]">{fieldErrors.name}</motion.span>}
                       </motion.div>
                     )}
 
                     <div>
                       <InputField label={t("auth.email")} type="email" value={email} onChange={(next) => { setEmail(next); setFieldErrors((prev) => ({ ...prev, email: null })); }} autoComplete="email" placeholder="" leftIcon={<MailIcon />} />
-                      {fieldErrors.email && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.email}</motion.span>}
+                      {fieldErrors.email && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#FF8D21]">{fieldErrors.email}</motion.span>}
                     </div>
 
                     <div>
                       <div className="flex items-end justify-between">
                         <div className="text-[13px] font-bold text-[#395886] dark:text-[#94A3B8] mb-1 tracking-tight">{t("auth.password")}</div>
-                        {mode === "login" && <a href="/forgot-password" className="text-[12px] font-semibold text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">{t("auth.forgot_password")}</a>}
+                        {mode === "login" && <a href="/forgot-password" className="text-[12px] font-semibold text-[#638ECB] dark:text-[#94A3B8] underline-offset-2 underline hover:text-[#FF8D21] dark:hover:text-[#FF8D21] transition-colors duration-200">{t("auth.forgot_password")}</a>}
                       </div>
                       <div className="mt-[2px]">
                         <div className="relative group">
@@ -433,7 +433,7 @@ function RegisterForm() {
                             {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                           </button>
                         </div>
-                        {fieldErrors.password && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#F39C12]">{fieldErrors.password}</motion.span>}
+                        {fieldErrors.password && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[6px] block text-[11px] font-extrabold text-[#FF8D21]">{fieldErrors.password}</motion.span>}
                       </div>
                     </div>
 
@@ -477,9 +477,9 @@ function RegisterForm() {
                       className="mt-[10px] text-center text-[13px] text-[#395886] dark:text-[#94A3B8] font-medium"
                     >
                       {mode === "login" ? (
-                        <>{t("auth.no_account")} <a href="/register" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">{t("auth.sign_up_link")}</a></>
+                        <>{t("auth.no_account")} <a href="/register" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#FF8D21] dark:hover:text-[#FF8D21] transition-colors duration-200">{t("auth.sign_up_link")}</a></>
                       ) : (
-                        <>{t("auth.has_account")} <a href="/login" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#F39C12] dark:hover:text-[#F39C12] transition-colors duration-200">{t("auth.sign_in_link")}</a></>
+                        <>{t("auth.has_account")} <a href="/login" className="text-[#638ECB] dark:text-[#94A3B8] font-extrabold underline-offset-2 underline hover:text-[#FF8D21] dark:hover:text-[#FF8D21] transition-colors duration-200">{t("auth.sign_in_link")}</a></>
                       )}
                     </motion.div>
 

@@ -12,7 +12,7 @@
             color: #1a2a4a;
             background: #fff;
         }
-        :root { --dark: #395886; --mid: #638ECB; --light: #D5DEEF; --bg: #F0F3FA; --amber: #f39c12; --text: #1a2a4a; --muted: #64748b; --white: #ffffff; }
+        :root { --dark: #395886; --mid: #638ECB; --light: #D5DEEF; --bg: #F0F3FA; --amber: #ff8d21; --text: #1a2a4a; --muted: #64748b; --white: #ffffff; }
         .page-frame { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; }
         .page-frame .top-bar { position: absolute; top: 0; left: 0; right: 0; height: 7px; background: var(--dark); }
         .page-frame .bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: var(--dark); }
