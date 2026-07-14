@@ -1420,7 +1420,7 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
 
 
   return (
-    <section className="bg-[#B5B5B5] py-28 px-8 overflow-hidden relative transition-colors duration-500">
+    <section className="bg-[#F3F3F3] py-28 px-8 overflow-hidden relative transition-colors duration-500">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#638ECB]/5 dark:bg-[#638ECB]/[0.03] rounded-full blur-3xl pointer-events-none" />
       <m.div
         initial={{ opacity: 0, y: 40 }}
