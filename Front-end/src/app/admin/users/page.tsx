@@ -361,8 +361,8 @@ export default function AdminUsersPage() {
             >
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#ff8d21]/15 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-[#ff8d21]" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 rounded-lg bg-[#F39C12]/15 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-[#F39C12]" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                   </div>
@@ -381,9 +381,9 @@ export default function AdminUsersPage() {
                   {stats.topUsers.map((u, i) => {
                     const max = stats.topUsers[0]?.reservations_count || 1;
                     const pct = Math.max(2, (u.reservations_count / max) * 100);
-                    const medals = ["text-[#ff8d21]", "text-[#A0AEC0]", "text-[#CD7F32]"];
+                    const medals = ["text-[#F39C12]", "text-[#A0AEC0]", "text-[#CD7F32]"];
                     const bgBars = [
-                      "from-[#ff8d21] to-[#f59e0b]/70",
+                      "from-[#F39C12] to-[#f59e0b]/70",
                       "from-[#A0AEC0] to-[#A0AEC0]/70",
                       "from-[#CD7F32] to-[#CD7F32]/70",
                       "from-[#638ECB] to-[#638ECB]/60",
@@ -447,7 +447,7 @@ export default function AdminUsersPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t("admin_users.search_placeholder")}
-                    className="w-56 pl-9 pr-3 py-2 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 text-xs font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#B0C4DE] dark:placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#ff8d21]/20 focus:border-[#ff8d21]/40 transition-all"
+                    className="w-56 pl-9 pr-3 py-2 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/80 text-xs font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#B0C4DE] dark:placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#F39C12]/20 focus:border-[#F39C12]/40 transition-all"
                   />
                 </div>
                 <span className="text-[11px] font-bold text-[#B0C4DE] dark:text-[#64748B] whitespace-nowrap">

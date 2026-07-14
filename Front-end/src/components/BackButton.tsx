@@ -18,7 +18,7 @@ export default function BackButton() {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed top-20 md:top-24 left-4 z-50 flex items-center rounded-full bg-[#ff8d21] hover:bg-[#e08e0b] text-white font-bold shadow-sm transition-all duration-300 group active:scale-95"
+      className="fixed top-20 md:top-24 left-4 z-50 flex items-center rounded-full bg-[#F39C12] hover:bg-[#e08e0b] text-white font-bold shadow-sm transition-all duration-300 group active:scale-95"
     >
       <span className="flex items-center justify-center w-9 h-9 shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none" viewBox="0 0 24 24" stroke="currentColor" className="transition-transform group-hover:-translate-x-1">

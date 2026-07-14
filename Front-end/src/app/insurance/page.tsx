@@ -142,7 +142,7 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
           price: "150 DH / day",
           desc: "Significantly reduces your deductible and adds essential coverage for glass, tires, and minor scuffs.",
           popular: true,
-          gradient: "from-[#ff8d21] to-amber-600",
+          gradient: "from-[#F39C12] to-amber-600",
           features: [
             "All benefits of Basic Protection",
             "Deductible reduced by 65%",
@@ -350,7 +350,7 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
           price: "150 DH / jour",
           desc: "Réduit considérablement votre franchise et ajoute des couvertures essentielles pour les vitres, les pneus et les petites rayures.",
           popular: true,
-          gradient: "from-[#ff8d21] to-amber-600",
+          gradient: "from-[#F39C12] to-amber-600",
           features: [
             "Tous les avantages de la Protection Basique",
             "Franchise réduite de 65%",
@@ -558,7 +558,7 @@ const CONTENT: Record<"en" | "fr" | "ar", LangContent> = {
           price: "150 درهم / يوم",
           desc: "تخفيض كبير في قيمة التحمل وتغطية إضافية للزجاج والإطارات والأضرار الطفيفة.",
           popular: true,
-          gradient: "from-[#ff8d21] to-amber-600",
+          gradient: "from-[#F39C12] to-amber-600",
           features: [
             "جميع مزايا الحماية الأساسية",
             "تخفيض مبلغ التحمل بنسبة 65%",
@@ -741,7 +741,7 @@ function Particles() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#ff8d21]/10"
+          className="absolute rounded-full bg-white/10 dark:bg-[#F39C12]/10"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
@@ -802,7 +802,7 @@ export default function InsurancePage() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
                 {content.meta.title}
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff8d21] to-amber-300">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F39C12] to-amber-300">
                   {content.meta.titleAccent}
                 </span>
               </h1>
@@ -828,7 +828,7 @@ export default function InsurancePage() {
             ))}
             <div className="bg-white/5 backdrop-blur-sm p-4 rounded-xl border border-white/5 flex flex-col justify-center">
               <p className="text-white/40 text-xs font-bold uppercase tracking-[0.1em]">{content.meta.docType}</p>
-              <p className="text-[#ff8d21] text-xs font-bold mt-1 uppercase tracking-wider">{content.meta.lastUpdated}</p>
+              <p className="text-[#F39C12] text-xs font-bold mt-1 uppercase tracking-wider">{content.meta.lastUpdated}</p>
             </div>
           </motion.div>
         </div>
@@ -871,13 +871,13 @@ export default function InsurancePage() {
                 onClick={() => setSelectedTier(tier.id)}
                 className={`relative cursor-pointer rounded-3xl border transition-all duration-500 overflow-hidden flex flex-col justify-between p-6 md:p-8 ${
                   isSelected
-                    ? "border-[#395886] dark:border-[#ff8d21] bg-white dark:bg-[#0f1729] shadow-2xl scale-[1.02] ring-2 ring-[#395886]/20 dark:ring-[#ff8d21]/20"
+                    ? "border-[#395886] dark:border-[#F39C12] bg-white dark:bg-[#0f1729] shadow-2xl scale-[1.02] ring-2 ring-[#395886]/20 dark:ring-[#F39C12]/20"
                     : "border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/70 dark:bg-[#0f1729]/40 hover:bg-white dark:hover:bg-[#0f1729] shadow-sm hover:shadow-lg"
                 }`}
               >
                 {/* Popular Badge */}
                 {tier.popular && (
-                  <div className={`absolute top-0 ${isRtl ? "left-0 rounded-br-2xl" : "right-0 rounded-bl-2xl"} bg-gradient-to-r from-[#ff8d21] to-amber-500 text-[#070b14] text-[10px] font-black uppercase tracking-[0.15em] px-4 py-2 shadow`}>
+                  <div className={`absolute top-0 ${isRtl ? "left-0 rounded-br-2xl" : "right-0 rounded-bl-2xl"} bg-gradient-to-r from-[#F39C12] to-amber-500 text-[#070b14] text-[10px] font-black uppercase tracking-[0.15em] px-4 py-2 shadow`}>
                     {tier.badge}
                   </div>
                 )}
@@ -897,7 +897,7 @@ export default function InsurancePage() {
                     </div>
                   </div>
 
-                  <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#395886] to-[#638ECB] dark:from-[#ff8d21] dark:to-amber-300">
+                  <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#395886] to-[#638ECB] dark:from-[#F39C12] dark:to-amber-300">
                     {tier.price}
                   </p>
                   
@@ -922,7 +922,7 @@ export default function InsurancePage() {
 
                 {/* Deductible info bottom */}
                 <div className="mt-8 pt-4 border-t border-dashed border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#395886] dark:text-[#ff8d21]">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#395886] dark:text-[#F39C12]">
                     <Info className="w-4 h-4" />
                     <span>{tier.deductible}</span>
                   </div>
@@ -938,7 +938,7 @@ export default function InsurancePage() {
         <div className="bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-md rounded-3xl border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 p-6 md:p-10 shadow-xl">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-black text-[#395886] dark:text-white flex items-center justify-center gap-2">
-              <FileCheck className="w-6 h-6 text-[#ff8d21]" />
+              <FileCheck className="w-6 h-6 text-[#F39C12]" />
               {content.checklist.title}
             </h2>
             <p className="text-slate-500 dark:text-slate-400 font-semibold text-xs mt-1">
@@ -1005,7 +1005,7 @@ export default function InsurancePage() {
                 className="bg-white dark:bg-[#0f1729]/60 border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3.5 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#ff8d21]">
+                  <div className="w-10 h-10 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#F39C12]">
                     <IconComponent className="w-5 h-5" />
                   </div>
                   <h3 className="font-extrabold text-base text-[#395886] dark:text-white">
@@ -1025,7 +1025,7 @@ export default function InsurancePage() {
       <div className="max-w-4xl mx-auto px-6 mt-20">
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-black text-[#395886] dark:text-white flex items-center justify-center gap-2">
-            <HelpCircle className="w-6 h-6 text-[#395886] dark:text-[#ff8d21]" />
+            <HelpCircle className="w-6 h-6 text-[#395886] dark:text-[#F39C12]" />
             {content.faq.title}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 font-semibold text-xs mt-1">
@@ -1087,7 +1087,7 @@ export default function InsurancePage() {
           <div className="absolute top-0 right-0 w-60 h-60 rounded-full bg-white/5 blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
           <div className="relative max-w-lg text-center md:text-left">
             <h3 className="text-xl md:text-2xl font-black text-white flex items-center justify-center md:justify-start gap-2">
-              <PhoneCall className="w-5 h-5 text-[#ff8d21]" />
+              <PhoneCall className="w-5 h-5 text-[#F39C12]" />
               {content.cta.title}
             </h3>
             <p className="text-white/70 text-xs md:text-sm font-semibold mt-2 leading-relaxed">
@@ -1109,7 +1109,7 @@ export default function InsurancePage() {
               href="tel:+212500000000"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="shrink-0 bg-gradient-to-r from-[#ff8d21] to-amber-500 hover:from-amber-500 hover:to-orange-500 text-white font-extrabold px-6 py-3.5 rounded-xl text-xs shadow-lg uppercase tracking-wider transition-all"
+              className="shrink-0 bg-gradient-to-r from-[#F39C12] to-amber-500 hover:from-amber-500 hover:to-orange-500 text-white font-extrabold px-6 py-3.5 rounded-xl text-xs shadow-lg uppercase tracking-wider transition-all"
             >
               {content.cta.button}
             </motion.a>
@@ -1125,7 +1125,7 @@ export default function InsurancePage() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-gradient-to-br from-[#395886] to-[#2b4c7e] dark:from-[#ff8d21] dark:to-[#d68910] text-white shadow-xl hover:shadow-2xl transition-shadow flex items-center justify-center"
+            className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-gradient-to-br from-[#395886] to-[#2b4c7e] dark:from-[#F39C12] dark:to-[#d68910] text-white shadow-xl hover:shadow-2xl transition-shadow flex items-center justify-center"
           >
             <ArrowUp className="w-5 h-5" />
           </motion.button>

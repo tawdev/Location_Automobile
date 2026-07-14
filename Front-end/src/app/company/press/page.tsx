@@ -48,7 +48,7 @@ Icon: Stylized "C" with steering wheel motif
 Primary Dark Blue: #395886
 Primary Mid Blue:  #2b4c7e
 Primary Deep Blue: #1d3560
-Accent Orange:     #ff8d21
+Accent Orange:     #F39C12
 Accent Dark:       #e67e22
 Light Blue:        #638ECB
 Light Gray:        #D5DEEF
@@ -210,7 +210,7 @@ export default function PressPage() {
                   <span>{t("press.badge")}</span>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-white">
-                  {t("press.title")} <span className="bg-gradient-to-r from-[#ff8d21] to-[#e67e22] bg-clip-text text-transparent">{t("press.accent")}</span>
+                  {t("press.title")} <span className="bg-gradient-to-r from-[#F39C12] to-[#e67e22] bg-clip-text text-transparent">{t("press.accent")}</span>
                 </h1>
               </div>
             </div>
@@ -230,17 +230,17 @@ export default function PressPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="bg-white dark:bg-[#0f1729] rounded-3xl p-6 md:p-8 shadow-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 relative overflow-hidden group"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#ff8d21]/5 to-transparent dark:from-[#ff8d21]/10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#F39C12]/5 to-transparent dark:from-[#F39C12]/10" />
             <div className="relative flex flex-col md:flex-row md:items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-[#ff8d21]/10 dark:bg-[#ff8d21]/20 flex items-center justify-center shrink-0">
-                <Award className="w-8 h-8 text-[#ff8d21]" />
+              <div className="w-16 h-16 rounded-2xl bg-[#F39C12]/10 dark:bg-[#F39C12]/20 flex items-center justify-center shrink-0">
+                <Award className="w-8 h-8 text-[#F39C12]" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#ff8d21]/10 text-[#ff8d21] text-[10px] font-bold uppercase">{t("press.featured")}</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#F39C12]/10 text-[#F39C12] text-[10px] font-bold uppercase">{t("press.featured")}</span>
                   <span className="text-xs text-[#638ECB] dark:text-[#94A3B8]">{featured.published_at ? formatDate(featured.published_at) : ""}</span>
                 </div>
-                <h2 className="text-xl md:text-2xl font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#ff8d21] transition-colors">
+                <h2 className="text-xl md:text-2xl font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#F39C12] transition-colors">
                   {featured.title}
                 </h2>
                 <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] mt-2 max-w-2xl">
@@ -302,7 +302,7 @@ export default function PressPage() {
                   transition={{ duration: 0.4, delay: i * 0.06 }}
                   whileHover={{ x: 4 }}
                   onClick={() => router.push(`/company/press/${item.slug}`)}
-                  className="group flex flex-col md:flex-row md:items-center gap-4 p-5 rounded-2xl bg-white dark:bg-[#0f1729] border border-[#D5DEEF]/30 dark:border-[#1e293b]/60 hover:shadow-lg hover:border-[#ff8d21]/30 dark:hover:border-[#ff8d21]/30 transition-all duration-300 cursor-pointer"
+                  className="group flex flex-col md:flex-row md:items-center gap-4 p-5 rounded-2xl bg-white dark:bg-[#0f1729] border border-[#D5DEEF]/30 dark:border-[#1e293b]/60 hover:shadow-lg hover:border-[#F39C12]/30 dark:hover:border-[#F39C12]/30 transition-all duration-300 cursor-pointer"
                 >
                   <div className="hidden md:flex flex-col items-center min-w-[60px]">
                     <span className="text-2xl font-extrabold text-[#395886] dark:text-[#D5DEEF]">
@@ -326,7 +326,7 @@ export default function PressPage() {
                         {item.category && catKeys[item.category] ? t(catKeys[item.category]) : item.category}
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#ff8d21] transition-colors line-clamp-1">
+                    <h3 className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#F39C12] transition-colors line-clamp-1">
                       {item.title}
                     </h3>
                     <p className="text-sm text-[#638ECB] dark:text-[#94A3B8] mt-1 line-clamp-2">{item.excerpt}</p>
@@ -358,7 +358,7 @@ export default function PressPage() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#395886]/10 dark:bg-[#D5DEEF]/10 text-[#395886] dark:text-[#ff8d21] text-xs font-semibold mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#395886]/10 dark:bg-[#D5DEEF]/10 text-[#395886] dark:text-[#F39C12] text-xs font-semibold mb-4">
               <Download className="w-3.5 h-3.5" />
               <span>{t("press.kit_title")}</span>
             </div>
@@ -378,14 +378,14 @@ export default function PressPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.08 }}
                   whileHover={{ y: -4 }}
-                  className="bg-white dark:bg-[#0f1729] rounded-2xl p-6 text-left border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 hover:shadow-xl hover:border-[#ff8d21]/30 dark:hover:border-[#ff8d21]/30 transition-all duration-300 group"
+                  className="bg-white dark:bg-[#0f1729] rounded-2xl p-6 text-left border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 hover:shadow-xl hover:border-[#F39C12]/30 dark:hover:border-[#F39C12]/30 transition-all duration-300 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] mb-4 group-hover:bg-[#ff8d21] group-hover:text-white transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] mb-4 group-hover:bg-[#F39C12] group-hover:text-white transition-all duration-300">
                     <Icon className="w-5 h-5" />
                   </div>
                   <h3 className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] mb-1">{t(item.labelKey)}</h3>
                   <p className="text-xs text-[#638ECB] dark:text-[#94A3B8]">{t(item.descKey)}</p>
-                  <div className="flex items-center gap-1 mt-4 text-[#ff8d21] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 mt-4 text-[#F39C12] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                     <span>{t("press.download")}</span>
                     <Download className="w-3 h-3" />
                   </div>

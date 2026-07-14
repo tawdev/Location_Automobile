@@ -110,7 +110,7 @@ export default function ContactPage() {
             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">
               {t("contact.title")}
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff8d21] to-amber-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F39C12] to-amber-300">
                 {t("contact.title_accent")}
               </span>
             </h1>
@@ -139,7 +139,7 @@ export default function ContactPage() {
                 >
                   <div className="flex items-start gap-4">
                     <div className="shrink-0 w-10 h-10 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-[#395886] dark:text-[#ff8d21]" />
+                      <Icon className="w-5 h-5 text-[#395886] dark:text-[#F39C12]" />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-[#638ECB]/60 dark:text-[#94A3B8]/60 uppercase tracking-wider mb-0.5">
@@ -148,7 +148,7 @@ export default function ContactPage() {
                       {item.href ? (
                         <a
                           href={item.href}
-                          className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF] hover:text-[#ff8d21] transition-colors"
+                          className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF] hover:text-[#F39C12] transition-colors"
                         >
                           {item.value}
                         </a>
@@ -194,7 +194,7 @@ export default function ContactPage() {
                       value={form.name}
                       readOnly={!!user}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#ff8d21]/30 focus:border-[#ff8d21]/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#F39C12]/30 focus:border-[#F39C12]/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       placeholder={t("contact.form_name_placeholder")}
                     />
                   </div>
@@ -208,7 +208,7 @@ export default function ContactPage() {
                       value={form.email}
                       readOnly={!!user}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#ff8d21]/30 focus:border-[#ff8d21]/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#F39C12]/30 focus:border-[#F39C12]/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       placeholder={t("contact.form_email_placeholder")}
                     />
                   </div>
@@ -222,7 +222,7 @@ export default function ContactPage() {
                     required
                     value={form.subject}
                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#ff8d21]/30 focus:border-[#ff8d21]/50 transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#F39C12]/30 focus:border-[#F39C12]/50 transition-all"
                     placeholder={t("contact.form_subject_placeholder")}
                   />
                 </div>
@@ -235,7 +235,7 @@ export default function ContactPage() {
                     rows={5}
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#ff8d21]/30 focus:border-[#ff8d21]/50 transition-all resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#F39C12]/30 focus:border-[#F39C12]/50 transition-all resize-none"
                     placeholder={t("contact.form_message_placeholder")}
                   />
                 </div>
@@ -269,7 +269,7 @@ export default function ContactPage() {
         >
           <div className="p-5 border-b border-[#D5DEEF]/30 dark:border-[#1e293b]/70">
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-[#ff8d21]" />
+              <MapPin className="w-4 h-4 text-[#F39C12]" />
               <h3 className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("contact.map_title")}</h3>
             </div>
           </div>

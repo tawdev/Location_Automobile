@@ -192,7 +192,7 @@ html.theme-transition *::after {
 
 html { scroll-behavior: smooth; }
 ::selection { background: rgba(31,66,118,0.3); color: #fff; }
-.dark ::selection { background: rgba(255,141,33,0.4); color: #fff; }
+.dark ::selection { background: rgba(243,156,18,0.4); color: #fff; }
 .noise-bg {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   background-repeat: repeat;
@@ -275,8 +275,8 @@ html { scroll-behavior: smooth; }
   border-color: rgba(31,66,118,0.25);
 }
 .dark .input-focus-ring:focus-within {
-  box-shadow: 0 0 0 3px rgba(255,141,33,0.15), 0 0 25px rgba(255,141,33,0.08);
-  border-color: rgba(255,141,33,0.3);
+  box-shadow: 0 0 0 3px rgba(243,156,18,0.15), 0 0 25px rgba(243,156,18,0.08);
+  border-color: rgba(243,156,18,0.3);
 }
 .card-3d {
   transform-style: preserve-3d;
@@ -493,8 +493,8 @@ html { scroll-behavior: smooth; }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(255,141,33,0.2); }
-  50% { box-shadow: 0 0 40px rgba(255,141,33,0.5); }
+  0%, 100% { box-shadow: 0 0 20px rgba(243,156,18,0.2); }
+  50% { box-shadow: 0 0 40px rgba(243,156,18,0.5); }
 }
 
 @keyframes float {
@@ -526,7 +526,7 @@ html { scroll-behavior: smooth; }
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, #D5DEEF, #638ECB, #ff8d21, #D5DEEF);
+  background: linear-gradient(135deg, #D5DEEF, #638ECB, #F39C12, #D5DEEF);
   background-size: 300% 300%;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -539,7 +539,7 @@ html { scroll-behavior: smooth; }
   animation: border-shimmer 3s ease infinite;
 }
 .dark .gradient-border-card::before {
-  background: linear-gradient(135deg, #1e293b, #638ECB, #ff8d21, #1e293b);
+  background: linear-gradient(135deg, #1e293b, #638ECB, #F39C12, #1e293b);
 }
 
 /* ── Reduced motion global override ── */
