@@ -95,7 +95,7 @@ export default function CareersPage() {
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
       {/* ── Hero ── */}
-      <div className="relative bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560] pb-24 md:pb-32">
+      <div className="relative bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124] pb-24 md:pb-32">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-white/5 blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-[#638ECB]/10 blur-3xl" />
@@ -108,22 +108,22 @@ export default function CareersPage() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/80 text-xs font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-[#FF7B00] text-xs font-semibold mb-6">
               <Users className="w-3.5 h-3.5" />
               <span>{t("footer.careers")}</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-4">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-[#FF7B00] leading-tight mb-4">
               {t("careers.hero_title")}{" "}
-              <span className="bg-gradient-to-r from-[#F39C12] to-[#e67e22] bg-clip-text text-transparent">{t("careers.hero_accent")}</span>
+              <span className="text-[#FF7B00]">{t("careers.hero_accent")}</span>
             </h1>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-[#FF7B00] text-lg max-w-2xl mx-auto leading-relaxed">
               {t("careers.hero_desc")}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => document.getElementById("positions")?.scrollIntoView({ behavior: "smooth" })}
-              className="mt-8 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#F39C12] hover:bg-[#e67e22] text-white font-bold shadow-lg shadow-[#F39C12]/20 transition-all"
+              className="mt-8 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] font-bold shadow-lg shadow-[#FF7B00]/20 transition-all"
             >
               <Briefcase className="w-4 h-4" />
               <span>{t("careers.view_positions")}</span>
@@ -324,7 +324,7 @@ export default function CareersPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-3.5 rounded-xl bg-[#F39C12] hover:bg-[#e67e22] text-white font-bold shadow-lg shadow-[#F39C12]/20 transition-all inline-flex items-center gap-2"
+              className="px-8 py-3.5 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] font-bold shadow-lg shadow-[#FF7B00]/20 transition-all inline-flex items-center gap-2"
             >
               <Mail className="w-4 h-4" />
               <span>{t("careers.cta_button")}</span>
