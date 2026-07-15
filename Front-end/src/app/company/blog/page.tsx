@@ -61,7 +61,7 @@ export default function BlogPage() {
         ])}
       />
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124]">
         <div className="absolute inset-0">
           <div className="absolute top-5 left-1/4 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
           <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#638ECB]/10 blur-3xl translate-x-1/3 translate-y-1/3" />
@@ -77,10 +77,10 @@ export default function BlogPage() {
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl md:text-5xl font-extrabold text-white">
-                  <span className="bg-gradient-to-r from-[#F39C12] to-[#e67e22] bg-clip-text text-transparent">{t("blog.hero_title")}</span>
+                <h1 className="text-3xl md:text-5xl font-extrabold text-[#FF7B00]">
+                  <span className="text-[#FF7B00]">{t("blog.hero_title")}</span>
                 </h1>
-                <p className="text-white/50 text-sm mt-0.5">{t("blog.hero_desc")}</p>
+                <p className="text-[#FF7B00] text-sm mt-0.5">{t("blog.hero_desc")}</p>
               </div>
             </div>
           </motion.div>
@@ -245,7 +245,7 @@ export default function BlogPage() {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-6 py-3 rounded-xl bg-[#F39C12] hover:bg-[#e67e22] text-white font-bold text-sm transition-all shadow-lg shadow-[#F39C12]/20"
+                className="px-6 py-3 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] font-bold text-sm transition-all shadow-lg shadow-[#FF7B00]/20"
               >
                 {t("blog.newsletter_button")}
               </motion.button>

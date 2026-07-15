@@ -35,6 +35,7 @@ function AdminVehicleForm({
   const [km, setKm] = useState<number>(initial?.km ?? 0);
   const [pricePerDay, setPricePerDay] = useState<number>(initial?.pricePerDay ?? 0);
   const [fuelType, setFuelType] = useState(initial?.fuelType ?? "");
+  const [transmission, setTransmission] = useState(initial?.transmission ?? "");
   const [categoryId, setCategoryId] = useState<number>(initial?.category_id ?? 0);
   const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(initial?.type_vehicule_id ?? null);
   const [occupants, setOccupants] = useState(initial?.Occupants ?? "");
@@ -95,6 +96,7 @@ function AdminVehicleForm({
             km,
             pricePerDay,
             fuelType: fuelType.trim(),
+            transmission: transmission || undefined,
             category_id: categoryId,
             type_vehicule_id: typeVehiculeId,
             Occupants: occupants.trim(),
@@ -207,6 +209,19 @@ function AdminVehicleForm({
             required
             placeholder="ex. Diesel"
           />
+        </label>
+
+        <label className="flex flex-col gap-2">
+          <span className="font-bold">{t("transmission")}</span>
+          <select
+            className="border-2 border-black p-2 bg-white"
+            value={transmission}
+            onChange={(e) => setTransmission(e.target.value)}
+          >
+            <option value="">--</option>
+            <option value="Automatic">Automatic</option>
+            <option value="Manual">Manual</option>
+          </select>
         </label>
 
         <label className="flex flex-col gap-2">

@@ -132,6 +132,10 @@ class VehicleService
         $query->when($request->filled('fuelType'), function ($q) use ($request) {
             $q->where('fuelType', $request->fuelType);
         });
+
+        $query->when($request->filled('transmission'), function ($q) use ($request) {
+            $q->where('transmission', $request->transmission);
+        });
   
         $query->when($request->filled('min_price'), function ($q) use ($request) {
             $q->where('pricePerDay', '>=', $request->min_price);

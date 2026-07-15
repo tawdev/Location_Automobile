@@ -31,6 +31,7 @@ type FilterParams = {
   Occupants?: string;
   model?: string;
   fuelType?: string;
+  transmission?: string;
   min_price?: number;
   max_price?: number;
   pickup_date?: string;

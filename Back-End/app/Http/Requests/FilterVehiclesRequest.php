@@ -19,6 +19,7 @@ class FilterVehiclesRequest extends FormRequest
             'marque' => 'nullable|string|max:50',
             'model' => 'nullable|string|max:50',
             'fuel_type' => 'nullable|in:Electricity,Diesel,Gasoline,hybrid,LPG,CNG,biofuels',
+            'transmission' => 'nullable|in:Automatic,Manual',
             'min_price' => 'nullable|numeric|min:0',
             'max_price' => 'nullable|numeric|gte:min_price',
             'pickup_date' => 'nullable|date',

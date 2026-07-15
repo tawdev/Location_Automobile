@@ -217,7 +217,7 @@ export default function ProfileForm() {
   return (
     <div className="min-h-screen bg-[#F0F3FA]">
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124]">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
@@ -246,10 +246,10 @@ export default function ProfileForm() {
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles className="w-4 h-4 text-[#F39C12]" />
-                <span className="text-white/60 text-xs font-bold uppercase tracking-[0.15em]">{t("profile.badge")}</span>
+                <span className="text-[#FF7B00] text-xs font-bold uppercase tracking-[0.15em]">{t("profile.badge")}</span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight truncate">{initial.name || t("profile.welcome")}</h1>
-              <p className="text-white/60 text-sm font-semibold mt-1">{initial.email}</p>
+              <h1 className="text-3xl md:text-4xl font-black text-[#FF7B00] tracking-tight truncate">{initial.name || t("profile.welcome")}</h1>
+              <p className="text-[#FF7B00] text-sm font-semibold mt-1">{initial.email}</p>
               {profilePicFile && (
                 <motion.span
                   initial={{ opacity: 0, y: 5 }}
