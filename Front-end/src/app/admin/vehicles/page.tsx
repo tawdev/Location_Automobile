@@ -209,6 +209,12 @@ function VehicleRow({
           <span>{vehicle.Occupants} places</span>
           <span className="text-[#D5DEEF]">|</span>
           <span>⛽ {vehicle.fuelType}</span>
+          {!!vehicle.transmission && (
+            <>
+              <span className="text-[#D5DEEF]">|</span>
+              <span>⚙️ {vehicle.transmission}</span>
+            </>
+          )}
           {!!vehicle.air_conditioner && <span className="text-green-600">❄️ Climatisation</span>}
           {!!vehicle.gps && <span className="text-green-600">📍 GPS</span>}
           {categoryName && (
@@ -343,6 +349,7 @@ function VehicleCreateEditModal({
   const [km, setKm] = useState<number>(0);
   const [pricePerDay, setPricePerDay] = useState<number>(0);
   const [fuelType, setFuelType] = useState("");
+  const [transmission, setTransmission] = useState("");
   const [categoryId, setCategoryId] = useState<number>(0);
   const [occupants, setOccupants] = useState("");
   const [airConditioner, setAirConditioner] = useState(false);
@@ -404,6 +411,7 @@ function VehicleCreateEditModal({
     setKm(initial?.km ?? 0);
     setPricePerDay(initial?.pricePerDay ?? 0);
     setFuelType(initial?.fuelType ?? "");
+    setTransmission(initial?.transmission ?? "");
     setCategoryId(initial?.category_id ?? 0);
     setTypeVehiculeId(initial?.type_vehicule_id ?? null);
     setOccupants(initial?.Occupants ?? "");
@@ -494,6 +502,7 @@ function VehicleCreateEditModal({
         km,
         pricePerDay,
         fuelType: fuelType.trim(),
+        transmission: transmission || undefined,
         category_id: categoryId,
         type_vehicule_id: typeVehiculeId,
         Occupants: occupants.trim(),
@@ -634,6 +643,19 @@ function VehicleCreateEditModal({
                 <option value="Gasoline">{t("admin.fuel_gasoline")}</option>
                 <option value="hybrid">{t("admin.fuel_hybrid")}</option>
                 <option value="LPG">{t("admin.fuel_lpg")}</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">{t("transmission")}</label>
+              <select
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                value={transmission}
+                onChange={(e) => setTransmission(e.target.value)}
+              >
+                <option value="">--</option>
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
               </select>
             </div>
 
@@ -1038,6 +1060,12 @@ function VehicleViewModal({
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.fuel")}</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.fuelType}</span>
                   </div>
+                  {!!vehicle.transmission && (
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("transmission")}</span>
+                      <span className="text-sm font-bold text-slate-800">{vehicle.transmission}</span>
+                    </div>
+                  )}
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#638ECB]/80 block">{t("admin.registration_label")}</span>
                     <span className="text-sm font-bold text-slate-800">{vehicle.registration}</span>
@@ -1124,6 +1152,7 @@ export default function AdminVehiclesPage() {
     marque: "",
     model: "",
     fuelType: "",
+    transmission: "",
     Occupants: "",
   });
 
@@ -1173,6 +1202,10 @@ export default function AdminVehiclesPage() {
 
     if (filters.fuelType.trim()) {
       result = result.filter((v) => v.fuelType === filters.fuelType);
+    }
+
+    if (filters.transmission.trim()) {
+      result = result.filter((v) => v.transmission === filters.transmission);
     }
 
     if (filters.Occupants.trim()) {
@@ -1239,6 +1272,7 @@ export default function AdminVehiclesPage() {
       marque: "",
       model: "",
       fuelType: "",
+      transmission: "",
       Occupants: "",
     });
   }
@@ -1360,6 +1394,7 @@ export default function AdminVehiclesPage() {
 
       const marques = Object.keys(modelsMap);
       const fuelTypes = ["Gasoline", "Diesel", "Electricity", "hybrid"];
+      const transmissionTypes = ["Automatic", "Manual"];
 
       for (let i = 0; i < total; i++) {
         setSeedProgress({ done: i, total });
@@ -1391,6 +1426,7 @@ export default function AdminVehiclesPage() {
           km,
           pricePerDay,
           fuelType: fuel,
+          transmission: transmissionTypes[i % transmissionTypes.length],
           category_id: cat.id,
           Occupants: occupants,
           air_conditioner: Math.random() > 0.3,
@@ -1544,6 +1580,19 @@ export default function AdminVehiclesPage() {
                       <option value="Diesel">{t("admin.fuel_diesel")}</option>
                       <option value="Gasoline">{t("admin.fuel_gasoline")}</option>
                       <option value="hybrid">{t("admin.fuel_hybrid")}</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-[#395886]">{t("transmission")}</label>
+                    <select
+                      className="rounded-xl border border-[#D5DEEF] bg-transparent px-3 py-2 text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-[#395886]/20 focus:border-[#395886] outline-none transition-colors"
+                      value={filters.transmission}
+                      onChange={(e) => setFilters({ ...filters, transmission: e.target.value })}
+                    >
+                      <option value="">{t("admin.all")}</option>
+                      <option value="Automatic">Automatic</option>
+                      <option value="Manual">Manual</option>
                     </select>
                   </div>
 

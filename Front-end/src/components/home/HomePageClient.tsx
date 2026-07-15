@@ -126,6 +126,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [fuelType, setFuelType] = useState("");
+  const [transmission, setTransmission] = useState("");
   const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(null);
   const [typeCarouselPage, setTypeCarouselPage] = useState(0);
   const [catCarouselPage, setCatCarouselPage] = useState(0);
@@ -355,6 +356,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
         marque: brand.trim() || undefined,
         model: model.trim() || undefined,
         fuelType: fuelType || undefined,
+        transmission: transmission || undefined,
         min_price: minPrice,
         max_price: maxPrice,
         current_country_id: filterCountryId ?? undefined,
@@ -389,6 +391,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (minPrice !== undefined) params.set("min_price", String(minPrice));
     if (maxPrice !== undefined) params.set("max_price", String(maxPrice));
     if (fuelType) params.set("fuel_type", fuelType);
+    if (transmission) params.set("transmission", transmission);
     if (typeVehiculeId) params.set("type_vehicule_id", String(typeVehiculeId));
     if (filterCountryId) params.set("current_country_id", String(filterCountryId));
     if (filterCityId) params.set("current_city_id", String(filterCityId));
@@ -448,10 +451,10 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-[#F39C12] text-center"
+                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-[#FF7B00] text-center"
               >
                 {t("home.hero.title1")}{' '}
-                <span className="text-[#F39C12]">{t("home.hero.title2")}</span>
+                <span className="text-[#FF7B00]">{t("home.hero.title2")}</span>
               </m.h1>
             </div>
           </div>
@@ -788,7 +791,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                           <button
                             type="button"
                             onClick={() => { setReturnLocationType(confirmData.type); setConfirmOpen(false); setConfirmData(null); }}
-                            className="flex-1 h-11 rounded-xl bg-[#F39C12] hover:bg-[#d68910] text-[#395886] font-bold text-sm transition-all active:scale-95 cursor-pointer"
+                            className="flex-1 h-11 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] font-bold text-sm transition-all active:scale-95 cursor-pointer"
                           >
                             Confirmer
                           </button>
@@ -804,8 +807,8 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     </div>
                   )}
 
-                  {/* Row 6: Brand + Model + Fuel type + Vehicle type */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
+                  {/* Row 6: Brand + Model + Fuel type + Transmission + Vehicle type */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.brand")}</label>
                       <Popover open={brandOpen} onOpenChange={setBrandOpen}>
@@ -881,6 +884,30 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                       </Popover>
                     </div>
                     <div>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Transmission</label>
+                      <Popover>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {transmission ? (
+                              <span className="font-medium text-white">{transmission}</span>
+                            ) : (
+                              <span className="text-white/40">{t("vehicles.all_types")}</span>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="w-[min(200px,calc(100vw-3rem))] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => setTransmission("")} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {[["Automatic","Automatique"],["Manual","Manuelle"]].map(([val,label]) => (
+                            <button key={val} type="button" onClick={() => setTransmission(val)} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${transmission === val ? "bg-[#FF7B00]/20 text-[#FF7B00]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="font-medium">{label}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.fuel_type")}</label>
                       <Popover>
                         <PopoverTrigger className="w-full">
@@ -911,7 +938,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     <div className="mt-3">
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.category")}</label>
                       <div className="relative">
-                        <div ref={categoryScrollRef} className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}>
+                        <div ref={categoryScrollRef} className="flex items-center justify-center gap-2 pb-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}>
                           {categories.map((cat) => (
                             <button
                               key={cat.id}
@@ -919,7 +946,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                               onClick={() => setVehicleType(vehicleType === cat.id ? null : cat.id)}
                               className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                                 vehicleType === cat.id
-                                  ? "bg-[#F39C12] text-[#395886] shadow-lg shadow-[#F39C12]/20"
+                                  ? "bg-[#FF7B00] text-[#1f2124] shadow-lg shadow-[#FF7B00]/20"
                                   : "bg-white/15 text-white/80 hover:bg-white/25 border border-white/20"
                               }`}
                             >
@@ -952,7 +979,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                         <input type="number" placeholder="1000 DH" value={maxPrice ?? ""} onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)} className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all" />
                       </div>
                     </div>
-                    <m.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSearch} className="w-full sm:w-auto h-11 px-8 rounded-xl bg-[#F39C12] hover:bg-[#d68910] text-[#395886] font-bold text-sm flex items-center justify-center gap-2 transition-all shrink-0 shadow-lg shadow-[#F39C12]/20">
+                    <m.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSearch} className="w-full sm:w-auto h-11 px-8 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] font-bold text-sm flex items-center justify-center gap-2 transition-all shrink-0 shadow-lg shadow-[#FF7B00]/20">
                       <Search className="w-4 h-4" />
                       {t("vehicles.filter_button")}
                     </m.button>
@@ -1033,7 +1060,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                                   </span>
                                 </div>
                               </div>
-                              <div className="bg-[#F39C12] hover:bg-[#d68910] text-[#395886] text-sm font-black px-5 py-3 rounded-xl transition-colors">Réserver</div>
+                              <div className="bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] text-sm font-black px-5 py-3 rounded-xl transition-colors">Réserver</div>
                             </div>
                           </div>
                           </div>
@@ -1892,7 +1919,7 @@ function CTASection() {
               whileHover={{ scale: 1.05, boxShadow: "0 15px 50px rgba(57,88,134,0.5)" }}
               whileTap={{ scale: 0.97 }}
               onClick={() => router.push("/register")}
-              className="relative overflow-hidden bg-gradient-to-r from-[#395886] via-[#2d4670] to-[#395886] hover:from-[#2d4670] hover:to-[#1e3560] text-white font-black text-sm tracking-[0.15em] uppercase px-14 py-5 rounded-2xl transition-all duration-500 shadow-[0_8px_30px_rgba(57,88,134,0.35)] shimmer-btn"
+              className="relative overflow-hidden bg-gradient-to-r from-[#FF7B00] via-[#e66f00] to-[#FF7B00] hover:from-[#e66f00] hover:to-[#cc6200] text-[#1f2124] font-black text-sm tracking-[0.15em] uppercase px-14 py-5 rounded-2xl transition-all duration-500 shadow-[0_8px_30px_rgba(255,123,0,0.35)] shimmer-btn"
               style={{ backgroundSize: '200% 100%' }}
             >
               <span className="relative z-10">{t("home.cta.button")}</span>

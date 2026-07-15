@@ -189,7 +189,7 @@ export default function PressPage() {
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124]">
         <div className="absolute inset-0">
           <div className="absolute -top-20 -right-20 w-[500px] h-[500px] rounded-full bg-white/[0.03] blur-3xl" />
           <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-[#638ECB]/10 blur-3xl" />
@@ -205,16 +205,16 @@ export default function PressPage() {
                 <Newspaper className="w-7 h-7 text-white" />
               </div>
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/80 text-[10px] font-bold uppercase tracking-wider mb-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#FF7B00] text-[10px] font-bold uppercase tracking-wider mb-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>{t("press.badge")}</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white">
-                  {t("press.title")} <span className="bg-gradient-to-r from-[#F39C12] to-[#e67e22] bg-clip-text text-transparent">{t("press.accent")}</span>
+                <h1 className="text-4xl md:text-5xl font-extrabold text-[#FF7B00]">
+                  {t("press.title")} <span className="text-[#FF7B00]">{t("press.accent")}</span>
                 </h1>
               </div>
             </div>
-            <p className="text-white/60 text-lg max-w-2xl leading-relaxed">
+            <p className="text-[#FF7B00] text-lg max-w-2xl leading-relaxed">
               {t("press.hero_desc")}
             </p>
           </motion.div>

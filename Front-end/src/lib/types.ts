@@ -80,6 +80,7 @@ export type Vehicle = {
   km: number;
   pricePerDay: number;
   fuelType: string;
+  transmission?: string | null;
   category_id: number;
   type_vehicule_id?: number | null;
   Occupants: string;

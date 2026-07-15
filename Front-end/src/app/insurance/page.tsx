@@ -777,7 +777,7 @@ export default function InsurancePage() {
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500 pb-20" dir={isRtl ? "rtl" : "ltr"}>
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#395886] via-[#2b4c7e] to-[#1d3560]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124]">
         <Particles />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" />
@@ -797,16 +797,16 @@ export default function InsurancePage() {
                 <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10 shadow-inner">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-white/60 text-sm font-bold uppercase tracking-[0.2em]">{content.meta.badge}</span>
+                <span className="text-[#FF7B00] text-sm font-bold uppercase tracking-[0.2em]">{content.meta.badge}</span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#FF7B00] tracking-tight leading-tight">
                 {content.meta.title}
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F39C12] to-amber-300">
+                <span className="text-[#FF7B00]">
                   {content.meta.titleAccent}
                 </span>
               </h1>
-              <p className="text-white/70 text-base md:text-lg font-medium mt-4 leading-relaxed">
+              <p className="text-[#FF7B00] text-base md:text-lg font-medium mt-4 leading-relaxed">
                 {content.meta.subtitle}
               </p>
             </motion.div>
