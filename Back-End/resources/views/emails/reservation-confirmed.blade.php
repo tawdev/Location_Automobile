@@ -53,9 +53,11 @@
                 @endif
                 @if($reservation->protection_level && $reservation->protection_level !== 'basic')
                 @php
-                    $pp = $reservation->vehicle->protection_percentage ?? 0;
-                    $goldPerDay = round(($reservation->vehicle->pricePerDay ?? 0) * $pp / 100);
-                    $protectionPerDay = $reservation->protection_level === 'gold' ? $goldPerDay : round($goldPerDay * 2);
+                    $v = $reservation->vehicle;
+                    $pct = ($v->protection_price_percentage ?? 0) / 100;
+                    $goldPerDay = round(150 + 150 * $pct);
+                    $platinumPerDay = round(300 + 300 * $pct);
+                    $protectionPerDay = $reservation->protection_level === 'gold' ? $goldPerDay : $platinumPerDay;
                 @endphp
                 <tr>
                     <td>Protection {{ ucfirst($reservation->protection_level) }}</td>

@@ -1343,9 +1343,11 @@ export default function ReservationFlowModal({
                 </div>
                 {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
                 {(() => {
-                  const pp = vehicleData?.protection_percentage ?? 0;
-                  const goldPerDay = Math.round((vehicleData?.pricePerDay ?? 0) * pp / 100);
-                  const platinumPerDay = Math.round(goldPerDay * 1.4);
+                  const v = vehicleData;
+                  const pct = (v?.protection_price_percentage ?? 0) / 100;
+                  const basicPerDay = 0;
+                  const goldPerDay = Math.round(150 + 150 * pct);
+                  const platinumPerDay = Math.round(300 + 300 * pct);
                   const days = Math.max(1, new Date(endDate).getTime() > 0 && new Date(startDate).getTime() > 0
                     ? Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))
                     : 1);
@@ -1355,9 +1357,9 @@ export default function ReservationFlowModal({
                       id: "basic" as const,
                       name: "Basic Protection",
                       badge: "Included",
-                      price: "Included",
-                      pricePerDay: 0,
-                      priceTotal: 0,
+                      price: basicPerDay > 0 ? `${basicPerDay} DH / day` : "Included",
+                      pricePerDay: basicPerDay,
+                      priceTotal: basicPerDay * days,
                       deposit: "15,000 DH",
                       gradient: "from-slate-500 to-slate-700",
                       features: [

@@ -82,6 +82,7 @@ export type Vehicle = {
   fuelType: string;
   transmission?: string | null;
   protection_percentage?: number;
+  protection_price_percentage?: number;
   category_id: number;
   type_vehicule_id?: number | null;
   Occupants: string;
