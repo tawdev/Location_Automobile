@@ -241,9 +241,10 @@
     </div>
     @php
         $protectionLevel = $reservation->protection_level ?? 'basic';
-        $pp = $reservation->vehicle->protection_percentage ?? 0;
-        $goldPerDay = round(($reservation->vehicle->pricePerDay ?? 0) * $pp / 100);
-        $platinumPerDay = round($goldPerDay * 2);
+        $v = $reservation->vehicle;
+        $pct = ($v->protection_price_percentage ?? 0) / 100;
+        $goldPerDay = round(150 + 150 * $pct);
+        $platinumPerDay = round(300 + 300 * $pct);
         $checkBasic = $protectionLevel === 'basic' ? '&#9745;' : '&#9744;';
         $checkGold = $protectionLevel === 'gold' ? '&#9745;' : '&#9744;';
         $checkPlatinum = $protectionLevel === 'platinum' ? '&#9745;' : '&#9744;';

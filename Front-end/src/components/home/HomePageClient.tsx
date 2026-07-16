@@ -1462,6 +1462,27 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
   return (
     <section className="bg-[#F3F3F3] dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#638ECB]/5 dark:bg-[#638ECB]/[0.03] rounded-full blur-3xl pointer-events-none" />
+      {/* Fog bridge blending into next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 md:h-56 pointer-events-none z-20"
+        style={{
+          background: `
+            radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 30%, transparent 60%),
+            radial-gradient(ellipse 50% 80% at 30% 100%, rgba(240,243,250,0.5) 0%, transparent 50%),
+            radial-gradient(ellipse 50% 80% at 70% 100%, rgba(240,243,250,0.4) 0%, transparent 50%),
+            linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0.6) 70%, rgba(255,255,255,0.95) 100%)
+          `,
+          filter: 'blur(8px)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
+        }}
+      />
+      {/* Subtle light glow in the center of the bridge */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[180px] pointer-events-none z-10"
+        style={{
+          background: 'radial-gradient(ellipse 60% 100% at 50% 100%, rgba(255,255,255,0.4) 0%, transparent 60%)',
+          filter: 'blur(30px)',
+        }}
+      />
       <m.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
