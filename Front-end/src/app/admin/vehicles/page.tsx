@@ -348,7 +348,8 @@ function VehicleCreateEditModal({
   const [registration, setRegistration] = useState("");
   const [km, setKm] = useState<number>(0);
   const [pricePerDay, setPricePerDay] = useState<number>(0);
-  const [protectionPercentage, setProtectionPercentage] = useState<number>(0);
+  const [protectionGoldPrice, setProtectionGoldPrice] = useState<number>(0);
+  const [protectionPlatinumPrice, setProtectionPlatinumPrice] = useState<number>(0);
   const [fuelType, setFuelType] = useState("");
   const [transmission, setTransmission] = useState("");
   const [categoryId, setCategoryId] = useState<number>(0);
@@ -411,7 +412,10 @@ function VehicleCreateEditModal({
     setRegistration(initial?.registration ?? "");
     setKm(initial?.km ?? 0);
     setPricePerDay(initial?.pricePerDay ?? 0);
-    setProtectionPercentage(initial?.protection_percentage ?? 0);
+    const pp = initial?.protection_percentage ?? 0;
+    const gp = Math.round((initial?.pricePerDay ?? 0) * pp / 100);
+    setProtectionGoldPrice(gp);
+    setProtectionPlatinumPrice(Math.round(gp * 2));
     setFuelType(initial?.fuelType ?? "");
     setTransmission(initial?.transmission ?? "");
     setCategoryId(initial?.category_id ?? 0);
@@ -503,7 +507,7 @@ function VehicleCreateEditModal({
         registration: registration.trim(),
         km,
         pricePerDay,
-        protection_percentage: protectionPercentage,
+        protection_percentage: pricePerDay > 0 ? Math.round(protectionGoldPrice / pricePerDay * 100 * 100) / 100 : 0,
         fuelType: fuelType.trim(),
         transmission: transmission || undefined,
         category_id: categoryId,
@@ -634,19 +638,33 @@ function VehicleCreateEditModal({
 
             <div className="flex flex-col gap-1">
               <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
-                Protection %
+                Gold Protection (DH/j)
               </label>
               <input
                 type="number"
                 min={0}
-                max={100}
-                step={0.01}
                 className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
-                value={protectionPercentage}
-                onChange={(e) => setProtectionPercentage(Number(e.target.value))}
+                value={protectionGoldPrice}
+                onChange={(e) => {
+                  const g = Number(e.target.value);
+                  setProtectionGoldPrice(g);
+                  setProtectionPlatinumPrice(Math.round(g * 1.4));
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-[#395886] uppercase tracking-wider">
+                Platinum Protection (DH/j)
+              </label>
+              <input
+                type="number"
+                min={0}
+                className="rounded-xl border border-[#D5DEEF] bg-[#F0F3FA]/30 px-3.5 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-[#638ECB] focus:border-[#638ECB] outline-none"
+                value={protectionPlatinumPrice}
+                onChange={(e) => setProtectionPlatinumPrice(Number(e.target.value))}
               />
               <span className="text-[10px] text-[#638ECB] font-semibold">
-                Gold = {pricePerDay} × {protectionPercentage}% = {Math.round(pricePerDay * protectionPercentage / 100)} DH/j &nbsp;|&nbsp; Platinum = {Math.round(pricePerDay * protectionPercentage / 100 * 2)} DH/j
+                Platinum = Gold + 40% ({Math.round(protectionGoldPrice * 1.4)} DH/j)
               </span>
             </div>
 
