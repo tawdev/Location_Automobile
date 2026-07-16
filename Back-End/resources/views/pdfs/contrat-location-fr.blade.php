@@ -239,10 +239,27 @@
         <div class="section-num">8</div>
         <div class="section-title">ASSURANCE</div>
     </div>
+    @php
+        $protectionLevel = $reservation->protection_level ?? 'basic';
+        $pp = $reservation->vehicle->protection_percentage ?? 0;
+        $goldPerDay = round(($reservation->vehicle->pricePerDay ?? 0) * $pp / 100);
+        $platinumPerDay = round($goldPerDay * 2);
+        $checkBasic = $protectionLevel === 'basic' ? '&#9745;' : '&#9744;';
+        $checkGold = $protectionLevel === 'gold' ? '&#9745;' : '&#9744;';
+        $checkPlatinum = $protectionLevel === 'platinum' ? '&#9745;' : '&#9744;';
+        $franchise = match($protectionLevel) {
+            'platinum' => '0',
+            'gold' => round(($reservation->vehicle->pricePerDay ?? 0) * 0.35),
+            default => ($reservation->vehicle->pricePerDay ?? 0) * 2,
+        };
+    @endphp
     <div class="mode-label">Formule choisie :</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> Protection Basic&nbsp;&nbsp; <span class="chk">&#9744;</span> Protection Gold&nbsp;&nbsp; <span class="chk">&#9744;</span> Protection Platinum</div>
+    <div class="checkbox-row"><span class="chk">{!! $checkBasic !!}</span> Protection Basic&nbsp;&nbsp; <span class="chk">{!! $checkGold !!}</span> Protection Gold ({{ number_format($goldPerDay, 0) }} DH/jour)&nbsp;&nbsp; <span class="chk">{!! $checkPlatinum !!}</span> Protection Platinum ({{ number_format($platinumPerDay, 0) }} DH/jour)</div>
     <table class="info">
-        <tr><td class="lbl">Franchise applicable</td><td class="val"><span class="fill"></span> DH</td></tr>
+        <tr><td class="lbl">Formule s&eacute;lectionn&eacute;e</td><td class="val">{{ ucfirst($protectionLevel) }}</td></tr>
+        <tr><td class="lbl">Co&ucirc;t par jour</td><td class="val">{{ $protectionLevel === 'basic' ? 'Inclus' : number_format($protectionLevel === 'gold' ? $goldPerDay : $platinumPerDay, 0) . ' DH' }}</td></tr>
+        <tr><td class="lbl">Franchise applicable</td><td class="val">{{ number_format($franchise, 0) }} DH</td></tr>
+        <tr><td class="lbl">D&eacute;p&ocirc;t de garantie</td><td class="val">{{ $protectionLevel === 'platinum' ? '0' : ($protectionLevel === 'gold' ? '5 000' : '15 000') }} DH</td></tr>
     </table>
 
     <div class="section-header">
@@ -272,7 +289,13 @@
         $pricePerDay = $reservation->vehicle->pricePerDay ?? 0;
         $baseRentalCost = $pricePerDay * $days;
         $extrasTotalCost = $extrasTotalPerDay * $days;
-        $grandTotal = $reservation->TotalPrice ?? ($baseRentalCost + $extrasTotalCost);
+        $protectionCost = 0;
+        if ($protectionLevel === 'gold') {
+            $protectionCost = $goldPerDay * $days;
+        } elseif ($protectionLevel === 'platinum') {
+            $protectionCost = $platinumPerDay * $days;
+        }
+        $grandTotal = $reservation->TotalPrice ?? ($baseRentalCost + $extrasTotalCost + $protectionCost);
     @endphp
 
     <div class="section-header">
@@ -285,6 +308,9 @@
         <tr><td class="lbl">Nombre de jours</td><td class="val">{{ $days }} jour{{ $days > 1 ? 's' : '' }}</td></tr>
         <tr><td class="lbl">Co&ucirc;t total de location</td><td class="val">{{ number_format($baseRentalCost, 2) }} DH</td></tr>
         <tr><td class="lbl">Co&ucirc;t des options suppl&eacute;mentaires</td><td class="val">{{ number_format($extrasTotalCost, 2) }} DH</td></tr>
+        @if($protectionCost > 0)
+        <tr><td class="lbl">Co&ucirc;t protection {{ ucfirst($protectionLevel) }}</td><td class="val">{{ number_format($protectionCost, 2) }} DH ({{ $days }} jours × {{ number_format($protectionLevel === 'gold' ? $goldPerDay : $platinumPerDay, 0) }} DH)</td></tr>
+        @endif
         @if($reservation->caution_montant)
         <tr><td class="lbl">Caution</td><td class="val">{{ number_format($reservation->caution_montant, 2) }} DH</td></tr>
         @endif

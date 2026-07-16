@@ -59,6 +59,9 @@ class ReservationRequest extends FormRequest
             'return_location_type' => 'nullable|string|in:airport,citycenter',
             'return_location_name' => 'nullable|string|max:255',
             'return_location_supplement' => 'nullable|numeric|min:0',
+
+            // Protection
+            'protection_level' => 'nullable|string|in:basic,gold,platinum',
         ];
     }
 

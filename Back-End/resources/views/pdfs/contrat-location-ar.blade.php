@@ -235,10 +235,27 @@
         <div class="section-num">8</div>
         <div class="section-title">{!! arabic('التأمين') !!}</div>
     </div>
+    @php
+        $protectionLevel = $reservation->protection_level ?? 'basic';
+        $pp = $reservation->vehicle->protection_percentage ?? 0;
+        $goldPerDay = round(($reservation->vehicle->pricePerDay ?? 0) * $pp / 100);
+        $platinumPerDay = round($goldPerDay * 2);
+        $checkBasic = $protectionLevel === 'basic' ? '&#9745;' : '&#9744;';
+        $checkGold = $protectionLevel === 'gold' ? '&#9745;' : '&#9744;';
+        $checkPlatinum = $protectionLevel === 'platinum' ? '&#9745;' : '&#9744;';
+        $franchise = match($protectionLevel) {
+            'platinum' => '0',
+            'gold' => round(($reservation->vehicle->pricePerDay ?? 0) * 0.35),
+            default => ($reservation->vehicle->pricePerDay ?? 0) * 2,
+        };
+    @endphp
     <div class="mode-label">{!! arabic('الخطة المختارة :') !!}</div>
-    <div class="checkbox-row"><span class="chk">&#9744;</span> {!! arabic('الحماية الأساسية') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('الحماية الذهبية') !!}&nbsp;&nbsp; <span class="chk">&#9744;</span> {!! arabic('الحماية البلاتينية') !!}</div>
+    <div class="checkbox-row"><span class="chk">{!! $checkBasic !!}</span> {!! arabic('الحماية الأساسية') !!}&nbsp;&nbsp; <span class="chk">{!! $checkGold !!}</span> {!! arabic('الحماية الذهبية') !!} ({{ number_format($goldPerDay, 0) }} {!! arabic('درهم/اليوم') !!})&nbsp;&nbsp; <span class="chk">{!! $checkPlatinum !!}</span> {!! arabic('الحماية البلاتينية') !!} ({{ number_format($platinumPerDay, 0) }} {!! arabic('درهم/اليوم') !!})</div>
     <table class="info">
-        <tr><td class="val"><span class="fill"></span> {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('الخصم المطبق') !!}</td></tr>
+        <tr><td class="val">{{ ucfirst($protectionLevel) }}</td><td class="lbl">{!! arabic('الخطة المختارة') !!}</td></tr>
+        <tr><td class="val">{{ $protectionLevel === 'basic' ? arabic('مشمول') : number_format($protectionLevel === 'gold' ? $goldPerDay : $platinumPerDay, 0) . ' ' . arabic('درهم') }}</td><td class="lbl">{!! arabic('التكلفة اليومية') !!}</td></tr>
+        <tr><td class="val">{{ number_format($franchise, 0) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('الخصم المطبق') !!}</td></tr>
+        <tr><td class="val">{{ $protectionLevel === 'platinum' ? '0' : ($protectionLevel === 'gold' ? '5 000' : '15 000') }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('وديعة الضمان') !!}</td></tr>
     </table>
 
     <div class="section-header">
@@ -268,7 +285,13 @@
         $pricePerDay = $reservation->vehicle->pricePerDay ?? 0;
         $baseRentalCost = $pricePerDay * $days;
         $extrasTotalCost = $extrasTotalPerDay * $days;
-        $grandTotal = $reservation->TotalPrice ?? ($baseRentalCost + $extrasTotalCost);
+        $protectionCost = 0;
+        if ($protectionLevel === 'gold') {
+            $protectionCost = $goldPerDay * $days;
+        } elseif ($protectionLevel === 'platinum') {
+            $protectionCost = $platinumPerDay * $days;
+        }
+        $grandTotal = $reservation->TotalPrice ?? ($baseRentalCost + $extrasTotalCost + $protectionCost);
     @endphp
 
     <div class="section-header">
@@ -281,6 +304,9 @@
         <tr><td class="val">{{ $days }} {!! arabic('يوم') !!}</td><td class="lbl">{!! arabic('عدد الأيام') !!}</td></tr>
         <tr><td class="val">{{ number_format($baseRentalCost, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('التكلفة الإيجارية') !!}</td></tr>
         <tr><td class="val">{{ number_format($extrasTotalCost, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('تكلفة الخيارات') !!}</td></tr>
+        @if($protectionCost > 0)
+        <tr><td class="val">{{ number_format($protectionCost, 2) }} {!! arabic('درهم') !!} ({{ $days }} {!! arabic('يوم ×') !!} {{ number_format($protectionLevel === 'gold' ? $goldPerDay : $platinumPerDay, 0) }} {!! arabic('درهم') !!})</td><td class="lbl>{!! arabic('تكلفة الحماية') !!} {{ ucfirst($protectionLevel) }}</td></tr>
+        @endif
         @if($reservation->caution_montant)
         <tr><td class="val">{{ number_format($reservation->caution_montant, 2) }} {!! arabic('درهم') !!}</td><td class="lbl">{!! arabic('وديعة الضمان') !!}</td></tr>
         @endif

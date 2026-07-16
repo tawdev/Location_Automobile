@@ -28,6 +28,7 @@ export type AdminVehiclePayload = {
   pricePerDay: number;
   fuelType: string;
   transmission?: string;
+  protection_percentage?: number;
   category_id: number;
   type_vehicule_id?: number | null;
   Occupants: string;
@@ -57,6 +58,7 @@ function toVehicleFormData(payload: AdminVehiclePayload): FormData {
   fd.set("pricePerDay", String(payload.pricePerDay));
   fd.set("fuelType", payload.fuelType);
   if (payload.transmission) fd.set("transmission", payload.transmission);
+  if (payload.protection_percentage !== undefined) fd.set("protection_percentage", String(payload.protection_percentage));
   fd.set("category_id", String(payload.category_id));
   if (payload.type_vehicule_id !== undefined && payload.type_vehicule_id !== null) fd.set("type_vehicule_id", String(payload.type_vehicule_id));
   fd.set("Occupants", payload.Occupants);

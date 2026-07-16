@@ -123,7 +123,16 @@ class ReservationService
         $extraPricePerDay = Extra::whereIn('id', $extraIds)->sum('price_per_day');
     }
 
-    $total = $days * ($vehicle->pricePerDay + $extraPricePerDay);
+    // Calculate protection cost
+    $protectionLevel = $data['protection_level'] ?? 'basic';
+    $protectionPricePerDay = 0;
+    if ($protectionLevel === 'gold') {
+        $protectionPricePerDay = $vehicle->pricePerDay * ($vehicle->protection_percentage / 100);
+    } elseif ($protectionLevel === 'platinum') {
+        $protectionPricePerDay = $vehicle->pricePerDay * ($vehicle->protection_percentage / 100) * 2;
+    }
+
+    $total = $days * ($vehicle->pricePerDay + $extraPricePerDay + $protectionPricePerDay);
 
     // Add return location supplement if provided
     $returnLocationSupplement = !empty($data['return_location_supplement']) ? (float) $data['return_location_supplement'] : 0;
