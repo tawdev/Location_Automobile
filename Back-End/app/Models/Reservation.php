@@ -20,6 +20,7 @@ class Reservation extends Model
         'driver2_nom_prenom', 'driver2_date_naissance', 'driver2_cin_passport', 'driver2_adresse',
         'driver2_telephone', 'driver2_numero_permi', 'driver2_date_delivrance', 'driver2_date_expiration',
         'caution_montant', 'caution_mode',
+        'protection_level',
         'lieu_depart', 'lieu_retour', 'date_heure_depart', 'date_heure_retour',
         'depart_country_id', 'depart_city_id', 'return_country_id', 'return_city_id',
         'observations',

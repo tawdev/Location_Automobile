@@ -36,6 +36,7 @@ export type SavedReservation = {
   sdDateExpiration: string;
   cautionMontant: string;
   cautionMode: string;
+  protectionLevel: "basic" | "gold" | "platinum";
   savedAt: string;
 };
 

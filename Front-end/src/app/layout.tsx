@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, Cinzel } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import HtmlLangSync from "@/components/HtmlLangSync";
@@ -30,6 +30,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ["600", "700"],
   display: "swap",
   preload: true,
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -135,7 +140,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      className={`${inter.variable} ${plusJakartaSans.variable} ${cinzel.variable} h-full antialiased`}
     >
       <head>
         {/* DNS prefetch & preconnect for external origins */}
