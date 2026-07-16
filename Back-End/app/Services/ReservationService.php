@@ -126,10 +126,11 @@ class ReservationService
     // Calculate protection cost
     $protectionLevel = $data['protection_level'] ?? 'basic';
     $protectionPricePerDay = 0;
+    $pct = ($vehicle->protection_price_percentage ?? 0) / 100;
     if ($protectionLevel === 'gold') {
-        $protectionPricePerDay = $vehicle->pricePerDay * ($vehicle->protection_percentage / 100);
+        $protectionPricePerDay = 150 + (150 * $pct);
     } elseif ($protectionLevel === 'platinum') {
-        $protectionPricePerDay = $vehicle->pricePerDay * ($vehicle->protection_percentage / 100) * 2;
+        $protectionPricePerDay = 300 + (300 * $pct);
     }
 
     $total = $days * ($vehicle->pricePerDay + $extraPricePerDay + $protectionPricePerDay);
