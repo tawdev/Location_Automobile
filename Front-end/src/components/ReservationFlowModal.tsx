@@ -1345,7 +1345,7 @@ export default function ReservationFlowModal({
                 {(() => {
                   const pp = vehicleData?.protection_percentage ?? 0;
                   const goldPerDay = Math.round((vehicleData?.pricePerDay ?? 0) * pp / 100);
-                  const platinumPerDay = Math.round(goldPerDay * 2);
+                  const platinumPerDay = Math.round(goldPerDay * 1.4);
                   const days = Math.max(1, new Date(endDate).getTime() > 0 && new Date(startDate).getTime() > 0
                     ? Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))
                     : 1);
