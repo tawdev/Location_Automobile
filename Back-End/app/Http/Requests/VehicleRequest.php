@@ -39,6 +39,7 @@ class VehicleRequest extends FormRequest
             'pricePerDay' => 'required|numeric|min:0',
             'fuelType' => 'required|string|max:100',
             'transmission' => 'nullable|string|in:Automatic,Manual',
+            'protection_percentage' => 'nullable|numeric|min:0|max:100',
             'category_id' => 'required|exists:categories,id',
             'type_vehicule_id' => 'nullable|exists:type_vehicules,id',
             'air_conditioner' => 'sometimes|boolean',

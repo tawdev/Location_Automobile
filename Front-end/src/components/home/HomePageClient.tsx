@@ -445,16 +445,16 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
       {/* Content */}
       <div className="relative z-10 w-full mx-auto px-4 sm:px-6 md:px-12 lg:px-20 pt-28 pb-24">
           {/* Headline */}
-          <div className="flex justify-center mb-8">
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 sm:px-8 sm:py-5">
+          <div className="mb-8">
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl px-5 py-4 sm:px-8 sm:py-5 inline-block">
               <m.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] tracking-[-0.03em] text-[#FF7B00] text-center"
+                className="font-cinzel leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[-0.03em] text-[#FF7B00]"
               >
-                {t("home.hero.title1")}{' '}
-                <span className="text-[#FF7B00]">{t("home.hero.title2")}</span>
+                <div>{t("home.hero.title1")}</div>
+                <div className="text-[#FF7B00]">{t("home.hero.title2")}</div>
               </m.h1>
             </div>
           </div>

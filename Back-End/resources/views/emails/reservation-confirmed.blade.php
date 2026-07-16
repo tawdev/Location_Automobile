@@ -51,6 +51,17 @@
                     <td>{{ number_format($reservation->return_location_supplement, 2) }} DH</td>
                 </tr>
                 @endif
+                @if($reservation->protection_level && $reservation->protection_level !== 'basic')
+                @php
+                    $pp = $reservation->vehicle->protection_percentage ?? 0;
+                    $goldPerDay = round(($reservation->vehicle->pricePerDay ?? 0) * $pp / 100);
+                    $protectionPerDay = $reservation->protection_level === 'gold' ? $goldPerDay : round($goldPerDay * 2);
+                @endphp
+                <tr>
+                    <td>Protection {{ ucfirst($reservation->protection_level) }}</td>
+                    <td>{{ number_format($protectionPerDay, 0) }} DH / jour</td>
+                </tr>
+                @endif
                 <tr>
                     <td>Statut</td>
                     <td>Confirmée</td>

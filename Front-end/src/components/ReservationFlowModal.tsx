@@ -47,6 +47,7 @@ type Step =
   | "oneDriverUpload"
   | "twoDrivers"
   | "extras"
+  | "protection"
   | "clientInfo"
   | "secondDriverInfo"
   | "caution"
@@ -288,6 +289,9 @@ export default function ReservationFlowModal({
   const [cautionMontant, setCautionMontant] = useState("");
   const [cautionMode, setCautionMode] = useState("");
 
+  // Protection level
+  const [protectionLevel, setProtectionLevel] = useState<"basic" | "gold" | "platinum">("basic");
+
   // Validation errors (real-time)
   const [clientErrors, setClientErrors] = useState<FieldErrors>({});
   const [sdErrors, setSdErrors] = useState<FieldErrors>({});
@@ -329,6 +333,7 @@ export default function ReservationFlowModal({
       setSdDateExpiration(toDateInputValue(saved.sdDateExpiration || ""));
       setCautionMontant(saved.cautionMontant || "");
       setCautionMode(saved.cautionMode || "");
+      if (saved.protectionLevel) setProtectionLevel(saved.protectionLevel);
     } else {
       try {
         const raw = localStorage.getItem("homeReturnLocation");
@@ -363,8 +368,8 @@ export default function ReservationFlowModal({
       sdNom, sdDateNaissance, sdCin, sdAdresse,
       sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
       cautionMontant, cautionMode,
-      departLocationType,
-      returnLocationType,
+      protectionLevel,
+      departLocationType,      returnLocationType,
       returnLocationName,
       returnLocationSupplement,
       selectedReturnLocationId,
@@ -383,6 +388,7 @@ export default function ReservationFlowModal({
     sdNom, sdDateNaissance, sdCin, sdAdresse,
     sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
     cautionMontant, cautionMode,
+    protectionLevel,
     departLocationType,
     returnLocationType,
     returnLocationName,
@@ -792,8 +798,11 @@ export default function ReservationFlowModal({
   }
 
   function handleExtrasNext() {
+    setStep("protection");
+  }
+
+  function handleProtectionNext() {
     if (existingClient) {
-      // Already has client info, skip to second driver or caution
       if (savedChoice === "two") {
         setStep("secondDriverInfo");
       } else {
@@ -909,6 +918,9 @@ export default function ReservationFlowModal({
     if (returnLocationType) formData.set("return_location_type", returnLocationType);
     if (returnLocationName) formData.set("return_location_name", returnLocationName);
     if (returnLocationSupplement > 0) formData.set("return_location_supplement", String(returnLocationSupplement));
+
+    // Protection level
+    formData.set("protection_level", protectionLevel);
 
     if (selectedExtraIds.length > 0) {
       for (const id of selectedExtraIds) {
@@ -1322,6 +1334,139 @@ export default function ReservationFlowModal({
               </motion.div>
             )}
 
+            {step === "protection" && (
+              <motion.div key="protection" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
+                <div className="text-center">
+                  <Shield className="w-8 h-8 text-[#395886] mx-auto mb-2" />
+                  <p className="text-sm text-[#395886] font-semibold">Compare Protection Levels</p>
+                  <p className="text-[10px] text-[#638ECB] font-semibold">Choose the coverage that fits your needs</p>
+                </div>
+                {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
+                {(() => {
+                  const pp = vehicleData?.protection_percentage ?? 0;
+                  const goldPerDay = Math.round((vehicleData?.pricePerDay ?? 0) * pp / 100);
+                  const platinumPerDay = Math.round(goldPerDay * 2);
+                  const days = Math.max(1, new Date(endDate).getTime() > 0 && new Date(startDate).getTime() > 0
+                    ? Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))
+                    : 1);
+
+                  const tiers = [
+                    {
+                      id: "basic" as const,
+                      name: "Basic Protection",
+                      badge: "Included",
+                      price: "Included",
+                      pricePerDay: 0,
+                      priceTotal: 0,
+                      deposit: "15,000 DH",
+                      gradient: "from-slate-500 to-slate-700",
+                      features: [
+                        "Third-Party Liability",
+                        "Basic Theft Protection",
+                        "Basic Collision Damage",
+                        "Standard 24/7 Towing",
+                      ],
+                    },
+                    {
+                      id: "gold" as const,
+                      name: "Gold Protection",
+                      badge: "Recommended",
+                      price: `${goldPerDay} DH / day`,
+                      pricePerDay: goldPerDay,
+                      priceTotal: goldPerDay * days,
+                      deposit: "5,000 DH",
+                      gradient: "from-[#F39C12] to-amber-600",
+                      features: [
+                        "All Basic benefits",
+                        "Deductible reduced by 65%",
+                        "Glass & Windshield Coverage",
+                        "Tire & Rim Protection",
+                        "Key Replacement",
+                      ],
+                    },
+                    {
+                      id: "platinum" as const,
+                      name: "Platinum Zero-Deductible",
+                      badge: "Premium",
+                      price: `${platinumPerDay} DH / day`,
+                      pricePerDay: platinumPerDay,
+                      priceTotal: platinumPerDay * days,
+                      deposit: "0 DH",
+                      gradient: "from-indigo-600 to-violet-700",
+                      features: [
+                        "All Gold benefits",
+                        "Zero Deductible",
+                        "Full Theft & Vandalism",
+                        "Personal Accident Insurance",
+                        "Replacement Vehicle",
+                      ],
+                    },
+                  ];
+
+                  return (
+                    <div className="flex flex-col gap-3">
+                      {tiers.map((tier) => {
+                        const selected = protectionLevel === tier.id;
+                        return (
+                          <button
+                            key={tier.id}
+                            type="button"
+                            onClick={() => setProtectionLevel(tier.id)}
+                            className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                              selected ? "border-[#395886] bg-[#F0F3FA] shadow-md" : "border-[#D5DEEF] hover:border-[#638ECB]"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                  selected ? "bg-[#395886] border-[#395886]" : "border-[#D5DEEF]"
+                                }`}>
+                                  {selected && <div className="w-2 h-2 rounded-full bg-white" />}
+                                </div>
+                                <span className="font-bold text-[#395886] text-sm">{tier.name}</span>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-gradient-to-r ${tier.gradient}`}>
+                                  {tier.badge}
+                                </span>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-extrabold text-[#395886] text-sm">{tier.price}</div>
+                                {tier.pricePerDay > 0 && (
+                                  <div className="text-[10px] text-[#638ECB] font-semibold">
+                                    +{tier.priceTotal} DH total ({days}j)
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {tier.features.map((f, i) => (
+                                <span key={i} className="text-[10px] text-[#638ECB] bg-[#F0F3FA] px-2 py-0.5 rounded-full font-semibold">
+                                  {f}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="text-[10px] text-[#638ECB] font-semibold mt-2">
+                              Security Deposit (Caution): {tier.deposit}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+                <div className="flex gap-2 mt-2">
+                  <button onClick={() => setStep("extras")} className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all">
+                    <ChevronLeft className="w-4 h-4" /> Retour
+                  </button>
+                  <button
+                    onClick={handleProtectionNext}
+                    className="flex-1 h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity"
+                  >
+                    Continuer
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
             {step === "clientInfo" && (
               <motion.div key="clientInfo" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
                 <div className="text-center">
@@ -1345,7 +1490,7 @@ export default function ReservationFlowModal({
                   <InputField label="Date d'expiration" type="date" value={clientDateExpiration} onChange={(v) => handleClientChange("dateExpiration", v, setClientDateExpiration)} required error={clientErrors["dateExpiration"] && (clientDateExpiration || touched["client_dateExpiration"]) ? clientErrors["dateExpiration"] : ""} />
                 </div>
                 <div className="flex gap-2 mt-2">
-                  <button onClick={() => setStep("extras")} className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all">
+                  <button onClick={() => setStep("protection")} className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all">
                     <ChevronLeft className="w-4 h-4" /> Retour
                   </button>
                   <button
@@ -1471,10 +1616,12 @@ export default function ReservationFlowModal({
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => {
-                      if (existingClient) {
-                        savedChoice === "two" ? setStep("secondDriverInfo") : setStep("extras");
+                      if (savedChoice === "two") {
+                        setStep("secondDriverInfo");
+                      } else if (existingClient) {
+                        setStep("protection");
                       } else {
-                        savedChoice === "two" ? setStep("secondDriverInfo") : setStep("clientInfo");
+                        setStep("clientInfo");
                       }
                     }}
                     className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all"
