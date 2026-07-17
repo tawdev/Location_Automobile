@@ -22,6 +22,7 @@ import { fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
 import type { Category } from "@/lib/types";
 import { CardStack, type CardStackItem } from "@/components/ui/card-stack";
 import { VerticalImageStack } from "@/components/ui/vertical-image-stack";
+import { CircularGallery, type BrandItem } from "@/components/ui/circular-gallery";
 
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
@@ -1642,12 +1643,18 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
 
 function MarquesSection({ marques: propMarques = [] }: { marques?: Marque[] }) {
   const { t } = useI18n();
-  const prefersReduced = useReducedMotion();
-  const loading = false;
 
-  const MIN_VISIBLE = 24;
-  const repeatCount = propMarques.length === 0 ? 0 : Math.max(2, Math.ceil(MIN_VISIBLE / propMarques.length));
-  const duplicated = Array.from({ length: repeatCount }, () => propMarques).flat();
+  const brandItems: BrandItem[] = useMemo(
+    () =>
+      propMarques.map((m) => ({
+        id: m.id,
+        name: m.name,
+        logoSrc: m.logo
+          ? `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`
+          : getBrandLogo(m.name),
+      })),
+    [propMarques],
+  );
 
   return (
     <section className="bg-white dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
@@ -1657,7 +1664,7 @@ function MarquesSection({ marques: propMarques = [] }: { marques?: Marque[] }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="max-w-6xl mx-auto mb-14 relative z-10"
+        className="max-w-6xl mx-auto mb-6 relative z-10"
       >
         <div className="text-center">
           <span className="inline-flex items-center gap-2 text-[#F39C12] text-xs font-bold tracking-[0.25em] uppercase bg-[#F39C12]/10 px-4 py-2 rounded-full">
@@ -1672,82 +1679,22 @@ function MarquesSection({ marques: propMarques = [] }: { marques?: Marque[] }) {
         </div>
       </m.div>
 
-      {loading ? (
-        <div className="flex gap-6 justify-center">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="shrink-0 w-40 h-40 rounded-3xl bg-[#F0F3FA] dark:bg-[#1e293b] animate-pulse" />
-          ))}
-        </div>
-      ) : (
-        <m.div
-          initial={{ opacity: 0, x: -60 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <div
-            className="flex gap-16 w-max pb-4"
-            style={{
-              animation: prefersReduced ? "none" : "marquee-reverse 45s linear infinite",
-              animationPlayState: "running",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.animationPlayState = "paused"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.animationPlayState = "running"; }}
-          >
-            {duplicated.map((marque, i) => (
-              <m.div
-                key={`${marque.id}-${i}`}
-                whileHover={{ scale: 1.08 }}
-                className="group shrink-0 flex flex-col items-center justify-center gap-3 cursor-default"
-              >
-                {marque.logo ? (
-                  <img
-                    src={vehicleImageUrl(marque.logo)}
-                    alt={marque.name}
-                    className="w-32 h-32 object-contain transition-all duration-500 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-32 h-32 flex items-center justify-center">
-                    <span className="text-5xl font-black text-[#638ECB] dark:text-[#D5DEEF]">
-                      {marque.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <span className="text-base font-bold text-[#395886] dark:text-[#D5DEEF] text-center transition-colors duration-300 group-hover:text-[#F39C12]">
-                  {marque.name}
-                </span>
-              </m.div>
-            ))}
-          </div>
-        </m.div>
-      )}
-
-      <style>{`
-        @keyframes marquee-reverse {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes pulse-scale {
-          0%, 100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.3; }
-          50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.6; }
-        }
-        @keyframes pulse-scale-reverse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.4; }
-          50% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.7; }
-        }
-        @keyframes floating {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes floating-reverse {
-          0%, 100% { transform: translateY(0px) rotate(var(--rot, -3deg)); }
-          50% { transform: translateY(8px) rotate(var(--rot, -3deg)); }
-        }
-        .floating { animation: floating 5.5s ease-in-out infinite; }
-        .floating-reverse { animation: floating-reverse 4s ease-in-out infinite; }
-        .pulse-scale { animation: pulse-scale 4s ease-in-out infinite; }
-        .pulse-scale-reverse { animation: pulse-scale-reverse 4s ease-in-out infinite; }
-      `}</style>
+      <m.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="flex justify-center"
+      >
+        <CircularGallery
+          items={brandItems}
+          circleSize={1000}
+          itemWidth={180}
+          itemHeight={200}
+          autoRotateSpeed={0.12}
+          pauseOnHover
+        />
+      </m.div>
     </section>
   );
 }
