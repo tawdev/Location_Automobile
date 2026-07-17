@@ -12,6 +12,8 @@ export type VerticalStackItem = {
   year?: number
   fuelType?: string
   pricePerDay?: number
+  Occupants?: string
+  km?: number
   [key: string]: unknown
 }
 
@@ -186,12 +188,12 @@ export function VerticalImageStack({ items, cardWidth = 320, cardHeight = 500 }:
                         {item.Occupants}
                       </span>
                     )}
-                    {item.km != null && (
-                      <span className="text-[11px] text-white/60 flex items-center gap-1">
-                        <Gauge size={11} />
-                        {(item.km as number).toLocaleString()} km
-                      </span>
-                    )}
+                      {item.km != null && (
+                        <span className="text-[11px] text-white/60 flex items-center gap-1">
+                          <Gauge size={11} />
+                          {item.km.toLocaleString()} km
+                        </span>
+                      )}
                   </div>
                   <a
                     href={item.href}
