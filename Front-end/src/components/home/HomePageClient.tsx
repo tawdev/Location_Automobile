@@ -6,7 +6,7 @@ import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import type { Vehicle, Marque, TypeVehicule, Country, City, CityLocation } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { LazyMotion, m, domAnimation, useReducedMotion, AnimatePresence } from "framer-motion";
+import { LazyMotion, m, domAnimation, useReducedMotion } from "framer-motion";
 import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
 import { Search, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
@@ -20,6 +20,8 @@ import { breadcrumbLD } from "@/lib/json-ld";
 import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
 import { fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
 import type { Category } from "@/lib/types";
+import { CardStack, type CardStackItem } from "@/components/ui/card-stack";
+import { VerticalImageStack } from "@/components/ui/vertical-image-stack";
 
 
 const MapSection = dynamic(() => import("@/components/HomeMap"), { ssr: false });
@@ -152,8 +154,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const closeDropdown = useCallback(() => setOpenDropdownId(null), []);
   const [confirmData, setConfirmData] = useState<{ type: string; name: string; price: number } | null>(null);
 
-  const [vehicleIndex, setVehicleIndex] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
   const [heroBgIndex, setHeroBgIndex] = useState(0);
   const [heroNextBgIndex, setHeroNextBgIndex] = useState<number | null>(null);
   const [heroBgFading, setHeroBgFading] = useState(false);
@@ -309,15 +309,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     setReturnLocation("");
     setReturnLocationVal("");
   }, [returnCityId, returnLocationType, returnCities]);
-
-  useEffect(() => {
-    if (displayVehicles.length < 2) return;
-    const timer = setInterval(() => {
-      setDirection(1);
-      setVehicleIndex((prev) => (prev + 1) % displayVehicles.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [displayVehicles.length]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -1006,87 +997,33 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
                   className="flex-1 relative group w-full min-w-0"
                 >
-                  <div className="relative w-full max-w-[700px] mx-auto">
-                    <div className="relative aspect-[16/10] flex items-center justify-center p-2">
+                  <div className="relative w-full max-w-[700px] mx-auto flex items-center justify-center">
+                    {/* Ambient rings */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square rounded-full border border-[#F39C12]/10" style={{animation:'pulse-ring 3s ease-in-out infinite'}} />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] aspect-square rounded-full border border-[#F39C12]/15" style={{animation:'pulse-ring 3s ease-in-out infinite 0.5s'}} />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] aspect-square rounded-full bg-[#F39C12]/[0.04] blur-[60px]" />
                     <div className="absolute top-1/2 left-1/2 w-[70%] aspect-square rounded-full border border-[#F39C12]/10 z-0 pulse-scale" />
                     <div className="absolute top-1/2 left-1/2 w-[60%] aspect-square rounded-full border border-[#F39C12]/10 z-0 pulse-scale-reverse" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] aspect-square rounded-full bg-[#F39C12]/[0.06] blur-[70px] z-0 pointer-events-none" />
-                    <div className="absolute inset-0 overflow-visible z-10">
-                      <AnimatePresence mode="popLayout" custom={direction}>
-                        <m.div
-                          key={vehicleIndex}
-                          custom={direction}
-                          initial={{ opacity: 0, scale: 0.92, x: direction * 60 }}
-                          animate={{ opacity: 1, scale: 1, x: 0 }}
-                          exit={{ opacity: 0, scale: 0.92, x: -direction * 60 }}
-                          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                          className="absolute inset-0 flex items-center justify-center"
-                        >
-                          <div className="floating">
-                          <div
-                            onClick={() => router.push(`/vehicules/${displayVehicles[vehicleIndex]?.id}`)}
-                            className="w-[90%] mx-auto bg-white/10 backdrop-blur-md rounded-3xl border border-white/15 overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.3)] cursor-pointer group"
-                          >
-                            <div className="aspect-[16/9] bg-[#F0F3FA]/10 overflow-hidden relative">
-                              <img
-                                src={vehicleImageUrl(displayVehicles[vehicleIndex]?.pictures?.[0]?.path ?? "") || "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80"}
-                                alt={displayVehicles[vehicleIndex] ? `${displayVehicles[vehicleIndex].marque} ${displayVehicles[vehicleIndex].model}` : ""}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                              <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                                <span className="text-[11px] font-bold text-white bg-[#395886]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">{displayVehicles[vehicleIndex]?.year}</span>
-                                <span className="text-[11px] font-bold text-white bg-[#F39C12]/80 backdrop-blur-sm px-2.5 py-1 rounded-full">{displayVehicles[vehicleIndex]?.fuelType}</span>
-                              </div>
-                              <div className="absolute bottom-3 left-3 flex items-baseline gap-1 text-white drop-shadow-lg">
-                                <span className="text-4xl font-black">{displayVehicles[vehicleIndex]?.pricePerDay.toLocaleString()}</span>
-                                <span className="text-base font-semibold opacity-90">DH / jour</span>
-                              </div>
-                            </div>
-                            <div className="p-5 flex items-center justify-between">
-                              <div>
-                                <p className="text-white font-bold text-base truncate">{displayVehicles[vehicleIndex]?.marque} {displayVehicles[vehicleIndex]?.model}</p>
-                                <div className="flex items-center gap-3 mt-1.5">
-                                  <span className="text-xs text-white/60 flex items-center gap-1">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4" /><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" /></svg>
-                                    {displayVehicles[vehicleIndex]?.Occupants}
-                                  </span>
-                                  <span className="text-xs text-white/60 flex items-center gap-1">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-                                    {displayVehicles[vehicleIndex]?.km.toLocaleString()} km
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] text-sm font-black px-5 py-3 rounded-xl transition-colors">Réserver</div>
-                            </div>
-                          </div>
-                          </div>
-                        </m.div>
-                      </AnimatePresence>
-                    </div>
+
+                    <div className="relative z-10 floating">
+                      <VerticalImageStack
+                        items={displayVehicles.map((v) => ({
+                          id: v.id,
+                          title: `${v.marque} ${v.model}`,
+                          imageSrc: vehicleImageUrl(v.pictures?.[0]?.path ?? "") || "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80",
+                          href: `/vehicules/${v.id}`,
+                          year: v.year,
+                          fuelType: v.fuelType,
+                          pricePerDay: v.pricePerDay,
+                          Occupants: v.Occupants,
+                          km: v.km,
+                        }))}
+                        cardWidth={660}
+                        cardHeight={620}
+                      />
                     </div>
                   </div>
-                  {displayVehicles.length > 1 && (
-                    <div className="relative z-20 flex items-center justify-center gap-3 mt-4 sm:mt-3">
-                      {displayVehicles.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => {
-                            setDirection(i > vehicleIndex ? 1 : -1);
-                            setVehicleIndex(i);
-                          }}
-                          className={`rounded-full transition-all duration-500 ${
-                            i === vehicleIndex
-                              ? "w-6 h-1.5 sm:w-8 sm:h-2 bg-[#F39C12]"
-                              : "w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/20 hover:bg-white/40"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  )}
                 </m.div>
               )}
           </div>
@@ -1418,19 +1355,20 @@ function StatsSection() {
   );
 }
 
-function VehicleFeature({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <m.span
-      className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1a2438] px-2.5 py-[5px] rounded-lg border border-[#D5DEEF]/20 dark:border-[#1e293b]/40"
-      whileHover={{ scale: 1.05, color: "#F39C12", borderColor: "rgba(243,156,18,0.3)" }}
-      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-    >
-      <span className="shrink-0 opacity-70">{icon}</span>
-      {label}
-    </m.span>
-  );
-}
-
+const fuelTypeIcon: Record<string, React.ReactNode> = {
+  Diesel: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17"/><path d="M15 10h2a2 2 0 012 2v4a2 2 0 002 2H5"/><circle cx="7.5" cy="19.5" r="2.5"/><circle cx="17.5" cy="19.5" r="2.5"/></svg>
+  ),
+  Gasoline: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17"/><path d="M15 10h2a2 2 0 012 2v4a2 2 0 002 2H5"/><circle cx="7.5" cy="19.5" r="2.5"/><circle cx="17.5" cy="19.5" r="2.5"/></svg>
+  ),
+  Electricity: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+  ),
+  Hybrid: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+  ),
+};
 
 
 
@@ -1438,9 +1376,7 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
   const router = useRouter();
   const [vehicles] = useState<Vehicle[]>(propVehicles);
   const [marques] = useState<Marque[]>(propMarques);
-  const loading = false;
   const { t } = useI18n();
-  const prefersReduced = useReducedMotion();
 
   const marqueLogoMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -1458,22 +1394,195 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
     return marqueLogoMap.get(key) ?? getBrandLogo(name);
   }, [marqueLogoMap]);
 
-  const duplicated = [...vehicles, ...vehicles];
+  const [dims, setDims] = useState(() => ({
+    cardWidth: 420,
+    cardHeight: 440,
+    maxVisible: 5,
+  }));
 
-  const fuelTypeIcon: Record<string, React.ReactNode> = {
-    Diesel: (
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17"/><path d="M15 10h2a2 2 0 012 2v4a2 2 0 002 2H5"/><circle cx="7.5" cy="19.5" r="2.5"/><circle cx="17.5" cy="19.5" r="2.5"/></svg>
-    ),
-    Gasoline: (
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17"/><path d="M15 10h2a2 2 0 012 2v4a2 2 0 002 2H5"/><circle cx="7.5" cy="19.5" r="2.5"/><circle cx="17.5" cy="19.5" r="2.5"/></svg>
-    ),
-    Electricity: (
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-    ),
-    Hybrid: (
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    ),
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w < 640) {
+        setDims({ cardWidth: 280, cardHeight: 380, maxVisible: 3 });
+      } else if (w < 1024) {
+        setDims({ cardWidth: 360, cardHeight: 410, maxVisible: 5 });
+      } else {
+        setDims({ cardWidth: 420, cardHeight: 440, maxVisible: 5 });
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  type VehicleStackItem = CardStackItem & {
+    vehicle: Vehicle;
+    brandLogoSrc: string | null;
   };
+
+  const stackItems: VehicleStackItem[] = useMemo(
+    () =>
+      vehicles.map((v) => ({
+        id: v.id,
+        title: `${v.marque} ${v.model}`,
+        imageSrc: v.pictures?.[0]
+          ? vehicleImageUrl(v.pictures[0].path)
+          : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80",
+        href: `/vehicules/${v.id}`,
+        vehicle: v,
+        brandLogoSrc: marqueImg(v.marque),
+      })),
+    [vehicles, marqueImg],
+  );
+
+  const fuelLabel = (ft: string) =>
+    ft === "Gasoline"
+      ? "Essence"
+      : ft === "Electricity"
+        ? "Électrique"
+        : ft === "Hybrid"
+          ? "Hybride"
+          : ft;
+
+  const renderVehicleCard = useCallback(
+    (item: VehicleStackItem) => {
+      const v = item.vehicle;
+      return (
+        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white dark:bg-[#0c1322] group">
+          <div className="relative h-[55%] w-full overflow-hidden">
+            <img
+              src={item.imageSrc}
+              alt={item.title}
+              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              draggable={false}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+
+            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+              <span className="text-[10px] font-bold tracking-wide uppercase text-white bg-[#395886]/70 dark:bg-[#0f1729]/70 backdrop-blur-md px-2.5 py-[5px] rounded-full border border-white/10">
+                {v.year}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase text-white bg-[#F39C12]/70 backdrop-blur-md px-2.5 py-[5px] rounded-full border border-[#F39C12]/20 inline-flex items-center gap-1">
+                {fuelTypeIcon[v.fuelType]}
+                {v.fuelType}
+              </span>
+              {v.category && (
+                <span className="text-[10px] font-bold tracking-wide uppercase text-white bg-[#638ECB]/70 backdrop-blur-md px-2.5 py-[5px] rounded-full border border-white/10">
+                  {v.category.name}
+                </span>
+              )}
+            </div>
+
+            <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+              <div className="flex items-baseline gap-1 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
+                <span className="text-[28px] font-black leading-none tracking-tight">
+                  {v.pricePerDay.toLocaleString()}
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider opacity-70">
+                  DH / jour
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative h-[45%] flex flex-col overflow-hidden">
+            {item.brandLogoSrc && (
+              <img
+                src={item.brandLogoSrc}
+                alt=""
+                className="absolute -bottom-6 -right-6 w-[120px] h-[120px] opacity-[0.04] dark:opacity-[0.06] -rotate-12 pointer-events-none select-none z-0"
+                draggable={false}
+              />
+            )}
+
+            <div className="flex-1 p-4 flex flex-col relative z-10">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                {item.brandLogoSrc ? (
+                  <div className="w-9 h-9 rounded-[10px] bg-[#F0F3FA] dark:bg-[#1a2438] flex items-center justify-center p-1.5 shrink-0 border border-[#D5DEEF]/30 dark:border-[#1e293b]/50">
+                    <img
+                      src={item.brandLogoSrc}
+                      alt={v.marque}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-[#395886] to-[#2d4670] flex items-center justify-center shrink-0">
+                    <span className="text-xs font-black text-white">
+                      {v.marque.charAt(0)}
+                    </span>
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <h3 className="text-[14px] font-bold text-[#395886] dark:text-[#D5DEEF] leading-tight truncate">
+                    {v.marque} {v.model}
+                  </h3>
+                  <p className="text-[10px] text-[#638ECB] dark:text-[#94A3B8] mt-0.5 font-medium">
+                    {v.year} &middot; {fuelLabel(v.fuelType)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-px bg-gradient-to-r from-transparent via-[#D5DEEF]/40 dark:via-[#1e293b]/60 to-transparent mb-2.5" />
+
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1a2438] px-2 py-[4px] rounded-md border border-[#D5DEEF]/20 dark:border-[#1e293b]/40">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  {v.Occupants} places
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1a2438] px-2 py-[4px] rounded-md border border-[#D5DEEF]/20 dark:border-[#1e293b]/40">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                  {v.km.toLocaleString()} km
+                </span>
+                {v.air_conditioner && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1a2438] px-2 py-[4px] rounded-md border border-[#D5DEEF]/20 dark:border-[#1e293b]/40">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 7V4h16v3" />
+                      <path d="M9 20h6" />
+                      <path d="M12 4v8" />
+                      <path d="M4 14h16" />
+                      <rect x="4" y="11" width="16" height="3" rx="1" />
+                    </svg>
+                    Clim
+                  </span>
+                )}
+                {v.gps && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1a2438] px-2 py-[4px] rounded-md border border-[#D5DEEF]/20 dark:border-[#1e293b]/40">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="10" r="3" />
+                      <path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z" />
+                    </svg>
+                    GPS
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="px-4 pb-4 relative z-10">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/vehicules/${v.id}`);
+                }}
+                className="w-full py-2.5 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] text-[11px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer"
+              >
+                Réserv. →
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    },
+    [router],
+  );
 
   return (
     <section className="bg-[#F3F3F3] dark:bg-[#070b14] py-28 md:py-32 px-4 sm:px-8 overflow-hidden relative transition-colors duration-500">
@@ -1501,226 +1610,30 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
         </div>
       </m.div>
 
-      {loading ? (
-        <div className="flex gap-5 md:gap-6 justify-center px-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="shrink-0 w-[340px] md:w-[380px] rounded-[24px] overflow-hidden bg-white dark:bg-[#0f1729] border border-[#D5DEEF]/20 dark:border-[#1e293b]/40">
-              <div className="aspect-[16/11] bg-[#F0F3FA] dark:bg-[#1e293b] animate-pulse" />
-              <div className="p-6 space-y-4">
-                <div className="h-5 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-xl animate-pulse w-3/4" />
-                <div className="h-4 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-xl animate-pulse w-2/3" />
-                <div className="h-4 bg-[#F0F3FA] dark:bg-[#1e293b] rounded-xl animate-pulse w-1/2" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : vehicles.length > 0 && (
+      {vehicles.length > 0 && (
         <m.div
-          initial={{ opacity: 0, x: -60 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative"
+          className="relative z-10"
         >
-          <div
-            className="overflow-hidden"
-            style={{
-              maskImage: 'linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%)',
-            }}
-          >
-            <div className="flex gap-5 md:gap-6 pb-6 px-4" style={{ animation: prefersReduced ? 'none' : "marquee-scroll 45s linear infinite" }}>
-              {duplicated.map((v, i) => {
-                const imgSrc = v.pictures?.[0]
-                  ? vehicleImageUrl(v.pictures[0].path)
-                  : "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80";
-
-                const features: { show: boolean; icon: React.ReactNode; label: string }[] = [
-                  {
-                    show: v.air_conditioner === true,
-                    icon: (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v8" />
-                        <path d="M4 14h16" /><rect x="4" y="11" width="16" height="3" rx="1" />
-                      </svg>
-                    ),
-                    label: "Climatisation",
-                  },
-                  {
-                    show: v.gps === true,
-                    icon: (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="10" r="3" /><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z" />
-                      </svg>
-                    ),
-                    label: "GPS",
-                  },
-                  {
-                    show: true,
-                    icon: (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    ),
-                    label: `${v.Occupants} places`,
-                  },
-                  {
-                    show: true,
-                    icon: (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
-                      </svg>
-                    ),
-                    label: `${v.km.toLocaleString()} km`,
-                  },
-                ];
-
-                return (
-                  <m.button
-                    key={`${v.id}-${i}`}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.08 * (i % vehicles.length), ease: [0.16, 1, 0.3, 1] }}
-                    whileHover={{ scale: 1.02, y: -10 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => {
-                      router.push(`/vehicules/${v.id}`);
-                    }}
-                    className="shrink-0 w-[320px] sm:w-[360px] md:w-[400px] bg-white dark:bg-[#0c1322] rounded-[24px] border border-[#D5DEEF]/30 dark:border-[#1e293b]/50 overflow-hidden text-left shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_32px_80px_rgba(57,88,134,0.18)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] dark:hover:shadow-[0_32px_80px_rgba(0,0,0,0.5)] transition-all duration-[400ms] ease-out group cursor-pointer relative"
-                  >
-                    <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04] pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 0.5px, transparent 0)', backgroundSize: '20px 20px' }} />
-
-                    <div className="relative z-10">
-                      <div className="aspect-[16/11] bg-[#F0F3FA] dark:bg-[#161e2e] overflow-hidden relative">
-                        <m.img
-                          src={imgSrc}
-                          alt={`${v.marque} ${v.model}`}
-                          className="w-full h-full object-cover"
-                          initial={{ scale: 1.05 }}
-                          whileInView={{ scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                          whileHover={{ scale: 1.1 }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        <div className="absolute top-3.5 left-3.5 flex flex-wrap gap-1.5">
-                          <m.span
-                            initial={{ opacity: 0, y: -8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.15 }}
-                            className="text-[10px] font-bold tracking-wide uppercase text-white bg-[#395886]/70 dark:bg-[#0f1729]/70 backdrop-blur-md px-2.5 py-[5px] rounded-full border border-white/10 group-hover:border-white/20 transition-all duration-300"
-                          >
-                            {v.year}
-                          </m.span>
-                          <m.span
-                            initial={{ opacity: 0, y: -8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.22 }}
-                            className="text-[10px] font-bold tracking-wide uppercase text-white bg-[#F39C12]/70 backdrop-blur-md px-2.5 py-[5px] rounded-full border border-[#F39C12]/20 group-hover:border-[#F39C12]/40 transition-all duration-300 inline-flex items-center gap-1"
-                          >
-                            {fuelTypeIcon[v.fuelType]}
-                            {v.fuelType}
-                          </m.span>
-                          {v.category && (
-                            <m.span
-                              initial={{ opacity: 0, y: -8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.28 }}
-                              className="text-[10px] font-bold tracking-wide uppercase text-white bg-[#638ECB]/70 backdrop-blur-md px-2.5 py-[5px] rounded-full border border-white/10 group-hover:border-white/20 transition-all duration-300"
-                            >
-                              {v.category.name}
-                            </m.span>
-                          )}
-                        </div>
-
-                        <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-end justify-between">
-                          <m.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.35 }}
-                            className="flex items-baseline gap-1 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
-                          >
-                            <span className="text-[32px] md:text-[36px] font-black leading-none tracking-tight group-hover:scale-[1.03] transition-transform duration-300 origin-left">
-                              {v.pricePerDay.toLocaleString()}
-                            </span>
-                            <span className="text-xs font-semibold uppercase tracking-wider opacity-70 mb-1 ml-0.5">DH / jour</span>
-                          </m.div>
-                          <m.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            className="bg-white/15 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border border-white/20 opacity-0 group-hover:opacity-100 transition-all duration-400"
-                          >
-                            Réserv.
-                          </m.div>
-                        </div>
-                      </div>
-
-                      <div className="p-5 md:p-6 overflow-hidden relative">
-                        {marqueImg(v.marque) && (
-                          <Image
-                            src={marqueImg(v.marque)!}
-                            alt=""
-                            width={200}
-                            height={200}
-                            className="absolute -bottom-8 -right-8 w-[160px] h-[160px] opacity-[0.04] dark:opacity-[0.06] -rotate-[12deg] pointer-events-none select-none z-0"
-                            draggable={false}
-                            priority={false}
-                            unoptimized
-                          />
-                        )}
-
-                        <div className="flex items-center gap-3 mb-4 relative z-10">
-                          {marqueImg(v.marque) ? (
-                            <div className="w-10 h-10 rounded-[12px] bg-[#F0F3FA] dark:bg-[#1a2438] flex items-center justify-center p-2 shrink-0 border border-[#D5DEEF]/30 dark:border-[#1e293b]/50">
-                              <Image
-                                src={marqueImg(v.marque)!}
-                                alt={v.marque}
-                                width={28}
-                                height={28}
-                                className="w-full h-full object-contain"
-                                unoptimized
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#395886] to-[#2d4670] flex items-center justify-center shrink-0">
-                              <span className="text-sm font-black text-white">{v.marque.charAt(0)}</span>
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <h3 className="text-[15px] font-bold text-[#395886] dark:text-[#D5DEEF] group-hover:text-[#F39C12] transition-colors duration-300 leading-tight truncate">
-                              {v.marque} {v.model}
-                            </h3>
-                            <p className="text-[11px] text-[#638ECB] dark:text-[#94A3B8] mt-0.5 font-medium">
-                              {v.year} &middot; {v.fuelType === "Gasoline" ? "Essence" : v.fuelType === "Electricity" ? "Électrique" : v.fuelType === "Hybrid" ? "Hybride" : v.fuelType}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="h-px bg-gradient-to-r from-transparent via-[#D5DEEF]/40 dark:via-[#1e293b]/60 to-transparent mb-4" />
-
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 relative z-10">
-                          {features.filter((f) => f.show).map((f, idx) => (
-                            <m.div
-                              key={idx}
-                              initial={{ opacity: 0, x: -6 }}
-                              whileInView={{ opacity: 1, x: 0 }}
-                              viewport={{ once: true }}
-                              transition={{ delay: 0.15 + idx * 0.06 }}
-                            >
-                              <VehicleFeature icon={f.icon} label={f.label} />
-                            </m.div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </m.button>
-                );
-              })}
-            </div>
-          </div>
+          <CardStack
+            items={stackItems}
+            initialIndex={0}
+            cardWidth={dims.cardWidth}
+            cardHeight={dims.cardHeight}
+            maxVisible={dims.maxVisible}
+            autoAdvance
+            intervalMs={3000}
+            pauseOnHover
+            showDots
+            overlap={0.42}
+            spreadDeg={42}
+            activeScale={1.04}
+            inactiveScale={0.92}
+            renderCard={renderVehicleCard}
+          />
         </m.div>
       )}
     </section>
