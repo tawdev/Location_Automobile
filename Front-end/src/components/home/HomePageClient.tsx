@@ -1431,6 +1431,9 @@ function VehicleFeature({ icon, label }: { icon: React.ReactNode; label: string 
   );
 }
 
+
+
+
 function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [] }: { vehicles?: Vehicle[]; marques?: Marque[] }) {
   const router = useRouter();
   const [vehicles] = useState<Vehicle[]>(propVehicles);
@@ -1462,27 +1465,6 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
   return (
     <section className="bg-[#F3F3F3] dark:bg-[#070b14] py-28 px-8 overflow-hidden relative transition-colors duration-500">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#638ECB]/5 dark:bg-[#638ECB]/[0.03] rounded-full blur-3xl pointer-events-none" />
-      {/* Fog bridge blending into next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 md:h-56 pointer-events-none z-20"
-        style={{
-          background: `
-            radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 30%, transparent 60%),
-            radial-gradient(ellipse 50% 80% at 30% 100%, rgba(240,243,250,0.5) 0%, transparent 50%),
-            radial-gradient(ellipse 50% 80% at 70% 100%, rgba(240,243,250,0.4) 0%, transparent 50%),
-            linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0.6) 70%, rgba(255,255,255,0.95) 100%)
-          `,
-          filter: 'blur(8px)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
-        }}
-      />
-      {/* Subtle light glow in the center of the bridge */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[180px] pointer-events-none z-10"
-        style={{
-          background: 'radial-gradient(ellipse 60% 100% at 50% 100%, rgba(255,255,255,0.4) 0%, transparent 60%)',
-          filter: 'blur(30px)',
-        }}
-      />
       <m.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -2169,6 +2151,182 @@ function AboutSection() {
 }
 
 
+
+
+function AtmosphericMist() {
+  return (
+    <div className="relative h-32 md:h-48 -my-16 md:-my-24 z-20 pointer-events-none overflow-hidden">
+      {/* Base fog gradient - blends section bg colors */}
+      <div
+        className="absolute inset-0 hidden dark:block"
+        style={{
+          background: `
+            linear-gradient(to bottom,
+              transparent 0%,
+              rgba(7,11,20,0.3) 15%,
+              rgba(7,11,20,0.5) 40%,
+              rgba(7,11,20,0.7) 50%,
+              rgba(7,11,20,0.5) 60%,
+              rgba(7,11,20,0.3) 85%,
+              transparent 100%
+            )
+          `,
+        }}
+      />
+      <div
+        className="absolute inset-0 dark:hidden"
+        style={{
+          background: `
+            linear-gradient(to bottom,
+              transparent 0%,
+              rgba(240,243,250,0.3) 15%,
+              rgba(255,255,255,0.5) 40%,
+              rgba(255,255,255,0.7) 50%,
+              rgba(255,255,255,0.5) 60%,
+              rgba(240,243,250,0.3) 85%,
+              transparent 100%
+            )
+          `,
+        }}
+      />
+
+      {/* Soft center glow */}
+      <div
+        className="absolute inset-0 hidden dark:block"
+        style={{
+          background: `
+            radial-gradient(ellipse 70% 60% at 50% 50%,
+              rgba(7,11,20,0.35) 0%,
+              rgba(7,11,20,0.15) 40%,
+              transparent 70%
+            )
+          `,
+          filter: "blur(30px)",
+        }}
+      />
+      <div
+        className="absolute inset-0 dark:hidden"
+        style={{
+          background: `
+            radial-gradient(ellipse 70% 60% at 50% 50%,
+              rgba(255,255,255,0.35) 0%,
+              rgba(240,243,250,0.15) 40%,
+              transparent 70%
+            )
+          `,
+          filter: "blur(30px)",
+        }}
+      />
+
+      {/* Wide atmospheric spread */}
+      <div
+        className="absolute inset-0 hidden dark:block"
+        style={{
+          background: `
+            radial-gradient(ellipse 90% 50% at 30% 50%,
+              rgba(7,11,20,0.12) 0%,
+              transparent 60%
+            ),
+            radial-gradient(ellipse 80% 45% at 70% 50%,
+              rgba(7,11,20,0.10) 0%,
+              transparent 60%
+            )
+          `,
+          filter: "blur(50px)",
+        }}
+      />
+      <div
+        className="absolute inset-0 dark:hidden"
+        style={{
+          background: `
+            radial-gradient(ellipse 90% 50% at 30% 50%,
+              rgba(243,245,250,0.12) 0%,
+              transparent 60%
+            ),
+            radial-gradient(ellipse 80% 45% at 70% 50%,
+              rgba(252,253,255,0.10) 0%,
+              transparent 60%
+            )
+          `,
+          filter: "blur(50px)",
+        }}
+      />
+
+      {/* Animated floating mist - left side */}
+      <div
+        className="absolute inset-0 hidden dark:block"
+        style={{
+          background: `
+            radial-gradient(ellipse 500px 180px at 25% 50%,
+              rgba(7,11,20,0.08) 0%,
+              transparent 60%
+            )
+          `,
+          filter: "blur(60px)",
+          animation: "mistDriftLeft 25s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="absolute inset-0 dark:hidden"
+        style={{
+          background: `
+            radial-gradient(ellipse 500px 180px at 25% 50%,
+              rgba(255,255,255,0.08) 0%,
+              transparent 60%
+            )
+          `,
+          filter: "blur(60px)",
+          animation: "mistDriftLeft 25s ease-in-out infinite",
+        }}
+      />
+
+      {/* Animated floating mist - right side */}
+      <div
+        className="absolute inset-0 hidden dark:block"
+        style={{
+          background: `
+            radial-gradient(ellipse 400px 160px at 70% 50%,
+              rgba(7,11,20,0.06) 0%,
+              transparent 60%
+            )
+          `,
+          filter: "blur(50px)",
+          animation: "mistDriftRight 30s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="absolute inset-0 dark:hidden"
+        style={{
+          background: `
+            radial-gradient(ellipse 400px 160px at 70% 50%,
+              rgba(240,243,250,0.06) 0%,
+              transparent 60%
+            )
+          `,
+          filter: "blur(50px)",
+          animation: "mistDriftRight 30s ease-in-out infinite",
+        }}
+      />
+
+      <style>{`
+        @keyframes mistDriftLeft {
+          0%, 100% { transform: translateX(-15px) translateY(0); opacity: 0.7; }
+          25% { transform: translateX(10px) translateY(-8px); opacity: 1; }
+          50% { transform: translateX(-5px) translateY(5px); opacity: 0.8; }
+          75% { transform: translateX(20px) translateY(-3px); opacity: 0.9; }
+        }
+        @keyframes mistDriftRight {
+          0%, 100% { transform: translateX(10px) translateY(5px); opacity: 0.6; }
+          25% { transform: translateX(-15px) translateY(-5px); opacity: 0.9; }
+          50% { transform: translateX(5px) translateY(10px); opacity: 0.7; }
+          75% { transform: translateX(-10px) translateY(0); opacity: 0.8; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+
 export default function HomePageClient({ vehicles: propVehicles = [], marques = [], typeVehicules = [] }: { vehicles?: Vehicle[]; marques?: Marque[]; typeVehicules?: TypeVehicule[] }) {
   const { locale } = useI18n();
   const typedLocale = locale as "fr" | "en" | "ar";
@@ -2186,6 +2344,7 @@ export default function HomePageClient({ vehicles: propVehicles = [], marques = 
       <JsonLd id="ld-breadcrumb" data={breadcrumbLD(breadcrumbItems)} />
       <HeroSection vehicles={vehicles} marques={marques} typeVehicules={typeVehicules} />
       <VehiclesMarquee vehicles={vehicles} marques={marques} />
+      <AtmosphericMist />
       <MarquesSection marques={marques} />
       <ServicesSection />
       <HowItWorksSection />
