@@ -578,46 +578,67 @@ html { scroll-behavior: smooth; }
   /* ── Hero search filter: compact ── */
   .hero-search-form {
     padding: 0.75rem !important;
-    overflow: hidden;
     max-width: 100%;
   }
 
-  /* Reduce row gaps */
-  .hero-search-form > div {
-    gap: 12px;
-  }
-
-  /* Reduce label margins */
-  .hero-search-form label {
-    margin-bottom: 4px;
-  }
-
-  /* All inputs: 48px height */
+  /* All inputs: 48px height, full width, border-box */
   .hero-search-form input[type="time"],
   .hero-search-form input[type="number"] {
     height: 48px;
     min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  /* Popover triggers (dropdowns): 48px */
+  /* Dropdown triggers: 48px */
   .hero-search-form [data-slot="popover-trigger"] > div {
     height: 48px;
+    min-height: 48px;
+    box-sizing: border-box;
   }
 
-  /* Date+Time composites */
+  /* Date+Time rows: stack on mobile */
   .hero-search-form .date-time-row {
     flex-direction: column;
     gap: 8px;
   }
+
+  /* Date+Time composites: full width, remove overflow-hidden (set via Tailwind) */
   .hero-search-form .date-time-composite {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    overflow: visible !important;
+    border-radius: 0.75rem;
+  }
+
+  /* Date popover triggers inside composites: ensure visible & stretchy */
+  .hero-search-form .date-time-composite [data-slot="popover-trigger"] {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    height: 100%;
     flex: 1 1 0;
     min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Date popover trigger inner span: ensure text visible */
+  .hero-search-form .date-time-composite [data-slot="popover-trigger"] > span {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   /* Search button: 50px, full width */
   .hero-search-form .search-button {
     width: 100%;
     height: 50px;
+    min-height: 50px;
+    box-sizing: border-box;
   }
 
   /* Price inputs: 50% each */
