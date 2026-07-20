@@ -4,19 +4,11 @@ import * as React from "react";
 import { DayPicker, getDefaultClassNames, type Locale, type DayButtonProps } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ChevronLeftIcon, ChevronRightIcon, X } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 function CalendarDayButton({ size, ...props }: DayButtonProps & { size?: "default" | "lg" }) {
   const { day, modifiers, ...buttonProps } = props;
   const isLg = size === "lg";
-  
-  if (modifiers.disabled) {
-    return (
-      <div className={`relative flex items-center justify-center opacity-30 ${isLg ? "h-12 w-12" : "h-9 w-9"}`}>
-        <X className={`absolute text-red-600 ${isLg ? "h-5 w-5" : "h-4 w-4"}`} />
-      </div>
-    );
-  }
 
   return (
     <Button
@@ -191,33 +183,49 @@ export function Calendar({
 .rdp-lg .rdp-today .rdp-day_button {
   font-size: 17px;
 }
-.rdp-lg .rdp-disabled::after {
-  font-size: 22px;
-}
 
-/* Reserved dates: red X + disabled */
-.rdp-disabled {
-  position: relative !important;
+/* Pickup calendar: past dates disabled with red X overlay */
+.pickup-calendar .rdp-disabled {
+  position: relative;
   pointer-events: none !important;
-  cursor: default !important;
+  cursor: not-allowed !important;
 }
-.rdp-disabled .rdp-day_button {
-  opacity: 0.3;
-  cursor: default !important;
+.pickup-calendar .rdp-disabled:hover {
+  background: transparent !important;
 }
-.rdp-disabled::after {
-  content: "✕";
+.pickup-calendar .rdp-disabled .rdp-day_button {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+}
+.pickup-calendar .rdp-disabled .rdp-day_button > * {
+  position: relative;
+  z-index: 1;
+}
+.pickup-calendar .rdp-disabled::after {
+  content: "";
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 900;
-  color: #dc2626;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
   pointer-events: none;
-  z-index: 5;
-  line-height: 1;
+  background:
+    linear-gradient(45deg,
+      transparent 46%,
+      #ef4444 46%,
+      #ef4444 54%,
+      transparent 54%),
+    linear-gradient(-45deg,
+      transparent 46%,
+      #ef4444 46%,
+      #ef4444 54%,
+      transparent 54%);
+  z-index: 2;
+}
+.pickup-calendar.rdp-lg .rdp-disabled::after {
+  width: 24px;
+  height: 24px;
 }
 `}</style>
       <DayPicker

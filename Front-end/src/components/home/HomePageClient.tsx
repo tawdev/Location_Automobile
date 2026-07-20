@@ -472,9 +472,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
               >
-                <form onSubmit={handleSearch} className="bg-black backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">
+                <form onSubmit={handleSearch} className="hero-search-form bg-black backdrop-blur-xl border border-white/10 rounded-2xl p-5 md:p-6 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.4)]">
                   {/* Row 1: Country + City */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                  <div className="filter-grid grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.country")}</label>
                       <Popover open={openDropdownId === "pickup-country"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "pickup-country" : null)}>
@@ -594,9 +594,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   <div className="mb-3">
                     <input type="hidden" name="pickup_location" value={pickupLocationVal} />
                     <input type="hidden" name="dropoff_location" value={returnLocationVal} />
-                    <div className="flex flex-col sm:flex-row items-stretch gap-2">
+                    <div className="date-time-row flex flex-col sm:flex-row items-stretch gap-2">
                       {/* Pickup Date + Time joined */}
-                      <div className="flex-1 min-w-0 flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
+                      <div className="date-time-composite flex-1 min-w-0 flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
                         <Popover>
                           <PopoverTrigger className="flex-1 min-w-0">
                             <span className="block w-full bg-transparent px-3 py-2.5 text-sm text-white text-left leading-normal">
@@ -604,7 +604,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                             </span>
                           </PopoverTrigger>
                           <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-                            <Calendar size="lg" mode="single" selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { const val = toLocalDateString(d); setPickupDate(val); if (returnDate && returnDate < val) setReturnDate(""); } }} fromDate={new Date()} />
+                            <Calendar size="lg" mode="single" className="pickup-calendar" selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { const val = toLocalDateString(d); setPickupDate(val); if (returnDate && returnDate < val) setReturnDate(""); } }} disabled={{ before: new Date() }} />
                           </PopoverContent>
                         </Popover>
                         <div className="w-px bg-white/10 self-stretch" />
@@ -614,7 +614,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                       <span className="hidden sm:flex items-center text-white/15 text-lg select-none">-</span>
 
                       {/* Return Date + Time joined */}
-                      <div className="flex-1 min-w-0 flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
+                      <div className="date-time-composite flex-1 min-w-0 flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
                         <Popover>
                           <PopoverTrigger className={`flex-1 min-w-0 ${!pickupDate ? "pointer-events-none" : ""}`} disabled={!pickupDate}>
                             <span className={`block w-full bg-transparent px-3 py-2.5 text-sm text-left leading-normal ${!pickupDate ? "text-white/40" : "text-white"}`}>
@@ -632,7 +632,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   </div>
 
                   {/* Row 4: Return Country + City */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                  <div className="filter-grid grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.return_country") || "Pays de restitution"}</label>
                       <Popover open={openDropdownId === "return-country"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "return-country" : null)}>
@@ -800,7 +800,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                   )}
 
                   {/* Row 6: Brand + Model + Fuel type + Transmission + Vehicle type */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-3">
+                  <div className="filter-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-3">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.brand")}</label>
                       <Popover open={brandOpen} onOpenChange={setBrandOpen}>
@@ -930,7 +930,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     <div className="mt-3">
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.category")}</label>
                       <div className="relative">
-                        <div ref={categoryScrollRef} className="flex items-center justify-center gap-2 pb-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}>
+                        <div ref={categoryScrollRef} className="category-chips flex items-center justify-center gap-2 pb-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}>
                           {categories.map((cat) => (
                             <button
                               key={cat.id}
@@ -961,7 +961,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
 
                   {/* Row 8: Price range + Search */}
                   <div className="mt-3 flex flex-col sm:flex-row gap-3">
-                    <div className="flex gap-3 flex-1">
+                    <div className="price-inputs flex gap-3 flex-1">
                       <div className="w-full sm:w-32">
                         <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Min</label>
                         <input type="number" placeholder="0 DH" value={minPrice ?? ""} onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)} className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all" />
@@ -971,7 +971,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                         <input type="number" placeholder="1000 DH" value={maxPrice ?? ""} onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)} className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:bg-white/20 transition-all" />
                       </div>
                     </div>
-                    <m.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSearch} className="w-full sm:w-auto h-11 px-8 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] font-bold text-sm flex items-center justify-center gap-2 transition-all shrink-0 shadow-lg shadow-[#FF7B00]/20">
+                    <m.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSearch} className="search-button w-full sm:w-auto h-11 px-8 rounded-xl bg-[#FF7B00] hover:bg-[#e66f00] text-[#1f2124] font-bold text-sm flex items-center justify-center gap-2 transition-all shrink-0 shadow-lg shadow-[#FF7B00]/20">
                       <Search className="w-4 h-4" />
                       {t("vehicles.filter_button")}
                     </m.button>
@@ -1643,6 +1643,14 @@ function VehiclesMarquee({ vehicles: propVehicles = [], marques: propMarques = [
 
 function MarquesSection({ marques: propMarques = [] }: { marques?: Marque[] }) {
   const { t } = useI18n();
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const brandItems: BrandItem[] = useMemo(
     () =>
@@ -1679,22 +1687,38 @@ function MarquesSection({ marques: propMarques = [] }: { marques?: Marque[] }) {
         </div>
       </m.div>
 
-      <m.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex justify-center"
-      >
-        <CircularGallery
-          items={brandItems}
-          circleSize={1000}
-          itemWidth={180}
-          itemHeight={200}
-          autoRotateSpeed={0.12}
-          pauseOnHover
-        />
-      </m.div>
+      {isMobile ? (
+        <div style={{ overflow: "hidden", width: "100%" }}>
+          <div className="mobile-brands-track">
+            {[...brandItems, ...brandItems].map((item, i) => (
+              <div key={`${item.id}-${i}`} style={{ flex: "0 0 auto", display: "flex", alignItems: "center" }}>
+                {item.logoSrc ? (
+                  <img src={item.logoSrc} alt={item.name} style={{ width: 70, height: "auto", objectFit: "contain" }} draggable={false} />
+                ) : (
+                  <span style={{ width: 70, textAlign: "center", fontSize: 14 }}>{item.name}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <m.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex justify-center"
+        >
+          <CircularGallery
+            items={brandItems}
+            circleSize={1000}
+            itemWidth={180}
+            itemHeight={200}
+            autoRotateSpeed={0.12}
+            pauseOnHover
+          />
+        </m.div>
+      )}
     </section>
   );
 }
