@@ -1,42 +1,207 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Info, Gauge, Shield, IdCard, Clock, FileText, ChevronRight, Sparkles } from "lucide-react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { Info, Gauge, Shield, IdCard, Clock, FileText, ArrowRight } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
-import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbLD } from "@/lib/json-ld";
-import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
+import { PAGE_TITLES } from "@/lib/seo";
 
 const RULES_KEYS = ["km", "insurance", "license", "duration", "documents"] as const;
-
 const ICONS = [Gauge, Shield, IdCard, Clock, FileText] as const;
 
-const GRADIENTS = [
-  "from-blue-500 to-cyan-500",
-  "from-emerald-500 to-teal-500",
-  "from-rose-500 to-pink-500",
-  "from-amber-500 to-orange-500",
-  "from-violet-500 to-purple-500",
-] as const;
+const IMAGES = [
+  "/roles/Mileage.jpg",
+  "/roles/Insurance.jpg",
+  "/roles/License.jpg",
+  "/roles/Duration.jpg",
+  "/roles/Documents.jpg",
+];
 
-const BG_LIGHTS = [
-  "bg-blue-50 dark:bg-blue-950/30",
-  "bg-emerald-50 dark:bg-emerald-950/30",
-  "bg-rose-50 dark:bg-rose-950/30",
-  "bg-amber-50 dark:bg-amber-950/30",
-  "bg-violet-50 dark:bg-violet-950/30",
-] as const;
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
+};
 
-const BORDER_HOVERS = [
-  "hover:border-blue-200 dark:hover:border-blue-700/50",
-  "hover:border-emerald-200 dark:hover:border-emerald-700/50",
-  "hover:border-rose-200 dark:hover:border-rose-700/50",
-  "hover:border-amber-200 dark:hover:border-amber-700/50",
-  "hover:border-violet-200 dark:hover:border-violet-700/50",
-] as const;
+const cardVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 260, damping: 24 },
+  },
+};
+
+function RuleCard({ ruleKey, index }: { ruleKey: string; index: number }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), {
+    stiffness: 300,
+    damping: 30,
+  });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), {
+    stiffness: 300,
+    damping: 30,
+  });
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = cardRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      mouseX.set(x);
+      mouseY.set(y);
+    },
+    [mouseX, mouseY]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+    mouseX.set(0);
+    mouseY.set(0);
+  }, [mouseX, mouseY]);
+
+  const { t } = useI18n();
+  const Icon = ICONS[index];
+
+  return (
+    <motion.div
+      ref={cardRef}
+      variants={cardVariants}
+      whileHover={{ scale: 1.03 }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        perspective: 1000,
+      }}
+      className="relative group rounded-3xl overflow-hidden cursor-pointer min-h-[440px] sm:min-h-[480px]"
+    >
+      {/* Background image */}
+      <img
+        src={IMAGES[index]}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        draggable={false}
+      />
+
+      {/* Dark overlay */}
+      <div
+        className="absolute inset-0 transition-opacity duration-500"
+        style={{
+          background: isHovered
+            ? "linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.6) 40%, rgba(15,23,42,0.2) 70%, transparent 100%)"
+            : "linear-gradient(to top, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.5) 35%, rgba(15,23,42,0.15) 65%, transparent 100%)",
+        }}
+      />
+
+      {/* Border glow layer */}
+      <div
+        className="absolute inset-0 rounded-3xl p-[1px] pointer-events-none"
+        style={{
+          background: isHovered
+            ? "linear-gradient(135deg, rgba(245,158,11,0.6), rgba(245,158,11,0.1), rgba(255,255,255,0.15))"
+            : "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.08))",
+          transition: "background 0.4s ease",
+        }}
+      >
+        <div className="h-full w-full rounded-3xl" />
+      </div>
+
+      {/* Mouse-follow light reflection */}
+      <motion.div
+        className="absolute inset-0 rounded-3xl pointer-events-none z-10"
+        style={{
+          background: useTransform(
+            mouseX,
+            [-0.5, 0, 0.5],
+            [
+              "radial-gradient(600px circle at 20% 30%, rgba(245,158,11,0.1), transparent 50%)",
+              "radial-gradient(600px circle at 50% 50%, rgba(245,158,11,0.06), transparent 50%)",
+              "radial-gradient(600px circle at 80% 30%, rgba(245,158,11,0.1), transparent 50%)",
+            ]
+          ),
+        }}
+      />
+
+      {/* Glow shadow on hover */}
+      <div
+        className="absolute inset-0 rounded-3xl transition-all duration-500 pointer-events-none"
+        style={{
+          boxShadow: isHovered
+            ? "0 25px 60px -12px rgba(245,158,11,0.25), 0 0 50px -8px rgba(245,158,11,0.15), inset 0 1px 0 rgba(255,255,255,0.1)"
+            : "0 8px 32px -8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-20 flex flex-col h-full p-10 sm:p-12 lg:p-14">
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Label */}
+        <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#F59E0B]/80 flex items-center gap-2 px-4 py-2 rounded-lg bg-black/40 border border-white/10 backdrop-blur-sm w-fit">
+          <Icon className="w-4 h-4" />
+          {t(`rules.${ruleKey}`)}
+        </span>
+
+        {/* Description */}
+        <p className="text-sm sm:text-base font-medium text-white leading-relaxed mb-6">
+          {t(`rules.${ruleKey}.desc`)}
+        </p>
+
+        {/* Detail box */}
+        <div
+          className="rounded-xl p-5 mb-10 transition-all duration-300"
+          style={{
+            background: isHovered
+              ? "rgba(245,158,11,0.1)"
+              : "rgba(255,255,255,0.05)",
+            border: isHovered
+              ? "1px solid rgba(245,158,11,0.2)"
+              : "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <p className="text-xs sm:text-sm text-white leading-relaxed flex items-start gap-2">
+            <Info className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
+            <span>{t(`rules.${ruleKey}.detail`)}</span>
+          </p>
+        </div>
+
+        {/* Action label */}
+        <div className="w-full">
+          <span
+            className="flex items-center justify-center gap-3 w-full py-4 sm:py-5 rounded-xl text-sm sm:text-base font-extrabold uppercase tracking-wider transition-all duration-400"
+            style={{
+              background: isHovered
+                ? "linear-gradient(135deg, #F59E0B, #D97706)"
+                : "linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1))",
+              color: isHovered ? "#0F172A" : "#F59E0B",
+              border: isHovered
+                ? "1px solid rgba(245,158,11,0.5)"
+                : "1px solid rgba(245,158,11,0.25)",
+              boxShadow: isHovered
+                ? "0 8px 24px -4px rgba(245,158,11,0.4)"
+                : "none",
+            }}
+          >
+            {t(`rules.${ruleKey}`)}
+            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function Particles() {
   const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number; delay: number }[]>([]);
@@ -64,21 +229,6 @@ function Particles() {
     </div>
   );
 }
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 40, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.5 },
-  },
-};
 
 export default function ReglesPage() {
   const { t, locale } = useI18n();
@@ -123,60 +273,11 @@ export default function ReglesPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10"
         >
-          {RULES_KEYS.map((key, index) => {
-            const Icon = ICONS[index];
-            return (
-              <motion.div
-                key={key}
-                variants={cardVariants}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className={`group bg-white dark:bg-[#0f1729]/90 rounded-2xl p-6 md:p-8 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 ${BORDER_HOVERS[index]} transition-all duration-500 relative overflow-hidden hover:shadow-xl dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]`}
-              >
-                {/* Top gradient bar */}
-                <div
-                  className={`absolute top-0 left-6 right-6 h-1.5 rounded-full bg-gradient-to-r ${GRADIENTS[index]} opacity-0 group-hover:opacity-100 transition-all duration-500 scale-x-0 group-hover:scale-x-100 origin-left`}
-                />
-
-                {/* Subtle background glow */}
-                <div
-                  className={`absolute -top-24 -right-24 w-48 h-48 rounded-full bg-gradient-to-br ${GRADIENTS[index]} opacity-0 group-hover:opacity-[0.04] dark:group-hover:opacity-[0.06] transition-opacity duration-500 pointer-events-none blur-3xl`}
-                />
-
-                <div className="flex items-start gap-5 relative z-10">
-                  {/* Icon */}
-                  <div
-                    className={`shrink-0 w-14 h-14 rounded-2xl ${BG_LIGHTS[index]} flex items-center justify-center relative overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg`}
-                  >
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[index]} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                    />
-                    <Icon className="w-6 h-6 text-[#395886] dark:text-[#94A3B8] relative z-10 group-hover:text-white transition-colors duration-500" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-bold text-[#1d3560] dark:text-[#D5DEEF] mb-2 flex items-center gap-2">
-                      <ChevronRight className="w-4 h-4 text-[#d08a1b] dark:text-[#F39C12] shrink-0 group-hover:translate-x-1 transition-transform duration-300" />
-                      {t(`rules.${key}`)}
-                    </h2>
-                    <p className="text-gray-600 dark:text-[#94A3B8] text-[15px] leading-relaxed mb-4">
-                      {t(`rules.${key}.desc`)}
-                    </p>
-
-                    {/* Detail box */}
-                    <div className={`${BG_LIGHTS[index]} rounded-xl p-4 border border-[#D5DEEF]/20 dark:border-[#1e293b]/60 transition-all duration-300 group-hover:shadow-inner`}>
-                      <p className="text-sm text-gray-500 dark:text-[#94A3B8] leading-relaxed flex items-start gap-2">
-                        <Info className="w-4 h-4 text-[#395886] dark:text-[#F39C12] shrink-0 mt-0.5 group-hover:rotate-12 transition-transform duration-300" />
-                        <span>{t(`rules.${key}.detail`)}</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+          {RULES_KEYS.map((key, index) => (
+            <RuleCard key={key} ruleKey={key} index={index} />
+          ))}
         </motion.div>
       </div>
     </div>
