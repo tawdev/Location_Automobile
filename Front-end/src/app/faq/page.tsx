@@ -1,20 +1,26 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HelpCircle,
-  ChevronDown,
-  Sparkles,
   Search,
+  ChevronLeft,
+  ChevronRight,
+  MessageCircleQuestion,
+  X,
 } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbLD } from "@/lib/json-ld";
 import { faqPageLD } from "@/lib/faq-ld";
-import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
+import { PAGE_TITLES } from "@/lib/seo";
+import {
+  CardStack,
+  CardsContainer,
+  CardTransformed,
+} from "@/components/ui/scroll-card-stack";
 
 type FAQItem = {
   q: string;
@@ -36,6 +42,55 @@ function getFaqItems(t: (key: string) => string): FAQItem[] {
   ];
 }
 
+function FAQCard({
+  item,
+  index,
+  total,
+  isRtl,
+  onClick,
+}: {
+  item: FAQItem;
+  index: number;
+  total: number;
+  isRtl: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-col gap-3 text-left w-full h-full cursor-pointer group ${isRtl ? "text-right" : ""}`}
+    >
+      <div className="flex items-center gap-3">
+        <div className="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#F39C12] to-[#FF7B00] flex items-center justify-center shadow-lg shadow-[#F39C12]/20 group-hover:scale-110 transition-transform duration-200">
+          <MessageCircleQuestion className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#F39C12]">
+            Question
+          </span>
+          <span className="text-[10px] font-extrabold text-[#638ECB]/40 dark:text-[#94A3B8]/40">
+            {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
+          </span>
+        </div>
+      </div>
+
+      <h3 className="text-base md:text-lg font-black text-[#395886] dark:text-white leading-snug group-hover:text-[#F39C12] transition-colors duration-200">
+        {item.q}
+      </h3>
+
+      <p className="text-xs md:text-sm font-semibold leading-relaxed text-slate-500 dark:text-[#94A3B8]/80 whitespace-pre-line overflow-y-auto max-h-[180px] pr-1 custom-scrollbar">
+        {item.a}
+      </p>
+
+      <div className="mt-auto pt-1">
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[#F39C12]/60 group-hover:text-[#F39C12] transition-colors duration-200">
+          {isRtl ? "اضغط للتفاصيل" : "Cliquez pour plus de détails"} →
+        </span>
+      </div>
+    </button>
+  );
+}
+
 export default function FaqPage() {
   const { t, locale } = useI18n();
   const typedLocale = locale as "fr" | "en" | "ar";
@@ -48,8 +103,9 @@ export default function FaqPage() {
       ),
     [items]
   );
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [search, setSearch] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const isRtl = locale === "ar";
 
@@ -58,6 +114,31 @@ export default function FaqPage() {
       item.q.toLowerCase().includes(search.toLowerCase()) ||
       item.a.toLowerCase().includes(search.toLowerCase())
   );
+
+  const goPrev = useCallback(() => {
+    setActiveIndex((prev) => Math.max(0, prev - 1));
+  }, []);
+
+  const goNext = useCallback(() => {
+    setActiveIndex((prev) => Math.min(filtered.length - 1, prev + 1));
+  }, [filtered.length]);
+
+  const openCard = useCallback(
+    (idx: number) => {
+      setExpandedIndex(idx);
+    },
+    []
+  );
+
+  const expandPrev = useCallback(() => {
+    setExpandedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev));
+  }, []);
+
+  const expandNext = useCallback(() => {
+    setExpandedIndex((prev) =>
+      prev !== null && prev < filtered.length - 1 ? prev + 1 : prev
+    );
+  }, [filtered.length]);
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
@@ -95,100 +176,185 @@ export default function FaqPage() {
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-[#F0F3FA]/20 to-[#F0F3FA] dark:via-[#070b14]/20 dark:to-[#070b14] pointer-events-none" />
       </div>
 
-      {/* ── Content ── */}
-      <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-10 pb-16">
-        {/* Search */}
+      {/* ── Search ── */}
+      <div className="max-w-6xl mx-auto px-6 -mt-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="relative mb-8"
+          className="relative mb-4"
         >
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#638ECB]/50 dark:text-[#94A3B8]/50" />
           <input
             type="text"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setOpenIndex(null); }}
+            onChange={(e) => { setSearch(e.target.value); setActiveIndex(0); }}
             placeholder={t("faq.search_placeholder")}
             className={`w-full pl-11 pr-4 py-3.5 rounded-xl border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 bg-white dark:bg-[#0f1729] text-sm font-semibold text-[#395886] dark:text-[#D5DEEF] placeholder:text-[#638ECB]/40 focus:outline-none focus:ring-2 focus:ring-[#F39C12]/30 focus:border-[#F39C12]/50 shadow-sm transition-all ${isRtl ? "text-right" : "text-left"}`}
           />
         </motion.div>
+      </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="flex items-center justify-center gap-2 mb-6 text-[#638ECB]/50 dark:text-[#94A3B8]/50 text-xs font-bold uppercase tracking-[0.15em]"
-        >
-          <Sparkles className="w-3 h-3" />
-          {t("faq.click_hint")}
-          <Sparkles className="w-3 h-3" />
-        </motion.div>
+      {/* ── Card Stack ── */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-16">
+          <HelpCircle className="w-12 h-12 mx-auto text-[#638ECB]/30 dark:text-[#94A3B8]/30 mb-3" />
+          <p className="text-sm font-bold text-[#638ECB]/60 dark:text-[#94A3B8]/60">{t("faq.no_results")}</p>
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="relative">
+            {/* Left nav button */}
+            <button
+              onClick={goPrev}
+              disabled={activeIndex === 0}
+              className={`absolute -left-2 md:-left-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border shadow-lg flex items-center justify-center transition-all duration-200 ${
+                activeIndex === 0
+                  ? "bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 border-[#D5DEEF]/20 dark:border-[#1e293b]/40 text-[#638ECB]/30 dark:text-[#94A3B8]/30 cursor-not-allowed"
+                  : "bg-white dark:bg-[#0f1729] border-[#D5DEEF]/40 dark:border-[#1e293b]/80 text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F39C12] hover:text-white hover:border-[#F39C12] hover:scale-110"
+              }`}
+            >
+              {isRtl ? <ChevronRight className="w-4 h-4 md:w-5 md:h-5" /> : <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />}
+            </button>
 
-        {filtered.length === 0 ? (
-          <div className="text-center py-12">
-            <HelpCircle className="w-12 h-12 mx-auto text-[#638ECB]/30 dark:text-[#94A3B8]/30 mb-3" />
-            <p className="text-sm font-bold text-[#638ECB]/60 dark:text-[#94A3B8]/60">{t("faq.no_results")}</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {filtered.map((item, idx) => {
-              const isOpen = openIndex === idx;
-              return (
-                <motion.div
-                  key={idx}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.03 }}
-                  className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
-                    isOpen
-                      ? "border-[#638ECB]/30 bg-white dark:bg-[#0f1729] shadow-md"
-                      : "border-[#D5DEEF]/40 dark:border-[#1e293b]/70 bg-white/50 dark:bg-[#0f1729]/20 hover:bg-white dark:hover:bg-[#0f1729]/40"
-                  }`}
-                >
-                  <button
-                    onClick={() => setOpenIndex(isOpen ? null : idx)}
-                    className="w-full flex justify-between items-center p-5 text-left"
+            {/* Right nav button */}
+            <button
+              onClick={goNext}
+              disabled={activeIndex === filtered.length - 1}
+              className={`absolute -right-2 md:-right-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border shadow-lg flex items-center justify-center transition-all duration-200 ${
+                activeIndex === filtered.length - 1
+                  ? "bg-[#F0F3FA]/50 dark:bg-[#1e293b]/30 border-[#D5DEEF]/20 dark:border-[#1e293b]/40 text-[#638ECB]/30 dark:text-[#94A3B8]/30 cursor-not-allowed"
+                  : "bg-white dark:bg-[#0f1729] border-[#D5DEEF]/40 dark:border-[#1e293b]/80 text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F39C12] hover:text-white hover:border-[#F39C12] hover:scale-110"
+              }`}
+            >
+              {isRtl ? <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> : <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />}
+            </button>
+
+            <CardStack activeIndex={activeIndex} total={filtered.length}>
+              <CardsContainer className="h-[520px] md:h-[480px] w-full">
+                {filtered.map((item, idx) => (
+                  <CardTransformed
+                    key={idx}
+                    index={idx}
+                    arrayLength={filtered.length}
+                    variant="light"
+                    incrementY={8}
+                    incrementZ={10}
+                    incrementRotation={-idx * 4 + 4}
+                    className="w-full h-[220px] md:h-[200px]"
                   >
-                    <span className={`font-bold text-sm text-[#395886] dark:text-white pr-4 ${isRtl ? "text-right" : "text-left"}`}>
-                      {item.q}
-                    </span>
-                    <motion.div
-                      animate={{ rotate: isOpen ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="shrink-0 w-8 h-8 rounded-lg bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#638ECB] dark:text-[#94A3B8]"
-                    >
-                      <ChevronDown className="w-4 h-4" />
-                    </motion.div>
-                  </button>
+                    <FAQCard
+                      item={item}
+                      index={idx}
+                      total={filtered.length}
+                      isRtl={isRtl}
+                      onClick={() => openCard(idx)}
+                    />
+                  </CardTransformed>
+                ))}
+              </CardsContainer>
+            </CardStack>
 
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        key="content"
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <div className={`px-5 pb-5 pt-1 text-xs font-semibold leading-relaxed text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800/60 mt-1 whitespace-pre-line ${isRtl ? "text-right" : "text-left"}`}>
-                          {item.a}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
+            {/* Dots indicator */}
+            <div className="flex items-center justify-center gap-2 mt-4">
+              {filtered.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveIndex(idx)}
+                  className={`rounded-full transition-all duration-300 ${
+                    idx === activeIndex
+                      ? "w-6 h-2 bg-[#F39C12]"
+                      : "w-2 h-2 bg-[#638ECB]/30 dark:bg-[#94A3B8]/30 hover:bg-[#638ECB]/50 dark:hover:bg-[#94A3B8]/50"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
+      {/* ── Expanded Card Overlay ── */}
+      <AnimatePresence>
+        {expandedIndex !== null && filtered[expandedIndex] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-8"
+            onClick={() => setExpandedIndex(null)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg rounded-3xl border border-[#D5DEEF]/30 dark:border-[#1e293b]/80 bg-white dark:bg-[#0f1729] shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F39C12] to-[#FF7B00]" />
+              <button
+                onClick={() => setExpandedIndex(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center text-[#638ECB] dark:text-[#94A3B8] hover:bg-[#D5DEEF] dark:hover:bg-[#2d3a50] transition-colors z-10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {expandedIndex > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); expandPrev(); }}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 dark:bg-[#1e293b]/80 backdrop-blur-sm border border-[#D5DEEF]/30 dark:border-[#1e293b]/80 flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#2d3a50] hover:scale-110 transition-all z-10 shadow-lg"
+                >
+                  {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                </button>
+              )}
+              {expandedIndex < filtered.length - 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); expandNext(); }}
+                  className="absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 dark:bg-[#1e293b]/80 backdrop-blur-sm border border-[#D5DEEF]/30 dark:border-[#1e293b]/80 flex items-center justify-center text-[#395886] dark:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#2d3a50] hover:scale-110 transition-all z-10 shadow-lg"
+                >
+                  {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </button>
+              )}
+
+              <div className={`p-6 md:p-8 ${isRtl ? "text-right" : "text-left"}`}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[#F39C12] to-[#FF7B00] flex items-center justify-center shadow-lg shadow-[#F39C12]/20">
+                    <MessageCircleQuestion className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#F39C12]">
+                      Question
+                    </span>
+                    <p className="text-[10px] font-extrabold text-[#638ECB]/40 dark:text-[#94A3B8]/40">
+                      {String(expandedIndex + 1).padStart(2, "0")}/{String(filtered.length).padStart(2, "0")}
+                    </p>
+                  </div>
+                </div>
+
+                <h2 className="text-xl md:text-2xl font-black text-[#395886] dark:text-white leading-snug mb-4">
+                  {filtered[expandedIndex].q}
+                </h2>
+
+                <div className="border-t border-[#D5DEEF]/30 dark:border-[#1e293b]/60 pt-4">
+                  <p className="text-sm font-semibold leading-relaxed text-slate-600 dark:text-[#94A3B8]/80 whitespace-pre-line max-h-[50vh] overflow-y-auto pr-1 custom-scrollbar">
+                    {filtered[expandedIndex].a}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── More Help ── */}
+      <div className="max-w-4xl mx-auto px-6 pb-16">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="mt-10 text-center"
+          className="text-center"
         >
           <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-[#0f1729]/60 border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 text-xs text-[#638ECB]/60 dark:text-[#94A3B8]/60">
             <HelpCircle className="w-3.5 h-3.5" />

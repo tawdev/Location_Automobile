@@ -264,7 +264,7 @@ export default function PrivacyPage() {
       </div>
 
       {/* Animated Testimonials Viewer */}
-      <div className="max-w-6xl mx-auto px-5 sm:px-6 -mt-4 relative z-10 pb-8">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 -mt-4 relative z-0 pb-8">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -285,7 +285,7 @@ export default function PrivacyPage() {
       </div>
 
       {/* Footer */}
-      <div className="max-w-4xl mx-auto px-5 sm:px-6 relative z-10 pb-16">
+      <div className="max-w-4xl mx-auto px-5 sm:px-6 relative z-0 pb-16">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
