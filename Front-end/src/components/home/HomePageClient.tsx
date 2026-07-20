@@ -105,14 +105,14 @@ function CarLogo({ className, dark: forceDark }: { className?: string; dark?: bo
   if (forceDark) {
     return (
       <div className={`flex items-center ${className ?? ""}`}>
-        <Image src="/logo-dark.png" alt="CARFORFAR logo" width={500} height={144} className="h-36 w-auto object-contain select-none" unoptimized />
+        <Image src="/logo-dark.png" alt="CARFORFAR logo" width={500} height={144} className="h-20 sm:h-36 w-auto object-contain select-none" unoptimized />
       </div>
     );
   }
   return (
     <div className={`flex items-center ${className ?? ""}`}>
-      <Image src="/logo.png" alt="CARFORFAR logo" width={500} height={144} className="h-36 w-auto object-contain select-none dark:hidden" unoptimized />
-      <Image src="/logo-dark.png" alt="CARFORFAR logo" width={500} height={144} className="h-36 w-auto object-contain select-none hidden dark:block" unoptimized />
+      <Image src="/logo.png" alt="CARFORFAR logo" width={500} height={144} className="h-20 sm:h-36 w-auto object-contain select-none dark:hidden" unoptimized />
+      <Image src="/logo-dark.png" alt="CARFORFAR logo" width={500} height={144} className="h-20 sm:h-36 w-auto object-contain select-none hidden dark:block" unoptimized />
     </div>
   );
 }
