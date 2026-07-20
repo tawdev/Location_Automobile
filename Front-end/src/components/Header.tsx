@@ -48,7 +48,7 @@ function Logo({ onClick, scrolled, dark, isHomePage }: { onClick: () => void; sc
           width={160}
           height={64}
           priority
-          className="h-10 sm:h-16 md:h-20 w-auto object-contain select-none"
+          className="h-8 sm:h-14 md:h-20 w-auto object-contain select-none"
         />
       </motion.div>
     </motion.div>
