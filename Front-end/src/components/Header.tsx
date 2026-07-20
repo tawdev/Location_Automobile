@@ -179,7 +179,7 @@ function AccountDropdown({
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             role="menu"
             aria-label={t("nav.my_account")}
-            className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl bg-white/90 dark:bg-[#0f1729]/95 backdrop-blur-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/80 shadow-xl shadow-black/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] p-2 z-50"
+            className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl bg-white/90 dark:bg-[#0f1729]/95 backdrop-blur-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/80 shadow-xl shadow-black/5 dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] p-2 z-[9999]"
           >
             {items.map((item) => {
               const active =
@@ -330,7 +330,7 @@ export default function Header() {
         initial={{ y: -80 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${headerClasses}`}
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-700 ${headerClasses}`}
       >
         <div dir="ltr" className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
           <div className="-ml-6">
@@ -435,7 +435,7 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed inset-0 top-16 z-40 md:hidden"
+            className="fixed inset-0 top-16 z-[9998] md:hidden"
           >
             <motion.div
               initial={{ opacity: 0 }}
