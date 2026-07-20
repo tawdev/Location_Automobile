@@ -2,32 +2,17 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FileText,
-  CheckCircle,
-  ChevronDown,
-  Sparkles,
-  ArrowUp,
-  Target,
-  Settings,
-  UserPlus,
-  Car,
-  Calendar,
-  CreditCard,
-  Shield,
-  AlertTriangle,
-  Scale,
-  Lock,
-  Copyright,
-  Globe,
-  Download,
-} from "lucide-react";
+import { FileText, Shield, Download, ArrowUp, Sparkles } from "lucide-react";
+import dynamic from "next/dynamic";
 import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
-import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbLD } from "@/lib/json-ld";
-import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
+import { PAGE_TITLES } from "@/lib/seo";
+
+const AnimatedTestimonials = dynamic(
+  () => import("@/components/ui/animated-testimonials").then((m) => m.AnimatedTestimonials),
+  { ssr: false }
+);
 
 type Section = {
   title: string;
@@ -37,42 +22,22 @@ type Section = {
   after?: string;
 };
 
-const ICONS = [
-  Target, CheckCircle, Settings, UserPlus, Car, Calendar,
-  CreditCard, Shield, AlertTriangle, Lock, Copyright, Globe,
+const SECTION_IMAGES = [
+  "/images/legal/purpose.svg",
+  "/images/legal/eligibility.svg",
+  "/images/legal/accounts.svg",
+  "/images/legal/booking.svg",
+  "/images/legal/pricing.svg",
+  "/images/legal/cancellation.svg",
+  "/images/legal/insurance.svg",
+  "/images/legal/liability.svg",
+  "/images/legal/prohibited.svg",
+  "/images/legal/privacy.svg",
+  "/images/legal/ip.svg",
+  "/images/legal/governing.svg",
 ];
 
-const GRADIENTS = [
-  "from-blue-500 to-cyan-500",
-  "from-emerald-500 to-teal-500",
-  "from-rose-500 to-pink-500",
-  "from-amber-500 to-orange-500",
-  "from-violet-500 to-purple-500",
-  "from-sky-500 to-indigo-500",
-  "from-teal-500 to-green-500",
-  "from-orange-500 to-red-500",
-  "from-pink-500 to-rose-500",
-  "from-indigo-500 to-violet-500",
-  "from-cyan-500 to-blue-500",
-  "from-lime-500 to-emerald-500",
-];
-
-const BG_LIGHTS = [
-  "bg-blue-50 dark:bg-blue-950/30",
-  "bg-emerald-50 dark:bg-emerald-950/30",
-  "bg-rose-50 dark:bg-rose-950/30",
-  "bg-amber-50 dark:bg-amber-950/30",
-  "bg-violet-50 dark:bg-violet-950/30",
-  "bg-sky-50 dark:bg-sky-950/30",
-  "bg-teal-50 dark:bg-teal-950/30",
-  "bg-orange-50 dark:bg-orange-950/30",
-  "bg-pink-50 dark:bg-pink-950/30",
-  "bg-indigo-50 dark:bg-indigo-950/30",
-  "bg-cyan-50 dark:bg-cyan-950/30",
-  "bg-lime-50 dark:bg-lime-950/30",
-];
-
-function getSections(t: (key: string) => string) {
+function getSections(t: (key: string) => string): Section[] {
   return [
     {
       title: t("terms.s1_title"),
@@ -159,6 +124,20 @@ function getSections(t: (key: string) => string) {
   ];
 }
 
+function sectionToQuote(section: Section): string {
+  const parts: string[] = [];
+  if (section.content) parts.push(section.content);
+  if (section.list) parts.push(section.list.join(" "));
+  if (section.items) {
+    for (const item of section.items) {
+      parts.push(item.sub);
+      parts.push(item.details.join(" "));
+    }
+  }
+  if (section.after) parts.push(section.after);
+  return parts.join(" ");
+}
+
 function Particles() {
   const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number; delay: number }[]>([]);
   useEffect(() => {
@@ -176,7 +155,7 @@ function Particles() {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/10 dark:bg-[#F39C12]/10"
+          className="absolute rounded-full bg-white/10"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{ y: [0, -30, 0], opacity: [0.3, 0.8, 0.3] }}
           transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
@@ -186,156 +165,11 @@ function Particles() {
   );
 }
 
-function SectionCard({
-  section,
-  index,
-  isOpen,
-  onToggle,
-}: {
-  section: Section;
-  index: number;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
-  const Icon = ICONS[index];
-  const gradient = GRADIENTS[index];
-  const bgLight = BG_LIGHTS[index];
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
-      className={`group rounded-2xl border transition-all duration-500 overflow-hidden ${
-        isOpen
-          ? "border-[#638ECB]/30 dark:border-[#638ECB]/20 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
-          : "border-[#D5DEEF]/30 dark:border-[#1e293b]/70 shadow-sm hover:shadow-lg dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)]"
-      } bg-white/80 dark:bg-[#0f1729]/80 backdrop-blur-sm hover:bg-white dark:hover:bg-[#0f1729]`}
-    >
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center gap-4 p-5 md:p-6 text-left relative"
-      >
-        {/* Number badge */}
-        <div
-          className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-extrabold transition-all duration-500 ${
-            isOpen
-              ? `bg-gradient-to-br ${gradient} text-white shadow-lg scale-110`
-              : `${bgLight} text-[#395886] dark:text-[#94A3B8] group-hover:scale-105`
-          }`}
-        >
-          {index < 9 ? `0${index + 1}` : index + 1}
-        </div>
-
-        {/* Icon */}
-        <div
-          className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
-            isOpen ? `${bgLight} scale-110` : `${bgLight}`
-          }`}
-        >
-          <Icon
-            className={`w-5 h-5 transition-colors duration-500 ${
-              isOpen ? "text-[#395886] dark:text-white" : "text-[#395886] dark:text-[#94A3B8]"
-            }`}
-          />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h2
-            className={`text-lg font-extrabold transition-colors duration-500 ${
-              isOpen ? "text-[#395886] dark:text-white" : "text-[#395886] dark:text-[#D5DEEF]"
-            }`}
-          >
-            {section.title}
-          </h2>
-        </div>
-
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
-          className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-500 ${
-            isOpen
-              ? "bg-[#395886] text-white"
-              : "bg-[#F0F3FA] dark:bg-[#1e293b]/60 text-[#638ECB] dark:text-[#94A3B8]"
-          }`}
-        >
-          <ChevronDown className="w-4 h-4" />
-        </motion.div>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            key="content"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden"
-          >
-            {/* Top gradient bar */}
-            <div className={`h-px bg-gradient-to-r ${gradient} mx-6 opacity-40`} />
-
-            <div className="px-5 md:px-6 pb-6 pt-5">
-              {section.content && (
-                <p className="text-[#638ECB]/80 dark:text-[#94A3B8]/80 leading-relaxed mb-4">{section.content}</p>
-              )}
-
-              {section.items && (
-                <div className="space-y-4">
-                  {section.items.map((item, j) => (
-                    <div key={j} className={`${bgLight} rounded-xl p-4 border border-[#D5DEEF]/20 dark:border-[#1e293b]/60`}>
-                      <h3 className="font-bold text-[#395886] dark:text-[#D5DEEF] mb-2 flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${gradient}`} />
-                        {item.sub}
-                      </h3>
-                      <ul className="space-y-1 ml-4">
-                        {item.details.map((d, k) => (
-                          <li key={k} className="text-[#638ECB]/80 dark:text-[#94A3B8]/80 flex items-start gap-2 text-sm">
-                            <span className="text-[#F39C12] mt-1 shrink-0">•</span>
-                            {d}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {section.list && (
-                <ul className="space-y-2">
-                  {section.list.map((item, j) => (
-                    <li key={j} className="text-[#638ECB]/80 dark:text-[#94A3B8]/80 flex items-start gap-3 leading-relaxed">
-                      <span className={`shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center mt-0.5`}>
-                        <CheckCircle className="w-3 h-3 text-white" />
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {section.after && (
-                <p className="text-[#638ECB]/80 dark:text-[#94A3B8]/80 leading-relaxed mt-4 italic border-l-2 border-[#F39C12]/30 pl-4">
-                  {section.after}
-                </p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 export default function TermsPage() {
   const { t, locale } = useI18n();
   const typedLocale = locale as "fr" | "en" | "ar";
   useClientMetadata({ title: PAGE_TITLES.terms[typedLocale] || PAGE_TITLES.terms.fr });
   const sections = useMemo(() => getSections(t), [t]);
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -344,15 +178,26 @@ export default function TermsPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const testimonials = useMemo(
+    () =>
+      sections.map((section, i) => ({
+        name: section.title,
+        designation: `Section ${i < 9 ? `0${i + 1}` : i + 1}`,
+        quote: sectionToQuote(section),
+        src: SECTION_IMAGES[i] || SECTION_IMAGES[0],
+      })),
+    [sections]
+  );
+
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
-      {/* ── Hero ── */}
+      {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124]">
         <Particles />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-[#638ECB]/10 blur-3xl -translate-x-1/4 translate-y-1/3" />
-        <div className="relative max-w-6xl mx-auto px-6 py-14">
+        <div className="relative max-w-6xl mx-auto px-5 sm:px-6 py-14">
           <BackButton />
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -377,7 +222,6 @@ export default function TermsPage() {
             </p>
           </motion.div>
 
-          {/* Stats bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -399,41 +243,36 @@ export default function TermsPage() {
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-[#F0F3FA]/20 to-[#F0F3FA] dark:via-[#070b14]/20 dark:to-[#070b14] pointer-events-none" />
       </div>
 
-      {/* ── Content ── */}
-      <div className="max-w-4xl mx-auto px-6 mt-8 relative z-10 pb-16">
-        {/* Visual indicator - scroll hint */}
+      {/* Animated Testimonials Viewer */}
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 -mt-4 relative z-10 pb-8">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="flex items-center justify-center gap-2 mb-8 text-[#638ECB]/50 dark:text-[#94A3B8]/50 text-xs font-bold uppercase tracking-[0.15em]"
+          className="flex items-center justify-center gap-2 mb-4 text-[#638ECB]/50 dark:text-[#94A3B8]/50 text-xs font-bold uppercase tracking-[0.15em]"
         >
           <Sparkles className="w-3 h-3" />
           {t("legal.click_hint")}
           <Sparkles className="w-3 h-3" />
         </motion.div>
+      </div>
 
-        {/* Accordion */}
-        <div className="flex flex-col gap-4 max-w-4xl mx-auto">
-          {sections.map((section, i) => (
-            <SectionCard
-              key={i}
-              section={section}
-              index={i}
-              isOpen={openIndex === i}
-              onToggle={() => setOpenIndex(openIndex === i ? null : i)}
-            />
-          ))}
-        </div>
+      <div className="dark:bg-[#070b14]">
+        <AnimatedTestimonials
+          testimonials={testimonials}
+          className="max-w-sm md:max-w-5xl lg:max-w-6xl"
+        />
+      </div>
 
-        {/* Footer note */}
+      {/* Footer */}
+      <div className="max-w-4xl mx-auto px-5 sm:px-6 relative z-10 pb-16">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="mt-12 text-center"
+          className="text-center"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-[#0f1729]/60 border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 text-xs text-[#638ECB]/60 dark:text-[#94A3B8]/60">
+          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/60 dark:bg-[#0f1729]/60 border border-[#E5E7EB] dark:border-[#1e293b]/70 text-xs text-[#638ECB]/60 dark:text-[#94A3B8]/60">
             <Shield className="w-3.5 h-3.5" />
             {t("legal.footer_date")}
           </div>
@@ -443,7 +282,7 @@ export default function TermsPage() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-10 text-center"
+          className="mt-8 text-center"
         >
           <motion.a
             href="/downloads/CARFORFAR_Terms_of_Use_Professional.pdf"
@@ -466,7 +305,7 @@ export default function TermsPage() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-gradient-to-br from-[#395886] to-[#2b4c7e] dark:from-[#F39C12] dark:to-[#d68910] text-white shadow-xl hover:shadow-2xl transition-shadow flex items-center justify-center"
+            className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-gradient-to-br from-[#395886] to-[#2b4c7e] dark:from-[#F59E0B] dark:to-[#D97706] text-white shadow-xl hover:shadow-2xl transition-shadow flex items-center justify-center"
           >
             <ArrowUp className="w-5 h-5" />
           </motion.button>

@@ -1,31 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HelpCircle, MessageCircle, Mail, Phone, ChevronRight, Sparkles } from "lucide-react";
+import { HelpCircle, Sparkles } from "lucide-react";
 import BackButton from "@/components/BackButton";
 import { useSettings } from "@/lib/SettingsContext";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
-import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbLD } from "@/lib/json-ld";
-import { PAGE_TITLES, SITE_URL } from "@/lib/seo";
-
-const CONTACT_METHODS = [
-  { key: "phone", icon: Phone },
-  { key: "email", icon: Mail },
-  { key: "chat", icon: MessageCircle },
-] as const;
-
-const HELP_TOPICS = ["booking", "payment", "modification", "support"] as const;
-
-const TOPIC_ICONS = [HelpCircle, HelpCircle, HelpCircle, HelpCircle] as const;
+import { PAGE_TITLES } from "@/lib/seo";
+import SupportContactCards from "@/components/support/SupportContactCards";
 
 export default function HelpCenterPage() {
   const { t, locale } = useI18n();
   const { settings } = useSettings();
   const typedLocale = locale as "fr" | "en" | "ar";
   useClientMetadata({ title: PAGE_TITLES.support[typedLocale] || PAGE_TITLES.support.fr });
-  const isRtl = locale === "ar";
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
@@ -57,32 +45,31 @@ export default function HelpCenterPage() {
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-[#F0F3FA]/20 to-[#F0F3FA] dark:via-[#070b14]/20 dark:to-[#070b14] pointer-events-none" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-10 pb-16">
+      <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-10 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-[#0f1729] rounded-2xl p-8 shadow-sm border border-[#D5DEEF]/30 dark:border-[#1e293b]/70 mb-6"
+          className="mb-8"
         >
-          <h2 className="text-xl font-bold text-[#1d3560] dark:text-[#D5DEEF] mb-4">
+          <h2 className="text-xl font-bold text-[#1d3560] dark:text-[#D5DEEF] mb-6">
             {t("faq.more_help")}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {CONTACT_METHODS.map(({ key, icon: Icon }) => (
-              <a
-                key={key}
-                href={key === "email" ? `mailto:${settings.email || "contact@carforfar.ma"}` : key === "phone" ? `tel:${settings.phone?.replace(/\s/g, "") || "+2125XXXXXXXX"}` : "/contact"}
-                className="flex items-center gap-3 p-4 rounded-xl bg-[#F0F3FA] dark:bg-[#1e293b]/50 hover:bg-[#e5eaf3] dark:hover:bg-[#1e293b] transition-all group"
-              >
-                <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#0f1729] flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-[#395886] dark:text-[#F39C12]" />
-                </div>
-                <span className="font-bold text-sm text-[#395886] dark:text-[#94A3B8] group-hover:text-[#F39C12] transition-colors">
-                  {key === "email" ? (settings.email || "contact@carforfar.ma") : key === "phone" ? (settings.phone || "+212 5XX XX XX XX") : t("footer.contact_us")}
-                </span>
-              </a>
-            ))}
-          </div>
+          <SupportContactCards
+            phone={settings.phone || "+212 5XX XX XX XX"}
+            email={settings.email || "contact@carforfar.ma"}
+            labels={{
+              phoneLabel: t("contact.phone_label"),
+              emailLabel: t("contact.email_label"),
+              contactLabel: t("footer.contact_us"),
+              phoneDescription: locale === "ar" ? "تواصل معنا مباشرة عبر الهاتف" : locale === "en" ? "Reach us directly by phone" : "Contactez-nous directement par téléphone",
+              emailDescription: locale === "ar" ? "أرسل لنا بريداً إلكترونياً في أي وقت" : locale === "en" ? "Send us an email anytime" : "Envoyez-nous un email à tout moment",
+              contactDescription: locale === "ar" ? "أرسل رسالة أو استشارة عبر نموذج الاتصال" : locale === "en" ? "Send a message via our contact form" : "Envoyez un message via notre formulaire de contact",
+              phoneButton: locale === "ar" ? "اتصل الآن" : locale === "en" ? "Call Now" : "Appeler",
+              emailButton: locale === "ar" ? "أرسل بريداً" : locale === "en" ? "Send Email" : "Envoyer",
+              contactButton: locale === "ar" ? "راسلنا" : locale === "en" ? "Get in Touch" : "Nous Contacter",
+            }}
+          />
         </motion.div>
 
         <motion.div
