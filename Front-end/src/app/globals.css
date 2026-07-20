@@ -603,31 +603,36 @@ html { scroll-behavior: smooth; }
     gap: 8px;
   }
 
-  /* Date+Time composites: full width, remove overflow-hidden (set via Tailwind) */
+  /* Date+Time composites: full width on mobile */
   .hero-search-form .date-time-composite {
     width: 100%;
     min-height: 48px;
     box-sizing: border-box;
-    overflow: visible !important;
+    overflow: hidden;
     border-radius: 0.75rem;
   }
 
-  /* Date popover triggers inside composites: ensure visible & stretchy */
+  /* Hide time inputs and separator on mobile — show dates only */
+  .hero-search-form .date-time-composite input[type="time"] {
+    display: none !important;
+  }
+  .hero-search-form .date-time-composite > .w-px {
+    display: none !important;
+  }
+
+  /* Date popover triggers: full width inside composite */
   .hero-search-form .date-time-composite [data-slot="popover-trigger"] {
-    display: flex;
-    align-items: center;
+    width: 100%;
     min-height: 48px;
-    height: 100%;
-    flex: 1 1 0;
-    min-width: 0;
+    height: 48px;
     box-sizing: border-box;
-    overflow: hidden;
   }
 
   /* Date popover trigger inner span: ensure text visible */
   .hero-search-form .date-time-composite [data-slot="popover-trigger"] > span {
     display: block;
     width: 100%;
+    padding: 12px 14px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
