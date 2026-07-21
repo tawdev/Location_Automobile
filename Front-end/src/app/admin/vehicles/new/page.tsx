@@ -2,13 +2,12 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Category, Marque, TypeVehicule, Country, City } from "@/lib/types";
+import type { Category, Marque, Country, City } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getBrandLogo } from "@/lib/brandLogos";
 import Image from "next/image";
 import { getAdminCategories } from "@/lib/adminCategoriesApi";
 import { getPublicMarques } from "@/lib/marquesApi";
-import { fetchTypeVehicules } from "@/lib/vehiclesApi";
 import { createAdminVehicle, type AdminVehiclePayload } from "@/lib/adminVehiclesApi";
 import { playConfirmationSound, prepareConfirmationSound } from "@/lib/playSound";
 import { fetchCountries, fetchCitiesByCountry } from "@/lib/locationApi";
@@ -27,7 +26,6 @@ function AdminVehicleForm({
   error: string | null;
 }) {
   const [marques, setMarques] = useState<Marque[]>([]);
-  const [typeVehicules, setTypeVehicules] = useState<TypeVehicule[]>([]);
   const [marque, setMarque] = useState(initial?.marque ?? "");
   const [model, setModel] = useState(initial?.model ?? "");
   const [year, setYear] = useState<number>(initial?.year ?? new Date().getFullYear());
@@ -37,7 +35,6 @@ function AdminVehicleForm({
   const [fuelType, setFuelType] = useState(initial?.fuelType ?? "");
   const [transmission, setTransmission] = useState(initial?.transmission ?? "");
   const [categoryId, setCategoryId] = useState<number>(initial?.category_id ?? 0);
-  const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(initial?.type_vehicule_id ?? null);
   const [occupants, setOccupants] = useState(initial?.Occupants ?? "");
   const [deviceId, setDeviceId] = useState(initial?.device_id ?? "");
   const [airConditioner, setAirConditioner] = useState(initial?.air_conditioner ?? false);
@@ -54,7 +51,6 @@ function AdminVehicleForm({
 
   useEffect(() => {
     getPublicMarques().then(setMarques).catch(() => {});
-    fetchTypeVehicules().then(setTypeVehicules).catch(() => {});
     fetchCountries().then(setCountries).catch(() => {});
   }, []);
 
@@ -98,7 +94,6 @@ function AdminVehicleForm({
             fuelType: fuelType.trim(),
             transmission: transmission || undefined,
             category_id: categoryId,
-            type_vehicule_id: typeVehiculeId,
             Occupants: occupants.trim(),
             device_id: deviceId.trim() || undefined,
             air_conditioner: airConditioner,
@@ -238,22 +233,6 @@ function AdminVehicleForm({
             {categoryOptions.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="font-bold">{t("admin.vehicle_type")}</span>
-          <select
-            className="border-2 border-black p-2 bg-white"
-            value={typeVehiculeId ?? ""}
-            onChange={(e) => setTypeVehiculeId(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">{t("admin.no_type")}</option>
-            {typeVehicules.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
               </option>
             ))}
           </select>
