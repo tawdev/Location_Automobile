@@ -105,7 +105,7 @@ export default function HomeMap() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
         </svg>
       ),
-      text: settings.phone || "+212 5XX XX XX XX",
+      text: settings.phone || "+212 524-308038",
       href: `tel:${settings.phone?.replace(/\s/g, "") || "+2125XXXXXXXX"}`,
     },
     {
@@ -187,7 +187,7 @@ export default function HomeMap() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#395886" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
             </svg>
-            <span>+212 5XX XX XX XX</span>
+            <span>+212 524-308038</span>
           </div>
           <div style="margin-top:10px;padding-top:8px;border-top:1px solid #E8EDF6;font-size:11px;color:#8DA6CE">
             ${t("home.map.click_dir")}

@@ -7,6 +7,7 @@ import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { PAGE_TITLES } from "@/lib/seo";
+import PageErrorBoundary from "@/components/PageErrorBoundary";
 
 const RULES_KEYS = ["km", "insurance", "license", "duration", "documents"] as const;
 const ICONS = [Gauge, Shield, IdCard, Clock, FileText] as const;
@@ -236,6 +237,7 @@ export default function ReglesPage() {
   useClientMetadata({ title: PAGE_TITLES.regles[typedLocale] || PAGE_TITLES.regles.fr });
 
   return (
+    <PageErrorBoundary>
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
       {/* Premium Header */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124]">
@@ -281,5 +283,6 @@ export default function ReglesPage() {
         </motion.div>
       </div>
     </div>
+    </PageErrorBoundary>
   );
 }

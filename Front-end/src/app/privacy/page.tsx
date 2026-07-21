@@ -8,6 +8,7 @@ import BackButton from "@/components/BackButton";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { PAGE_TITLES } from "@/lib/seo";
+import PageErrorBoundary from "@/components/PageErrorBoundary";
 
 const AnimatedTestimonials = dynamic(
   () => import("@/components/ui/animated-testimonials").then((m) => m.AnimatedTestimonials),
@@ -210,6 +211,7 @@ export default function PrivacyPage() {
   );
 
   return (
+    <PageErrorBoundary>
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1f2124] via-[#1f2124] to-[#1f2124]">
@@ -332,5 +334,6 @@ export default function PrivacyPage() {
         )}
       </AnimatePresence>
     </div>
+    </PageErrorBoundary>
   );
 }

@@ -10,8 +10,8 @@ type SettingsContextValue = {
 
 const defaults: SiteSettings = {
   address: "Marrakech, Morocco",
-  phone: "+212 5XX XX XX XX",
-  email: "contact@carforfar.ma",
+  phone: "+212524308038",
+  email: "contact@carforfar.com",
 };
 
 const SettingsContext = createContext<SettingsContextValue>({

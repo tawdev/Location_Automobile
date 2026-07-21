@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
-import type { Vehicle, Marque, TypeVehicule, Country, City, CityLocation } from "@/lib/types";
+import type { Vehicle, Marque, Country, City, CityLocation } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { LazyMotion, m, domAnimation, useReducedMotion } from "framer-motion";
@@ -57,7 +57,7 @@ function getCountryFlag(name: string): string {
 const cars = Array.from({ length: 6 }, (_, i) => `/background_vehicles/bg${`0${i + 1}`.slice(-2)}.webp`);
 
 
-function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], typeVehicules: propTypeVehicules = [] }: { vehicles?: Vehicle[]; marques?: Marque[]; typeVehicules?: TypeVehicule[] }) {
+function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: { vehicles?: Vehicle[]; marques?: Marque[] }) {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(true);
   const { t } = useI18n();
@@ -70,8 +70,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [fuelType, setFuelType] = useState("");
   const [transmission, setTransmission] = useState("");
-  const [typeVehiculeId, setTypeVehiculeId] = useState<number | null>(null);
-  const [typeCarouselPage, setTypeCarouselPage] = useState(0);
   const [catCarouselPage, setCatCarouselPage] = useState(0);
   const [brandOpen, setBrandOpen] = useState(false);
   const [modelOpen, setModelOpen] = useState(false);
@@ -109,17 +107,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     return Array.from(models).sort();
   }, [brand, showcaseVehicles]);
 
-  const brandTypes = useMemo(() => {
-    if (!brand || !showcaseVehicles) return propTypeVehicules;
-    const typeIds = new Set<number>();
-    for (const v of showcaseVehicles) {
-      if (v.marque === brand && v.typeVehicule) typeIds.add(v.typeVehicule.id);
-    }
-    if (typeIds.size === 0) return propTypeVehicules;
-    return propTypeVehicules.filter(tv => typeIds.has(tv.id));
-  }, [brand, showcaseVehicles, propTypeVehicules]);
-
-  useEffect(() => { setTypeCarouselPage(0); }, [brandTypes]);
   const [vehicleType, setVehicleType] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const categoryScrollRef = useRef<HTMLDivElement>(null);
@@ -203,7 +190,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
 
   useEffect(() => {
     setModel("");
-    setTypeVehiculeId(null);
   }, [brand]);
 
   useEffect(() => {
@@ -947,22 +933,22 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
   );
 }
 
-export default function HomePageClient({ vehicles: propVehicles = [], marques = [], typeVehicules = [] }: { vehicles?: Vehicle[]; marques?: Marque[]; typeVehicules?: TypeVehicule[] }) {
+export default function HomePageClient({ vehicles: propVehicles = [], marques = [] }: { vehicles?: Vehicle[]; marques?: Marque[] }) {
   const { locale } = useI18n();
   const typedLocale = locale as "fr" | "en" | "ar";
 
   const [vehicles] = useState<Vehicle[]>(propVehicles);
 
   const breadcrumbItems = [
-    { name: "CARFORFAR", url: "https://www.carforfar.ma/" },
-    { name: "Accueil", url: "https://www.carforfar.ma/" },
+    { name: "CARFORFAR", url: "https://www.carforfar.com/" },
+    { name: "Accueil", url: "https://www.carforfar.com/" },
   ];
 
   return (
     <LazyMotion features={domAnimation}>
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] font-sans overflow-x-hidden transition-colors duration-500">
       <JsonLd id="ld-breadcrumb" data={breadcrumbLD(breadcrumbItems)} />
-      <HeroSection vehicles={vehicles} marques={marques} typeVehicules={typeVehicules} />
+      <HeroSection vehicles={vehicles} marques={marques} />
       <div className="relative w-full h-32 mt-10 pointer-events-none z-[5]">
         <div className="block dark:hidden absolute inset-0 bg-gradient-to-b from-transparent via-white/60 to-[#F0F3FA]" />
         <div className="hidden dark:block absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-[#070b14]" />
