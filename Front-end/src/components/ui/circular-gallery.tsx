@@ -217,7 +217,7 @@ function DefaultBrandCard({
         </div>
       ) : (
         <div className="w-24 h-24 rounded-2xl bg-[#395886]/10 dark:bg-[#395886]/20 border border-[#395886]/20 flex items-center justify-center">
-          <span className="text-3xl font-black text-[#395886] dark:text-[#D5DEEF]">
+          <span className="text-3xl font-black text-[#395886]">
             {item.name.charAt(0).toUpperCase()}
           </span>
         </div>
@@ -226,7 +226,7 @@ function DefaultBrandCard({
         className={`text-sm font-bold text-center transition-colors duration-300 ${
           active
             ? "text-[#F39C12]"
-            : "text-[#395886] dark:text-[#D5DEEF]/70"
+            : "text-[#395886]"
         }`}
       >
         {item.name}
