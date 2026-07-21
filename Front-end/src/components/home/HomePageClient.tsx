@@ -383,7 +383,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="font-cinzel leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[-0.03em] text-[#FF7B00]"
+                className="font-bebas tracking-widest leading-none text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[-0.03em] text-[#FF7B00]"
               >
                 <div>{t("home.hero.title1")}</div>
                 <div className="text-[#FF7B00]">{t("home.hero.title2")}</div>
