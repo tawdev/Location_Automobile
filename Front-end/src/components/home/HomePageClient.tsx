@@ -537,14 +537,14 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                     <div className="date-time-row flex flex-col sm:flex-row items-stretch gap-2">
                       {/* Pickup Date + Time joined */}
                       <div className="date-time-composite flex-1 min-w-0 flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
-                        <Popover>
+                        <Popover open={openDropdownId === "pickup-date"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "pickup-date" : null)}>
                           <PopoverTrigger className="flex-1 min-w-0">
                             <span className="block w-full bg-transparent px-3 py-2.5 text-sm text-white text-left leading-normal">
                               {pickupDate ? new Date(pickupDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">Date</span>}
                             </span>
                           </PopoverTrigger>
                           <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-                            <Calendar size="lg" mode="single" className="pickup-calendar" selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { const val = toLocalDateString(d); setPickupDate(val); if (returnDate && returnDate < val) setReturnDate(""); } }} disabled={{ before: new Date() }} />
+                            <Calendar size="lg" mode="single" className="pickup-calendar" selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { const val = toLocalDateString(d); setPickupDate(val); if (returnDate && returnDate < val) setReturnDate(""); setOpenDropdownId(null); } }} disabled={{ before: new Date() }} />
                           </PopoverContent>
                         </Popover>
                         <div className="w-px bg-white/10 self-stretch" />
@@ -555,14 +555,14 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
 
                       {/* Return Date + Time joined */}
                       <div className="date-time-composite flex-1 min-w-0 flex items-stretch bg-white/15 border border-white/20 rounded-xl overflow-hidden">
-                        <Popover>
+                        <Popover open={openDropdownId === "return-date"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "return-date" : null)}>
                           <PopoverTrigger className={`flex-1 min-w-0 ${!pickupDate ? "pointer-events-none" : ""}`} disabled={!pickupDate}>
                             <span className={`block w-full bg-transparent px-3 py-2.5 text-sm text-left leading-normal ${!pickupDate ? "text-white/40" : "text-white"}`}>
                               {returnDate ? new Date(returnDate + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : <span className="text-white/40">{!pickupDate ? "Choisir d'abord" : "Date"}</span>}
                             </span>
                           </PopoverTrigger>
                           <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-                            <Calendar size="lg" mode="single" selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) setReturnDate(toLocalDateString(d)); }} disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined} />
+                            <Calendar size="lg" mode="single" selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { setReturnDate(toLocalDateString(d)); setOpenDropdownId(null); } }} disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined} />
                           </PopoverContent>
                         </Popover>
                         <div className="w-px bg-white/10 self-stretch" />
@@ -988,8 +988,9 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
       </div>
 
       {/* Smooth transition gradient to next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-20" aria-hidden="true">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#F0F3FA]/60 to-[#F0F3FA] dark:via-[#070b14]/60 dark:to-[#070b14]" />
+      <div className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none z-[5]" aria-hidden="true">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#F0F3FA]/70 to-[#F0F3FA]" />
+        <div className="hidden dark:block absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(5,8,15,.35) 15%, rgba(5,8,15,.70) 45%, rgba(5,8,15,.95) 100%)" }} />
       </div>
     </section>
   );
@@ -1011,8 +1012,18 @@ export default function HomePageClient({ vehicles: propVehicles = [], marques = 
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] font-sans overflow-x-hidden transition-colors duration-500">
       <JsonLd id="ld-breadcrumb" data={breadcrumbLD(breadcrumbItems)} />
       <HeroSection vehicles={vehicles} marques={marques} typeVehicules={typeVehicules} />
+      <div className="relative w-full h-32 mt-10 pointer-events-none z-[5]">
+        <div className="block dark:hidden absolute inset-0 bg-gradient-to-b from-transparent via-white/60 to-[#F0F3FA]" />
+        <div className="hidden dark:block absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-[#070b14]" />
+        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,0,0,0.5),transparent)]" />
+      </div>
       <LazyVehiclesMarquee vehicles={vehicles} marques={marques} />
       <LazyAtmosphericMist />
+      <div className="relative w-full h-32 z-10 pointer-events-none">
+        <div className="block dark:hidden absolute inset-0 bg-gradient-to-b from-[#F0F3FA] via-white/60 to-[#F0F3FA]" />
+        <div className="hidden dark:block absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-black/40 to-[#0a0a0a]" />
+        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_70%_80%_at_50%_50%,rgba(20,20,20,0.9),transparent)]" />
+      </div>
       <LazyMarquesSection marques={marques} />
       <LazyServicesSection />
       <LazyHowItWorksSection />
