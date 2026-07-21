@@ -997,7 +997,11 @@ export default function VehiculesPage() {
                               transition={{ delay: idx * 0.06 + 0.3, type: "spring", stiffness: 300 }}
                               className="px-3 py-1 rounded-full bg-white/95 dark:bg-[#1e293b]/90 backdrop-blur-sm text-gray-500 dark:text-[#94A3B8] text-[10px] font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-gray-100/60 dark:border-transparent"
                             >
-                              {t("vehicles.available_badge")}
+                              {v.currentCountry?.name && v.currentCity?.name
+                                ? `${t("vehicles.available_badge")} ${v.currentCity.name}, ${v.currentCountry.name}`
+                                : v.currentCountry?.name
+                                  ? `${t("vehicles.available_badge")} ${v.currentCountry.name}`
+                                  : t("vehicles.available_badge")}
                             </motion.span>
                           </div>
 
