@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from "
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
-import { listVehicles, fetchCategories, fetchTypeVehicules, filterVehicles } from "@/lib/vehiclesApi";
-import type { Vehicle, Category, Marque, Country, City, TypeVehicule } from "@/lib/types";
+import { listVehicles, fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
+import type { Vehicle, Category, Marque, Country, City } from "@/lib/types";
 import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import { Search, SlidersHorizontal, X, CalendarDays } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -85,7 +85,6 @@ export default function VehiculesPage() {
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [marques, setMarques] = useState<Marque[]>([]);
-  const [typeVehicules, setTypeVehicules] = useState<TypeVehicule[]>([]);
 
   const marqueLogoMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -111,7 +110,6 @@ export default function VehiculesPage() {
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
-  const [selectedTypeVehiculeIds, setSelectedTypeVehiculeIds] = useState<number[]>([]);
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [pendingCategoryId, setPendingCategoryId] = useState<number | null>(null);
@@ -175,7 +173,6 @@ export default function VehiculesPage() {
   useEffect(() => {
     fetchCategories().then(setCategories).catch((err) => console.warn("[vehicules] fetchCategories failed", err));
     getPublicMarques().then(setMarques).catch((err) => console.warn("[vehicules] getPublicMarques failed", err));
-    fetchTypeVehicules().then(setTypeVehicules).catch((err) => console.warn("[vehicules] fetchTypeVehicules failed", err));
     fetchCountries().then(setCountries).catch((err) => console.warn("[vehicules] fetchCountries failed", err));
   }, []);
 
@@ -208,7 +205,6 @@ export default function VehiculesPage() {
     const maxP = params.get("max_price");
     const ci = params.get("current_country_id");
     const cti = params.get("current_city_id");
-    const tvId = params.get("type_vehicule_id");
     const catId = params.get("category_id");
     const catName = params.get("category_name");
     if (pu) setPickupDate(pu);
@@ -219,7 +215,6 @@ export default function VehiculesPage() {
     if (maxP) setMaxPrice(Number(maxP));
     if (ci) setPickupCountryId(Number(ci));
     if (cti) setPickupCityId(Number(cti));
-    if (tvId) setSelectedTypeVehiculeIds([Number(tvId)]);
     if (catId) setPendingCategoryId(Number(catId));
     if (catName) setSelectedCategories([catName]);
 
@@ -292,7 +287,6 @@ export default function VehiculesPage() {
     setMinPrice(undefined);
     setMaxPrice(undefined);
     setSelectedSeats([]);
-    setSelectedTypeVehiculeIds([]);
     setPickupDate("");
     setReturnDate("");
     setSearchText("");
@@ -303,7 +297,7 @@ export default function VehiculesPage() {
 
   const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 || selectedModel ||
     selectedFuelTypes.length > 0 || minPrice !== undefined || maxPrice !== undefined ||
-    selectedSeats.length > 0 || selectedTypeVehiculeIds.length > 0 || pickupDate || returnDate || searchText ||
+    selectedSeats.length > 0 || pickupDate || returnDate || searchText ||
     pickupCountryId !== null || pickupCityId !== null || locationType !== "";
 
   // Client-side filtering
@@ -330,8 +324,6 @@ export default function VehiculesPage() {
 
       if (selectedSeats.length > 0 && !selectedSeats.includes(v.Occupants)) return false;
 
-      if (selectedTypeVehiculeIds.length > 0 && (!v.type_vehicule_id || !selectedTypeVehiculeIds.includes(v.type_vehicule_id))) return false;
-
       if (minPrice !== undefined && v.pricePerDay < minPrice) return false;
       if (maxPrice !== undefined && v.pricePerDay > maxPrice) return false;
 
@@ -342,7 +334,7 @@ export default function VehiculesPage() {
 
       return true;
     }).sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
-  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedModel, selectedFuelTypes, selectedSeats, selectedTypeVehiculeIds, minPrice, maxPrice, pickupCountryId, pickupCityId, locationType]);
+  }, [vehicles, searchText, selectedCategories, selectedBrands, selectedModel, selectedFuelTypes, selectedSeats, minPrice, maxPrice, pickupCountryId, pickupCityId, locationType]);
 
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -644,23 +636,6 @@ export default function VehiculesPage() {
           <option value="">All models</option>
           {models.map((model) => (
             <option key={model} value={model}>{model}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Vehicle Type */}
-      <div>
-        <h4 className="text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-[#94A3B8] mb-1.5">
-          {t("vehicles.vehicle_type")}
-        </h4>
-        <select
-          value={selectedTypeVehiculeIds[0] || ""}
-          onChange={(e) => setSelectedTypeVehiculeIds(e.target.value ? [Number(e.target.value)] : [])}
-          className="w-full h-[42px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-3 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF]"
-        >
-          <option value="">All types</option>
-          {typeVehicules.map((tv) => (
-            <option key={tv.id} value={tv.id}>{tv.name}</option>
           ))}
         </select>
       </div>

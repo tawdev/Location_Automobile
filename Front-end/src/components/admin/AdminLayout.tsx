@@ -245,7 +245,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       { label: t("admin.permissions"), href: "/admin/permissions", icon: <PermissionsIcon /> },
       { label: t("admin.vehicles"), href: "/admin/vehicles", icon: <FleetIcon /> },
       { label: t("admin.marques"), href: "/admin/marques", icon: <MarqueIcon /> },
-      { label: t("admin.type_vehicules"), href: "/admin/type-vehicules", icon: <TypeVehiculeIcon /> },
       { label: t("admin.reservations"), href: "/admin/reservations", icon: <CalendarIcon /> },
       { label: t("admin.extras"), href: "/admin/extras", icon: <ExtrasIcon /> },
       { label: t("admin.departure_conditions"), href: "/admin/departure-conditions", icon: <ConditionsIcon /> },
