@@ -89,12 +89,6 @@ export default function ServicesSection() {
       <div className="absolute bottom-40 right-16 text-[#F39C12]/10 dark:text-[#F39C12]/5 text-4xl pointer-events-none" style={{ animation: 'float-drift 12s ease-in-out infinite' }}>&#9679;</div>
       <div className="absolute top-60 right-20 text-[#395886]/8 dark:text-[#395886]/5 text-5xl pointer-events-none" style={{ animation: 'float-slow 9s ease-in-out infinite 2s' }}>&#9641;</div>
 
-      {/* Wave divider at top */}
-      <div className="absolute top-0 left-0 right-0 h-16 overflow-hidden pointer-events-none" aria-hidden="true">
-        <svg viewBox="0 0 1200 64" className="w-full h-full text-white fill-current">
-          <path d="M0,32 C300,64 600,0 1200,32 L1200,0 L0,0 Z" />
-        </svg>
-      </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
         <m.div
