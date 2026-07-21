@@ -16,6 +16,11 @@ export default function Footer() {
   const { t } = useI18n();
   const { settings } = useSettings();
 
+  const phoneRaw = settings.phone || "+212524308038";
+  const phoneDisplay = phoneRaw.startsWith("+212") ? `+212 ${phoneRaw.slice(4, 7)}-${phoneRaw.slice(7)}` : phoneRaw;
+  const email = settings.email || "contact@carforfar.com";
+  const conciergeUrl = "/a-propos";
+
   return (
     <footer className="bg-[#395886] dark:bg-[#050a14] px-8 py-16 relative overflow-hidden transition-colors duration-500">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F39C12]/30 to-transparent" />
@@ -38,7 +43,7 @@ export default function Footer() {
                 title: t("footer.company"),
                 links: [
                   { label: t("home.services.premium"), href: "/vehicules" },
-                  { label: t("home.services.concierge"), href: "/settings" },
+                  { label: t("home.services.concierge"), href: conciergeUrl },
                   { label: t("home.services.insurance"), href: "/regles" },
                   { label: t("home.services.delivery"), href: "/vehicules" },
                 ],
@@ -53,8 +58,8 @@ export default function Footer() {
               {
                 title: "Contact",
                 links: [
-                  { label: settings.email || "contact@carforfar.ma", href: `mailto:${settings.email || "contact@carforfar.ma"}` },
-                  { label: settings.phone || "+212 5XX XX XX XX", href: `tel:${settings.phone?.replace(/\s/g, "") || "+2125XXXXXXXX"}` },
+                  { label: email, href: `mailto:${email}` },
+                  { label: phoneDisplay, href: `tel:${phoneRaw.replace(/\s/g, "")}` },
                   { label: settings.address || t("home.map.location_text"), href: "#" },
                 ],
               },
@@ -87,14 +92,20 @@ export default function Footer() {
         >
           <p className="text-[#D5DEEF]/40 text-xs">&copy; {new Date().getFullYear()} <a href="https://cdigital.ma/" target="_blank" rel="noopener noreferrer" className="text-[#D5DEEF]/60 hover:text-[#F39C12] transition-colors duration-200">Cdigital</a>. {t("footer.rights")}</p>
           <div className="flex gap-4">
-            {["Instagram", "Facebook", "LinkedIn"].map((s) => (
+            {[
+              { name: "Instagram", url: "https://www.instagram.com/carforfar" },
+              { name: "Facebook", url: "https://www.facebook.com/carforfar" },
+              { name: "LinkedIn", url: "https://www.linkedin.com/company/carforfar" },
+            ].map((s) => (
               <motion.a
-                key={s}
-                href="#"
+                key={s.name}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="text-[#D5DEEF]/40 text-xs hover:text-[#F39C12] transition-colors duration-300"
               >
-                {s}
+                {s.name}
               </motion.a>
             ))}
           </div>

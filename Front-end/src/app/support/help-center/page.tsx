@@ -56,8 +56,8 @@ export default function HelpCenterPage() {
             {t("faq.more_help")}
           </h2>
           <SupportContactCards
-            phone={settings.phone || "+212 5XX XX XX XX"}
-            email={settings.email || "contact@carforfar.ma"}
+            phone={settings.phone || "+212 524-308038"}
+            email={settings.email || "contact@carforfar.com"}
             labels={{
               phoneLabel: t("contact.phone_label"),
               emailLabel: t("contact.email_label"),
