@@ -309,9 +309,9 @@ export default function VehicleDetailPage() {
               </svg>
               <span>
                 {vehicle.currentCountry?.name && vehicle.currentCity?.name
-                  ? `${vehicle.currentCity.name}, ${vehicle.currentCountry.name}`
+                  ? `${t("vehicles.available_badge")} ${vehicle.currentCity.name}, ${vehicle.currentCountry.name}`
                   : vehicle.currentCountry?.name
-                    ? vehicle.currentCountry.name
+                    ? `${t("vehicles.available_badge")} ${vehicle.currentCountry.name}`
                     : t("vehicle.available_in")}
               </span>
             </motion.div>
