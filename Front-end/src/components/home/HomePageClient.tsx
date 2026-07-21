@@ -324,7 +324,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
     if (maxPrice !== undefined) params.set("max_price", String(maxPrice));
     if (fuelType) params.set("fuel_type", fuelType);
     if (transmission) params.set("transmission", transmission);
-    if (typeVehiculeId) params.set("type_vehicule_id", String(typeVehiculeId));
     if (filterCountryId) params.set("current_country_id", String(filterCountryId));
     if (filterCityId) params.set("current_city_id", String(filterCityId));
     if (filterLocationType) params.set("location_type", filterLocationType);
@@ -766,31 +765,17 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                       </Popover>
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.vehicle_type")}</label>
-                      <Popover>
-                        <PopoverTrigger className="w-full">
-                          <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
-                            {typeVehiculeId ? (
-                              <span className="font-medium text-white">{propTypeVehicules.find(tv => tv.id === typeVehiculeId)?.name}</span>
-                            ) : (
-                              <span className="text-white/40">{t("vehicles.all_types")}</span>
-                            )}
-                          </div>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" sideOffset={4} className="w-[min(240px,calc(100vw-3rem))] p-3 max-h-72 overflow-y-auto">
-                          <button type="button" onClick={() => setTypeVehiculeId(null)} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
-                            <span>{t("vehicles.all_types")}</span>
-                          </button>
-                          {brandTypes.map(tv => (
-                            <button key={tv.id} type="button" onClick={() => setTypeVehiculeId(tv.id)} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${typeVehiculeId === tv.id ? "bg-[#F39C12]/20 text-[#F39C12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
-                              <span className="font-medium">{tv.name}</span>
-                            </button>
-                          ))}
-                          {brand && brandTypes.length === 0 && (
-                            <div className="px-4 py-3 text-sm text-gray-400">No types found</div>
-                          )}
-                        </PopoverContent>
-                      </Popover>
+                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.category")}</label>
+                      <select
+                        value={vehicleType ?? ""}
+                        onChange={(e) => setVehicleType(e.target.value ? Number(e.target.value) : null)}
+                        className={`w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${vehicleType ? "text-white" : "text-white/40"}`}
+                      >
+                        <option value="" className="text-gray-900">{t("vehicles.all_types")}</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id} className="text-gray-900">{cat.name}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.model")}</label>
@@ -864,40 +849,6 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [], ty
                       </Popover>
                     </div>
                   </div>
-
-                  {/* Row 7: Category carousel */}
-                  {categories.length > 0 && (
-                    <div className="mt-3">
-                      <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.category")}</label>
-                      <div className="relative">
-                        <div ref={categoryScrollRef} className="category-chips flex items-center justify-center gap-2 pb-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}>
-                          {categories.map((cat) => (
-                            <button
-                              key={cat.id}
-                              type="button"
-                              onClick={() => setVehicleType(vehicleType === cat.id ? null : cat.id)}
-                              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
-                                vehicleType === cat.id
-                                  ? "bg-[#FF7B00] text-[#1f2124] shadow-lg shadow-[#FF7B00]/20"
-                                  : "bg-white/15 text-white/80 hover:bg-white/25 border border-white/20"
-                              }`}
-                            >
-                              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                <path d={getCategoryIcon(cat.name)} />
-                              </svg>
-                              <span>{cat.name}</span>
-                            </button>
-                          ))}
-                        </div>
-                        <button type="button" onClick={() => categoryScrollRef.current?.scrollBy({ left: -200, behavior: "smooth" })} className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors z-10">
-                          <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        <button type="button" onClick={() => categoryScrollRef.current?.scrollBy({ left: 200, behavior: "smooth" })} className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors z-10">
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Row 8: Price range + Search */}
                   <div className="mt-3 flex flex-col sm:flex-row gap-3">
