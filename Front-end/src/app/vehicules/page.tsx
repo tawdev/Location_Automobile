@@ -1054,7 +1054,7 @@ export default function VehiculesPage() {
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-500 dark:text-[#94A3B8]">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
                               </svg>
-                              {v.Occupants} {t("vehicles.seats")}
+                              {v.Occupants && Number(v.Occupants) > 0 ? <>{v.Occupants} {t("vehicles.seats")}</> : null}
                             </span>
                             <span className="flex items-center gap-1.5 bg-amber-50/60 dark:bg-[#1e293b]/80 text-amber-700 dark:text-[#94A3B8] px-3 py-1.5 rounded-lg text-[13px] border border-amber-100/60 dark:border-transparent">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-500 dark:text-[#94A3B8]">

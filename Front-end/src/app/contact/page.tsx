@@ -65,14 +65,14 @@ export default function ContactPage() {
     {
       icon: Mail,
       label: t("contact.email_label"),
-      value: settings.email || "contact@carforfar.ma",
-      href: `mailto:${settings.email || "contact@carforfar.ma"}`,
+      value: settings.email || "contact@carforfar.com",
+      href: `mailto:${settings.email || "contact@carforfar.com"}`,
     },
     {
       icon: Phone,
       label: t("contact.phone_label"),
-      value: settings.phone || "+212 5XX XX XX XX",
-      href: `tel:${settings.phone?.replace(/\s/g, "") || "+2125XXXXXXXX"}`,
+      value: settings.phone || "+212 524-308038",
+      href: `tel:${settings.phone?.replace(/\s/g, "") || "+212524308038"}`,
     },
     {
       icon: MapPin,

@@ -205,7 +205,7 @@ function VehicleRow({
           <span className="text-[#D5DEEF]">|</span>
           <span>{vehicle.km.toLocaleString()} km</span>
           <span className="text-[#D5DEEF]">|</span>
-          <span>{vehicle.Occupants} places</span>
+          <span>{vehicle.Occupants && Number(vehicle.Occupants) > 0 ? `${vehicle.Occupants} places` : "–"}</span>
           <span className="text-[#D5DEEF]">|</span>
           <span>⛽ {vehicle.fuelType}</span>
           {!!vehicle.transmission && (

@@ -185,7 +185,7 @@ export default function VehiclesMarqueeSection({ vehicles: propVehicles = [], ma
                     <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
-                  {v.Occupants} places
+                  {v.Occupants && Number(v.Occupants) > 0 ? `${v.Occupants} places` : null}
                 </span>
                 <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#638ECB] dark:text-[#94A3B8] bg-[#F0F3FA] dark:bg-[#1a2438] px-2 py-[4px] rounded-md border border-[#D5DEEF]/20 dark:border-[#1e293b]/40">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

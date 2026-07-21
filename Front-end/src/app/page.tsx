@@ -1,11 +1,11 @@
-import { listVehicles, fetchTypeVehicules } from "@/lib/vehiclesApi";
+import { listVehicles } from "@/lib/vehiclesApi";
 import { getPublicMarques } from "@/lib/marquesApi";
 import HomePageClient from "@/components/home/HomePageClient";
 import Header from "@/components/Header";
 import ResumeReservationBanner from "@/components/ResumeReservationBanner";
 import type { Metadata } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://carforfar.ma";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.carforfar.com";
 
 export const metadata: Metadata = {
   title: "CARFORFAR – Location de voitures au Maroc | Réservation en ligne",
@@ -19,6 +19,14 @@ export const metadata: Metadata = {
     siteName: "CARFORFAR",
     locale: "fr_FR",
     type: "website",
+    images: [
+      {
+        url: `${siteUrl}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "CARFORFAR – Location de voitures au Maroc",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -33,13 +41,11 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   let vehicles: Awaited<ReturnType<typeof listVehicles>> = [];
   let marques: Awaited<ReturnType<typeof getPublicMarques>> = [];
-  let typeVehicules: Awaited<ReturnType<typeof fetchTypeVehicules>> = [];
 
   try {
-    [vehicles, marques, typeVehicules] = await Promise.all([
+    [vehicles, marques] = await Promise.all([
       listVehicles().catch(() => [] as typeof vehicles),
       getPublicMarques().catch(() => [] as typeof marques),
-      fetchTypeVehicules().catch(() => [] as typeof typeVehicules),
     ]);
   } catch {
     // all errors handled individually above
@@ -49,7 +55,7 @@ export default async function HomePage() {
     <>
       <Header />
       <ResumeReservationBanner />
-      <HomePageClient vehicles={vehicles} marques={marques} typeVehicules={typeVehicules} />
+      <HomePageClient vehicles={vehicles} marques={marques} />
     </>
   );
 }
