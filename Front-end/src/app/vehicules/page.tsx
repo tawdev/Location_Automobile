@@ -120,6 +120,20 @@ export default function VehiculesPage() {
   const [pickupCityId, setPickupCityId] = useState<number | null>(null);
   const [locationType, setLocationType] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [sidebarOpen]);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [nextBgIndex, setNextBgIndex] = useState<number | null>(null);
   const [bgFading, setBgFading] = useState(false);

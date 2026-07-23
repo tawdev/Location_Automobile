@@ -260,31 +260,36 @@ export default function Header() {
   }, []);
 
   const handleInstall = async () => {
-    if (isIOSDevice) {
-      setMobileOpen(false);
-      requestAnimationFrame(() => setShowInstallHelper(true));
-      return;
-    }
-    if (installPrompt) {
-      setMobileOpen(false);
+    if (installPrompt && !isIOSDevice) {
       try {
         (installPrompt as any).prompt();
         const result = await (installPrompt as any).userChoice;
         if (result.outcome === "accepted") setIsInstalled(true);
-      } catch {}
+      } catch (err) {
+        console.error("Install prompt failed:", err);
+      }
       setInstallPrompt(null);
-      return;
+    } else {
+      setShowInstallHelper(true);
     }
     setMobileOpen(false);
-    requestAnimationFrame(() => setShowInstallHelper(true));
   };
 
   const isHomePage = pathname === "/";
 
   useEffect(() => {
     const anyOpen = mobileOpen || showInstallHelper;
-    document.body.style.overflow = anyOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    if (anyOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
   }, [mobileOpen, showInstallHelper]);
   const isAuthenticated = status === "authenticated";
 
