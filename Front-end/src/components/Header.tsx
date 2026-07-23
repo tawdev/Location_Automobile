@@ -236,6 +236,8 @@ export default function Header() {
   const [dark, setDark] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [showInstallHelper, setShowInstallHelper] = useState(false);
+  const isIOSDevice = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   useEffect(() => {
     if (window.matchMedia("(display-mode: standalone)").matches) {
@@ -258,7 +260,14 @@ export default function Header() {
   }, []);
 
   const handleInstall = async () => {
-    if (!installPrompt) return;
+    if (isIOSDevice) {
+      setShowInstallHelper(true);
+      return;
+    }
+    if (!installPrompt) {
+      setShowInstallHelper(true);
+      return;
+    }
     (installPrompt as any).prompt();
     const result = await (installPrompt as any).userChoice;
     if (result.outcome === "accepted") setIsInstalled(true);
@@ -266,6 +275,12 @@ export default function Header() {
   };
 
   const isHomePage = pathname === "/";
+
+  useEffect(() => {
+    const anyOpen = mobileOpen || showInstallHelper;
+    document.body.style.overflow = anyOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen, showInstallHelper]);
   const isAuthenticated = status === "authenticated";
 
   useEffect(() => {
@@ -649,6 +664,90 @@ export default function Header() {
                   </>
                 )}
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Install helper modal */}
+      <AnimatePresence>
+        {showInstallHelper && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowInstallHelper(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-[#0f1729] rounded-2xl shadow-2xl p-6 max-w-sm w-full border border-[#D5DEEF] dark:border-[#1e293b]"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-extrabold text-[#395886] dark:text-[#D5DEEF]">
+                  {isIOSDevice ? "Ajouter à l'écran d'accueil" : "Installer l'application"}
+                </h3>
+                <button
+                  onClick={() => setShowInstallHelper(false)}
+                  className="w-8 h-8 rounded-lg hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] flex items-center justify-center transition-colors"
+                >
+                  <X className="w-4 h-4 text-[#638ECB] dark:text-[#94A3B8]" />
+                </button>
+              </div>
+
+              {isIOSDevice ? (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-[#638ECB] dark:text-[#94A3B8]">
+                    Sur iPhone ou iPad, ouvrez ce site dans <strong className="text-[#395886] dark:text-[#D5DEEF]">Safari</strong>, puis :
+                  </p>
+                  <ol className="space-y-2.5 text-sm text-[#395886] dark:text-[#94A3B8]">
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#395886] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                      <span>Appuyez sur le bouton <strong className="text-[#395886] dark:text-[#D5DEEF]">Partager</strong> en bas de l'écran</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#395886] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                      <span>Descendez et tapez <strong className="text-[#395886] dark:text-[#D5DEEF]">« Ajouter à l'écran d'accueil »</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#395886] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                      <span>Appuyez sur <strong className="text-[#395886] dark:text-[#D5DEEF]">« Ajouter »</strong> en haut à droite</span>
+                    </li>
+                  </ol>
+                  <div className="bg-[#F0F3FA] dark:bg-[#1e293b]/50 rounded-xl p-3 mt-3">
+                    <p className="text-[11px] font-semibold text-[#638ECB] dark:text-[#94A3B8] text-center">
+                      L'apparaçoir CARFORFAR apparaîtra sur votre écran d'accueil
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-[#638ECB] dark:text-[#94A3B8]">
+                    Dans <strong className="text-[#395886] dark:text-[#D5DEEF]">Chrome</strong>, appuyez sur le menu <strong className="text-[#395886] dark:text-[#D5DEEF]">⋮</strong> puis :
+                  </p>
+                  <ol className="space-y-2.5 text-sm text-[#395886] dark:text-[#94A3B8]">
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#395886] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                      <span>Sélectionnez <strong className="text-[#395886] dark:text-[#D5DEEF]">« Installer l'application »</strong> ou <strong className="text-[#395886] dark:text-[#D5DEEF]">« Ajouter à l'écran d'accueil »</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#395886] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                      <span>Confirmez en appuyant sur <strong className="text-[#395886] dark:text-[#D5DEEF]">« Installer »</strong></span>
+                    </li>
+                  </ol>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowInstallHelper(false)}
+                className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#395886] to-[#2b4c7e] text-white shadow-lg transition-all"
+              >
+                Compris
+              </button>
             </motion.div>
           </motion.div>
         )}

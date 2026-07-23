@@ -1266,6 +1266,11 @@ export default function AdminVehiclesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = filterOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [filterOpen]);
+
   function resetFilters() {
     setFilters({
       marque: "",
