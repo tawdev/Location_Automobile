@@ -12,9 +12,11 @@ import {
   ChevronRight,
   FileText,
 } from "lucide-react";
+import Image from "next/image";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate } from "@/lib/dateUtils";
 import { getPublishedBlogs } from "@/lib/blogApi";
+import { vehicleImageUrl } from "@/lib/media";
 import type { Blog } from "@/lib/types";
 import { useClientMetadata } from "@/hooks/useClientMetadata";
 import { JsonLd } from "@/components/JsonLd";
@@ -133,6 +135,17 @@ export default function BlogPage() {
                 className="relative bg-gradient-to-br from-[#395886]/5 to-[#2b4c7e]/5 dark:from-[#0f1729] dark:to-[#0f1729] rounded-3xl overflow-hidden border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 group cursor-pointer"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#F39C12]/5 to-transparent dark:from-[#F39C12]/10" />
+                {featured.featured_image ? (
+                  <div className="relative h-56 md:h-72 w-full overflow-hidden">
+                    <Image
+                      src={vehicleImageUrl(featured.featured_image)}
+                      alt={featured.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  </div>
+                ) : null}
                 <div className="relative p-8 md:p-10">
                   <div className="flex items-center gap-3 mb-4">
                     <span className="px-3 py-1 rounded-full bg-[#F39C12]/10 text-[#F39C12] text-[10px] font-bold uppercase tracking-wider">
@@ -183,8 +196,19 @@ export default function BlogPage() {
                   className="bg-white dark:bg-[#0f1729] rounded-2xl overflow-hidden border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col"
                 >
                   <div className="h-40 bg-gradient-to-br from-[#395886]/10 to-[#2b4c7e]/10 dark:from-[#1e293b] dark:to-[#0f1729] flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMzOTU4ODYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-                    <FileText className="w-12 h-12 text-[#395886]/20 dark:text-[#D5DEEF]/20 group-hover:scale-110 transition-transform duration-500" />
+                    {post.featured_image ? (
+                      <Image
+                        src={vehicleImageUrl(post.featured_image)}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMzOTU4ODYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+                        <FileText className="w-12 h-12 text-[#395886]/20 dark:text-[#D5DEEF]/20 group-hover:scale-110 transition-transform duration-500" />
+                      </>
+                    )}
                   </div>
                   <div className="p-5 flex-1 flex flex-col">
                     <div className="flex items-center gap-3 text-[10px] text-[#638ECB] dark:text-[#94A3B8] mb-2">
