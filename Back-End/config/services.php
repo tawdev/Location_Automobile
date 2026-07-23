@@ -42,4 +42,12 @@ return [
         'guzzle' => ['verify' => filter_var(env('GUZZLE_VERIFY_SSL', true), FILTER_VALIDATE_BOOLEAN)],
     ],
 
+    'webpush' => [
+        'vapid' => [
+            'subject' => env('VAPID_SUBJECT'),
+            'public_key' => env('VAPID_PUBLIC_KEY'),
+            'private_key' => env('VAPID_PRIVATE_KEY'),
+        ],
+    ],
+
 ];
