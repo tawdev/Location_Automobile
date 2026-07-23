@@ -45,6 +45,9 @@ Route::get('settings', [SettingsController::class, 'index']);
 // Contact form
 Route::post('contact', [\App\Http\Controllers\Api\ContactController::class, 'send']);
 
+// Public VAPID key for push notifications
+Route::get('push/vapid-key', [\App\Http\Controllers\Api\PushController::class, 'vapidKey']);
+
 // Public blog
 Route::get('blogs', [\App\Http\Controllers\Api\BlogController::class, 'index']);
 Route::get('blogs/{slug}', [\App\Http\Controllers\Api\BlogController::class, 'show']);
@@ -95,6 +98,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/Vehicles/{id}/reserved-dates', [ReservationController::class, 'getReservedDates']);
     Route::get('extras', [ExtraController::class, 'index']);
 
+    // Client push notifications
+    Route::post('push/subscribe', [\App\Http\Controllers\Api\PushController::class, 'subscribe']);
+    Route::post('push/unsubscribe', [\App\Http\Controllers\Api\PushController::class, 'unsubscribe']);
+
     // Client info
     Route::get('/client', [\App\Http\Controllers\Api\ClientController::class, 'show']);
     Route::post('/client', [\App\Http\Controllers\Api\ClientController::class, 'store']);
@@ -113,6 +120,11 @@ Route::middleware(['auth:sanctum','admin_or_permission'])->group(function () {
         Route::post('admin/messages/{message}/reply', [\App\Http\Controllers\Api\Admin\MessageController::class, 'reply']);
         Route::delete('admin/messages/{message}', [\App\Http\Controllers\Api\Admin\MessageController::class, 'destroy']);
     });
+
+    // ── Push Notifications ──
+    Route::post('admin/push/subscribe', [\App\Http\Controllers\Api\Admin\PushController::class, 'subscribe']);
+    Route::post('admin/push/unsubscribe', [\App\Http\Controllers\Api\Admin\PushController::class, 'unsubscribe']);
+    Route::get('admin/push/vapid-key', [\App\Http\Controllers\Api\Admin\PushController::class, 'vapidKey']);
 
     // ── Reservations (manage_reservations) ──
     Route::middleware('permission:manage_reservations')->group(function () {
