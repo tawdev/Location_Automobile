@@ -56,6 +56,17 @@ class VehicleController extends Controller
 
         $data = $this->vehicleService->CreateVehicle($request);
         if ($data) {
+            try {
+                $marque = is_object($data) && isset($data->marque) ? $data->marque : ($data['marque'] ?? '');
+                $model = is_object($data) && isset($data->model) ? $data->model : ($data['model'] ?? '');
+                \App\Http\Controllers\Api\PushController::notifyAllClients(
+                    'Nouveau véhicule disponible',
+                    "{$marque} {$model} est maintenant disponible à la location.",
+                    '/vehicules'
+                );
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to send push notification for new vehicle: ' . $e->getMessage());
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Vehicle créée avec succès',

@@ -103,6 +103,9 @@ export default function AdminMessagesPage() {
       const updated = await api.fetchMessage(msg.id);
       setSelected(updated);
       setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
+      if (!msg.read_at) {
+        window.dispatchEvent(new CustomEvent("admin:new-message"));
+      }
     } catch {
       // keep local data
     } finally {
