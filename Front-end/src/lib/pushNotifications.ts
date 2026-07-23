@@ -11,13 +11,18 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-export async function getVapidPublicKey(): Promise<string> {
-  const res = await fetch(`${API_BASE_URL}/push/vapid-key`);
+export async function getVapidPublicKey(isAdmin = false): Promise<string> {
+  const prefix = isAdmin ? "/admin" : "";
+  const res = await fetch(`${API_BASE_URL}${prefix}/push/vapid-key`, {
+    headers: {
+      "Authorization": `Bearer ${getStoredToken()}`
+    }
+  });
   const json = await res.json();
   return json.data.key;
 }
 
-export async function subscribeToPush(): Promise<boolean> {
+export async function subscribeToPush(isAdmin = false): Promise<boolean> {
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     return false;
   }
@@ -30,11 +35,11 @@ export async function subscribeToPush(): Promise<boolean> {
   const registration = await navigator.serviceWorker.ready;
   const existingSubscription = await registration.pushManager.getSubscription();
   if (existingSubscription) {
-    await syncSubscription(existingSubscription);
+    await syncSubscription(existingSubscription, isAdmin);
     return true;
   }
 
-  const vapidKey = await getVapidPublicKey();
+  const vapidKey = await getVapidPublicKey(isAdmin);
   const applicationServerKey = urlBase64ToUint8Array(vapidKey) as BufferSource;
 
   const subscription = await registration.pushManager.subscribe({
@@ -42,11 +47,11 @@ export async function subscribeToPush(): Promise<boolean> {
     applicationServerKey,
   });
 
-  await syncSubscription(subscription);
+  await syncSubscription(subscription, isAdmin);
   return true;
 }
 
-async function syncSubscription(subscription: PushSubscription): Promise<void> {
+async function syncSubscription(subscription: PushSubscription, isAdmin = false): Promise<void> {
   const token = getStoredToken();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -54,14 +59,15 @@ async function syncSubscription(subscription: PushSubscription): Promise<void> {
   const endpoint = subscription.endpoint;
   const keys = subscription.toJSON().keys as { p256dh: string; auth: string };
 
-  await fetch(`${API_BASE_URL}/push/subscribe`, {
+  const prefix = isAdmin ? "/admin" : "";
+  await fetch(`${API_BASE_URL}${prefix}/push/subscribe`, {
     method: "POST",
     headers,
     body: JSON.stringify({ endpoint, p256dh: keys.p256dh, auth: keys.auth }),
   });
 }
 
-export async function unsubscribeFromPush(): Promise<void> {
+export async function unsubscribeFromPush(isAdmin = false): Promise<void> {
   if (!("serviceWorker" in navigator)) return;
 
   const registration = await navigator.serviceWorker.ready;
@@ -72,7 +78,8 @@ export async function unsubscribeFromPush(): Promise<void> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  await fetch(`${API_BASE_URL}/push/unsubscribe`, {
+  const prefix = isAdmin ? "/admin" : "";
+  await fetch(`${API_BASE_URL}${prefix}/push/unsubscribe`, {
     method: "POST",
     headers,
     body: JSON.stringify({ endpoint: subscription.endpoint }),

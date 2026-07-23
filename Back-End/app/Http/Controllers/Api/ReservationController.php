@@ -86,6 +86,16 @@ class ReservationController extends Controller
             // Email notification failure does not block reservation
         }
 
+        try {
+            \App\Http\Controllers\Api\Admin\PushController::notifyAllAdmins(
+                'Nouvelle réservation',
+                'Une nouvelle réservation a été effectuée.',
+                '/admin/reservations'
+            );
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to send push notification for new reservation: ' . $e->getMessage());
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Reservation créée avec succès',
