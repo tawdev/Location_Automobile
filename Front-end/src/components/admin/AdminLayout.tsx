@@ -11,6 +11,14 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchUnreadCount } from "@/lib/adminMessagesApi";
 import { subscribeToPush } from "@/lib/pushNotifications";
+import { API_BASE_URL } from "@/lib/config";
+import { getAuthToken } from "@/lib/tokenStorage";
+
+type NewMessageBanner = {
+  id: number;
+  name: string;
+  subject: string;
+};
 
 function playNotificationSound() {
   try {
@@ -255,6 +263,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const prevCountRef = useRef(0);
+  const [banner, setBanner] = useState<NewMessageBanner | null>(null);
+  const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
@@ -267,13 +277,27 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pollUnread = useCallback(async () => {
     try {
       const count = await fetchUnreadCount();
-      setUnreadCount((prev) => {
-        if (prev > 0 && count > prev) {
-          playNotificationSound();
-        }
-        prevCountRef.current = count;
-        return count;
-      });
+      const prevCount = prevCountRef.current;
+      setUnreadCount(count);
+      if (prevCount > 0 && count > prevCount) {
+        playNotificationSound();
+        try {
+          const res = await fetch(`${API_BASE_URL}/admin/messages?status=unread&per_page=1`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${getAuthToken()}`,
+            },
+          });
+          const json = await res.json();
+          const latest = json?.data?.data?.[0];
+          if (latest) {
+            if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+            setBanner({ id: latest.id, name: latest.name, subject: latest.subject });
+            bannerTimerRef.current = setTimeout(() => setBanner(null), 6000);
+          }
+        } catch { /* ignore */ }
+      }
+      prevCountRef.current = count;
     } catch { /* ignore */ }
   }, []);
 
@@ -635,6 +659,49 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main */}
       <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto pt-20 md:pt-4">
+        {/* WhatsApp-style new message notification banner */}
+        <AnimatePresence>
+          {banner && (
+            <motion.div
+              initial={{ y: -80, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -80, opacity: 0, scale: 0.95 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+              onClick={() => { setBanner(null); router.push("/admin/messages"); }}
+              className="fixed top-20 md:top-4 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md cursor-pointer"
+            >
+              <div className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-[#D5DEEF]/60 dark:border-[#334155] p-4 flex items-center gap-3 hover:shadow-3xl transition-shadow">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#25D366] to-[#128C7E] flex items-center justify-center shrink-0 shadow-md">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-xs font-extrabold text-[#395886] dark:text-[#D5DEEF]">
+                      {banner.name}
+                    </span>
+                    <span className="text-[10px] font-semibold text-[#638ECB] dark:text-[#94A3B8]">
+                      maintenant
+                    </span>
+                  </div>
+                  <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] truncate">
+                    {banner.subject}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setBanner(null); }}
+                  className="shrink-0 w-6 h-6 rounded-full hover:bg-[#F0F3FA] dark:hover:bg-[#0f1729] flex items-center justify-center transition-colors"
+                >
+                  <svg className="w-3 h-3 text-[#638ECB] dark:text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {pathname !== "/admin" && (
           <button
             type="button"
