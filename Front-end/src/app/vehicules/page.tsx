@@ -805,7 +805,7 @@ export default function VehiculesPage() {
         {/* Main layout */}
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Mobile filter toggle */}
-          <div className="flex items-center justify-between mb-6 lg:hidden">
+          <div className="sticky top-20 z-30 flex items-center justify-between mb-6 lg:hidden bg-gray-50/90 dark:bg-[#070b14]/90 backdrop-blur-md py-2 -mx-4 px-4">
             <p className="text-sm text-gray-500 dark:text-[#94A3B8]">
               {filteredVehicles.length} {t("vehicles.vehicles_found")}
             </p>
