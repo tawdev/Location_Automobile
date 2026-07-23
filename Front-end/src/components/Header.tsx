@@ -237,7 +237,7 @@ export default function Header() {
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstallHelper, setShowInstallHelper] = useState(false);
-  const isIOSDevice = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isIOSDevice = typeof navigator !== "undefined" && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
   useEffect(() => {
     if (window.matchMedia("(display-mode: standalone)").matches) {
@@ -261,17 +261,22 @@ export default function Header() {
 
   const handleInstall = async () => {
     if (isIOSDevice) {
-      setShowInstallHelper(true);
+      setMobileOpen(false);
+      requestAnimationFrame(() => setShowInstallHelper(true));
       return;
     }
-    if (!installPrompt) {
-      setShowInstallHelper(true);
+    if (installPrompt) {
+      setMobileOpen(false);
+      try {
+        (installPrompt as any).prompt();
+        const result = await (installPrompt as any).userChoice;
+        if (result.outcome === "accepted") setIsInstalled(true);
+      } catch {}
+      setInstallPrompt(null);
       return;
     }
-    (installPrompt as any).prompt();
-    const result = await (installPrompt as any).userChoice;
-    if (result.outcome === "accepted") setIsInstalled(true);
-    setInstallPrompt(null);
+    setMobileOpen(false);
+    requestAnimationFrame(() => setShowInstallHelper(true));
   };
 
   const isHomePage = pathname === "/";
