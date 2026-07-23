@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Admin\PushController;
 use App\Mail\ContactFormMail;
 use App\Models\ContactMessage;
 use App\Models\Setting;
@@ -36,6 +37,16 @@ class ContactController extends Controller
                 $data['subject'],
                 $data['message'],
             ));
+
+        try {
+            PushController::notifyAllAdmins(
+                'Nouveau message de contact',
+                "{$data['name']}: {$data['subject']}",
+                '/admin/messages'
+            );
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to send push notification for new contact message: ' . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Message sent successfully',

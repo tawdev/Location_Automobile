@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { Sun, Moon, Menu, X, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
@@ -9,6 +9,30 @@ import { profileImageUrl } from "@/lib/media";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { motion, AnimatePresence } from "framer-motion";
+import { fetchUnreadCount } from "@/lib/adminMessagesApi";
+import { subscribeToPush } from "@/lib/pushNotifications";
+
+function playNotificationSound() {
+  try {
+    const ctx = new AudioContext();
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.value = 880;
+    osc2.type = "sine";
+    osc2.frequency.value = 1320;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+    osc1.start(ctx.currentTime);
+    osc2.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.4);
+    osc2.stop(ctx.currentTime + 0.4);
+  } catch { /* ignore */ }
+}
 
 
 type NavItem = {
@@ -186,12 +210,14 @@ function SidebarLink({
   icon,
   onClick,
   small,
+  badge,
 }: {
   label: string;
   active: boolean;
   icon: React.ReactNode;
   onClick: () => void;
   small?: boolean;
+  badge?: number;
 }) {
   return (
     <button
@@ -205,8 +231,13 @@ function SidebarLink({
           : "text-[#638ECB] dark:text-[#94A3B8] hover:text-[#395886] dark:hover:text-[#D5DEEF] hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b]"
       }`}
     >
-      <span className={active ? "text-white" : "text-[#638ECB] dark:text-[#94A3B8]"}>
+      <span className={`relative ${active ? "text-white" : "text-[#638ECB] dark:text-[#94A3B8]"}`}>
         {icon}
+        {badge != null && badge > 0 && (
+          <span className="absolute -top-2 left-1/2 -translate-x-1/2 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-[9px] font-extrabold leading-none shadow-md">
+            {badge > 99 ? "99+" : badge}
+          </span>
+        )}
       </span>
       <span>{label}</span>
     </button>
@@ -222,6 +253,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [dark, setDark] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const prevCountRef = useRef(0);
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
@@ -230,6 +263,39 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     setDark(isDark);
     document.documentElement.classList.toggle("dark", isDark);
   }, []);
+
+  const pollUnread = useCallback(async () => {
+    try {
+      const count = await fetchUnreadCount();
+      setUnreadCount((prev) => {
+        if (prev > 0 && count > prev) {
+          playNotificationSound();
+        }
+        prevCountRef.current = count;
+        return count;
+      });
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    pollUnread();
+    const interval = setInterval(pollUnread, 30000);
+    return () => clearInterval(interval);
+  }, [pollUnread]);
+
+  useEffect(() => {
+    function handleNewMessage() {
+      pollUnread();
+    }
+    window.addEventListener("admin:new-message", handleNewMessage);
+    return () => window.removeEventListener("admin:new-message", handleNewMessage);
+  }, [pollUnread]);
+
+  useEffect(() => {
+    if (user) {
+      subscribeToPush().catch(() => {});
+    }
+  }, [user]);
 
   const toggleDark = () => {
     const next = !dark;
@@ -329,6 +395,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 icon={item.icon}
                 onClick={() => router.push(item.href)}
                 small={item.label === t("admin.departure_conditions")}
+                badge={item.href === "/admin/messages" ? unreadCount : undefined}
               />
             ))}
 
@@ -501,6 +568,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                       icon={item.icon}
                       onClick={() => { router.push(item.href); setMobileMenuOpen(false); }}
                       small={item.label === t("admin.departure_conditions")}
+                      badge={item.href === "/admin/messages" ? unreadCount : undefined}
                     />
                   ))}
                   {showCompany && (
