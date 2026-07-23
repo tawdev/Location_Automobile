@@ -8,8 +8,12 @@ export function useClientPushSubscription() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user && user.role_id !== 1) {
-      subscribeToPush().catch(() => {});
+    if (user) {
+      const isAdmin = user.role_id === 1;
+      subscribeToPush(isAdmin).catch((err) => {
+        console.error("Push subscription failed:", err);
+      });
     }
   }, [user]);
 }
+
