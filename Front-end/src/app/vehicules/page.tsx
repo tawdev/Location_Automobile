@@ -805,7 +805,7 @@ export default function VehiculesPage() {
         {/* Main layout */}
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Mobile filter toggle */}
-          <div className="sticky top-20 z-30 flex items-center justify-between mb-6 lg:hidden bg-gray-50/90 dark:bg-[#070b14]/90 backdrop-blur-md py-2 -mx-4 px-4">
+          <div className="flex items-center justify-between mb-6 lg:hidden">
             <p className="text-sm text-gray-500 dark:text-[#94A3B8]">
               {filteredVehicles.length} {t("vehicles.vehicles_found")}
             </p>
@@ -1110,6 +1110,14 @@ export default function VehiculesPage() {
             </div>
           </div>
         </div>
+
+        {/* Floating mobile filter FAB */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed bottom-6 right-6 z-40 lg:hidden h-14 w-14 rounded-full bg-gradient-to-r from-[#F39C12] to-[#e67e22] text-white shadow-[0_6px_20px_rgba(243,156,18,0.35)] flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <SlidersHorizontal className="w-5 h-5" />
+        </button>
       </div>
   );
 }
