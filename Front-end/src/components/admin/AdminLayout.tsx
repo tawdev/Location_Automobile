@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { Sun, Moon, Menu, X, ChevronDown } from "lucide-react";
+import { Sun, Moon, Menu, X, ChevronDown, Building2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 
@@ -406,6 +406,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         {/* Header */}
         <div className="flex flex-col items-center pt-4 pb-2 px-5">
           <div className="text-base font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</div>
+          {user?.role_id === 3 && (
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-[#FF7B00] to-[#e66f00] text-[#1f2124] shadow-md hover:shadow-lg cursor-pointer"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              {t("nav.admin_office")}
+            </button>
+          )}
         </div>
 
         {/* Nav */}
@@ -555,7 +565,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <Menu className="w-5 h-5 text-[#395886] dark:text-[#D5DEEF]" />
         </button>
         <span className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</span>
-        <div className="w-9" />
+        {user?.role_id === 3 ? (
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all bg-gradient-to-r from-[#FF7B00] to-[#e66f00] text-[#1f2124] shadow-md cursor-pointer"
+          >
+            <Building2 className="w-3 h-3" />
+            {t("nav.admin_office")}
+          </button>
+        ) : (
+          <div className="w-9" />
+        )}
       </div>
 
       {/* Mobile drawer */}
@@ -578,9 +599,21 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center justify-between px-5 h-14 border-b border-[#D5DEEF] dark:border-[#1e293b]">
                 <span className="text-sm font-extrabold text-[#395886] dark:text-[#D5DEEF]">{t("admin.administration")}</span>
-                <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-lg hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] transition-colors">
-                  <X className="w-5 h-5 text-[#395886] dark:text-[#D5DEEF]" />
-                </button>
+                <div className="flex items-center gap-2">
+                  {user?.role_id === 3 && (
+                    <button
+                      type="button"
+                      onClick={() => { router.push("/"); setMobileMenuOpen(false); }}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all bg-gradient-to-r from-[#FF7B00] to-[#e66f00] text-[#1f2124] shadow-md cursor-pointer"
+                    >
+                      <Building2 className="w-3 h-3" />
+                      {t("nav.admin_office")}
+                    </button>
+                  )}
+                  <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-lg hover:bg-[#F0F3FA] dark:hover:bg-[#1e293b] transition-colors">
+                    <X className="w-5 h-5 text-[#395886] dark:text-[#D5DEEF]" />
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-y-auto px-5 py-4">
                 <div className="flex flex-col gap-1">
