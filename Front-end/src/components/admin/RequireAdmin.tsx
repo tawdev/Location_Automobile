@@ -12,7 +12,7 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
 
   const isAdmin = useMemo(() => {
     if (status !== "authenticated") return false;
-    if (user?.role_id === 1) return true;
+    if (user?.role_id === 1 || user?.role_id === 3) return true;
     return !!user?.permissions && user.permissions.length > 0;
   }, [status, user?.role_id, user?.permissions]);
 

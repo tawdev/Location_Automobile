@@ -365,7 +365,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }), []);
 
   const navItems = useMemo(() => {
-    if (user?.role_id === 1) return allNavItems;
+    if (user?.role_id === 1 || user?.role_id === 3) return allNavItems;
     const allowed = new Set<string>();
     allowed.add("/admin");
     allowed.add("/admin/profile");
@@ -377,7 +377,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [allNavItems, user?.role_id, userPermissions, permissionNavMap]);
 
   const showCompany = useMemo(() =>
-    user?.role_id === 1 || userPermissions.has("manage_blogs"),
+    user?.role_id === 1 || user?.role_id === 3 || userPermissions.has("manage_blogs"),
   [user?.role_id, userPermissions]);
 
   const activeHref = useMemo(() => {
