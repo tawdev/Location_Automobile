@@ -10,8 +10,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const { status, user } = useAuth();
 
   useEffect(() => {
-    if (status === "authenticated" && user?.role_id === 1) {
-      router.replace("/admin/vehicles");
+    if (status === "authenticated" && (user?.role_id === 1 || user?.role_id === 3)) {
+      router.replace("/admin");
     }
   }, [status, user, router]);
 

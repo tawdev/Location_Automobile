@@ -293,7 +293,7 @@ export default function Header() {
     };
   }, [mobileOpen, showInstallHelper]);
   const isAuthenticated = status === "authenticated";
-  const isSecondAdmin = isAuthenticated && user?.role_id === 3;
+  const isAdminUser = isAuthenticated && (user?.role_id === 1 || user?.role_id === 3);
   const adminDashboardHref = "/admin";
 
   useEffect(() => {
@@ -326,15 +326,18 @@ export default function Header() {
     { label: t("nav.vehicules"), href: "/vehicules", icon: Car },
   ];
 
-  const NAV_ITEMS = isSecondAdmin
-    ? [{ label: t("nav.admin_office"), href: adminDashboardHref, icon: Building2 }]
+  const NAV_ITEMS = isAdminUser
+    ? [
+        { label: t("nav.home"), href: "/", icon: House },
+        { label: t("nav.admin_office"), href: adminDashboardHref, icon: Building2 },
+      ]
     : [
         { label: t("nav.home"), href: "/", icon: House },
         { label: t("nav.vehicules"), href: "/vehicules", icon: Car },
       ];
 
-  const ACCOUNT_ITEMS = isSecondAdmin
-    ? [{ label: t("nav.admin_office"), href: adminDashboardHref, icon: Building2 }]
+  const ACCOUNT_ITEMS = isAdminUser
+    ? []
     : [
         { label: t("nav.profile"), href: "/profile", icon: User },
         { label: t("nav.reservations"), href: "/MyReservations", icon: Clock },
@@ -366,7 +369,7 @@ export default function Header() {
       >
         <div dir="ltr" className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
           <div className="-ml-6">
-            <Logo onClick={() => router.push(isSecondAdmin ? adminDashboardHref : "/vehicules")} scrolled={scrolled} dark={dark} isHomePage={isHomePage} />
+            <Logo onClick={() => router.push(isAdminUser ? adminDashboardHref : "/vehicules")} scrolled={scrolled} dark={dark} isHomePage={isHomePage} />
           </div>
 
           <nav className="hidden md:flex items-center gap-1">
@@ -378,22 +381,24 @@ export default function Header() {
                 onClick={() => router.push(item.href)}
               />
             ))}
-            <AboutDropdown
-              variant={isTransparentState ? "visitor" : "client"}
-              scrolled={false}
-              isActive={
-                pathname.startsWith("/a-propos") ||
-                pathname.startsWith("/regles") ||
-                pathname.startsWith("/company/") ||
-                pathname.startsWith("/support/") ||
-                pathname === "/contact" ||
-                pathname === "/faq" ||
-                pathname === "/privacy" ||
-                pathname === "/terms" ||
-                pathname === "/insurance"
-              }
-            />
-            {isAuthenticated && (
+            {!isAdminUser && (
+              <AboutDropdown
+                variant={isTransparentState ? "visitor" : "client"}
+                scrolled={false}
+                isActive={
+                  pathname.startsWith("/a-propos") ||
+                  pathname.startsWith("/regles") ||
+                  pathname.startsWith("/company/") ||
+                  pathname.startsWith("/support/") ||
+                  pathname === "/contact" ||
+                  pathname === "/faq" ||
+                  pathname === "/privacy" ||
+                  pathname === "/terms" ||
+                  pathname === "/insurance"
+                }
+              />
+            )}
+            {isAuthenticated && !isAdminUser && (
               <AccountDropdown pathname={pathname} router={router} onLogout={handleLogout} t={t} transparent={isTransparentState} />
             )}
             <LanguageSwitcher transparent={isTransparentState} />
@@ -507,7 +512,7 @@ export default function Header() {
                   </button>
                 ))}
 
-                {isAuthenticated && (
+                {!isAdminUser && isAuthenticated && (
                   <div className="rounded-xl overflow-hidden">
                     <button
                       onClick={() => setMobileAccountOpen((o) => !o)}
@@ -577,16 +582,17 @@ export default function Header() {
                   </div>
                 )}
 
-                {isAuthenticated && user?.role_id === 3 && isHomePage && (
+                {isAdminUser && (
                   <button
-                    onClick={() => { router.push("/admin"); setMobileOpen(false); }}
-                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-[#FF7B00] to-[#e66f00] text-[#1f2124] shadow-md"
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all"
                   >
-                    <Building2 className="w-4 h-4" />
-                    {t("nav.admin_office")}
+                    <LogOut className="w-4 h-4" />
+                    {t("nav.logout")}
                   </button>
                 )}
 
+                {!isAdminUser && (
                 <div className="rounded-xl overflow-hidden">
                   <button
                     onClick={() => setMobileResourcesOpen((o) => !o)}
@@ -637,6 +643,7 @@ export default function Header() {
                     )}
                   </AnimatePresence>
                 </div>
+                )}
 
                 <div className="border-t border-[#D5DEEF]/40 dark:border-[#1e293b]/60 my-2" />
                 <div className="flex items-center justify-center gap-4 py-2">
