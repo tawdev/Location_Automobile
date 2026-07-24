@@ -10,13 +10,13 @@ export function RequireClient({ children }: { children: React.ReactNode }) {
   const { status, user } = useAuth();
   const { t } = useI18n();
 
-  const isAdmin = status === "authenticated" && user?.role_id === 1;
+  const isAdmin = status === "authenticated" && (user?.role_id === 1 || user?.role_id === 3);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/login");
     } else if (isAdmin) {
-      router.replace("/admin/vehicles");
+      router.replace("/admin");
     }
   }, [isAdmin, router, status]);
 
@@ -46,7 +46,7 @@ export function RequireClient({ children }: { children: React.ReactNode }) {
           </div>
           <button
             type="button"
-            onClick={() => router.push("/admin/vehicles")}
+            onClick={() => router.push("/admin")}
             className="mt-4 font-black border-2 border-black px-3 py-2 bg-white hover:bg-zinc-100 cursor-pointer"
           >
             {t("back_to_admin")}
