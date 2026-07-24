@@ -775,6 +775,7 @@ export const labels: Record<string, { en: string; fr: string; ar: string }> = {
   "access_denied_admin": { en: "Admins only.", fr: "Réservé aux administrateurs.", ar: "للمسؤولين فقط." },
   "access_denied_client": { en: "This page is for clients only.", fr: "Cette page est réservée aux clients.", ar: "هذه الصفحة للعملاء فقط." },
   "back_to_admin": { en: "Back to admin", fr: "Retour à l'administration", ar: "العودة إلى لوحة الإدارة" },
+  "nav.admin_office": { en: "Admin Office", fr: "Bureau Admin", ar: "مكتب الإدارة" },
 
   // ── Admin ──
   "admin.dashboard": { en: "Dashboard", fr: "Tableau de bord", ar: "لوحة التحكم" },
