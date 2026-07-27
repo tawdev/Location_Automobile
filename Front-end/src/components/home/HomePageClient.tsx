@@ -752,16 +752,23 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: 
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.category")}</label>
-                      <select
-                        value={vehicleType ?? ""}
-                        onChange={(e) => setVehicleType(e.target.value ? Number(e.target.value) : null)}
-                        className={`w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm cursor-pointer transition-all hover:bg-white/20 hover:border-white/40 ${vehicleType ? "text-white" : "text-white/40"}`}
-                      >
-                        <option value="" className="text-gray-900">{t("vehicles.all_types")}</option>
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id} className="text-gray-900">{cat.name}</option>
-                        ))}
-                      </select>
+                      <Popover open={openDropdownId === "category"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "category" : null)}>
+                        <PopoverTrigger className="w-full">
+                          <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
+                            {vehicleType ? <span className="font-medium text-white">{categories.find(c => c.id === vehicleType)?.name}</span> : <span className="text-white/40">{t("vehicles.all_types")}</span>}
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" sideOffset={4} className="w-[min(200px,calc(100vw-3rem))] p-3 max-h-72 overflow-y-auto">
+                          <button type="button" onClick={() => { setVehicleType(null); setOpenDropdownId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                            <span>{t("vehicles.all_types")}</span>
+                          </button>
+                          {categories.map((cat) => (
+                            <button key={cat.id} type="button" onClick={() => { setVehicleType(cat.id); setOpenDropdownId(null); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${vehicleType === cat.id ? "bg-[#F39C12]/20 text-[#F39C12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                              <span className="font-medium">{cat.name}</span>
+                            </button>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.model")}</label>
