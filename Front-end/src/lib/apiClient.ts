@@ -64,6 +64,7 @@ export async function apiRequest<T = unknown>({
     res = await fetch(url, {
       method,
       signal,
+      cache: "no-store",
       headers: {
         Accept: "application/json",
         ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
