@@ -788,7 +788,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: 
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">Transmission</label>
-                      <Popover>
+                      <Popover open={openDropdownId === "transmission"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "transmission" : null)}>
                         <PopoverTrigger className="w-full">
                           <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
                             {transmission ? (
@@ -799,11 +799,11 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: 
                           </div>
                         </PopoverTrigger>
                         <PopoverContent align="start" sideOffset={4} className="w-[min(200px,calc(100vw-3rem))] p-3 max-h-72 overflow-y-auto">
-                          <button type="button" onClick={() => setTransmission("")} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <button type="button" onClick={() => { setTransmission(""); setOpenDropdownId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                             <span>{t("vehicles.all_types")}</span>
                           </button>
                           {[["Automatic","Automatique"],["Manual","Manuelle"]].map(([val,label]) => (
-                            <button key={val} type="button" onClick={() => setTransmission(val)} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${transmission === val ? "bg-[#FF7B00]/20 text-[#FF7B00]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                            <button key={val} type="button" onClick={() => { setTransmission(val); setOpenDropdownId(null); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${transmission === val ? "bg-[#FF7B00]/20 text-[#FF7B00]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                               <span className="font-medium">{label}</span>
                             </button>
                           ))}
@@ -812,7 +812,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: 
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-white/70 mb-1.5">{t("vehicles.fuel_type")}</label>
-                      <Popover>
+                      <Popover open={openDropdownId === "fuel"} onOpenChange={(open: boolean) => setOpenDropdownId(open ? "fuel" : null)}>
                         <PopoverTrigger className="w-full">
                           <div className="w-full h-11 bg-white/15 border border-white/20 rounded-xl px-4 outline-none text-sm text-white flex items-center gap-3 cursor-pointer transition-all hover:bg-white/20 hover:border-white/40">
                             {fuelType ? (
@@ -823,11 +823,11 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: 
                           </div>
                         </PopoverTrigger>
                         <PopoverContent align="start" sideOffset={4} className="w-[min(240px,calc(100vw-3rem))] p-3 max-h-72 overflow-y-auto">
-                          <button type="button" onClick={() => setFuelType("")} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                          <button type="button" onClick={() => { setFuelType(""); setOpenDropdownId(null); }} className="w-full flex items-center gap-3 px-4 py-3 text-base text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                             <span>{t("vehicles.all_types")}</span>
                           </button>
                           {[["Gasoline","Essence"],["Diesel","Diesel"],["Electricity","Électrique"],["Hybrid","Hybride"]].map(([val,label]) => (
-                            <button key={val} type="button" onClick={() => setFuelType(val)} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${fuelType === val ? "bg-[#F39C12]/20 text-[#F39C12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
+                            <button key={val} type="button" onClick={() => { setFuelType(val); setOpenDropdownId(null); }} className={`w-full flex items-center gap-3 px-4 py-3 text-base rounded-xl transition-all ${fuelType === val ? "bg-[#F39C12]/20 text-[#F39C12]" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                               <span className="font-medium">{label}</span>
                             </button>
                           ))}
