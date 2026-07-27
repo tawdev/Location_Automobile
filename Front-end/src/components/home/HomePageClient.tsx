@@ -740,7 +740,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: 
                             {propMarques.map((m) => {
                               const logoUrl = m.logo ? `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}` : getBrandLogo(m.name);
                               return (
-                                <button key={m.id} type="button" onClick={() => { setBrand(m.name); setBrandOpen(false); }} className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-sm transition-all ${brand === m.name ? "bg-[#F39C12]/20 text-[#F39C12] ring-2 ring-[#F39C12]/40" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md"}`}>
+                                <button key={m.id} type="button" onClick={() => { setBrand(m.name); setBrandOpen(false); setTimeout(() => setModelOpen(true), 100); }} className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-sm transition-all ${brand === m.name ? "bg-[#F39C12]/20 text-[#F39C12] ring-2 ring-[#F39C12]/40" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md"}`}>
                                   {logoUrl && <img src={logoUrl} alt={m.name} className="w-8 h-8 object-contain shrink-0" />}
                                   <span className="text-xs font-medium text-center leading-tight">{m.name}</span>
                                 </button>
