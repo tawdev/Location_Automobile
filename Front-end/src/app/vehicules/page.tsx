@@ -112,6 +112,7 @@ export default function VehiculesPage() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
+  const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
   const [pendingCategoryId, setPendingCategoryId] = useState<number | null>(null);
 
   const [countries, setCountries] = useState<Country[]>([]);
@@ -483,7 +484,7 @@ export default function VehiculesPage() {
           {t("vehicles.dates")}
         </h4>
         <div className="space-y-2">
-          <Popover>
+          <Popover open={openDatePopover === "pickup"} onOpenChange={(open: boolean) => setOpenDatePopover(open ? "pickup" : null)}>
             <PopoverTrigger className="w-full">
               <div className="w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] flex items-center gap-2 cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-[#1e293b]/80 hover:border-gray-300 dark:hover:border-[#1e293b]">
                 <CalendarDays className="w-4 h-4 shrink-0 text-gray-400 dark:text-[#94A3B8]" />
@@ -504,13 +505,14 @@ export default function VehiculesPage() {
                     const val = toLocalDateString(d);
                     setPickupDate(val);
                     if (returnDate && returnDate < val) setReturnDate("");
+                    setOpenDatePopover(null);
                   }
                 }}
                 fromDate={new Date()}
               />
             </PopoverContent>
           </Popover>
-          <Popover>
+          <Popover open={openDatePopover === "return"} onOpenChange={(open: boolean) => setOpenDatePopover(open ? "return" : null)}>
             <PopoverTrigger disabled={!pickupDate} className="w-full">
               <div className={`w-full h-[44px] bg-gray-50 dark:bg-[#1e293b]/60 border border-gray-200 dark:border-[#1e293b]/80 rounded-xl px-4 outline-none text-[14px] text-gray-700 dark:text-[#D5DEEF] flex items-center gap-2 transition-all ${!pickupDate ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1e293b]/80 hover:border-gray-300 dark:hover:border-[#1e293b]"}`}>
                 <CalendarDays className="w-4 h-4 shrink-0 text-gray-400 dark:text-[#94A3B8]" />
@@ -529,6 +531,7 @@ export default function VehiculesPage() {
                 onSelect={(d: Date | undefined) => {
                   if (d) {
                     setReturnDate(toLocalDateString(d));
+                    setOpenDatePopover(null);
                   }
                 }}
                 disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined}

@@ -43,7 +43,7 @@ export default function SignupPage() {
   useEffect(() => {
     if (status === "authenticated") {
       localStorage.removeItem("pendingVehicleRedirect");
-      const isAdminUser = user?.role_id === 1 || (user?.permissions && user.permissions.length > 0);
+      const isAdminUser = user?.role_id === 1 || user?.role_id === 3 || (user?.permissions && user.permissions.length > 0);
       router.replace(redirectTo || (isAdminUser ? "/admin" : "/vehicules"));
     }
   }, [status, router, redirectTo, user]);
