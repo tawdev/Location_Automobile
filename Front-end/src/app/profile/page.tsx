@@ -649,7 +649,7 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
           </motion.div>
 
           {/* ── Documents ── */}
-          {user?.role_id !== 1 && <motion.div variants={cardVariants}>
+          {user?.role_id !== 1 && user?.role_id !== 3 && <motion.div variants={cardVariants}>
             <SectionCard>
               <SectionHeader
                 icon={IdCard}
