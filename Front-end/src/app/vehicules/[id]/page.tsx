@@ -57,6 +57,7 @@ export default function VehicleDetailPage() {
   // Reservation
   const [reserveStartDate, setReserveStartDate] = useState<Date>();
   const [reserveEndDate, setReserveEndDate] = useState<Date>();
+  const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
   const [reserveStartTime, setReserveStartTime] = useState("10:00");
 
   useEffect(() => {
@@ -397,7 +398,7 @@ export default function VehicleDetailPage() {
                 <div className="mb-6">
                   <label className="block mb-3 text-[14px] font-bold text-gray-700 dark:text-[#D5DEEF]">{t("vehicle.pickup_date")}</label>
                   <div className="flex gap-2">
-                    <Popover>
+                    <Popover open={openDatePopover === "pickup"} onOpenChange={(open: boolean) => setOpenDatePopover(open ? "pickup" : null)}>
                       <PopoverTrigger className="flex-1 h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none focus:border-[#16386b] transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -409,7 +410,7 @@ export default function VehicleDetailPage() {
                           <Calendar
                             mode="single"
                             selected={reserveStartDate}
-                            onSelect={(d: Date | undefined) => d && setReserveStartDate(d)}
+                            onSelect={(d: Date | undefined) => { if (d) { setReserveStartDate(d); setOpenDatePopover(null); } }}
                             disabled={[
                               { before: new Date() },
                               (date: Date) =>
@@ -432,7 +433,7 @@ export default function VehicleDetailPage() {
                 <div className="mb-6">
                   <label className="block mb-3 text-[14px] font-bold text-gray-700 dark:text-[#D5DEEF]">{t("vehicle.dropoff_date")}</label>
                   <div className="flex gap-2">
-                    <Popover>
+                    <Popover open={openDatePopover === "dropoff"} onOpenChange={(open: boolean) => setOpenDatePopover(open ? "dropoff" : null)}>
                       <PopoverTrigger disabled={!reserveStartDate} className={`flex-1 h-[62px] rounded-[18px] border border-[#d9dee6] dark:border-[#1e293b] px-5 text-[16px] outline-none transition text-left flex items-center gap-3 bg-white dark:bg-[#0f1729] dark:text-[#D5DEEF] ${!reserveStartDate ? "opacity-50 cursor-not-allowed" : "focus:border-[#16386b]"}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-400 shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -444,7 +445,7 @@ export default function VehicleDetailPage() {
                           <Calendar
                             mode="single"
                             selected={reserveEndDate}
-                            onSelect={(d: Date | undefined) => d && setReserveEndDate(d)}
+                            onSelect={(d: Date | undefined) => { if (d) { setReserveEndDate(d); setOpenDatePopover(null); } }}
                             disabled={[
                               { before: minDropoffDate },
                               (date: Date) =>
