@@ -19,6 +19,8 @@ interface SettingsReservation {
   start_date?: string;
   end_date?: string;
   TotalPrice?: number;
+  date_heure_depart?: string | null;
+  date_heure_retour?: string | null;
   vehicle?: {
     id: number;
     marque?: string;
@@ -361,6 +363,12 @@ export default function SettingsPage() {
                                     <Calendar className="w-3 h-3 text-[#F39C12] dark:text-amber-400" />
                                     {formatDateStr(r.start_date)}
                                   </p>
+                                  {r.date_heure_depart && (
+                                    <p className="text-[10px] font-bold text-[#638ECB] dark:text-[#94A3B8] mt-0.5 flex items-center gap-1">
+                                      <Clock className="w-3 h-3 text-[#F39C12] dark:text-amber-400" />
+                                      {new Date(r.date_heure_depart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                  )}
                                 </div>
                                 <div>
                                   <p className="text-[10px] font-extrabold text-[#638ECB] dark:text-[#94A3B8] uppercase tracking-[0.1em]">{t("settings.return_date")}</p>
@@ -368,6 +376,12 @@ export default function SettingsPage() {
                                     <Calendar className="w-3 h-3 text-[#F39C12] dark:text-amber-400" />
                                     {formatDateStr(r.end_date)}
                                   </p>
+                                  {r.date_heure_retour && (
+                                    <p className="text-[10px] font-bold text-[#638ECB] dark:text-[#94A3B8] mt-0.5 flex items-center gap-1">
+                                      <Clock className="w-3 h-3 text-[#F39C12] dark:text-amber-400" />
+                                      {new Date(r.date_heure_retour).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
                             </div>

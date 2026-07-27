@@ -12,7 +12,7 @@ import type { ApiError } from "@/lib/apiClient";
 import type { Reservation } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate as fd } from "@/lib/dateUtils";
-import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle, Smartphone, MapPin, Calendar, Car, ArrowRight } from "lucide-react";
+import { Shield, FileText, Upload, CheckCircle, User, Mail, Lock, Camera, IdCard, Fingerprint, ChevronRight, Sparkles, Eye, EyeOff, Circle, Smartphone, MapPin, Calendar, Car, ArrowRight, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function UploadZone({
@@ -785,11 +785,13 @@ export default function ProfilePage({ hideBackButton }: { hideBackButton?: boole
                             <span className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8]">
                               {formatDate(res.start_date)}
                             </span>
+                            {res.date_heure_depart && <span className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8]">{new Date(res.date_heure_depart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
                             <ArrowRight className="w-3 h-3 text-[#638ECB]/40 dark:text-[#94A3B8]/40" />
                             <Calendar className="w-3 h-3 text-[#638ECB] dark:text-[#94A3B8]" />
                             <span className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8]">
                               {formatDate(res.end_date)}
                             </span>
+                            {res.date_heure_retour && <span className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8]">{new Date(res.date_heure_retour).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
                           </div>
                           <div className="flex items-center gap-3 mt-1.5">
                             <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full ${

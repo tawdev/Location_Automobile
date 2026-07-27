@@ -3,7 +3,7 @@
 import { useState, memo, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { AlertTriangle, X, CheckCircle, Loader2, Calendar, MapPin, Fuel, Gauge, Users } from "lucide-react";
+import { AlertTriangle, X, CheckCircle, Loader2, Calendar, MapPin, Fuel, Gauge, Users, Clock } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate } from "@/lib/dateUtils";
 
@@ -93,6 +93,8 @@ interface Reservation {
   total_price: number;
   pickup_date: string;
   dropoff_date: string;
+  date_heure_depart?: string | null;
+  date_heure_retour?: string | null;
   pickup_location?: string;
   dropoff_location?: string;
   vehicle?: {
@@ -359,6 +361,11 @@ export function DetailDialog({
                 <p className="text-base font-bold text-[#395886] dark:text-[#D5DEEF]">
                   {formatDateStr(res.pickup_date)}
                 </p>
+                {res.date_heure_depart && (
+                  <p className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8] mt-0.5 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> {new Date(res.date_heure_depart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                )}
                 {res.pickup_location && (
                   <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1 flex items-center gap-1">
                     <MapPin className="w-3 h-3" /> {res.pickup_location}
@@ -379,6 +386,11 @@ export function DetailDialog({
                 <p className="text-base font-bold text-[#395886] dark:text-[#D5DEEF]">
                   {formatDateStr(res.dropoff_date)}
                 </p>
+                {res.date_heure_retour && (
+                  <p className="text-xs font-bold text-[#638ECB] dark:text-[#94A3B8] mt-0.5 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> {new Date(res.date_heure_retour).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                )}
                 {res.dropoff_location && (
                   <p className="text-xs font-semibold text-[#638ECB] dark:text-[#94A3B8] mt-1 flex items-center gap-1">
                     <MapPin className="w-3 h-3" /> {res.dropoff_location}
