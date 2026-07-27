@@ -26,6 +26,8 @@ interface Reservation {
   total_price: number;
   pickup_date: string;
   dropoff_date: string;
+  date_heure_depart?: string | null;
+  date_heure_retour?: string | null;
   pickup_location?: string;
   dropoff_location?: string;
   vehicle?: {
@@ -50,6 +52,8 @@ interface RawItem {
   pickup_date?: string;
   end_date?: string;
   dropoff_date?: string;
+  date_heure_depart?: string | null;
+  date_heure_retour?: string | null;
   vehicle?: {
     id: number;
     marque?: string;
@@ -320,8 +324,10 @@ const ReservationCard = memo(function ReservationCard({
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886] dark:text-[#D5DEEF]">
                 <Calendar className="w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8]" />
                 <span>{formatDateStr(res.pickup_date)}</span>
+                {res.date_heure_depart && <span className="text-[#638ECB] dark:text-[#94A3B8]">{new Date(res.date_heure_depart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
                 <ArrowRight className="w-3 h-3 text-[#638ECB]/40 dark:text-[#94A3B8]/40" />
                 <span>{formatDateStr(res.dropoff_date)}</span>
+                {res.date_heure_retour && <span className="text-[#638ECB] dark:text-[#94A3B8]">{new Date(res.date_heure_retour).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
               </div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#395886] dark:text-[#D5DEEF]">
                 <DollarSign className="w-3.5 h-3.5 text-[#638ECB] dark:text-[#94A3B8]" />
@@ -529,6 +535,8 @@ export default function BookingHistoryPage() {
         total_price: item.TotalPrice ?? item.total_price ?? 0,
         pickup_date: item.start_date ?? item.pickup_date ?? "",
         dropoff_date: item.end_date ?? item.dropoff_date ?? "",
+        date_heure_depart: item.date_heure_depart ?? null,
+        date_heure_retour: item.date_heure_retour ?? null,
         pickup_location: t("reservations.agency_pickup"),
         dropoff_location: t("reservations.agency_return"),
         vehicle: item.vehicle ? {
