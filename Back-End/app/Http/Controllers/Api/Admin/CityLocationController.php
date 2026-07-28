@@ -26,10 +26,12 @@ class CityLocationController extends Controller
     {
         $validated = $request->validate([
             'city_id' => 'required|exists:cities,id',
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'type' => 'required|in:airport,citycenter',
             'price' => 'nullable|numeric|min:0',
         ]);
+
+        $validated['name'] = $validated['name'] ?? '';
 
         $location = CityLocation::create($validated);
 
@@ -51,10 +53,12 @@ class CityLocationController extends Controller
     public function update(Request $request, CityLocation $cityLocation)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'type' => 'required|in:airport,citycenter',
             'price' => 'nullable|numeric|min:0',
         ]);
+
+        $validated['name'] = $validated['name'] ?? '';
 
         $cityLocation->update($validated);
 

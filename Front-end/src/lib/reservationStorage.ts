@@ -34,8 +34,6 @@ export type SavedReservation = {
   sdNumeroPermi: string;
   sdDateDelivrance: string;
   sdDateExpiration: string;
-  cautionMontant: string;
-  cautionMode: string;
   protectionLevel: "basic" | "gold" | "platinum";
   savedAt: string;
 };
