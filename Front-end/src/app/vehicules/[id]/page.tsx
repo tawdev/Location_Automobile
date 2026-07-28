@@ -444,6 +444,7 @@ export default function VehicleDetailPage() {
                         <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
                           <Calendar
                             mode="single"
+                            defaultMonth={reserveStartDate}
                             selected={reserveEndDate}
                             onSelect={(d: Date | undefined) => { if (d) { setReserveEndDate(d); setOpenDatePopover(null); } }}
                             disabled={[

@@ -527,6 +527,7 @@ export default function VehiculesPage() {
               <Calendar
                 size="lg"
                 mode="single"
+                defaultMonth={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined}
                 selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined}
                 onSelect={(d: Date | undefined) => {
                   if (d) {
