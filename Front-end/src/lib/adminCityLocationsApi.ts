@@ -22,20 +22,20 @@ export async function getAdminCityLocations(cityId?: number): Promise<CityLocati
   return Array.isArray(res.data) ? res.data : [];
 }
 
-export async function createAdminCityLocation(cityId: number, name: string, type: "airport" | "citycenter", price?: number | null): Promise<CityLocation> {
+export async function createAdminCityLocation(cityId: number, name: string | null, type: "airport" | "citycenter", price?: number | null): Promise<CityLocation> {
   const res = await apiRequest<CityLocationResponse>({
     method: "POST",
     path: "/admin/city-locations",
-    body: { city_id: cityId, name, type, price },
+    body: { city_id: cityId, name: name ?? '', type, price },
   });
   return res.data;
 }
 
-export async function updateAdminCityLocation(id: number, name: string, type: "airport" | "citycenter", price?: number | null): Promise<CityLocation> {
+export async function updateAdminCityLocation(id: number, name: string | null, type: "airport" | "citycenter", price?: number | null): Promise<CityLocation> {
   const res = await apiRequest<CityLocationResponse>({
     method: "PUT",
     path: `/admin/city-locations/${id}`,
-    body: { name, type, price },
+    body: { name: name ?? '', type, price },
   });
   return res.data;
 }

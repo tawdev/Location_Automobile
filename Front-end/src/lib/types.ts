@@ -165,8 +165,6 @@ export type Reservation = {
   return_city_id?: number | null;
   date_heure_depart?: string | null;
   date_heure_retour?: string | null;
-  caution_montant?: number | null;
-  caution_mode?: string | null;
   depart_location_type?: string | null;
   return_location_type?: string | null;
   return_location_name?: string | null;

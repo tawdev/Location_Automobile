@@ -50,7 +50,6 @@ type Step =
   | "protection"
   | "clientInfo"
   | "secondDriverInfo"
-  | "caution"
   | "reserving"
   | "reservationError"
   | "done";
@@ -285,18 +284,12 @@ export default function ReservationFlowModal({
   const [sdDateDelivrance, setSdDateDelivrance] = useState("");
   const [sdDateExpiration, setSdDateExpiration] = useState("");
 
-  // Caution
-  const [cautionMontant, setCautionMontant] = useState("");
-  const [cautionMode, setCautionMode] = useState("");
-
   // Protection level
   const [protectionLevel, setProtectionLevel] = useState<"basic" | "gold" | "platinum">("basic");
 
   // Validation errors (real-time)
   const [clientErrors, setClientErrors] = useState<FieldErrors>({});
   const [sdErrors, setSdErrors] = useState<FieldErrors>({});
-  const [cautionError, setCautionError] = useState("");
-  const [cautionModeError, setCautionModeError] = useState("");
   const [docErrors, setDocErrors] = useState<string[]>([]);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
@@ -331,8 +324,6 @@ export default function ReservationFlowModal({
       setSdNumeroPermi(saved.sdNumeroPermi || "");
       setSdDateDelivrance(toDateInputValue(saved.sdDateDelivrance || ""));
       setSdDateExpiration(toDateInputValue(saved.sdDateExpiration || ""));
-      setCautionMontant(saved.cautionMontant || "");
-      setCautionMode(saved.cautionMode || "");
       if (saved.protectionLevel) setProtectionLevel(saved.protectionLevel);
     } else {
       try {
@@ -367,7 +358,6 @@ export default function ReservationFlowModal({
       driver2Name,
       sdNom, sdDateNaissance, sdCin, sdAdresse,
       sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
-      cautionMontant, cautionMode,
       protectionLevel,
       departLocationType,      returnLocationType,
       returnLocationName,
@@ -387,7 +377,6 @@ export default function ReservationFlowModal({
     driver2Name,
     sdNom, sdDateNaissance, sdCin, sdAdresse,
     sdTelephone, sdNumeroPermi, sdDateDelivrance, sdDateExpiration,
-    cautionMontant, cautionMode,
     protectionLevel,
     departLocationType,
     returnLocationType,
@@ -806,7 +795,7 @@ export default function ReservationFlowModal({
       if (savedChoice === "two") {
         setStep("secondDriverInfo");
       } else {
-        setStep("caution");
+        handleProceedToReservation();
       }
     } else {
       setStep("clientInfo");
@@ -817,12 +806,12 @@ export default function ReservationFlowModal({
     if (savedChoice === "two") {
       setStep("secondDriverInfo");
     } else {
-      setStep("caution");
+      handleProceedToReservation();
     }
   }
 
   function handleSecondDriverNext() {
-    setStep("caution");
+    handleProceedToReservation();
   }
 
   function validateSecondDriver(): boolean {
@@ -895,14 +884,6 @@ export default function ReservationFlowModal({
         extra.driver2_date_delivrance = sdDateDelivrance;
         extra.driver2_date_expiration = sdDateExpiration;
       }
-    }
-
-    // Caution
-    if (cautionMontant.trim()) {
-      extra.caution_montant = parseFloat(cautionMontant);
-    }
-    if (cautionMode) {
-      extra.caution_mode = cautionMode;
     }
 
     const formData = new FormData();
@@ -1543,117 +1524,6 @@ export default function ReservationFlowModal({
               </motion.div>
             )}
 
-            {step === "caution" && (
-              <motion.div key="caution" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-4">
-                <div className="text-center">
-                  <Shield className="w-8 h-8 text-[#395886] mx-auto mb-2" />
-                  <p className="text-sm text-[#395886] font-semibold">Caution</p>
-                </div>
-                {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[12px] font-semibold text-red-700">{error}</div>}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-[#638ECB] uppercase tracking-wider">
-                    Montant de la caution (DH)<span className="text-rose-500 ml-0.5">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={cautionMontant}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      const sanitized = raw.replace(/\D/g, "");
-                      setCautionMontant(sanitized);
-                      setTouched((p) => ({ ...p, caution_montant: true }));
-                      if (!sanitized) {
-                        setCautionError("Le montant de la caution est requis");
-                      } else if (parseFloat(sanitized) <= 0) {
-                        setCautionError("Doit être un montant supérieur à 0");
-                      } else {
-                        setCautionError("");
-                      }
-                    }}
-                    className={`w-full rounded-lg border bg-white h-10 px-3 text-[13px] text-[#395886] focus:outline-none focus:ring-2 transition-all ${
-                      cautionError && (cautionMontant || touched["caution_montant"])
-                        ? "border-rose-300 focus:ring-rose-300/40"
-                        : "border-[#D5DEEF] focus:ring-[#638ECB]/40"
-                    }`}
-                    placeholder="Ex: 5000"
-                  />
-                  {cautionError && (cautionMontant || touched["caution_montant"]) && (
-                    <p className="text-[10px] font-semibold text-rose-500 mt-0.5">{cautionError}</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-[#638ECB] uppercase tracking-wider">
-                    Mode de garantie<span className="text-rose-500 ml-0.5">*</span>
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { value: "carte_bancaire", label: "Carte bancaire" },
-                      { value: "especes", label: "Espèces" },
-                      { value: "passport", label: "Passeport" },
-                      { value: "autre", label: "Autre" },
-                    ].map((mode) => (
-                      <button
-                        key={mode.value}
-                        type="button"
-                        onClick={() => {
-                          setCautionMode(mode.value);
-                          setCautionModeError("");
-                          setTouched((p) => ({ ...p, caution_mode: true }));
-                        }}
-                        className={`p-3 rounded-xl border-2 text-center transition-all text-[13px] font-bold ${
-                          cautionMode === mode.value
-                            ? "border-[#395886] bg-[#F0F3FA] text-[#395886]"
-                            : "border-[#D5DEEF] text-[#638ECB] hover:border-[#638ECB]"
-                        } ${cautionModeError && touched["caution_mode"] ? "border-rose-300" : ""}`}
-                      >
-                        {mode.label}
-                      </button>
-                    ))}
-                  </div>
-                  {cautionModeError && touched["caution_mode"] && (
-                    <p className="text-[10px] font-semibold text-rose-500 mt-0.5">{cautionModeError}</p>
-                  )}
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => {
-                      if (savedChoice === "two") {
-                        setStep("secondDriverInfo");
-                      } else if (existingClient) {
-                        setStep("protection");
-                      } else {
-                        setStep("clientInfo");
-                      }
-                    }}
-                    className="flex items-center gap-1 px-4 h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA] transition-all"
-                  >
-                    <ChevronLeft className="w-4 h-4" /> Retour
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Validate caution on submit click
-                      if (!cautionMontant) {
-                        setCautionError("Le montant de la caution est requis");
-                        setTouched((p) => ({ ...p, caution_montant: true }));
-                      }
-                      if (!cautionMode) {
-                        setCautionModeError("Veuillez sélectionner un mode de garantie");
-                        setTouched((p) => ({ ...p, caution_mode: true }));
-                      }
-                      if (cautionMontant && cautionMode && !cautionError) {
-                        handleProceedToReservation();
-                      }
-                    }}
-                    disabled={!!cautionError || !cautionMontant || !cautionMode}
-                    className="flex-1 h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Confirmer la réservation
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
             {step === "reserving" && (
               <motion.div key="reserving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4 py-8">
                 <div className="w-10 h-10 border-4 border-[#395886] border-t-transparent rounded-full animate-spin" />
@@ -1672,7 +1542,7 @@ export default function ReservationFlowModal({
                   <button onClick={() => onClose(savedChoice)} className="w-full h-12 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:opacity-95">
                     {t("reserve_modal.modify_dates")}
                   </button>
-                  <button onClick={() => { setError(null); setStep("caution"); }} className="w-full h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA]">
+                  <button onClick={() => { setError(null); setStep("protection"); }} className="w-full h-12 rounded-xl border border-[#D5DEEF] text-[#395886] font-bold text-sm hover:bg-[#F0F3FA]">
                     {t("reserve_modal.retry")}
                   </button>
                 </div>
