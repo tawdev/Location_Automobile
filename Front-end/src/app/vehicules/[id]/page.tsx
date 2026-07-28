@@ -10,7 +10,7 @@ import BackButton from "@/components/BackButton";
 import ReservationFlowModal from "@/components/ReservationFlowModal";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
-import TimePickerField from "@/components/TimePickerField";
+import ScrollTimePicker from "@/components/ScrollTimePicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { API_BASE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -424,7 +424,7 @@ export default function VehicleDetailPage() {
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <TimePickerField
+                    <ScrollTimePicker
                       value={reserveStartTime}
                       onChange={setReserveStartTime}
                     />
