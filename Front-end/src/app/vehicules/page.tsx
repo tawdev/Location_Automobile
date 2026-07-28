@@ -499,6 +499,7 @@ export default function VehiculesPage() {
               <Calendar
                 size="lg"
                 mode="single"
+                className="pickup-calendar"
                 selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined}
                 onSelect={(d: Date | undefined) => {
                   if (d) {
@@ -508,7 +509,7 @@ export default function VehiculesPage() {
                     setOpenDatePopover(null);
                   }
                 }}
-                fromDate={new Date()}
+                disabled={{ before: new Date() }}
               />
             </PopoverContent>
           </Popover>
