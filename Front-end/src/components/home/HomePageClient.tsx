@@ -547,7 +547,7 @@ function HeroSection({ vehicles: showcaseVehicles, marques: propMarques = [] }: 
                             </span>
                           </PopoverTrigger>
                           <PopoverContent align="start" className="w-auto p-0 bg-white dark:bg-[#1a1f2e] border border-gray-200 dark:border-gray-700 shadow-2xl">
-                            <Calendar size="lg" mode="single" selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { setReturnDate(toLocalDateString(d)); setOpenDropdownId(null); } }} disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined} />
+                            <Calendar size="lg" mode="single" defaultMonth={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined} selected={returnDate ? new Date(returnDate + "T00:00:00") : undefined} onSelect={(d: Date | undefined) => { if (d) { setReturnDate(toLocalDateString(d)); setOpenDropdownId(null); } }} disabled={pickupDate ? (() => { const d = new Date(pickupDate + "T00:00:00"); d.setDate(d.getDate() + 1); return { before: d }; })() : undefined} />
                           </PopoverContent>
                         </Popover>
                         <div className="w-px bg-white/10 self-stretch" />
