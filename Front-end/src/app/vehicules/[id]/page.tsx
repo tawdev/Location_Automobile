@@ -408,7 +408,9 @@ export default function VehicleDetailPage() {
                       <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
                         <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
                           <Calendar
+                            size="lg"
                             mode="single"
+                            className="pickup-calendar"
                             selected={reserveStartDate}
                             onSelect={(d: Date | undefined) => { if (d) { setReserveStartDate(d); setOpenDatePopover(null); } }}
                             disabled={[
@@ -443,6 +445,7 @@ export default function VehicleDetailPage() {
                       <PopoverContent className="w-[310px] p-0 overflow-hidden bg-white dark:bg-[#0f1729] z-[200]" align="start">
                         <div className="w-[310px] min-h-[350px] flex justify-center bg-white dark:bg-[#1e293b] rounded-md">
                           <Calendar
+                            size="lg"
                             mode="single"
                             defaultMonth={reserveStartDate}
                             selected={reserveEndDate}
