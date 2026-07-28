@@ -308,7 +308,7 @@ export default function AdminCountriesPage() {
 
   async function handleLocationSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!locationFormName.trim() || locationFormCityId === null) return;
+    if (locationFormCityId === null) return;
     setLocationSubmitting(true);
     setLocationFormError(null);
     try {
@@ -997,7 +997,6 @@ export default function AdminCountriesPage() {
                     value={locationFormName}
                     onChange={(e) => setLocationFormName(e.target.value)}
                     autoFocus
-                    required
                   />
                 </div>
 
@@ -1043,7 +1042,7 @@ export default function AdminCountriesPage() {
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     type="submit"
-                    disabled={locationSubmitting || !locationFormName.trim()}
+                    disabled={locationSubmitting}
                     className="flex-1 h-11 rounded-xl bg-[#395886] text-white font-extrabold text-sm hover:bg-[#2D4670] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {locationSubmitting
