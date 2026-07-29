@@ -19,9 +19,8 @@ export function getApiOrigin(): string {
 }
 
 export function vehicleImageUrl(path: string): string {
-  // Laravel serves it as: {APP_URL}/storage/{path}
   const cleanedPath = path.replace(/^\/+/, "");
-  return `${getApiOrigin()}/storage/${cleanedPath}`;
+  return `/api/storage/${cleanedPath}`;
 }
 
 export function profileImageUrl(filename: string): string {
