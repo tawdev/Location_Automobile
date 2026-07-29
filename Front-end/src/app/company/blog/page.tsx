@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -27,6 +28,7 @@ export default function BlogPage() {
   const { t, locale } = useI18n();
   const typedLocale = locale as "fr" | "en" | "ar";
   useClientMetadata({ title: PAGE_TITLES.blog[typedLocale] || PAGE_TITLES.blog.fr });
+  const router = useRouter();
   const isRtl = locale === "ar";
   const [search, setSearch] = useState("");
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -132,6 +134,7 @@ export default function BlogPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
+                onClick={() => router.push(`/company/blog/${featured.slug}`)}
                 className="relative bg-gradient-to-br from-[#395886]/5 to-[#2b4c7e]/5 dark:from-[#0f1729] dark:to-[#0f1729] rounded-3xl overflow-hidden border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 group cursor-pointer"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#F39C12]/5 to-transparent dark:from-[#F39C12]/10" />
@@ -193,6 +196,7 @@ export default function BlogPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   whileHover={{ y: -6, boxShadow: "0 24px 48px rgba(57,88,134,0.12)" }}
+                  onClick={() => router.push(`/company/blog/${post.slug}`)}
                   className="bg-white dark:bg-[#0f1729] rounded-2xl overflow-hidden border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col"
                 >
                   <div className="h-40 bg-gradient-to-br from-[#395886]/10 to-[#2b4c7e]/10 dark:from-[#1e293b] dark:to-[#0f1729] flex items-center justify-center relative overflow-hidden">
