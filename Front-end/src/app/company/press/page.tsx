@@ -15,11 +15,13 @@ import {
   BarChart3,
   Loader2,
 } from "lucide-react";
+import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate } from "@/lib/dateUtils";
 import { catKeys } from "@/lib/data/press";
 import { getPress } from "@/lib/pressApi";
+import { vehicleImageUrl } from "@/lib/media";
 import type { PressRelease } from "@/lib/types";
 
 function downloadFile(filename: string, content: string) {
@@ -228,10 +230,20 @@ export default function PressPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white dark:bg-[#0f1729] rounded-3xl p-6 md:p-8 shadow-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 relative overflow-hidden group"
+            className="bg-white dark:bg-[#0f1729] rounded-3xl shadow-xl border border-[#D5DEEF]/40 dark:border-[#1e293b]/60 relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#F39C12]/5 to-transparent dark:from-[#F39C12]/10" />
-            <div className="relative flex flex-col md:flex-row md:items-center gap-6">
+            {featured.featured_image && (
+              <div className="relative h-48 md:h-56 w-full overflow-hidden">
+                <NextImage
+                  src={vehicleImageUrl(featured.featured_image)}
+                  alt={featured.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div className="relative flex flex-col md:flex-row md:items-center gap-6 p-6 md:p-8">
               <div className="w-16 h-16 rounded-2xl bg-[#F39C12]/10 dark:bg-[#F39C12]/20 flex items-center justify-center shrink-0">
                 <Award className="w-8 h-8 text-[#F39C12]" />
               </div>
@@ -315,6 +327,17 @@ export default function PressPage() {
                       {year}
                     </span>
                   </div>
+
+                  {item.featured_image && (
+                    <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden shrink-0">
+                      <NextImage
+                        src={vehicleImageUrl(item.featured_image)}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 md:hidden">

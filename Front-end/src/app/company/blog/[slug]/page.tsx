@@ -4,35 +4,43 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import {
-  Newspaper,
+  BookOpen,
   Calendar,
   ArrowLeft,
   Clock,
   Share2,
-  Building2,
+  User,
   Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { formatDate } from "@/lib/dateUtils";
-import { catKeys } from "@/lib/data/press";
-import { getPressBySlug } from "@/lib/pressApi";
+import { getPublishedBlog } from "@/lib/blogApi";
 import { vehicleImageUrl } from "@/lib/media";
-import type { PressRelease } from "@/lib/types";
+import { useClientMetadata } from "@/hooks/useClientMetadata";
+import { PAGE_TITLES } from "@/lib/seo";
+import type { Blog } from "@/lib/types";
 
-export default function PressDetailPage() {
+export default function BlogDetailPage() {
   const { t, locale } = useI18n();
   const router = useRouter();
   const params = useParams();
   const isRtl = locale === "ar";
-  const [release, setRelease] = useState<PressRelease | null>(null);
+  const typedLocale = locale as "fr" | "en" | "ar";
+  const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useClientMetadata({
+    title: blog
+      ? `${blog.title} | ${PAGE_TITLES.blog[typedLocale] || PAGE_TITLES.blog.fr}`
+      : PAGE_TITLES.blog[typedLocale] || PAGE_TITLES.blog.fr,
+  });
 
   useEffect(() => {
     if (!params.slug) return;
-    getPressBySlug(params.slug as string)
-      .then(setRelease)
-      .catch(() => setRelease(null))
+    getPublishedBlog(params.slug as string)
+      .then(setBlog)
+      .catch(() => setBlog(null))
       .finally(() => setLoading(false));
   }, [params.slug]);
 
@@ -44,26 +52,26 @@ export default function PressDetailPage() {
     );
   }
 
-  if (!release) {
+  if (!blog) {
     return (
       <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] flex items-center justify-center">
         <div className="text-center">
-          <Newspaper className="w-16 h-16 mx-auto text-[#638ECB]/40 mb-4" />
-          <h1 className="text-2xl font-bold text-[#395886] dark:text-[#D5DEEF]">Press release not found</h1>
+          <BookOpen className="w-16 h-16 mx-auto text-[#638ECB]/40 mb-4" />
+          <h1 className="text-2xl font-bold text-[#395886] dark:text-[#D5DEEF]">Blog post not found</h1>
           <motion.button
             whileHover={{ scale: 1.03 }}
-            onClick={() => router.push("/company/press")}
+            onClick={() => router.push("/company/blog")}
             className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#395886] text-white text-sm font-bold"
           >
             <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
-            <span>Back to Press Room</span>
+            <span>{t("blog.read_article")}</span>
           </motion.button>
         </div>
       </div>
     );
   }
 
-  const formattedDate = formatDate(release.published_at);
+  const formattedDate = formatDate(blog.published_at);
 
   return (
     <div className="min-h-screen bg-[#F0F3FA] dark:bg-[#070b14] transition-colors duration-500">
@@ -78,11 +86,11 @@ export default function PressDetailPage() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             whileHover={{ x: -4 }}
-            onClick={() => router.push("/company/press")}
+            onClick={() => router.push("/company/blog")}
             className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm font-semibold mb-8 transition-all"
           >
             <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
-            <span>{t("press.latest_title")}</span>
+            <span>{t("blog.hero_title")}</span>
           </motion.button>
 
           <motion.div
@@ -90,11 +98,11 @@ export default function PressDetailPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {release.featured_image && (
+            {blog.featured_image && (
               <div className="relative h-48 md:h-64 w-full rounded-2xl overflow-hidden mb-8">
                 <Image
-                  src={vehicleImageUrl(release.featured_image)}
-                  alt={release.title}
+                  src={vehicleImageUrl(blog.featured_image)}
+                  alt={blog.title}
                   fill
                   className="object-cover"
                 />
@@ -102,25 +110,30 @@ export default function PressDetailPage() {
             )}
 
             <div className="flex items-center flex-wrap gap-3 mb-4">
-              <span className="px-3 py-1 rounded-full bg-white/10 text-white/90 text-[10px] font-bold uppercase tracking-wider">
-                {release.category && catKeys[release.category] ? t(catKeys[release.category]) : release.category}
-              </span>
+              {blog.author && (
+                <span className="flex items-center gap-1.5 text-white/60 text-xs">
+                  <User className="w-3.5 h-3.5" />
+                  {blog.author}
+                </span>
+              )}
               <span className="flex items-center gap-1.5 text-white/50 text-xs">
                 <Calendar className="w-3.5 h-3.5" />
                 {formattedDate}
               </span>
               <span className="flex items-center gap-1.5 text-white/50 text-xs">
                 <Clock className="w-3.5 h-3.5" />
-                {release.content ? Math.ceil(release.content.split(" ").length / 200) : 0} min read
+                {blog.content ? Math.ceil(blog.content.split(" ").length / 200) : 0} min read
               </span>
             </div>
 
             <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight">
-              {release.title}
+              {blog.title}
             </h1>
-            <p className="text-white/60 text-lg mt-4 max-w-2xl leading-relaxed">
-              {release.excerpt}
-            </p>
+            {blog.excerpt && (
+              <p className="text-white/60 text-lg mt-4 max-w-2xl leading-relaxed">
+                {blog.excerpt}
+              </p>
+            )}
           </motion.div>
         </div>
       </div>
@@ -136,10 +149,10 @@ export default function PressDetailPage() {
           <div className="prose prose-lg max-w-none dark:prose-invert">
             <div className="flex items-center gap-3 pb-6 mb-8 border-b border-[#D5DEEF]/30 dark:border-[#1e293b]/60">
               <div className="w-12 h-12 rounded-full bg-[#F0F3FA] dark:bg-[#1e293b] flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-[#395886] dark:text-[#D5DEEF]" />
+                <BookOpen className="w-5 h-5 text-[#395886] dark:text-[#D5DEEF]" />
               </div>
               <div>
-                <p className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF]">CarForFar Press</p>
+                <p className="text-sm font-bold text-[#395886] dark:text-[#D5DEEF]">CarForFar Blog</p>
                 <p className="text-xs text-[#638ECB] dark:text-[#94A3B8]">{formattedDate}</p>
               </div>
               <motion.button
@@ -151,7 +164,7 @@ export default function PressDetailPage() {
               </motion.button>
             </div>
 
-            {(release.content ?? "").split("\n\n").map((paragraph, i) => (
+            {(blog.content ?? "").split("\n\n").map((paragraph, i) => (
               <motion.p
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
@@ -174,11 +187,11 @@ export default function PressDetailPage() {
         >
           <motion.button
             whileHover={{ scale: 1.03 }}
-            onClick={() => router.push("/company/press")}
+            onClick={() => router.push("/company/blog")}
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#395886] hover:bg-[#2b4c7e] text-white text-sm font-bold shadow-lg shadow-[#395886]/20 transition-all"
           >
             <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
-            <span>{t("press.latest_title")}</span>
+            <span>{t("blog.hero_title")}</span>
           </motion.button>
         </motion.div>
       </div>
