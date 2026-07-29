@@ -240,6 +240,7 @@ export default function PressPage() {
                   alt={featured.title}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               </div>
             )}
@@ -335,6 +336,7 @@ export default function PressPage() {
                         alt={item.title}
                         fill
                         className="object-cover"
+                        unoptimized
                       />
                     </div>
                   )}

@@ -97,6 +97,7 @@ export default function PressDetailPage() {
                   alt={release.title}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               </div>
             )}
