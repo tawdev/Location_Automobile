@@ -105,6 +105,7 @@ export default function BlogDetailPage() {
                   alt={blog.title}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               </div>
             )}

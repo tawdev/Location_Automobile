@@ -20,7 +20,7 @@ export function getApiOrigin(): string {
 
 export function vehicleImageUrl(path: string): string {
   const cleanedPath = path.replace(/^\/+/, "");
-  return `/api/storage/${cleanedPath}`;
+  return `${getApiOrigin()}/storage/${cleanedPath}`;
 }
 
 export function profileImageUrl(filename: string): string {

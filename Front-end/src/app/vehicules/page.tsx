@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 import { listVehicles, fetchCategories, filterVehicles } from "@/lib/vehiclesApi";
 import type { Vehicle, Category, Marque, Country, City } from "@/lib/types";
-import { vehicleImageUrl } from "@/lib/media";
+import { vehicleImageUrl, getApiOrigin } from "@/lib/media";
 import { Search, SlidersHorizontal, X, CalendarDays } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import { getBrandLogo } from "@/lib/brandLogos";
@@ -91,7 +91,7 @@ export default function VehiculesPage() {
     for (const m of marques) {
       const key = m.name.toLowerCase().trim();
       if (m.logo) {
-        map.set(key, `/api/storage/${m.logo.replace(/^\/+/, "")}`);
+        map.set(key, `${getApiOrigin()}/storage/${m.logo.replace(/^\/+/, "")}`);
       }
     }
     return map;
