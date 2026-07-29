@@ -145,6 +145,7 @@ export default function BlogPage() {
                       alt={featured.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   </div>
@@ -206,6 +207,7 @@ export default function BlogPage() {
                         alt={post.title}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        unoptimized
                       />
                     ) : (
                       <>
