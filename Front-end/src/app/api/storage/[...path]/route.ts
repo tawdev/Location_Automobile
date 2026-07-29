@@ -8,7 +8,8 @@ export async function GET(
   const backendOrigin =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/api\/?$/, "") ??
     "http://localhost:8000";
-  const backendUrl = `${backendOrigin}/storage/${path.join("/")}`;
+  const storagePath = path.join("/").replace(/\\/g, "/");
+  const backendUrl = `${backendOrigin}/storage/${storagePath}`;
   try {
     const res = await fetch(backendUrl);
     if (!res.ok) {
