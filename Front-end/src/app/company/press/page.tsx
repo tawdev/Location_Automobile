@@ -24,146 +24,25 @@ import { getPress } from "@/lib/pressApi";
 import { vehicleImageUrl } from "@/lib/media";
 import type { PressRelease } from "@/lib/types";
 
-function downloadFile(filename: string, content: string) {
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
+function downloadFile(filename: string, url: string) {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
 
 function downloadBrandAssets() {
-  const content = `CarForFar — Brand Assets
-===========================
-Generated: ${new Date().toISOString().split("T")[0]}
-
-── LOGO ──
-Primary Logo: CarForFar logotype in #395886 (dark blue) on white background
-Secondary Logo: White logotype on #395886 background
-Icon: Stylized "C" with steering wheel motif
-
-── COLOR PALETTE ──
-Primary Dark Blue: #395886
-Primary Mid Blue:  #2b4c7e
-Primary Deep Blue: #1d3560
-Accent Orange:     #F39C12
-Accent Dark:       #e67e22
-Light Blue:        #638ECB
-Light Gray:        #D5DEEF
-Background:        #F0F3FA
-Dark Background:   #070b14
-Dark Surface:      #0f1729
-Dark Border:       #1e293b
-Text Muted:        #94A3B8
-
-── TYPOGRAPHY ──
-Headings: Inter, sans-serif (font-weight: 700, 800, 900)
-Body:     Inter, sans-serif (font-weight: 400, 500, 600)
-Buttons:  Inter, sans-serif (font-weight: 700)
-Monospace: JetBrains Mono, monospace
-
-── LOGO USAGE ──
-Minimum clear space: 1× the height of the "C" on all sides
-Minimum size: 32px wide (digital), 0.5in (print)
-Do not stretch, rotate, or apply effects to the logo
-Use primary logo on light backgrounds, reversed logo on dark backgrounds
-
-── CONTACT ──
-Press Inquiries: press@carforfar.ma`;
-  downloadFile("CarForFar_Brand_Assets.txt", content);
+  downloadFile("CarForFar_Brand_Guidelines.pdf", "/downloads/CarForFar_Brand_Guidelines.pdf");
 }
 
 function downloadPressKit() {
-  const content = `CarForFar — Press Kit
-========================
-Generated: ${new Date().toISOString().split("T")[0]}
-
-── COMPANY OVERVIEW ──
-Company Name: CarForFar
-Headquarters: Casablanca, Morocco
-Founded: 2022
-Website: carforfar.ma
-Industry: Mobility / Car Rental
-Funding: $16M total ($4M Seed + $12M Series A)
-
-CarForFar is Morocco's leading digital car rental marketplace,
-connecting travelers with a curated fleet of vehicles across
-all major Moroccan cities. The platform offers transparent pricing,
-contactless check-in, and 24/7 customer support.
-
-── LEADERSHIP ──
-CEO & Co-Founder: [Name]
-CTO & Co-Founder: [Name]
-Chief Product Officer: [Name]
-VP of Partnerships: [Name]
-Head of Marketing: [Name]
-
-── MILESTONES ──
-2022: Company founded, seed funding raised
-2023: Launch in Casablanca and Marrakech
-2024: Expansion to 8 cities, 50,000 customers
-2025: 100,000 customers, Series A funding
-2026: Tripling fleet, expanding to Tunisia & Algeria
-
-── KEY METRICS ──
-Customers Served: 100,000+
-Fleet Size: 1,000+ vehicles
-Cities Covered: 10+
-NPS Score: 72
-Average Rating: 4.8 / 5.0
-Year-over-Year Growth: 300%
-Employees: 200+
-
-── CONTACT ──
-Press Inquiries: press@carforfar.ma`;
-  downloadFile("CarForFar_Press_Kit.txt", content);
+  downloadFile("CarForFar_Press_Kit.pdf", "/downloads/CarForFar_Press_Kit.pdf");
 }
 
 function downloadFactSheet() {
-  const content = `CarForFar — Fact Sheet
-=========================
-Generated: ${new Date().toISOString().split("T")[0]}
-
-── KEY METRICS ──
-Total Customers:      100,000+
-Active Fleet:         1,000+ vehicles
-Cities Served:        10+ across Morocco
-Markets (2027):       Morocco, Tunisia, Algeria
-Employees:            200+
-Avg. Customer Rating: 4.8 / 5.0
-NPS Score:            72
-YoY Growth:           300%
-Avg. Bookings/Year:   2.3 per customer
-
-── FINANCIALS ──
-Total Funding:        $16M
-Seed Round:           $4M (2023)
-Series A:             $12M (2026)
-Lead Investor:        North Africa Ventures
-
-── FLEET COMPOSITION ──
-Economy Cars:         35%
-SUVs:                 25%
-Luxury Vehicles:      20%
-Electric Vehicles:    10%
-Vans & Minibuses:     10%
-
-── MARKET PRESENCE ──
-Casablanca, Marrakech, Rabat, Fès, Tangier,
-Agadir, Essaouira, Ouarzazate, Saïdia, Dakhla
-
-── AWARDS ──
-Morocco's Most Innovative Startup (2025)
-Best Digital Experience — Africa Mobility Awards
-Top 10 Moroccan Startups to Watch — Forbes Middle East
-
-── CONTACT ──
-Press Inquiries: press@carforfar.ma`;
-  downloadFile("CarForFar_Fact_Sheet.txt", content);
+  downloadFile("CarForFar_Fact_Sheet.pdf", "/downloads/CarForFar_Fact_Sheet.pdf");
 }
 
 const mediaKit = [
